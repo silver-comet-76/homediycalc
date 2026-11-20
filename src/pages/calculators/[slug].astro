@@ -1,0 +1,62 @@
+---
+/**
+ * Registry-driven calculator pages (one dynamic route, per
+ * ARCHITECTURE.md §13 — not 25 static files). getStaticPaths emits
+ * every slug with a config — all 25 calculators from Phase 4.
+ */
+import CalculatorShell from "../../components/CalculatorShell.astro";
+import MeasurementDiagram from "../../components/MeasurementDiagram.astro";
+import { GenericCalculator } from "../../components/react/GenericCalculator";
+import { getCalculator } from "../../lib/registry";
+import { CALCULATOR_CONFIGS } from "../../calculators/index";
+
+export function getStaticPaths() {
+  return Object.keys(CALCULATOR_CONFIGS).map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const calculator = getCalculator(slug ?? "");
+const config = slug ? CALCULATOR_CONFIGS[slug] : undefined;
+if (!calculator || !config) {
+  throw new Error(`Unknown calculator slug: ${slug}`);
+}
+---
+
+<CalculatorShell calculator={calculator} formula={config.formula} faqs={config.faqs}>
+  <GenericCalculator
+    slot="calculator"
+    slug={slug}
+    calculatorName={calculator.name}
+    client:load
+  />
+
+  <section slot="content" aria-labelledby="how-to-measure" class="mt-10">
+    {
+      config.diagram && (
+        <MeasurementDiagram kind={config.diagram} />
+      )
+    }
+    <h2 id="how-to-measure" class="text-2xl font-bold text-slate-900">
+      How to measure
+    </h2>
+    <ol class="mt-3 max-w-3xl list-decimal space-y-2 pl-6 text-slate-700">
+      {config.howTo.map((step) => <li>{step}</li>)}
+    </ol>
+  </section>
+
+  <section slot="content" aria-labelledby="worked-example" class="mt-10">
+    <h2 id="worked-example" class="text-2xl font-bold text-slate-900">
+      Worked example
+    </h2>
+    <p class="mt-3 max-w-3xl text-slate-700">{config.workedExample}</p>
+  </section>
+
+  <section slot="content" aria-labelledby="limitations" class="mt-10">
+    <h2 id="limitations" class="text-2xl font-bold text-slate-900">
+      Limitations
+    </h2>
+    <ul class="mt-3 max-w-3xl list-disc space-y-2 pl-6 text-slate-700">
+      {config.limitations.map((item) => <li>{item}</li>)}
+    </ul>
+  </section>
+</CalculatorShell>

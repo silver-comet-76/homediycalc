@@ -1,0 +1,81 @@
+---
+import Layout from "./Layout.astro";
+import Breadcrumbs from "./Breadcrumbs.astro";
+import Faq from "./Faq.astro";
+import { getCategory, getRelatedCalculators, type CalculatorMeta } from "../lib/registry";
+
+export interface Props {
+  calculator: CalculatorMeta;
+  /** Formula explanation in plain language, shown under "How this is calculated". */
+  formula?: string;
+  faqs?: { question: string; answer: string }[];
+}
+
+const { calculator, formula, faqs = [] } = Astro.props;
+const category = getCategory(calculator.category);
+const related = getRelatedCalculators(calculator);
+const crumbs = [
+  { name: "Home", path: "/" },
+  ...(category ? [{ name: category.name, path: category.url }] : []),
+  { name: calculator.name },
+];
+---
+
+<Layout
+  title={calculator.seoTitle.replace(" | HomeDIYCalc", "")}
+  description={calculator.seoDescription}
+  canonical={calculator.url}
+  breadcrumbs={crumbs}
+  faqs={faqs}
+>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+    {calculator.name}
+  </h1>
+  <p class="mt-3 max-w-3xl text-lg text-slate-600">{calculator.summary}</p>
+
+  <section aria-label="Calculator" class="mt-8">
+    <slot name="calculator" />
+  </section>
+
+  {
+    formula && (
+      <section aria-labelledby="how-calculated" class="mt-10">
+        <h2 id="how-calculated" class="text-2xl font-bold text-slate-900">
+          How this is calculated
+        </h2>
+        <p class="mt-3 max-w-3xl text-slate-700">{formula}</p>
+      </section>
+    )
+  }
+
+  <slot name="content" />
+
+  {
+    faqs.length > 0 && (
+      <section aria-labelledby="faq-heading" class="mt-10">
+        <Faq faqs={faqs} />
+      </section>
+    )
+  }
+
+  {
+    related.length > 0 && (
+      <section aria-labelledby="related-heading" class="mt-10">
+        <h2 id="related-heading" class="text-2xl font-bold text-slate-900">
+          Related calculators
+        </h2>
+        <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {related.map((rel) => (
+            <li class="card">
+              <a href={rel.url} class="font-semibold text-slate-900">
+                {rel.name}
+              </a>
+              <p class="mt-1 text-sm text-slate-600">{rel.summary}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Layout>

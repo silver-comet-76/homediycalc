@@ -1,0 +1,35 @@
+---
+import Layout from "../components/Layout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+
+const crumbs = [{ name: "Home", path: "/" }, { name: "Contact" }];
+---
+
+<Layout
+  title="Contact"
+  description="Contact HomeDIYCalc. There is no contact form yet — the site has no backend — so this page explains the current contact route honestly."
+  canonical="/contact/"
+  breadcrumbs={crumbs}
+>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Contact</h1>
+  <div class="mt-6 max-w-3xl space-y-4 text-slate-700">
+    <p>
+      There is currently <strong class="text-slate-900">no contact form and no published
+      contact email address</strong> for HomeDIYCalc.
+    </p>
+    <p>
+      That is deliberate, not an oversight. The site has no backend by design — no server,
+      no database, no form endpoint — so a form that appeared to submit a message would be
+      fake. A contact route will be set up before launch, and this page will be updated
+      with it at that time. Until then, this page says so plainly rather than pretending
+      a message can be sent.
+    </p>
+    <p>
+      In the meantime, the calculators themselves are the product: everything on the site
+      is free, runs in your browser, and needs no account. If a calculator result looks
+      wrong, check the formula shown on its page — every formula is published so the math
+      can be verified.
+    </p>
+  </div>
+</Layout>

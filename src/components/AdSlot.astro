@@ -1,0 +1,36 @@
+---
+/**
+ * Ad slot — DISABLED by default (ADR-8).
+ *
+ * While `ADS_ENABLED` (src/lib/ads.ts) is false this component renders
+ * nothing: no ad markup, no ad script. The enabled branch below is
+ * scaffolding for a future owner-approved AdSense launch only — it cannot
+ * run today, and the IDs it would use are placeholders made of X
+ * characters (see src/lib/ads.ts). Enabling ads requires an owner decision
+ * recorded in docs/DECISIONS.md, plus ads.txt, a privacy policy update,
+ * consent management, and a CSP change at the same time
+ * (docs/DEPLOYMENT.md §12).
+ */
+import { ADS_ENABLED, ADSENSE_PUBLISHER_ID, AD_SLOTS } from "../lib/ads";
+
+export interface Props {
+  /** Which configured slot this placement uses. Defaults to the in-content slot. */
+  slotId?: keyof typeof AD_SLOTS;
+}
+
+const { slotId = "inContent" } = Astro.props;
+---
+
+{
+  ADS_ENABLED && (
+    <ins
+      class="adsbygoogle"
+      style="display:block"
+      data-ad-client={ADSENSE_PUBLISHER_ID}
+      data-ad-slot={AD_SLOTS[slotId]}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    />
+  )
+}
+{/* Ads are disabled (ADR-8). This component intentionally renders nothing while ADS_ENABLED is false. */}

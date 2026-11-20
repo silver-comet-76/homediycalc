@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+
+# Test artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+
+# OS / editor
+.DS_Store

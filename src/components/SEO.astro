@@ -1,0 +1,74 @@
+---
+import { SITE_DESCRIPTION, SITE_NAME } from "../lib/site";
+
+export interface Props {
+  title: string;
+  description?: string;
+  /** Self-referential canonical path, e.g. "/calculators/". No domain exists yet (Phase 6). */
+  canonical?: string;
+  /** Open Graph type: "website" (default) or "article". */
+  ogType?: "website" | "article";
+  /** BreadcrumbList structured data, when the page has breadcrumbs. */
+  breadcrumbs?: { name: string; path?: string }[];
+  /** FAQPage structured data, when the page shows an FAQ section. */
+  faqs?: { question: string; answer: string }[];
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  canonical,
+  ogType = "website",
+  breadcrumbs,
+  faqs,
+} = Astro.props;
+
+const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
+const breadcrumbJsonLd =
+  breadcrumbs && breadcrumbs.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbs.map((crumb, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: crumb.name,
+          // The current page has no path in the visible trail; fall back to
+          // the page's own canonical so the structured data stays complete.
+          item: crumb.path ?? canonical ?? "/",
+        })),
+      }
+    : undefined;
+const faqJsonLd =
+  faqs && faqs.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: { "@type": "Answer", text: faq.answer },
+        })),
+      }
+    : undefined;
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+{canonical && <link rel="canonical" href={canonical} />}
+<meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={ogType} />
+{canonical && <meta property="og:url" content={canonical} />}
+<meta property="og:image" content="/og-image.svg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content="/og-image.svg" />
+{breadcrumbJsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+)}
+{faqJsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+)}

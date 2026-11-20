@@ -1,0 +1,56 @@
+---
+import Layout from "../components/Layout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+
+const crumbs = [{ name: "Home", path: "/" }, { name: "Disclaimer" }];
+---
+
+<Layout
+  title="Disclaimer"
+  description="HomeDIYCalc disclaimer: calculator results are estimates only. Confirm quantities with your supplier and a qualified professional for structural work."
+  canonical="/disclaimer/"
+  breadcrumbs={crumbs}
+>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Disclaimer</h1>
+  <p class="mt-2 text-sm text-slate-500">Last updated: November 20, 2026.</p>
+  <div class="mt-6 max-w-3xl space-y-4 text-slate-700">
+    <p>
+      The calculators on HomeDIYCalc produce <strong class="text-slate-900">estimates</strong>,
+      not guarantees. Please read this disclaimer before relying on any result.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">Results depend on your inputs</h2>
+    <p>
+      A calculator can only be as accurate as the measurements and values you enter. A
+      mismeasured wall, an incorrect depth, or a coverage rate that does not match the
+      product you actually buy will change the result. Measure carefully and double-check
+      your numbers.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">What calculators cannot account for</h2>
+    <p>
+      Calculators do not account for site conditions such as slope, uneven ground,
+      compaction, spillage, damaged or defective material, cutting waste beyond the
+      allowance you set, or local building codes and permit requirements. Waste allowances
+      and coverage rates are adjustable for exactly this reason — set them to match your
+      job and your products.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">Costs are your prices, not ours</h2>
+    <p>
+      Cost estimates appear only when you enter prices, and they use the prices you
+      entered. The site supplies no prices of its own. Actual prices vary by supplier,
+      location, and time — confirm them before ordering.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">Not professional advice</h2>
+    <p>
+      Nothing on this site is engineering, architectural, or construction advice. For
+      structural work, load-bearing changes, electrical or plumbing work, or anything
+      governed by a building code, consult a qualified professional.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">Your responsibility</h2>
+    <p>
+      Always confirm final quantities with your supplier before ordering, and allow extra
+      material for your specific conditions. HomeDIYCalc is not responsible for
+      over-ordering, under-ordering, or any cost or delay that results from using an estimate.
+    </p>
+  </div>
+</Layout>

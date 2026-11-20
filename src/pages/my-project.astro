@@ -1,0 +1,326 @@
+---
+import Layout from "../components/Layout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+
+const crumbs = [{ name: "Home", path: "/" }, { name: "My Project" }];
+---
+
+<Layout
+  title="My Project"
+  description="My Project is the HomeDIYCalc shopping list planner. Saved items live only in your own browser — nothing is sent to a server."
+  canonical="/my-project/"
+  breadcrumbs={crumbs}
+>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+    My Project
+  </h1>
+
+  <style>
+    @media print {
+      header,
+      footer,
+      .no-print {
+        display: none !important;
+      }
+      .card {
+        break-inside: avoid;
+      }
+    }
+  </style>
+
+  <div class="mt-6 max-w-3xl space-y-4 text-slate-700">
+    <p>
+      My Project is the shopping list planner: save results from any calculator here,
+      combine them into one list, edit quantities and prices, organize items by room,
+      and export the list to take to the store.
+    </p>
+
+    <div id="project-empty">
+      <p>
+        <strong class="text-slate-900">Nothing saved yet.</strong> Use any of the
+        25 calculators and click “Add to Project” — the result will appear here.
+      </p>
+      <p class="mt-2">
+        <a href="/calculators/" class="font-semibold">Browse the calculators →</a>
+      </p>
+    </div>
+
+    <div id="project-content" hidden>
+      <div class="no-print">
+        <label for="project-name" class="label">Project name</label>
+        <input id="project-name" type="text" class="input-field" maxlength="80" />
+      </div>
+
+      <div id="project-rooms" class="mt-6 space-y-6"></div>
+
+      <p id="project-total" class="pt-2 text-lg font-semibold text-slate-900"></p>
+
+      <div class="no-print flex flex-wrap gap-3 pt-2">
+        <button type="button" id="project-copy" class="btn-primary">
+          Copy combined shopping list
+        </button>
+        <button type="button" id="project-csv" class="btn-secondary">
+          Download CSV
+        </button>
+        <button type="button" id="project-print" class="btn-secondary">
+          Print list
+        </button>
+        <button type="button" id="project-clear" class="btn-secondary">
+          Clear project
+        </button>
+      </div>
+      <p id="project-copied" role="status" class="no-print hidden text-sm font-medium text-green-700">
+        Shopping list copied.
+      </p>
+      <p id="project-downloaded" role="status" class="no-print hidden text-sm font-medium text-green-700">
+        CSV downloaded.
+      </p>
+    </div>
+
+    <h2 class="pt-2 text-xl font-bold text-slate-900">Where your data lives</h2>
+    <p>
+      Only in your own browser, using LocalStorage — under the single versioned key
+      <code class="rounded bg-slate-100 px-1 py-0.5 text-sm">homediycalc:project:v1</code>.
+      Nothing is sent to a server, because there is no server and no account. Clearing
+      your browser data clears saved projects. Saving is always explicit: nothing is
+      stored until you click save. Clearing the project here removes all saved data
+      from this browser.
+    </p>
+  </div>
+
+  <script>
+    import {
+      clearProject,
+      formatProjectAsCsv,
+      formatProjectAsText,
+      loadProject,
+      removeProjectItem,
+      saveProject,
+      totalProjectCost,
+      projectHasCost,
+      updateProjectItem,
+    } from "../lib/project";
+
+    const emptyEl = document.getElementById("project-empty");
+    const contentEl = document.getElementById("project-content");
+    const roomsEl = document.getElementById("project-rooms");
+    const totalEl = document.getElementById("project-total");
+    const nameEl = document.getElementById("project-name") as HTMLInputElement | null;
+    const copiedEl = document.getElementById("project-copied");
+    const downloadedEl = document.getElementById("project-downloaded");
+
+    function money(value: number) {
+      return `$${value.toFixed(2)}`;
+    }
+
+    function render() {
+      const project = loadProject();
+      if (!roomsEl || !emptyEl || !contentEl || !totalEl || !nameEl) return;
+      if (project.items.length === 0) {
+        emptyEl.hidden = false;
+        contentEl.hidden = true;
+        return;
+      }
+      emptyEl.hidden = true;
+      contentEl.hidden = false;
+      if (document.activeElement !== nameEl) {
+        nameEl.value = project.name;
+      }
+      roomsEl.innerHTML = "";
+      const rooms: string[] = [];
+      for (const item of project.items) {
+        if (!rooms.includes(item.room)) rooms.push(item.room);
+      }
+      for (const room of rooms) {
+        const group = document.createElement("section");
+        group.setAttribute("aria-label", `Room: ${room}`);
+        const heading = document.createElement("h2");
+        heading.className = "text-xl font-bold text-slate-900";
+        heading.textContent = `Room: ${room}`;
+        group.appendChild(heading);
+        const roomItems = project.items.filter((item) => item.room === room);
+        let roomTotal = 0;
+        let roomHasCost = false;
+        for (const item of roomItems) {
+          const card = document.createElement("div");
+          card.className = "card mt-3";
+
+          const labelInput = document.createElement("input");
+          labelInput.type = "text";
+          labelInput.className = "input-field font-semibold";
+          labelInput.value = item.label;
+          labelInput.setAttribute("aria-label", "Item name");
+          labelInput.addEventListener("change", () => {
+            updateProjectItem(item.id, { label: labelInput.value.trim() });
+            render();
+          });
+          card.appendChild(labelInput);
+
+          const list = document.createElement("ul");
+          list.className = "mt-2 list-disc space-y-1 pl-6 text-sm";
+          item.lines.forEach((line) => {
+            const li = document.createElement("li");
+            li.textContent = line;
+            list.appendChild(li);
+          });
+          card.appendChild(list);
+
+          const grid = document.createElement("div");
+          grid.className = "mt-3 grid gap-3 sm:grid-cols-3";
+
+          const qtyWrap = document.createElement("div");
+          const qtyLabel = document.createElement("label");
+          qtyLabel.className = "label";
+          qtyLabel.textContent = "Quantity";
+          const qtyInput = document.createElement("input");
+          qtyInput.type = "number";
+          qtyInput.className = "input-field";
+          qtyInput.min = "1";
+          qtyInput.step = "1";
+          qtyInput.value = String(item.quantity);
+          qtyInput.setAttribute("aria-label", `Quantity for ${item.label}`);
+          qtyInput.addEventListener("change", () => {
+            updateProjectItem(item.id, { quantity: Number(qtyInput.value) });
+            render();
+          });
+          qtyWrap.appendChild(qtyLabel);
+          qtyWrap.appendChild(qtyInput);
+          grid.appendChild(qtyWrap);
+
+          const priceWrap = document.createElement("div");
+          const priceLabel = document.createElement("label");
+          priceLabel.className = "label";
+          priceLabel.textContent = "Unit price ($)";
+          const priceInput = document.createElement("input");
+          priceInput.type = "number";
+          priceInput.className = "input-field";
+          priceInput.min = "0";
+          priceInput.step = "0.01";
+          priceInput.placeholder = "No price";
+          priceInput.value =
+            item.costUsd !== undefined ? String(item.costUsd) : "";
+          priceInput.setAttribute("aria-label", `Unit price for ${item.label}`);
+          priceInput.addEventListener("change", () => {
+            // An empty price clears the price (NaN); a number sets it.
+            const next =
+              priceInput.value.trim() === ""
+                ? Number.NaN
+                : Number(priceInput.value);
+            updateProjectItem(item.id, { costUsd: next });
+            render();
+          });
+          priceWrap.appendChild(priceLabel);
+          priceWrap.appendChild(priceInput);
+          grid.appendChild(priceWrap);
+
+          const roomWrap = document.createElement("div");
+          const roomLabel = document.createElement("label");
+          roomLabel.className = "label";
+          roomLabel.textContent = "Room";
+          const roomInput = document.createElement("input");
+          roomInput.type = "text";
+          roomInput.className = "input-field";
+          roomInput.value = item.room;
+          roomInput.setAttribute("aria-label", `Room for ${item.label}`);
+          roomInput.addEventListener("change", () => {
+            updateProjectItem(item.id, { room: roomInput.value.trim() });
+            render();
+          });
+          roomWrap.appendChild(roomLabel);
+          roomWrap.appendChild(roomInput);
+          grid.appendChild(roomWrap);
+
+          card.appendChild(grid);
+
+          if (item.costUsd !== undefined) {
+            roomHasCost = true;
+            const lineCost = item.costUsd * item.quantity;
+            roomTotal += lineCost;
+            const cost = document.createElement("p");
+            cost.className = "mt-2 text-sm font-semibold text-slate-900";
+            cost.textContent = `Line total: ${money(lineCost)} (${money(item.costUsd)} × ${item.quantity})`;
+            card.appendChild(cost);
+          }
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "btn-secondary no-print mt-3 px-3 py-1.5 text-sm";
+          remove.textContent = "Remove";
+          remove.addEventListener("click", () => {
+            removeProjectItem(item.id);
+            render();
+          });
+          card.appendChild(remove);
+          group.appendChild(card);
+        }
+        if (roomHasCost) {
+          const subtotal = document.createElement("p");
+          subtotal.className = "mt-2 font-semibold text-slate-900";
+          subtotal.textContent = `Subtotal for ${room}: ${money(roomTotal)}`;
+          group.appendChild(subtotal);
+        }
+        roomsEl.appendChild(group);
+      }
+      totalEl.textContent = projectHasCost(project)
+        ? `Estimated total: ${money(totalProjectCost(project))} (from the prices you entered only)`
+        : "No prices entered yet — add a unit price to an item to see a total.";
+    }
+
+    nameEl?.addEventListener("change", () => {
+      const project = loadProject();
+      const name = nameEl.value.trim();
+      if (name !== "") {
+        project.name = name;
+        saveProject(project);
+      }
+      render();
+    });
+
+    document.getElementById("project-copy")?.addEventListener("click", async () => {
+      const text = formatProjectAsText(loadProject());
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        copiedEl?.classList.remove("hidden");
+        window.setTimeout(() => copiedEl?.classList.add("hidden"), 2500);
+      } catch {
+        // Clipboard unavailable; the list stays visible on the page.
+      }
+    });
+
+    document.getElementById("project-csv")?.addEventListener("click", () => {
+      const project = loadProject();
+      if (project.items.length === 0) return;
+      const csv = formatProjectAsCsv(project);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "homediycalc-project.csv";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      downloadedEl?.classList.remove("hidden");
+      window.setTimeout(() => downloadedEl?.classList.add("hidden"), 2500);
+    });
+
+    document.getElementById("project-print")?.addEventListener("click", () => {
+      window.print();
+    });
+
+    document.getElementById("project-clear")?.addEventListener("click", () => {
+      if (
+        window.confirm(
+          "Clear all saved project data? This removes every item from My Project in this browser and cannot be undone.",
+        )
+      ) {
+        clearProject();
+        render();
+      }
+    });
+
+    render();
+  </script>
+</Layout>

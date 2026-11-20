@@ -1,0 +1,18 @@
+# ads.txt — TEMPLATE ONLY. Do NOT copy this file to public/ads.txt.
+#
+# This file ships ONLY when AdSense is enabled with a real publisher ID
+# (ADR-8; see docs/DEPLOYMENT.md §7 and §12). Until then there must be no
+# public/ads.txt in the repository.
+#
+# When the owner approves AdSense:
+#   1. Copy this file to public/ads.txt.
+#   2. Replace REPLACE-WITH-REAL-PUBLISHER-ID with the real publisher ID
+#      from the owner's AdSense account (a 16-digit number after "pub-").
+#      The placeholder below is deliberately not a number, so it cannot be
+#      mistaken for a real ID and cannot be deployed by accident.
+#   3. Redeploy and confirm the file is reachable at https://<domain>/ads.txt.
+#
+# The last field (f08c47fec0942fa0) is Google's fixed certification
+# authority ID — a public constant of the ads.txt specification, not a
+# publisher ID. It stays as-is.
+google.com, pub-REPLACE-WITH-REAL-PUBLISHER-ID, DIRECT, f08c47fec0942fa0

@@ -1,0 +1,52 @@
+---
+import Layout from "../components/Layout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+
+const crumbs = [{ name: "Home", path: "/" }, { name: "About" }];
+---
+
+<Layout
+  title="About"
+  description="About HomeDIYCalc: free home improvement calculators that run entirely in your browser. No signup, no cost, no data collected."
+  canonical="/about/"
+  breadcrumbs={crumbs}
+>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">About HomeDIYCalc</h1>
+  <div class="mt-6 max-w-3xl space-y-4 text-slate-700">
+    <p>
+      HomeDIYCalc is a free set of calculators for home improvement projects. It answers
+      the question every DIYer asks at the start of a job: <em>how much material do I
+      actually need?</em> — concrete for a slab, paint for a room, gravel for a driveway,
+      tile for a floor — and turns the answer into a shopping list you can take to the store.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">What makes it different</h2>
+    <ul class="list-disc space-y-2 pl-6">
+      <li><strong class="text-slate-900">Free, no signup.</strong> Every calculator works without an account, a login, or a payment.</li>
+      <li><strong class="text-slate-900">Transparent math.</strong> Each calculator page shows its formula, so you can check the result yourself.</li>
+      <li><strong class="text-slate-900">Never under-orders.</strong> Package quantities — bags, boxes, gallons — always round up. You are never told to buy less than you need.</li>
+      <li><strong class="text-slate-900">Imperial and metric.</strong> Enter measurements in feet and gallons or in meters and liters; switch at any time without losing your numbers.</li>
+      <li><strong class="text-slate-900">No invented prices.</strong> Cost estimates appear only when you enter your own local prices. If you enter no price, no cost is shown.</li>
+    </ul>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">How the site works</h2>
+    <p>
+      The site is a fully static website: pages are generated at build time and every
+      calculation runs in your browser in plain TypeScript. There is no backend, no
+      database, and no external service involved in a calculation. Saved items in My Project
+      live only in your own browser (LocalStorage).
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">What the calculators do not do</h2>
+    <p>
+      Calculators are estimates, not professional advice. They do not account for every
+      site condition — slope, compaction, spillage, damaged material, or local building
+      codes. Always confirm quantities with your supplier and, for structural work, with a
+      qualified professional. See the <a href="/disclaimer/">Disclaimer</a>.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">Status</h2>
+    <p>
+      The site foundation is built (Phase 1), and all 25 calculators are live — 10 in
+      Phase 2, 8 in Phase 3, and 7 in Phase 4. See <a href="/calculators/">All Calculators</a> for
+      the full list.
+    </p>
+  </div>
+</Layout>

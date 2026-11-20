@@ -1,0 +1,21 @@
+---
+export interface Props {
+  faqs: { question: string; answer: string }[];
+}
+
+const { faqs } = Astro.props;
+---
+
+<h2 id="faq-heading" class="text-2xl font-bold text-slate-900">
+  Frequently asked questions
+</h2>
+<div class="mt-4 space-y-4">
+  {
+    faqs.map((faq) => (
+      <div class="card">
+        <h3 class="font-semibold text-slate-900">{faq.question}</h3>
+        <p class="mt-1 text-slate-700">{faq.answer}</p>
+      </div>
+    ))
+  }
+</div>

@@ -1,0 +1,150 @@
+---
+import "../styles/global.css";
+import SEO from "./SEO.astro";
+import AdSlot from "./AdSlot.astro";
+import { CATEGORIES } from "../lib/registry";
+import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
+
+export interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  ogType?: "website" | "article";
+  breadcrumbs?: { name: string; path?: string }[];
+  faqs?: { question: string; answer: string }[];
+}
+
+const { title, description, canonical, ogType, breadcrumbs, faqs } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonical}
+      ogType={ogType}
+      breadcrumbs={breadcrumbs}
+      faqs={faqs}
+    />
+    <slot name="head" />
+  </head>
+  <body>
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2 focus:font-semibold"
+    >
+      Skip to main content
+    </a>
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4">
+        <a href="/" class="text-xl font-extrabold tracking-tight text-slate-900 no-underline hover:no-underline">
+          {SITE_NAME}
+          <span class="sr-only"> — home</span>
+        </a>
+        <nav aria-label="Main navigation" class="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-medium">
+          <a href="/calculators/" class:list={[{ "font-bold text-brand-700": currentPath.startsWith("/calculators") }, "inline-block py-1 text-slate-700"]}>
+            All Calculators
+          </a>
+          <a href="/my-project/" class:list={[{ "font-bold text-brand-700": currentPath === "/my-project/" }, "inline-block py-1 text-slate-700"]}>
+            My Project
+          </a>
+          <a href="/about/" class:list={[{ "font-bold text-brand-700": currentPath === "/about/" }, "inline-block py-1 text-slate-700"]}>
+            About
+          </a>
+          <a href="/contact/" class:list={[{ "font-bold text-brand-700": currentPath === "/contact/" }, "inline-block py-1 text-slate-700"]}>
+            Contact
+          </a>
+        </nav>
+        <form
+          action="/calculators/"
+          method="get"
+          role="search"
+          class="ml-auto flex w-full max-w-xs items-center gap-2 sm:w-auto"
+        >
+          <label for="site-search" class="sr-only">Search calculators</label>
+          <input
+            id="site-search"
+            name="q"
+            type="search"
+            placeholder="Search calculators…"
+            class="input-field py-1.5 text-sm"
+          />
+          <button type="submit" class="btn-secondary px-3 py-1.5 text-sm">Search</button>
+        </form>
+      </div>
+      <nav aria-label="Categories" class="border-t border-slate-100 bg-slate-50">
+        <ul class="mx-auto flex max-w-6xl flex-wrap gap-x-5 gap-y-1 px-4 py-2 text-sm">
+          {
+            CATEGORIES.map((category) => (
+              <li>
+                <a
+                  href={category.url}
+                  class:list={[
+                    { "font-bold text-brand-700": currentPath === category.url },
+                    "inline-block py-1 text-slate-600",
+                  ]}
+                >
+                  {category.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main-content" tabindex="-1" class="mx-auto max-w-6xl px-4 py-8">
+      <slot />
+    </main>
+
+    {/* Ad slot (ADR-8): renders nothing while ads are disabled. */}
+    <AdSlot />
+
+    <footer class="border-t border-slate-200 bg-slate-50">
+      <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
+        <div>
+          <p class="text-lg font-extrabold text-slate-900">{SITE_NAME}</p>
+          <p class="mt-2 text-sm text-slate-600">{SITE_TAGLINE}</p>
+          <p class="mt-2 text-sm text-slate-600">
+            Free calculators for home improvement projects. No signup, no cost.
+          </p>
+        </div>
+        <nav aria-label="Calculator categories">
+          <p class="font-semibold text-slate-900">Categories</p>
+          <ul class="mt-2 space-y-1 text-sm">
+            {
+              CATEGORIES.map((category) => (
+                <li>
+                  <a href={category.url} class="inline-block py-1 text-slate-600">
+                    {category.name}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <nav aria-label="Site pages">
+          <p class="font-semibold text-slate-900">Site</p>
+          <ul class="mt-2 space-y-1 text-sm">
+            <li><a href="/calculators/" class="inline-block py-1 text-slate-600">All Calculators</a></li>
+            <li><a href="/my-project/" class="inline-block py-1 text-slate-600">My Project</a></li>
+            <li><a href="/about/" class="inline-block py-1 text-slate-600">About</a></li>
+            <li><a href="/contact/" class="inline-block py-1 text-slate-600">Contact</a></li>
+            <li><a href="/privacy-policy/" class="inline-block py-1 text-slate-600">Privacy Policy</a></li>
+            <li><a href="/terms-of-use/" class="inline-block py-1 text-slate-600">Terms of Use</a></li>
+            <li><a href="/disclaimer/" class="inline-block py-1 text-slate-600">Disclaimer</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        © {new Date().getFullYear()} {SITE_NAME}. All calculations are estimates — always confirm quantities with your supplier.
+      </div>
+    </footer>
+  </body>
+</html>

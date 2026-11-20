@@ -1,0 +1,139 @@
+---
+import Layout from "../components/Layout.astro";
+import Faq from "../components/Faq.astro";
+import { CATEGORIES, CALCULATORS, getCalculatorsByCategory } from "../lib/registry";
+import { SITE_TAGLINE } from "../lib/site";
+
+const popular = CALCULATORS.filter((calc) => calc.priority === "P0");
+const faqs = [
+  {
+    question: "Are the HomeDIYCalc calculators really free?",
+    answer:
+      "Yes. Every calculator is free to use, with no signup, no account, and no payment. The calculators run entirely in your browser.",
+  },
+  {
+    question: "Do the calculators work in metric units?",
+    answer:
+      "Yes. Every calculator accepts imperial units (feet, inches, gallons) and metric units (meters, centimeters, liters). You can switch between the two at any time without losing the values you already entered.",
+  },
+  {
+    question: "Why do the results round up?",
+    answer:
+      "Package quantities — bags, boxes, gallons, sheets — always round up, because a shopping list must never tell you to buy less than you need. The exact amount you need is shown next to the rounded package count.",
+  },
+  {
+    question: "Are all the calculators available?",
+    answer:
+      "Yes — all 25 calculators are available now. Calculators are linked only once they are built and tested.",
+  },
+  {
+    question: "Is my project data sent anywhere?",
+    answer:
+      "No. Saved items live only in your own browser (LocalStorage). Nothing is sent to a server, because there is no server.",
+  },
+];
+---
+
+<Layout
+  title="HomeDIYCalc"
+  description="Free home improvement calculators: work out how much concrete, paint, gravel, tile, and more you need, with a shopping list to take to the store. No signup, no cost."
+  canonical="/"
+  faqs={faqs}
+>
+  <section class="rounded-2xl bg-slate-900 px-6 py-12 text-center text-white sm:px-12">
+    <h1 class="text-3xl font-extrabold tracking-tight sm:text-5xl">
+      Calculate Materials. Estimate Costs. Build Your Shopping List.
+    </h1>
+    <p class="mx-auto mt-4 max-w-2xl text-lg text-slate-300">
+      Free calculators for home improvement projects — concrete, paint, gravel, tile,
+      flooring, and more. No signup, no cost, no guesswork.
+    </p>
+    <p class="mt-6">
+      <a href="/calculators/" class="btn-primary">Browse all calculators</a>
+    </p>
+    <p class="mt-4 text-sm text-slate-400">
+      All 25 calculators are available now. See the full list below.
+    </p>
+  </section>
+
+  <section aria-labelledby="categories-heading" class="mt-12">
+    <h2 id="categories-heading" class="text-2xl font-bold text-slate-900">
+      Browse by category
+    </h2>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        CATEGORIES.map((category) => {
+          const count = getCalculatorsByCategory(category.slug).length;
+          return (
+            <a href={category.url} class="card no-underline hover:border-brand-600 hover:no-underline">
+              <h3 class="text-lg font-bold text-slate-900">{category.name}</h3>
+              <p class="mt-1 text-sm text-slate-600">{category.description}</p>
+              <p class="mt-2 text-sm font-semibold text-brand-700">
+                {count} calculator{count === 1 ? "" : "s"}
+              </p>
+            </a>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="popular-heading" class="mt-12">
+    <h2 id="popular-heading" class="text-2xl font-bold text-slate-900">
+      Most popular calculators
+    </h2>
+    <p class="mt-2 text-slate-600">
+      The 10 calculators built first — all available now.
+    </p>
+    <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        popular.map((calc) => (
+          <li class="card">
+            <a href={calc.url} class="font-semibold text-slate-900">
+              {calc.name}
+            </a>
+            <p class="mt-1 text-sm text-slate-600">{calc.summary}</p>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-4">
+      <a href="/calculators/" class="font-semibold">See all 25 calculators →</a>
+    </p>
+  </section>
+
+  <section aria-labelledby="how-heading" class="mt-12">
+    <h2 id="how-heading" class="text-2xl font-bold text-slate-900">How it works</h2>
+    <ol class="mt-4 grid gap-4 sm:grid-cols-3">
+      <li class="card">
+        <p class="text-2xl font-extrabold text-brand-600">1</p>
+        <h3 class="mt-2 font-semibold text-slate-900">Measure your project</h3>
+        <p class="mt-1 text-sm text-slate-600">
+          Measure length, width, and depth (or area). Each calculator page explains exactly what to measure.
+        </p>
+      </li>
+      <li class="card">
+        <p class="text-2xl font-extrabold text-brand-600">2</p>
+        <h3 class="mt-2 font-semibold text-slate-900">Enter your numbers</h3>
+        <p class="mt-1 text-sm text-slate-600">
+          Type in your measurements in imperial or metric units, set a waste allowance, and add prices if you want a cost estimate.
+        </p>
+      </li>
+      <li class="card">
+        <p class="text-2xl font-extrabold text-brand-600">3</p>
+        <h3 class="mt-2 font-semibold text-slate-900">Take the list to the store</h3>
+        <p class="mt-1 text-sm text-slate-600">
+          Copy the shopping list — quantities rounded up so you never buy too little — and save it to My Project if you want to keep it.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="faq-heading" class="mt-12">
+    <Faq faqs={faqs} />
+  </section>
+
+  <p class="mt-12 text-sm text-slate-500">
+    {SITE_TAGLINE} HomeDIYCalc is a free, static website: every calculation runs in your browser, and nothing you enter is sent anywhere.
+  </p>
+</Layout>
