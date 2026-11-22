@@ -17,15 +17,26 @@ import { ceilUp, CUBIC_INCHES_PER_CUBIC_FOOT, SQUARE_INCHES_PER_SQUARE_FOOT } fr
  *   10 Table 4 lists 8.1 ft³. BIA recommends adding 15–25% for mortar
  *   waste (default 15% here).
  * - Bag count: the manufacturer count rating governs (ADR-11, PR #2
- *   review response). QUIKRETE Mortar Mix No. 1102 is rated at up to 37
- *   standard bricks or 13 standard 8 × 8 × 16 blocks per 80 lb bag, and
- *   its data sheet states NO cubic-foot yield per bag and NO waste
- *   allowance — so this calculator claims no volumetric bag yield for
- *   the product (the 0.6 ft³/bag figure used before this fix is not on
- *   the data sheet; it is removed). The rating is a maximum ("up to"),
- *   so the waste allowance derates it: bags = installed units ×
- *   (1 + waste%) ÷ units per bag. The mortar volume (geometric joint
- *   volume, BIA-corroborated) still feeds the site-mix parts.
+ *   review response) — but only for the geometry the rating applies
+ *   to (ADR-12, second re-review). QUIKRETE Mortar Mix No. 1102 is
+ *   rated at up to 37 standard bricks or 13 standard 8 × 8 × 16
+ *   blocks per 80 lb bag, and its data sheet states NO cubic-foot
+ *   yield per bag and NO waste allowance — so this calculator claims
+ *   no volumetric bag yield for the product (the 0.6 ft³/bag figure
+ *   used before this fix is not on the data sheet; it is removed).
+ *   The rating is a maximum ("up to"), so the waste allowance
+ *   derates it: bags = installed units × (1 + waste%) ÷ units per
+ *   bag — when the joint is the standard ⅜ in or narrower. A wider
+ *   joint needs more mortar per unit while fitting fewer units per
+ *   ft², so the count-based figure falls exactly as the mortar
+ *   volume rises (80 ft² modular wall, 15% waste: ⅜ in joint →
+ *   5.09 ft³ and 18 bags; ¾ in joint → 8.82 ft³ but only 15 bags).
+ *   The rating therefore does not apply to wider joints, and no bag
+ *   count, bag cost, or shopping-list bag line is shown for them
+ *   unless the user enters a verified bag yield (ft³ per bag), from
+ *   which bags = waste-adjusted volume ÷ yield. The mortar volume
+ *   (geometric joint volume, BIA-corroborated) still feeds the
+ *   site-mix parts in every case.
  * - Mix ratios are the ASTM C270 proportion specification, by volume:
  *   Type N 1:1:6, Type S 1:½:4½, Type M 1:¼:3¾, Type O 1:2:9
  *   (cement : lime : sand). C270 specifies sand at 2¼–3× the
@@ -104,6 +115,43 @@ export const UNITS_PER_MORTAR_BAG: Record<MasonryUnit, number> = {
   block: 13,
 };
 
+/** Standard mortar joint, in inches (BIA standard practice, ⅜ in). */
+export const STANDARD_JOINT_IN = 0.375;
+
+/**
+ * Relative tolerance for the standard-geometry check. It absorbs
+ * metric rounding only — 9.5 mm vs the exact 9.525 mm (0.26%),
+ * 194 mm vs 7.625 in (0.17%) — not a genuinely different size:
+ * a 10 mm joint (5% over) or a 200 mm brick (4% over) is outside it.
+ */
+export const RATING_GEOMETRY_TOLERANCE = 0.01;
+
+/**
+ * True when the unit dimensions match the standard preset within the
+ * rounding tolerance above.
+ */
+export function isStandardDimensions(dims: UnitDimensions, preset: UnitDimensions): boolean {
+  return (["lengthIn", "heightIn", "depthIn"] as const).every(
+    (k) => Math.abs(dims[k] - preset[k]) <= preset[k] * RATING_GEOMETRY_TOLERANCE,
+  );
+}
+
+/**
+ * True when the joint is the standard ⅜ in or narrower (within the
+ * rounding tolerance). The direction matters: a narrower joint uses
+ * no more mortar per unit than the standard case, so the rating stays
+ * a safe (conservative) basis — the bag count still covers the
+ * waste-adjusted volume. A wider joint needs more mortar per unit
+ * while fitting fewer units per ft², so the rating-based count falls
+ * as the volume rises and under-buys; the rating does not apply.
+ */
+export function isStandardJoint(jointIn: number): boolean {
+  return jointIn <= STANDARD_JOINT_IN * (1 + RATING_GEOMETRY_TOLERANCE);
+}
+
+/** Where a bag count came from: the manufacturer rating, a user-entered yield, or neither (unknown). */
+export type MortarBagBasis = "rating" | "user-yield" | null;
+
 export interface MortarInput {
   areaFt2: number;
   unit: MasonryUnit;
@@ -112,6 +160,13 @@ export interface MortarInput {
   /** Waste allowance for mortar in percent (BIA suggests 15–25%). */
   wastePct: number;
   mortarType: MortarType;
+  /**
+   * Verified bag yield in ft³ per 80 lb bag, from the bag's own data
+   * sheet. Only used when the manufacturer count rating does not
+   * apply (joint wider than the standard ⅜ in). No default — no
+   * volumetric yield is claimed for the product.
+   */
+  bagYieldFt3?: number;
   /** Optional price per 80 lb bag, in USD. */
   pricePerBag?: number;
 }
@@ -123,10 +178,19 @@ export interface MortarResult {
   unitsNeeded: number;
   /** Mortar volume in cubic feet (waste included). */
   mortarVolumeFt3: number;
-  /** 80 lb bags of pre-mixed mortar to buy (rounded up). */
-  bags: number;
-  /** Units one 80 lb bag lays at the manufacturer maximum (37 brick, 13 block). */
-  unitsPerBag: number;
+  /**
+   * 80 lb bags of pre-mixed mortar to buy (rounded up), or null when
+   * the bag count is unknown: the rating does not apply to this
+   * geometry and no verified yield was entered.
+   */
+  bags: number | null;
+  /**
+   * Units one 80 lb bag lays at the manufacturer maximum (37 brick,
+   * 13 block), or null when the rating does not apply.
+   */
+  unitsPerBag: number | null;
+  /** Where the bag count came from (null = no bag count shown). */
+  bagsBasis: MortarBagBasis;
   /** Cement for site mixing, in cubic feet (ASTM C270 batch yield per ft³ of mortar). */
   cementFt3: number;
   /** 94 lb sacks of portland cement to buy (rounded up). */
@@ -149,26 +213,45 @@ export function calculateMortar(input: MortarInput): MortarResult {
   const mortarVolumeFt3 =
     ((unitsNeeded * mortarPerUnitIn3) / CUBIC_INCHES_PER_CUBIC_FOOT) * (1 + input.wastePct / 100);
   // Bags come from the manufacturer count rating, derated by the waste
-  // allowance: the rating is a maximum with no waste allowance stated,
-  // so installed units × (1 + waste%) ÷ units per bag. This is the same
-  // rule the Brick Calculator uses, so the two agree for the same wall
-  // and waste (the Brick Calculator additionally floors at the bags for
-  // the spare bricks you buy, so it can read one bag higher when the
-  // brick waste allowance is large — see its tests).
-  const unitsPerBag = UNITS_PER_MORTAR_BAG[input.unit];
-  const bags = ceilUp((unitsNeeded * (1 + input.wastePct / 100)) / unitsPerBag);
+  // allowance — but only where the rating applies: standard units at
+  // the standard ⅜ in joint or narrower (ADR-12). The unit presets
+  // are standard by construction, so only the joint decides here. For
+  // a wider joint the rating-based count falls as the mortar volume
+  // rises (80 ft², 15% waste: ⅜ in → 5.09 ft³ / 18 bags; ¾ in →
+  // 8.82 ft³ / 15 bags), so the rating must not be used: with a
+  // verified user-entered yield, bags = waste-adjusted volume ÷
+  // yield; without one, no bag count is given at all. The site-mix
+  // parts below use the volume either way.
+  let bags: number | null;
+  let unitsPerBag: number | null;
+  let bagsBasis: MortarBagBasis;
+  if (isStandardJoint(input.jointIn)) {
+    unitsPerBag = UNITS_PER_MORTAR_BAG[input.unit];
+    bags = ceilUp((unitsNeeded * (1 + input.wastePct / 100)) / unitsPerBag);
+    bagsBasis = "rating";
+  } else if (input.bagYieldFt3 !== undefined && input.bagYieldFt3 > 0) {
+    unitsPerBag = null;
+    bags = ceilUp(mortarVolumeFt3 / input.bagYieldFt3);
+    bagsBasis = "user-yield";
+  } else {
+    unitsPerBag = null;
+    bags = null;
+    bagsBasis = null;
+  }
   const yields = MORTAR_MIX_YIELDS_FT3_PER_FT3[input.mortarType];
   const cementFt3 = mortarVolumeFt3 * yields.cement;
   const limeFt3 = mortarVolumeFt3 * yields.lime;
   const sandFt3 = mortarVolumeFt3 * yields.sand;
   const cementSacks = ceilUp(cementFt3 / CEMENT_SACK_FT3);
-  const costUsd = input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
+  const costUsd =
+    input.pricePerBag !== undefined && bags !== null ? bags * input.pricePerBag : undefined;
   return {
     unitsPerFt2,
     unitsNeeded,
     mortarVolumeFt3,
     bags,
     unitsPerBag,
+    bagsBasis,
     cementFt3,
     cementSacks,
     limeFt3,
