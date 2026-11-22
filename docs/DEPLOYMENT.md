@@ -243,50 +243,48 @@ ADR-9 passed on 2026-11-20 at commit ca29ba1 (3 consecutive clean full test roun
 - PR #2 merged into `main` on 2026-11-22 (merge commit `e8345f7e0cb04051767955968bd8ef0efabd65e9`; reviewed head `f4d2f3e1`, approval review 6011576970). Phase 8 works on branch `phase-8-launch` from that content. See `docs/QA-REPORT.md` §13.6 for the merge record; the post-merge read-back from GitHub is **complete** (2026-11-22 ~20:30 JST — PR #2 `merged: true`, `merged_at` 2026-11-22T10:25:04Z, `merged_by` silver-comet-76, head `f4d2f3e1`, base `34b917a8`; merge commit `e8345f7e` confirmed via the branch head; key files on `main` match the reviewed head).
 - Baseline at merge: 25 calculators, Vitest 282/282, Playwright 76/76, 40 pages (39 indexable + 404), Lighthouse Home + Paint 100/100/100/83. Current Phase 8 counts after the review response: Vitest 318/318, Playwright 80/80, 40 pages (39 indexable + 404), Lighthouse re-measured per round on the production-mode build (see `docs/QA-REPORT.md` §15).
 
-### 14.2 Cloudflare Pages project settings (to apply when the project is created)
+### 14.2 Cloudflare Pages project settings — Direct Upload only (ADR-17)
 
-No Cloudflare account or Pages project exists yet — nothing here has been created. When the owner creates the project (dashboard: **Workers & Pages → Create → Pages → Connect to Git**), use exactly these settings:
+No Cloudflare account or Pages project exists yet — nothing here has been created. **The project must be created as a Direct Upload project** (dashboard: **Workers & Pages → Create → Pages → Direct Upload**, or `npx wrangler pages project create <project> --production-branch=main`). There is no repository connection, no build step on Cloudflare, and no automatic deployment of any kind: the owner uploads prebuilt files, and nothing goes live until the owner uploads it.
 
-| Setting | Value |
-|---|---|
-| Repository | `silver-comet-76/homediycalc` |
-| Production branch | `main` |
-| Framework preset | Astro (or "None" with the commands below) |
-| Build command | `npm run build` |
-| Build output directory | `dist/` |
-| Root directory | `/` (repository root) |
-| Node version | `NODE_VERSION=24` (see §1) |
-| Environment variables | See §14.3 — production and preview environments differ |
+**Why not Git integration (review 6013166210):** connecting a Git repository makes Cloudflare deploy automatically on every push, and the first deployment starts as soon as the project is created — before env vars and access are verified. The controls that stop automatic deployments (**Settings → Builds & deployments → Pause deployments**; **Build → Branch control**) only exist *after* the project exists, so "connect Git, then immediately pause" is a race, not safe initial creation: the first public deployment may already have started. There is no documented way to prevent it before creation. Rollback and noindex do not fix this — neither is access control, and a deployment that went live unverified is a launch-process failure, not a staging check. **External staging via Git integration is therefore blocked** until a verified prevention exists (none is known today). Do not create a Git-integrated project for this site.
 
-**Safe creation — read this before connecting Git (PR #4 review response, ADR-15):** connecting a Git repository makes Cloudflare deploy automatically on every push, and the first deployment starts as soon as the project is created — before env vars and access are verified. Do not treat that first automatic deployment as staging; it is an unverified public deployment. The safe sequence is:
+**The Direct Upload trade-off (state it plainly before choosing):** a project created as Direct Upload cannot later switch to Git integration, and a Git-integrated project cannot switch to Direct Upload — moving to Git-based automatic deployments later means creating a new project, not flipping a setting. Direct Upload also has no automatic per-branch previews: a preview is an explicit upload (`npx wrangler pages deploy dist --branch=<branch> --project-name=<project>`), not a push. If the owner later wants automatic Git deployments, that is a separate owner decision with its own safe-creation procedure — it is not approved here.
 
-1. Connect Git and create the project, then **immediately** go to **Settings → Builds & deployments → Pause deployments** (confirm; the button becomes **Resume deployments** and the Deployments list shows a banner while paused). Pausing stops all further automatic builds.
-2. For durable control, also use **Build → Branch control**: turn off **Enable automatic production branch deployments**, and set the Preview branch to **None (Disable automatic branch deployments)**. Automatic deployments stay off until the owner deliberately re-enables them.
-3. Set the environment variables (§14.3) and enable the preview access policy (§14.4).
-4. Verify with a manual deployment of the reviewed branch, run the staging checks (§14.5–§14.6), and only then resume automatic deployments and deploy `main` as production.
-5. If the initial deployment went live before settings were verified, delete that deployment from the Deployments list (or roll it back) and record it as a launch-process failure — do not treat it as a staging check.
+**Safe creation sequence (Direct Upload):**
 
-A Direct Upload project avoids the Git trigger entirely, but a project created as Direct Upload cannot later switch to Git integration (and vice versa), so the Git route above — create, pause immediately, configure, then resume — is the recommended path.
+1. Create the project as Direct Upload (dashboard or Wrangler, production branch `main`). Nothing is deployed by creating it.
+2. Set the environment variables (§14.3) and enable the preview access policy (§14.4). Note: Direct Upload projects have no build settings in the dashboard (no build command, no output directory) — the build happens on the owner's machine, so the mode variables must be set at **build** time, not in the dashboard. The dashboard env vars matter only for the (unused) Git build path; record them anyway so a future Git migration has them.
+3. Build locally with the right mode variables and deploy the output:
+   - Production: `PUBLIC_BUILD_MODE=production PUBLIC_SITE_URL=<live origin> npm run build && npx wrangler pages deploy dist --project-name=<project>` (or drag `dist/` onto the dashboard). The build is indexable only because the mode was explicitly opted into (§14.3).
+   - Preview: `PUBLIC_BUILD_MODE=preview npm run build && npx wrangler pages deploy dist --branch=<branch> --project-name=<project>`. The preview build is noindex by construction; the access policy (§14.4) is what restricts who can open it.
+   - A `dist/` built with no mode variables is a local-mode build (relative URLs, noindex on every page) — deploying it by mistake publishes an unindexed site, never an indexable one. That is the fail-closed direction, but verify the mode before every deploy anyway (§14.5 step 5).
+4. Run the staging checks (§14.5–§14.6) against the preview deployment, and only then deploy `main` as production.
 
-### 14.3 Build modes and environment variables — local vs preview vs production (ADR-15)
+### 14.3 Build modes and environment variables — local vs preview vs production (ADR-17)
 
-The site has three explicit build modes (`src/lib/site.ts`); the mode decides whether the build is indexable and whether its URLs are absolute. **Only a production build is indexable.** Any build whose config is missing or mistyped is noindex — never "indexable by accident".
+The site has three explicit build modes (`src/lib/site.ts`); the mode decides whether the build is indexable and whether its URLs are absolute. **Only a production build is indexable — and production is an explicit opt-in, never an inference.** Any build whose config is missing, mistyped, or origin-only is local (noindex) — never "indexable by accident".
 
 | | Local (default) | Preview | Production |
 |---|---|---|---|
-| `PUBLIC_SITE_URL` | Unset | Unset, or the production origin (preview-with-origin) | **The live origin** (required, validated — an invalid value fails the build) |
-| `PUBLIC_PREVIEW` | Unset | `true` | **Unset** |
+| `PUBLIC_BUILD_MODE` | Unset | `preview` | **`production`** (exact spelling; anything else fails the build) |
+| `PUBLIC_SITE_URL` | Unset (ignored for URLs if set) | Unset, or the production origin (preview-with-origin) | **The live origin** (required, validated — an invalid value fails the build) |
+| `PUBLIC_PREVIEW` | Unset | `true` (legacy; must agree with the mode) | **Unset** (set together with production mode → build fails) |
+| Cloudflare branch (`CF_PAGES_BRANCH`) | Not checked | Not checked | Must equal the production branch (`PUBLIC_PRODUCTION_BRANCH`, default `main`); a preview branch or missing branch context fails the build |
 | Canonical / sitemap / robots URLs | Relative | Relative, or absolute with exactly the origin when one is set | Absolute with exactly the live origin |
 | Robots noindex meta | **Present on every page** | **Present on every page** | Absent |
-| Where it happens | Local dev, the release gate's default build | Cloudflare preview environments | Cloudflare production environment only |
+| Where it happens | Local dev, the release gate's default build | Cloudflare preview environments / explicit preview uploads | Cloudflare production environment only (Direct Upload, §14.2) |
 
-| Variable | Production environment | Preview environments | Why |
-|---|---|---|---|
-| `NODE_VERSION` | `24` | `24` | Build image Node version (§1). |
-| `PUBLIC_SITE_URL` | The live origin, e.g. `https://homediycalc.pages.dev` (the exact value Cloudflare assigns; or the custom domain once connected) | **Unset** (or the same origin if the preview must show absolute URLs — it stays noindex either way) | Canonical, sitemap, and robots URLs become absolute only with a validated origin (ADR-15). A preview must never claim the production origin as its own canonical host, or search engines would see duplicate content across hosts. |
-| `PUBLIC_PREVIEW` | **Unset** | `true` | Preview builds carry `<meta name="robots" content="noindex, nofollow">` on every page (ADR-15). Production builds never carry it — the release-gate audit fails any production build that does, and fails any local/preview build that lacks it. |
+| Variable | Production build | Preview build | Local build | Why |
+|---|---|---|---|---|
+| `NODE_VERSION` | `24` | `24` | `24` | Build image Node version (§1). |
+| `PUBLIC_BUILD_MODE` | **`production`** | **`preview`** | **Unset** | The explicit production opt-in (ADR-17). Without it, no build is production — not even one with a valid origin. A mistyped value (`Production`, `prod`, `staging`) fails the build. |
+| `PUBLIC_SITE_URL` | The live origin, e.g. `https://homediycalc.pages.dev` (the exact value Cloudflare assigns; or the custom domain once connected) | **Unset** (or the same origin if the preview must show absolute URLs — it stays noindex either way) | **Unset** (ignored for URLs if set) | Canonical, sitemap, and robots URLs become absolute only in preview/production builds with a validated origin (ADR-17). A preview must never claim the production origin as its own canonical host, or search engines would see duplicate content across hosts. |
+| `PUBLIC_PREVIEW` | **Unset** (set together with production mode → the build fails with a conflict error) | `true` (legacy; kept so the existing preview setup still works — it must agree with `PUBLIC_BUILD_MODE=preview`) | **Unset** (set together with local mode → the build fails with a conflict error) | Preview builds carry `<meta name="robots" content="noindex, nofollow">` on every page (ADR-15/17). Production builds never carry it — the release-gate audit fails any production build that does, and fails any local/preview build that lacks it. |
+| `PUBLIC_PRODUCTION_BRANCH` | `main` (default; set only if the production branch is renamed) | Not used | Not used | The branch the Cloudflare branch guard compares `CF_PAGES_BRANCH` against (ADR-17). |
+| `CF_PAGES` / `CF_PAGES_BRANCH` | Injected by Cloudflare on Git builds (`CF_PAGES=1`, branch name) | Same | Not set (local) | The provider context the branch guard reads (ADR-17). Direct Upload deploys run no build on Cloudflare, so these are unset and the guard does not run — the mode is baked in at local build time instead. |
 
-Never set `PUBLIC_SITE_URL` to a guessed hostname. The value comes from the Pages project Cloudflare actually creates; until then it stays unset and every URL stays relative. A mistyped value (http, a path, a port, localhost) fails the build with a clear error — it never ships a build with wrong URLs.
+Never set `PUBLIC_SITE_URL` to a guessed hostname. The value comes from the Pages project Cloudflare actually creates; until then it stays unset and every URL stays relative. A mistyped value (http, a path, a port, localhost) fails the build with a clear error — it never ships a build with wrong URLs. Setting the origin without `PUBLIC_BUILD_MODE=production` builds a local (noindex) site, not a production one — that is the fail-closed direction, but it is still a misconfiguration: always set the mode explicitly.
 
 ### 14.4 Controlled staging — Pages preview access policy (real restriction; noindex is not one)
 
@@ -306,13 +304,13 @@ If preview access cannot be configured (e.g. the account lacks the setting), the
 
 Until the owner authorizes an external deployment, staging means the local production preview:
 
-1. `rm -rf dist/ && npm run build` — clean build, 40 pages, no errors. This is a **local-mode** build (no `PUBLIC_*` vars): relative URLs and a noindex tag on every page — the fail-closed default (ADR-15). A noindex tag here is expected, not a failure.
+1. `rm -rf dist/ && npm run build` — clean build, 40 pages, no errors. This is a **local-mode** build (no `PUBLIC_*` vars): relative URLs and a noindex tag on every page — the fail-closed default (ADR-17). A noindex tag here is expected, not a failure.
 2. `npm run preview` — serves the production build at `http://localhost:4321`.
 3. Smoke-check: home page, all 6 category pages, My Project, and at least one calculator per category load with zero console errors; one calculation returns a result; the shopping-list copy and Add to Project work.
 4. `curl -s http://localhost:4321/robots.txt` shows `Sitemap: /sitemap.xml` (relative — no origin is set locally, by design) and `curl -s http://localhost:4321/sitemap.xml` lists 39 URLs.
-5. Confirm the mode rules hold: `grep -r "noindex" dist/ --include="*.html"` must return every page (local build = noindex everywhere). To check the production-mode rules locally, build once with the RFC 2606 test origin — `PUBLIC_SITE_URL=https://example.com npm run build` — and confirm `grep -r "noindex" dist/` returns nothing and the canonical is `https://example.com/` (the gate audit checks both modes automatically, see `docs/QA-REPORT.md` §15).
+5. Confirm the mode rules hold: `grep -r "noindex" dist/ --include="*.html"` must return every page (local build = noindex everywhere). To check the production-mode rules locally, build once with the RFC 2606 test origin and the explicit mode — `PUBLIC_BUILD_MODE=production PUBLIC_SITE_URL=https://example.com npm run build` — and confirm `grep -r "noindex" dist/` returns nothing and the canonical is `https://example.com/` (an origin without the mode builds a local site — verify that too: `PUBLIC_SITE_URL=https://example.com npm run build` must still carry noindex on every page; the gate audit checks all modes automatically, see `docs/QA-REPORT.md` §16).
 
-External staging (only after owner approval): create the Pages project (§14.2 — pause automatic deployments first), set the preview environment variables (§14.3), enable the preview access policy (§14.4), push the `phase-8-launch` branch so Cloudflare builds a preview deployment, then run the same smoke checks plus the live header check (§14.6) against the preview URL.
+External staging (only after owner approval): create the Direct Upload Pages project (§14.2), set the preview environment variables (§14.3), enable the preview access policy (§14.4), build with `PUBLIC_BUILD_MODE=preview` and upload it as a preview deployment (`npx wrangler pages deploy dist --branch=<branch> --project-name=<project>`), then run the same smoke checks plus the live header check (§14.6) against the preview URL.
 
 ### 14.6 Security headers — live check (pending; no staging exists yet)
 
@@ -347,9 +345,9 @@ Full steps are in §8 (all three verification methods + sitemap submission + the
 ### 14.9 Launch and rollback (Phase 8 additions to §9/§10)
 
 - **Before any public deploy:** the Phase 8 PR must be reviewed (ChatGPT) and merged by the owner; the ADR-9 gate must have passed 3 consecutive clean rounds after the final fix; the tag `homediycalc-v0.2.0` (or the version the owner chooses) must be created on the merged commit.
-- **Launch sequence:** merge Phase 8 PR → create the Pages project (§14.2) → set production env vars (§14.3) → first production deploy → run the §10 post-launch checks → verify headers (§14.6) → re-run Lighthouse on Home, Paint, Concrete and record the scores (expect SEO above 83 once the origin is set) → verify Search Console (§14.7) → submit the sitemap.
+- **Launch sequence:** merge Phase 8 PR → create the Direct Upload Pages project (§14.2) → build with the production mode variables (§14.3) → first production deploy (`npx wrangler pages deploy dist --project-name=<project>`) → run the §10 post-launch checks → verify headers (§14.6) → re-run Lighthouse on Home, Paint, Concrete and record the scores (expect SEO 100 once the origin is set — it scored 100 on the test-origin production build in the §15/§16 gates) → verify Search Console (§14.7) → submit the sitemap.
 - **Rollback:** as §9 (Pages rollback to the previous deployment, or revert the commit and push). If the bad deploy is a content/calculator error, fix the source, re-run the full gate, then deploy the fix. Do not hot-edit `dist/`.
-- **Duplicate-content guard:** production is the only host with `PUBLIC_SITE_URL` set and the only host without a noindex tag. Every other host (previews, forks, mirrors) is noindex by construction — a preview has `PUBLIC_PREVIEW=true`, and any build with no origin is a local-mode build, which is noindex too — so no second host can present itself as the canonical site, even if its env vars are missing or mistyped.
+- **Duplicate-content guard:** production is the only build with `PUBLIC_BUILD_MODE=production` + a validated origin + (on Cloudflare) a matching production branch, and the only build without a noindex tag. Every other build is noindex by construction — a preview has mode `preview`, and any build with a missing, mistyped, or origin-only config is a local-mode build, which is noindex too — so no second host can present itself as the canonical site, even if its env vars are missing, mistyped, or inherited from production.
 
 ### 14.10 Owner decisions still pending (no action taken unilaterally)
 
