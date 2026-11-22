@@ -15,9 +15,23 @@
 # headless-shell binary (CHROME_PATH; Lighthouse ignores --chrome-path).
 # Lighthouse is pinned to 12.8.2 so rounds stay comparable.
 #
+# Launch thresholds (enforced below — a score below its threshold fails
+# the round, so a passing round is not just "Lighthouse ran"): Home and
+# Paint each need Performance >= 90, Accessibility >= 90, Best
+# Practices >= 90, SEO >= 80. SEO is capped at 83 until the site has an
+# owner-approved domain (relative canonical + relative robots.txt
+# sitemap URL), so its threshold has only 3 points of margin by design;
+# Performance/Accessibility/Best Practices have run at 100 in every
+# gate round so far. The thresholds are minimums, not targets.
+#
 # Requirements: node >= 22, npm, python3, npx (Lighthouse is fetched via
-# npx on first use and then cached). No network access is needed by the
-# site itself; only the one-time Lighthouse download uses the network.
+# npx on first use and then cached), and a Playwright Chromium install
+# (`npx playwright install chromium`). The headless-shell binary is
+# resolved in this order: $CHROME_PATH if set, otherwise the newest
+# chromium_headless_shell-* under ~/.cache/ms-playwright. Override with
+# CHROME_PATH=/path/to/chrome to use a different Chrome. No network
+# access is needed by the site itself; only the one-time Lighthouse
+# download uses the network.
 
 set -euo pipefail
 
@@ -53,11 +67,20 @@ echo "--- Playwright e2e ---"
 npm run test:e2e
 
 echo "--- Lighthouse 12.8.2 (Home + Paint, desktop) ---"
-HEADLESS_SHELL="$HOME/.cache/ms-playwright/chromium_headless_shell-1255/chrome-headless-shell-linux64/chrome-headless-shell"
-if [ ! -x "$HEADLESS_SHELL" ]; then
-  echo "headless-shell Chrome not found at $HEADLESS_SHELL — run: npx playwright install chromium"
+# Resolve the headless-shell Chrome: $CHROME_PATH wins; otherwise the
+# newest chromium_headless_shell-* under the Playwright cache (no
+# hardcoded version — the cache directory name carries the revision).
+if [ -n "${CHROME_PATH:-}" ]; then
+  HEADLESS_SHELL="$CHROME_PATH"
+else
+  HEADLESS_SHELL="$(ls -d "$HOME"/.cache/ms-playwright/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell 2>/dev/null | sort -V | tail -n 1 || true)"
+fi
+if [ -z "${HEADLESS_SHELL:-}" ] || [ ! -x "$HEADLESS_SHELL" ]; then
+  echo "headless-shell Chrome not found — run: npx playwright install chromium"
+  echo "(or set CHROME_PATH to a Chrome binary)"
   exit 1
 fi
+echo "chrome: $HEADLESS_SHELL"
 PREVIEW_PORT="${PREVIEW_PORT:-4173}"
 "$REPO_ROOT/node_modules/.bin/astro" preview --port "$PREVIEW_PORT" --host 127.0.0.1 > /tmp/homediycalc-preview-"$ROUND".log 2>&1 &
 PREVIEW_PID=$!
@@ -78,13 +101,23 @@ for PAGE in "" "calculators/paint-calculator/"; do
     --output-path="/tmp/homediycalc-lighthouse-$NAME-$ROUND.json" \
     --quiet
   node -e '
-    const r = require("/tmp/homediycalc-lighthouse-'"$NAME"'-'"$ROUND"'.json");
+    const fs = require("fs");
+    const r = JSON.parse(fs.readFileSync("/tmp/homediycalc-lighthouse-'"$NAME"'-'"$ROUND"'.json", "utf8"));
     const c = r.categories;
     const score = (k) => Math.round(c[k].score * 100);
     const lcp = r.audits["largest-contentful-paint"].displayValue;
     const cls = r.audits["cumulative-layout-shift"].displayValue;
     const tti = r.audits["interactive"].displayValue;
     console.log(`Lighthouse '"$NAME"': Performance ${score("performance")}, Accessibility ${score("accessibility")}, Best Practices ${score("best-practices")}, SEO ${score("seo")} (LCP ${lcp}, CLS ${cls}, TTI ${tti})`);
+    // Launch thresholds (see the script header): fail the round on any
+    // score below its floor, so a pass means the scores were checked,
+    // not just produced.
+    const thresholds = { performance: 90, accessibility: 90, "best-practices": 90, seo: 80 };
+    const failures = Object.entries(thresholds).filter(([k, min]) => score(k) < min);
+    if (failures.length > 0) {
+      console.error(`Lighthouse '"$NAME"' below launch threshold: ` + failures.map(([k, min]) => `${k} ${score(k)} < ${min}`).join(", "));
+      process.exit(1);
+    }
   '
 done
 kill $PREVIEW_PID 2>/dev/null || true

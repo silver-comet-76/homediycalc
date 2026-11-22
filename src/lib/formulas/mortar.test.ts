@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { calculateBrick } from "./brick";
 import { calculateMortar, MORTAR_MIX_RATIOS, MORTAR_MIX_YIELDS_FT3_PER_FT3 } from "./mortar";
+import { convertLength } from "../units";
 
 describe("calculateMortar", () => {
   it("matches the FORMULAS.md worked example: 10 × 8 ft modular brick wall, ⅜ in joint, 15% waste", () => {
@@ -143,7 +145,7 @@ describe("calculateMortar", () => {
           wastePct: 15,
           mortarType: "N",
         });
-        expect(r.bags * r.unitsPerBag).toBeGreaterThanOrEqual(r.unitsNeeded * 1.15);
+        expect(r.bags! * r.unitsPerBag!).toBeGreaterThanOrEqual(r.unitsNeeded * 1.15);
       }
     }
   });
@@ -179,5 +181,125 @@ describe("calculateMortar", () => {
     expect(r.unitsNeeded).toBe(0);
     expect(r.mortarVolumeFt3).toBe(0);
     expect(r.bags).toBe(0);
+  });
+});
+
+describe("calculateMortar — rating applicability (ADR-12, PR #2 second re-review)", () => {
+  it("does not apply the rating to a wider joint: ¾ in joint, volume up, bags suppressed", () => {
+    const r = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: 0.75,
+      wastePct: 15,
+      mortarType: "N",
+    });
+    expect(r.mortarVolumeFt3).toBeCloseTo(8.82, 2);
+    expect(r.unitsNeeded).toBe(459);
+    expect(r.bags).toBeNull();
+    expect(r.unitsPerBag).toBeNull();
+    expect(r.bagsBasis).toBeNull();
+    // Site-mix parts still come from the volume.
+    expect(r.sandFt3).toBeCloseTo(8.82, 2);
+  });
+
+  it("does not apply the rating to a wider joint for blocks either", () => {
+    const r = calculateMortar({
+      areaFt2: 80,
+      unit: "block",
+      jointIn: 0.75,
+      wastePct: 15,
+      mortarType: "N",
+    });
+    expect(r.bags).toBeNull();
+    expect(r.unitsPerBag).toBeNull();
+  });
+
+  it("uses a verified user-entered yield for a wider joint", () => {
+    const r = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: 0.75,
+      wastePct: 15,
+      mortarType: "N",
+      bagYieldFt3: 0.3,
+    });
+    expect(r.bags).toBe(30); // ceil(8.82 / 0.3)
+    expect(r.bagsBasis).toBe("user-yield");
+    expect(r.unitsPerBag).toBeNull();
+  });
+
+  it("keeps the rating for a narrower joint", () => {
+    const r = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: 0.25,
+      wastePct: 15,
+      mortarType: "N",
+    });
+    expect(r.bags).toBe(19);
+    expect(r.bagsBasis).toBe("rating");
+    expect(r.unitsPerBag).toBe(37);
+  });
+
+  it("excludes bag cost when the bag count is unknown", () => {
+    const r = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: 0.75,
+      wastePct: 15,
+      mortarType: "N",
+      pricePerBag: 8,
+    });
+    expect(r.bags).toBeNull();
+    expect(r.costUsd).toBeUndefined();
+  });
+
+  it("accepts metric inputs that match the standard geometry", () => {
+    const metric = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: convertLength(9.5, "mm", "in"),
+      wastePct: 15,
+      mortarType: "N",
+    });
+    expect(metric.bags).toBe(18);
+    expect(metric.bagsBasis).toBe("rating");
+    const wideMetric = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: convertLength(19.05, "mm", "in"),
+      wastePct: 15,
+      mortarType: "N",
+    });
+    expect(wideMetric.mortarVolumeFt3).toBeCloseTo(8.82, 2);
+    expect(wideMetric.bags).toBeNull();
+  });
+
+  it("agrees with the Brick Calculator on the user-yield count for the same wall", () => {
+    const brick = calculateBrick({
+      wallLengthFt: 10,
+      wallHeightFt: 8,
+      openingsFt2: 0,
+      brickLengthIn: 7.625,
+      brickHeightIn: 2.25,
+      brickDepthIn: 3.625,
+      jointIn: 0.75,
+      wastePct: 5,
+      mortarWastePct: 15,
+      bricksPerMortarBag: 37,
+      bagYieldFt3: 0.3,
+    });
+    const mortar = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: 0.75,
+      wastePct: 15,
+      mortarType: "N",
+      bagYieldFt3: 0.3,
+    });
+    expect(brick.mortarVolumeFt3).toBeCloseTo(mortar.mortarVolumeFt3, 2);
+    expect(brick.mortarBags).toBe(30);
+    expect(mortar.bags).toBe(30);
+    expect(brick.mortarBags).toBe(mortar.bags);
   });
 });
