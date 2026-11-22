@@ -59,6 +59,12 @@ import { isStandardDimensions, isStandardJoint, UNIT_PRESETS, type MortarBagBasi
  * uses no more mortar per brick than the standard case, so the
  * rating stays a conservative basis (¼ in joint → 3.58 ft³, 19
  * bags, still covering the volume at the rating's implied yield).
+ *
+ * Partial cost (Phase 8, Issue #3): when the bag count is unknown,
+ * the cost is built per component. A mortar price alone buys no
+ * countable quantity, so the total is suppressed — never $0. A brick
+ * price still buys a known brick count, so that figure is shown but
+ * flagged partial: it covers bricks only and excludes mortar.
  */
 
 export interface BrickInput {
@@ -119,8 +125,20 @@ export interface BrickResult {
   mortarBagsBasis: MortarBagBasis;
   /** Pallets to buy, only when a pallet size was entered. */
   pallets?: number;
-  /** Cost in USD, only when a price was entered. */
+  /**
+   * Cost in USD, only when a price was entered. When the mortar
+   * quantity is unknown (rating does not apply, no verified yield)
+   * and only a mortar price was entered, there is no cost to show —
+   * this is undefined, never 0.
+   */
   costUsd?: number;
+  /**
+   * True when costUsd covers bricks only because the mortar quantity
+   * is unknown: a brick price was entered but no bag count exists, so
+   * no mortar cost could be added. The UI must label it a partial
+   * cost and say it excludes mortar — never present it as a total.
+   */
+  costPartial: boolean;
 }
 
 export function calculateBrick(input: BrickInput): BrickResult {
@@ -182,13 +200,22 @@ export function calculateBrick(input: BrickInput): BrickResult {
     mortarBags = null;
     mortarBagsBasis = null;
   }
-  const costUsd =
-    input.pricePerBrick !== undefined || input.pricePerMortarBag !== undefined
-      ? (input.pricePerBrick !== undefined ? bricksNeeded * input.pricePerBrick : 0) +
-        (input.pricePerMortarBag !== undefined && mortarBags !== null
-          ? mortarBags * input.pricePerMortarBag
-          : 0)
+  // Cost is built per component so an unknown quantity never becomes
+  // a $0 total: with no bag count, a mortar price alone buys nothing
+  // countable, so the total is suppressed (undefined); a brick price
+  // still buys a known brick count, so that figure is shown but
+  // flagged partial — it excludes mortar.
+  const brickCost =
+    input.pricePerBrick !== undefined ? bricksNeeded * input.pricePerBrick : undefined;
+  const mortarCost =
+    input.pricePerMortarBag !== undefined && mortarBags !== null
+      ? mortarBags * input.pricePerMortarBag
       : undefined;
+  const costUsd =
+    brickCost !== undefined || mortarCost !== undefined
+      ? (brickCost ?? 0) + (mortarCost ?? 0)
+      : undefined;
+  const costPartial = mortarBags === null && brickCost !== undefined;
   return {
     grossAreaFt2,
     netAreaFt2,
@@ -201,5 +228,6 @@ export function calculateBrick(input: BrickInput): BrickResult {
     mortarBagsBasis,
     pallets: input.palletSize !== undefined ? ceilUp(bricksNeeded / input.palletSize) : undefined,
     costUsd,
+    costPartial,
   };
 }

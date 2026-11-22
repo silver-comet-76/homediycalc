@@ -83,4 +83,30 @@ describe("brickConfig bag suppression (ADR-12)", () => {
     const out = compute({ joint: 0.25 });
     expect(bagRow(out)?.value).toBe("19 bags");
   });
+
+  // Partial cost (Phase 8, Issue #3): the bag count is unknown for a
+  // wide joint, so a mortar price alone suppresses the cost (never $0)
+  // and a brick price is shown labeled partial, excluding mortar.
+  it("suppresses the cost when only a mortar price is entered and the bag count is unknown", () => {
+    const out = compute({ joint: 0.75, pricePerMortarBag: 8 });
+    expect(out.costUsd).toBeUndefined();
+    expect(out.costLabel).toBeUndefined();
+  });
+
+  it("labels a bricks-only figure partial and excludes mortar for a ¾ in joint", () => {
+    const out = compute({ joint: 0.75, pricePerBrick: 0.5 });
+    expect(out.costUsd).toBe(482 * 0.5); // 241
+    expect(out.costLabel).toBe("Partial cost (bricks only)");
+    expect(out.costDetail).toContain("Excludes mortar");
+    const both = compute({ joint: 0.75, pricePerBrick: 0.5, pricePerMortarBag: 8 });
+    expect(both.costUsd).toBe(482 * 0.5);
+    expect(both.costLabel).toBe("Partial cost (bricks only)");
+  });
+
+  it("does not label the cost partial when the bag count is known", () => {
+    const out = compute({ pricePerBrick: 0.5, pricePerMortarBag: 8 });
+    expect(out.costUsd).toBe(576 * 0.5 + 18 * 8);
+    expect(out.costLabel).toBeUndefined();
+    expect(out.costDetail).toBeUndefined();
+  });
 });

@@ -64,7 +64,9 @@ test("planner: add from two calculators, edit, export CSV, clear", async ({ page
   const path = await download.path();
   expect(path).not.toBeNull();
   const csv = await readFile(path as string, "utf-8");
-  expect(csv).toContain("Room,Calculator,Item,Details,Quantity,Unit cost (USD),Line total (USD)");
+  expect(csv).toContain(
+    "Room,Calculator,Item,Details,Quantity,Unit cost (USD),Line total (USD),Cost note",
+  );
   expect(csv).toContain("paint-calculator");
   expect(csv).toContain("primer-calculator");
   expect(csv).toContain("Kitchen");
@@ -81,6 +83,85 @@ test("planner: add from two calculators, edit, export CSV, clear", async ({ page
   const stored = await page.evaluate(() => localStorage.getItem("homediycalc:project:v1"));
   expect(stored).not.toBeNull();
   expect(JSON.parse(stored as string).items).toEqual([]);
+
+  expect(consoleErrors).toEqual([]);
+});
+
+test("planner: partial brick cost stays partial through save, reload, quantity, and CSV", async ({
+  page,
+}) => {
+  const consoleErrors: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error") consoleErrors.push(msg.text());
+  });
+  page.on("pageerror", (err) => consoleErrors.push(err.message));
+
+  // Drive the Brick Calculator to a partial cost: a ¾ in joint has no
+  // bag count, so a brick price of $0.50 gives a bricks-only figure —
+  // 482 bricks × $0.50 = $241.00, labeled partial (ADR-13).
+  await page.goto("/calculators/brick-calculator/");
+  await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+  await page.getByLabel("Mortar joint width").fill("0.75");
+  await page.getByLabel("Price per brick (optional)").fill("0.5");
+  await expect(page.getByText("Partial cost (bricks only)")).toBeVisible();
+  await expect(page.getByText("$241.00")).toBeVisible();
+  await page.getByRole("button", { name: "Add to Project" }).click();
+  await expect(page.getByText("Saved to")).toBeVisible();
+
+  await page.goto("/my-project/");
+  await expect(page.locator("input[aria-label='Item name']").nth(0)).toHaveValue(
+    "Brick Calculator — Wall",
+  );
+  // The saved item keeps its partial label and detail, and the project
+  // total is a partial total — never an "Estimated total".
+  await expect(
+    page.getByText("Line total: $241.00 ($241.00 × 1) — Partial cost (bricks only)"),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Excludes mortar — no bag count for this brick size or joint"),
+  ).toBeVisible();
+  await expect(page.getByText("Subtotal for General: $241.00 (partial total")).toBeVisible();
+  await expect(page.getByText("Partial total (incomplete estimate): $241.00")).toBeVisible();
+
+  // Reload: the partial flag survives LocalStorage persistence.
+  await page.reload();
+  await expect(
+    page.getByText("Line total: $241.00 ($241.00 × 1) — Partial cost (bricks only)"),
+  ).toBeVisible();
+  await expect(page.getByText("Partial total (incomplete estimate): $241.00")).toBeVisible();
+
+  // Quantity multiplies the partial line total and stays partial.
+  const qtyInput = page.getByLabel("Quantity for Brick Calculator — Wall");
+  await qtyInput.fill("2");
+  await page.locator("#project-name").click();
+  await expect(
+    page.getByText("Line total: $482.00 ($241.00 × 2) — Partial cost (bricks only)"),
+  ).toBeVisible();
+  await expect(page.getByText("Partial total (incomplete estimate): $482.00")).toBeVisible();
+
+  // The CSV export carries the partial note and the partial total row.
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download CSV" }).click();
+  const download = await downloadPromise;
+  const path = await download.path();
+  expect(path).not.toBeNull();
+  const csv = await readFile(path as string, "utf-8");
+  expect(csv).toContain("Partial cost (bricks only); Excludes mortar");
+  expect(csv).toContain("Partial total (incomplete estimate)");
+  expect(csv).toContain("482.00");
+  await expect(page.getByText("CSV downloaded.")).toBeVisible();
+
+  // Editing the unit price clears the partial flag: the edited price is
+  // the user's own figure, so the total becomes a plain estimate.
+  const priceInput = page.getByLabel("Unit price for Brick Calculator — Wall");
+  await priceInput.fill("300");
+  await page.locator("#project-name").click();
+  await expect(page.getByText("Partial cost (bricks only)")).toHaveCount(0);
+  await expect(page.getByText("Estimated total: $600.00")).toBeVisible();
+
+  page.on("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Clear project" }).click();
+  await expect(page.getByText("Nothing saved yet.")).toBeVisible();
 
   expect(consoleErrors).toEqual([]);
 });

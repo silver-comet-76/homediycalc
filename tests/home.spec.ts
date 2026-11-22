@@ -40,19 +40,53 @@ test("home page loads, nav works, no console errors", async ({ page }) => {
 });
 
 test("sitemap and robots are served", async ({ request }) => {
+  // The build under test decides the expected URLs (ADR-17): a
+  // production or preview build with an origin uses absolute URLs
+  // with exactly that origin; a local build stays relative — even
+  // when an origin variable is set, because a local build ignores
+  // the origin for URL generation (origin alone never implies
+  // production).
+  const mode = process.env.PUBLIC_BUILD_MODE ?? "";
+  const origin =
+    mode === "production" || mode === "preview" ? (process.env.PUBLIC_SITE_URL ?? "") : "";
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.ok()).toBeTruthy();
   const sitemapText = await sitemap.text();
-  expect(sitemapText).toContain("<loc>/</loc>");
-  expect(sitemapText).toContain("<loc>/calculators/</loc>");
-  expect(sitemapText).toContain("<loc>/categories/painting/</loc>");
+  expect(sitemapText).toContain(`<loc>${origin}/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/categories/painting/</loc>`);
   // Shipped calculator pages are in the sitemap — all 25 from Phase 4.
-  expect(sitemapText).toContain("<loc>/calculators/concrete-calculator/</loc>");
-  expect(sitemapText).toContain("<loc>/calculators/drywall-calculator/</loc>");
-  expect(sitemapText).toContain("<loc>/calculators/ceiling-tile-calculator/</loc>");
-  expect(sitemapText).toContain("<loc>/calculators/baseboard-calculator/</loc>");
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/concrete-calculator/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/drywall-calculator/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/ceiling-tile-calculator/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/baseboard-calculator/</loc>`);
 
   const robots = await request.get("/robots.txt");
   expect(robots.ok()).toBeTruthy();
-  expect(await robots.text()).toContain("Sitemap: /sitemap.xml");
+  expect(await robots.text()).toContain(`Sitemap: ${origin}/sitemap.xml`);
+});
+
+test("noindex and canonical follow the build mode (Phase 8, ADR-17)", async ({ page }) => {
+  // Production (PUBLIC_BUILD_MODE=production + a valid origin):
+  // indexable — no noindex tag, absolute canonical with exactly the
+  // origin. Preview (mode=preview, or the legacy PUBLIC_PREVIEW=true)
+  // and local (anything else, including an origin with no mode):
+  // fail-closed noindex on every page, canonical absolute with the
+  // origin (preview with an origin) or relative (local, which ignores
+  // the origin). The gate audit checks all 40 pages per mode; this
+  // test checks the rendered home page.
+  const mode =
+    process.env.PUBLIC_BUILD_MODE ?? (process.env.PUBLIC_PREVIEW === "true" ? "preview" : "local");
+  const origin =
+    mode === "production" || mode === "preview" ? (process.env.PUBLIC_SITE_URL ?? "") : "";
+  await page.goto("/");
+  const noindex = page.locator('meta[name="robots"][content*="noindex"]');
+  const canonical = page.locator('link[rel="canonical"]');
+  if (mode === "production") {
+    await expect(noindex).toHaveCount(0);
+    await expect(canonical).toHaveAttribute("href", `${origin}/`);
+  } else {
+    await expect(noindex).toHaveCount(1);
+    await expect(canonical).toHaveAttribute("href", `${origin}/`);
+  }
 });

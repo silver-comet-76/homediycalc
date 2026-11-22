@@ -15,10 +15,28 @@ Reads the production build in dist/ and verifies, with no network access:
   - no fetch()/XMLHttpRequest/WebSocket in the built client JavaScript
   - src/lib/ads.ts is still a placeholder (no real ad code)
 
-Usage: python3 scripts/gate-audit.py [dist-dir]
+Build modes (Phase 8 review response, PR #4 review 6012776210, P0,
+ADR-15) — the URL and noindex rules depend on the build's mode, and
+the audit enforces the exact origin, not just the URL path:
+  - production (--mode production --origin <origin>): every canonical,
+    sitemap <loc>, and robots Sitemap: must be absolute with EXACTLY
+    the given origin (a wrong host fails); no page may carry a noindex
+    meta tag. --origin is required in this mode.
+  - preview (--mode preview [--origin <origin>]): every indexable page
+    AND the 404 must carry a noindex meta tag. Canonicals, sitemap
+    locations, and robots Sitemap: must use exactly the given origin
+    when one is passed, and must be relative when none is passed.
+  - local (--mode local): every indexable page AND the 404 must carry a
+    noindex meta tag (fail-closed: an unconfigured build is never
+    indexable); canonicals, sitemap locations, and robots Sitemap:
+    must all be relative.
+
+Usage: python3 scripts/gate-audit.py [--mode production|preview|local]
+         [--origin https://example.com] [dist-dir]
 Exit 0 when every check passes, 1 otherwise. Prints one line per check.
 """
 
+import argparse
 import json
 import re
 import sys
@@ -44,6 +62,44 @@ TRACKING_PATTERNS = [
 NETWORK_PATTERNS = ["fetch(", "XMLHttpRequest", "WebSocket"]
 
 
+def validate_origin(origin: str) -> str:
+    """Validate an expected production origin with the same rule as
+    src/lib/origin.ts: a bare https:// hostname, no path/port/query/
+    localhost/IP. Returns the normalized origin (lowercase host).
+    Raises ValueError on an invalid origin."""
+    parsed = urlparse(origin)
+    host = parsed.hostname or ""
+    is_ip = bool(re.fullmatch(r"\d+\.\d+\.\d+\.\d+", host)) or host.startswith("[")
+    if (
+        parsed.scheme != "https"
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.port is not None
+        or parsed.path not in ("", "/")
+        or parsed.query != ""
+        or parsed.fragment != ""
+        or host == ""
+        or "." not in host
+        or host == "localhost"
+        or host.endswith(".local")
+        or is_ip
+    ):
+        raise ValueError(
+            f"Invalid origin {origin!r}: a production origin must be a bare https:// "
+            "hostname, e.g. https://homediycalc.pages.dev — no http, path, port, "
+            "query, localhost, or IP address."
+        )
+    return f"https://{host.lower()}"
+
+
+def origin_of(url: str) -> str:
+    """Scheme + host of an absolute URL, or '' when the URL is relative."""
+    parsed = urlparse(url)
+    if not parsed.scheme:
+        return ""
+    return f"{parsed.scheme}://{parsed.hostname or ''}".lower()
+
+
 class PageParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
@@ -51,6 +107,7 @@ class PageParser(HTMLParser):
         self._in_title = False
         self.description = None
         self.canonical = None
+        self.noindex = False
         self.h1_count = 0
         self.og = False
         self.twitter = False
@@ -69,6 +126,12 @@ class PageParser(HTMLParser):
         elif tag == "meta":
             if a.get("name") == "description":
                 self.description = a.get("content", "")
+            if a.get("name") == "robots" and "noindex" in a.get("content", ""):
+                # A robots noindex tag is required on every page of a
+                # local/preview build (fail-closed, ADR-15) and forbidden
+                # on every page of a production build; the mode check
+                # below enforces whichever rule applies.
+                self.noindex = True
             if a.get("property", "").startswith("og:"):
                 self.og = True
             if a.get("name", "").startswith("twitter:"):
@@ -124,7 +187,28 @@ def page_path(dist: Path, url_path: str) -> Path | None:
 
 
 def main() -> int:
-    dist = Path(sys.argv[1] if len(sys.argv) > 1 else "dist")
+    parser = argparse.ArgumentParser(description="HomeDIYCalc release-gate audit checks")
+    parser.add_argument("--mode", choices=["production", "preview", "local"],
+                        default="production",
+                        help="build mode whose URL/noindex rules to enforce")
+    parser.add_argument("--origin", default=None,
+                        help="expected production origin, e.g. https://example.com "
+                             "(required for --mode production; optional for preview)")
+    parser.add_argument("dist_dir", nargs="?", default="dist")
+    args = parser.parse_args()
+    mode = args.mode
+    if mode == "production" and not args.origin:
+        print("FAIL  --mode production requires --origin (the exact production origin)")
+        return 1
+    if mode == "local" and args.origin:
+        print("FAIL  --mode local takes no --origin (a local build has no origin)")
+        return 1
+    expected_origin = validate_origin(args.origin) if args.origin else None
+    if expected_origin is None and mode == "production":
+        print("FAIL  --mode production requires a valid --origin")
+        return 1
+
+    dist = Path(args.dist_dir)
     repo = Path(__file__).resolve().parent.parent
     failures: list[str] = []
 
@@ -132,6 +216,8 @@ def main() -> int:
         print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f" — {detail}" if detail else ""))
         if not ok:
             failures.append(name)
+
+    print(f"audit mode: {mode}" + (f", expected origin: {expected_origin}" if expected_origin else ""))
 
     html_files = sorted(dist.rglob("*.html"))
     pages = [p for p in html_files if p.name != "404.html"]
@@ -150,6 +236,33 @@ def main() -> int:
           len(sitemap_urls) == 39 and sitemap_paths == sorted(page_paths)
           and not any("404" in u for u in sitemap_urls),
           f"{len(sitemap_urls)} URLs")
+    # Origin rule (ADR-15): production and preview-with-origin sitemaps
+    # carry absolute <loc> with exactly the expected origin; local and
+    # preview-without-origin sitemaps stay relative. A wrong host fails
+    # even if every path is right.
+    if expected_origin is not None:
+        bad_sitemap_origin = [u for u in sitemap_urls if origin_of(u) != expected_origin]
+        check("sitemap <loc> URLs use exactly the expected origin",
+              not bad_sitemap_origin,
+              f"{len(bad_sitemap_origin)} wrong-origin URLs" + (f": {bad_sitemap_origin[0]}" if bad_sitemap_origin else ""))
+    else:
+        bad_sitemap_absolute = [u for u in sitemap_urls if origin_of(u) != ""]
+        check("sitemap <loc> URLs are relative (no origin set)",
+              not bad_sitemap_absolute,
+              f"{len(bad_sitemap_absolute)} absolute URLs" + (f": {bad_sitemap_absolute[0]}" if bad_sitemap_absolute else ""))
+
+    # robots.txt Sitemap: directive follows the same origin rule.
+    robots_text = (dist / "robots.txt").read_text(encoding="utf-8")
+    sitemap_lines = [line for line in robots_text.splitlines()
+                     if line.strip().lower().startswith("sitemap:")]
+    if expected_origin is not None:
+        robots_ok = len(sitemap_lines) == 1 and sitemap_lines[0].split(":", 1)[1].strip() == f"{expected_origin}/sitemap.xml"
+        check("robots.txt Sitemap: is absolute with exactly the expected origin",
+              robots_ok, sitemap_lines[0].strip() if sitemap_lines else "no Sitemap: line")
+    else:
+        robots_ok = len(sitemap_lines) == 1 and sitemap_lines[0].split(":", 1)[1].strip() == "/sitemap.xml"
+        check("robots.txt Sitemap: is relative (no origin set)",
+              robots_ok, sitemap_lines[0].strip() if sitemap_lines else "no Sitemap: line")
 
     parsed: dict[Path, PageParser] = {}
     for p in html_files:
@@ -170,6 +283,8 @@ def main() -> int:
     bad_h1 = []
     bad_social = []
     bad_jsonld = []
+    bad_noindex = []
+    missing_noindex = []
     for p in pages:
         parser = parsed[p]
         url_path = "/" + str(p.relative_to(dist)).removesuffix("index.html").removesuffix(".html")
@@ -177,8 +292,23 @@ def main() -> int:
             url_path = "/"
         elif not url_path.endswith("/"):
             url_path += "/"
-        if parser.canonical != url_path:
+        # Canonical must be self-referential (path = the page's own path)
+        # AND follow the mode's origin rule (ADR-15): production and
+        # preview-with-origin carry absolute canonicals with exactly the
+        # expected origin; local and preview-without-origin stay
+        # relative. A wrong host fails even when the path is right.
+        canonical_path = urlparse(parser.canonical).path if parser.canonical else None
+        canonical_origin = origin_of(parser.canonical) if parser.canonical else None
+        if canonical_path != url_path:
             bad_canonical.append(str(p.relative_to(dist)))
+        elif expected_origin is not None and canonical_origin != expected_origin:
+            bad_canonical.append(str(p.relative_to(dist)))
+        elif expected_origin is None and canonical_origin not in (None, ""):
+            bad_canonical.append(str(p.relative_to(dist)))
+        if parser.noindex:
+            bad_noindex.append(str(p.relative_to(dist)))
+        else:
+            missing_noindex.append(str(p.relative_to(dist)))
         if parser.h1_count != 1:
             bad_h1.append(str(p.relative_to(dist)))
         if not (parser.og and parser.twitter):
@@ -188,7 +318,23 @@ def main() -> int:
                 json.loads(block)
             except json.JSONDecodeError:
                 bad_jsonld.append(str(p.relative_to(dist)))
-    check("canonical present and self-referential on every page", not bad_canonical, "; ".join(bad_canonical[:3]))
+    if expected_origin is not None:
+        check("canonical present, self-referential, and absolute with exactly the expected origin",
+              not bad_canonical, "; ".join(bad_canonical[:3]))
+    else:
+        check("canonical present, self-referential, and relative (no origin set)",
+              not bad_canonical, "; ".join(bad_canonical[:3]))
+    if mode == "production":
+        check("no page carries a robots noindex meta (production builds are indexable)", not bad_noindex, "; ".join(bad_noindex[:3]))
+    else:
+        # Fail-closed (ADR-15): a local or preview build must carry a
+        # noindex tag on every indexable page AND the 404 (which uses
+        # the same Layout), so an unconfigured build can never leak
+        # into search results.
+        four04_noindex = parsed[dist / "404.html"].noindex if (dist / "404.html") in parsed else False
+        check("every indexable page and the 404 carry a robots noindex meta (local/preview builds are never indexable)",
+              not missing_noindex and four04_noindex,
+              "; ".join(missing_noindex[:3]) + ("; 404 lacks noindex" if not four04_noindex else ""))
     check("exactly one H1 per page", not bad_h1, "; ".join(bad_h1[:3]))
     check("Open Graph + Twitter card on every page", not bad_social, "; ".join(bad_social[:3]))
     check("every JSON-LD block parses", not bad_jsonld, "; ".join(bad_jsonld[:3]))

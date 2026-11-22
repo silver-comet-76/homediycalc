@@ -59,7 +59,7 @@ src/
     about.astro  contact.astro  privacy-policy.astro  terms-of-use.astro  disclaimer.astro
   styles/
 public/
-  robots.txt  sitemap.xml  ads.txt (only when AdSense is enabled)
+  _headers  favicon.svg  og-image.svg  (robots.txt is a build-time route, `src/pages/robots.txt.ts`; sitemap.xml is generated at build time, `src/pages/sitemap.xml.ts`; ads.txt only when AdSense is enabled)
 docs/                # This project's documentation (PRD, architecture, roadmap, ...)
 tests/               # Playwright e2e tests
 ```
