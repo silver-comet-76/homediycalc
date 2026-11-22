@@ -4,7 +4,8 @@
  *
  * Each P0 calculator is one config object: one or more input modes (e.g.
  * rectangle vs. L-shape), a pure `compute` function per mode that receives
- * canonical values (feet / square feet / cubic feet / US gallons) and
+ * canonical values (feet / square feet / cubic feet / US gallons /
+ * square feet per gallon) and
  * returns display rows plus a shopping list, and the static page content
  * (how to measure, worked example, limitations, FAQ). The island owns all
  * UI behavior — unit toggle, validation, reset, copy, Add to Project —
@@ -15,43 +16,29 @@
 import type { ResultRow } from "./CalculatorInputs";
 
 export type FieldKind =
-  | "length"
-  | "area"
-  | "volume"
-  | "number"
-  | "count"
-  | "percent"
-  | "price"
-  | "select";
+  "length" | "area" | "volume" | "number" | "count" | "percent" | "price" | "select";
 
 /** Kinds of SVG measurement diagram the shared component can draw. */
-export type DiagramKind =
-  | "area"
-  | "volume"
-  | "wall"
-  | "ceiling"
-  | "joint"
-  | "linear"
-  | "board";
+export type DiagramKind = "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board";
 
-export type UnitKind = "length" | "area" | "volume";
+export type UnitKind = "length" | "area" | "volume" | "coverage";
 
 export interface FieldSpec {
   id: string;
   label: string;
   kind: FieldKind;
-  /** Which unit family the field converts in (length/area/volume). */
+  /** Which unit family the field converts in (length/area/volume/coverage). */
   unitKind?: UnitKind;
   /**
    * Canonical unit the formula expects, when it is not the family
-   * default (feet / square feet / cubic feet). E.g. tile and brick
-   * dimensions are entered in inches and the formulas take inches, so
-   * those fields set canonicalUnit "in".
+   * default (feet / square feet / cubic feet / square feet per gallon).
+   * E.g. tile and brick dimensions are entered in inches and the
+   * formulas take inches, so those fields set canonicalUnit "in".
    */
   canonicalUnit?: string;
-  /** Unit used in the imperial system, e.g. "ft", "in", "ft2", "yd3". */
+  /** Unit used in the imperial system, e.g. "ft", "in", "ft2", "yd3", "ft2/gal". */
   impUnit?: string;
-  /** Unit used in the metric system, e.g. "m", "cm", "m2", "m3". */
+  /** Unit used in the metric system, e.g. "m", "cm", "m2", "m3", "m2/L". */
   metUnit?: string;
   /** Default value shown in the imperial system. */
   defaultImp: string;
@@ -90,10 +77,10 @@ export interface ModeSpec {
   fields: FieldSpec[];
   /**
    * Pure calculation for this mode. `values` holds canonical numbers
-   * (feet / square feet / cubic feet / US gallons, or raw numbers for
-   * number/count/percent/price fields); `present` lists the field ids the
-   * user actually filled in, so optional fields can be told apart from
-   * fields left empty.
+   * (feet / square feet / cubic feet / US gallons / square feet per
+   * gallon, or raw numbers for number/count/percent/price fields);
+   * `present` lists the field ids the user actually filled in, so
+   * optional fields can be told apart from fields left empty.
    */
   compute: (values: Record<string, number>, present: Set<string>) => CalcOutput;
 }

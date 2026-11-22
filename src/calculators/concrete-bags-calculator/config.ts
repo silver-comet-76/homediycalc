@@ -15,11 +15,7 @@ import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
 
-function bagsOutput(
-  volumeFt3: number,
-  v: Record<string, number>,
-  present: Set<string>,
-) {
+function bagsOutput(volumeFt3: number, v: Record<string, number>, present: Set<string>) {
   const r = calculateConcreteBags({
     volumeFt3,
     wastePct: req(v, "waste"),
@@ -76,10 +72,39 @@ function bagsOutput(
 }
 
 const COMMON_FIELDS = [
-  { id: "waste", label: "Waste allowance", kind: "percent" as const, defaultImp: "10", defaultMet: "10", hint: "10% is the usual default for a rectangular pour; 5% for a large simple slab, 15% for irregular excavation." },
-  { id: "pricePerBag40", label: "Price per 40 lb bag (optional)", kind: "price" as const, defaultImp: "", defaultMet: "", optional: true },
-  { id: "pricePerBag60", label: "Price per 60 lb bag (optional)", kind: "price" as const, defaultImp: "", defaultMet: "", optional: true },
-  { id: "pricePerBag80", label: "Price per 80 lb bag (optional)", kind: "price" as const, defaultImp: "", defaultMet: "", optional: true, hint: "Enter prices for the sizes you are comparing to see the cheapest option." },
+  {
+    id: "waste",
+    label: "Waste allowance",
+    kind: "percent" as const,
+    defaultImp: "10",
+    defaultMet: "10",
+    hint: "10% is the usual default for a rectangular pour; 5% for a large simple slab, 15% for irregular excavation.",
+  },
+  {
+    id: "pricePerBag40",
+    label: "Price per 40 lb bag (optional)",
+    kind: "price" as const,
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
+  {
+    id: "pricePerBag60",
+    label: "Price per 60 lb bag (optional)",
+    kind: "price" as const,
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
+  {
+    id: "pricePerBag80",
+    label: "Price per 80 lb bag (optional)",
+    kind: "price" as const,
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+    hint: "Enter prices for the sizes you are comparing to see the cheapest option.",
+  },
 ];
 
 export const concreteBagsConfig: CalculatorConfig = {
@@ -129,7 +154,18 @@ export const concreteBagsConfig: CalculatorConfig = {
       id: "volume",
       label: "Known volume",
       fields: [
-        { id: "volume", label: "Volume", kind: "volume", unitKind: "volume", canonicalUnit: "ft3", impUnit: "yd3", metUnit: "m3", defaultImp: "1", defaultMet: "0.76", hint: "Enter the volume from your plan, or switch to dimensions mode to measure it." },
+        {
+          id: "volume",
+          label: "Volume",
+          kind: "volume",
+          unitKind: "volume",
+          canonicalUnit: "ft3",
+          impUnit: "yd3",
+          metUnit: "m3",
+          defaultImp: "1",
+          defaultMet: "0.76",
+          hint: "Enter the volume from your plan, or switch to dimensions mode to measure it.",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => bagsOutput(req(v, "volume"), v, present),
@@ -138,9 +174,38 @@ export const concreteBagsConfig: CalculatorConfig = {
       id: "dimensions",
       label: "Dimensions",
       fields: [
-        { id: "length", label: "Length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3" },
-        { id: "width", label: "Width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3" },
-        { id: "depth", label: "Depth", kind: "length", unitKind: "length", canonicalUnit: "ft", impUnit: "in", metUnit: "cm", defaultImp: "4", defaultMet: "10", hint: "4 in is typical for a patio or walkway; 6 in for a garage or driveway." },
+        {
+          id: "length",
+          label: "Length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3",
+        },
+        {
+          id: "width",
+          label: "Width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3",
+        },
+        {
+          id: "depth",
+          label: "Depth",
+          kind: "length",
+          unitKind: "length",
+          canonicalUnit: "ft",
+          impUnit: "in",
+          metUnit: "cm",
+          defaultImp: "4",
+          defaultMet: "10",
+          hint: "4 in is typical for a patio or walkway; 6 in for a garage or driveway.",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) =>

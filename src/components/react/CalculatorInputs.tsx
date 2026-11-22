@@ -92,7 +92,7 @@ export function UnitToggle({ value, onChange }: UnitToggleProps) {
         onClick={() => onChange("imperial")}
         className={
           value === "imperial"
-            ? "rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+            ? "toggle-pressed rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
             : "rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
         }
       >
@@ -104,7 +104,7 @@ export function UnitToggle({ value, onChange }: UnitToggleProps) {
         onClick={() => onChange("metric")}
         className={
           value === "metric"
-            ? "rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+            ? "toggle-pressed rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
             : "rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
         }
       >
@@ -148,7 +148,10 @@ export function ResultPanel({
       <h2 className="text-xl font-bold text-slate-900">{title}</h2>
       <dl className="mt-4 space-y-3">
         {rows.map((row) => (
-          <div key={row.label} className="flex items-baseline justify-between gap-4 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
+          <div
+            key={row.label}
+            className="flex items-baseline justify-between gap-4 border-b border-slate-200 pb-3 last:border-0 last:pb-0"
+          >
             <dt className="text-slate-700">{row.label}</dt>
             <dd className="text-right font-bold text-slate-900">
               {row.value}

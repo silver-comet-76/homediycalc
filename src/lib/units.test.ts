@@ -4,6 +4,7 @@ import {
   LITERS_PER_US_GALLON,
   METERS_PER_FOOT,
   MILLIMETERS_PER_INCH,
+  ceilUp,
   convertArea,
   convertLength,
   convertVolume,
@@ -65,10 +66,7 @@ describe("length conversions", () => {
     for (const from of units) {
       for (const to of units) {
         const original = 12.345;
-        expect(convertLength(convertLength(original, from, to), to, from)).toBeCloseTo(
-          original,
-          9,
-        );
+        expect(convertLength(convertLength(original, from, to), to, from)).toBeCloseTo(original, 9);
       }
     }
   });
@@ -100,10 +98,7 @@ describe("area conversions", () => {
     for (const from of units) {
       for (const to of units) {
         const original = 54.321;
-        expect(convertArea(convertArea(original, from, to), to, from)).toBeCloseTo(
-          original,
-          9,
-        );
+        expect(convertArea(convertArea(original, from, to), to, from)).toBeCloseTo(original, 9);
       }
     }
   });
@@ -146,10 +141,7 @@ describe("volume conversions", () => {
     for (const from of units) {
       for (const to of units) {
         const original = 8.765;
-        expect(convertVolume(convertVolume(original, from, to), to, from)).toBeCloseTo(
-          original,
-          9,
-        );
+        expect(convertVolume(convertVolume(original, from, to), to, from)).toBeCloseTo(original, 9);
       }
     }
   });
@@ -172,5 +164,35 @@ describe("roundForDisplay", () => {
   it("supports a custom decimal count", () => {
     expect(roundForDisplay(1.2345, 3)).toBe(1.235);
     expect(roundForDisplay(1.2345, 0)).toBe(1);
+  });
+});
+
+describe("ceilUp", () => {
+  it("does not round up a whole number produced by floating-point error", () => {
+    // 100 × 1.1 is 110.00000000000001 in binary floating point; a plain
+    // Math.ceil would order 111. ceilUp tolerates that epsilon.
+    expect(ceilUp(100 * 1.1)).toBe(110);
+    expect(ceilUp(66.00000000000001)).toBe(66);
+  });
+
+  it("still rounds a genuinely fractional value just above a whole number up", () => {
+    expect(ceilUp(66.0001)).toBe(67);
+    expect(ceilUp(66.5)).toBe(67);
+    expect(ceilUp(66)).toBe(66);
+    // Genuinely above an integer, but by more than the 1e-12 relative
+    // tolerance: 5.0000000005 is 5e-10 above 5, so it rounds up to 6 —
+    // the tolerance corrects floating-point noise, not real quantities.
+    expect(ceilUp(5.0000000005)).toBe(6);
+  });
+
+  it("never recommends zero packages for a strictly positive requirement", () => {
+    // The old fixed 1e-9 epsilon rounded any requirement below 1e-9
+    // down to zero packages. A positive requirement always orders at
+    // least one package; zero stays zero.
+    expect(ceilUp(1e-12)).toBe(1);
+    expect(ceilUp(5e-10)).toBe(1);
+    expect(ceilUp(0.000001)).toBe(1);
+    expect(ceilUp(0)).toBe(0);
+    expect(ceilUp(-3)).toBe(0);
   });
 });

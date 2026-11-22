@@ -26,8 +26,7 @@ const env = import.meta.env as Record<string, string | undefined>;
 export const ADS_ENABLED = false as const;
 
 /** AdSense publisher ID, e.g. `ca-pub-XXXXXXXXXXXXXXXX` once real. */
-export const ADSENSE_PUBLISHER_ID =
-  env.PUBLIC_ADSENSE_PUBLISHER_ID ?? "ca-pub-XXXXXXXXXXXXXXXX";
+export const ADSENSE_PUBLISHER_ID = env.PUBLIC_ADSENSE_PUBLISHER_ID ?? "ca-pub-XXXXXXXXXXXXXXXX";
 
 /** AdSense ad-unit (slot) IDs, one per placement. */
 export const AD_SLOTS = {

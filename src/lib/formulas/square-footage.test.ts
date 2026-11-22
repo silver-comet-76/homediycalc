@@ -22,7 +22,11 @@ describe("calculateSquareFootage", () => {
 
   it("adds the two rectangles for an L-shaped room", () => {
     const r = calculateSquareFootage({
-      shape: "l-shape", lengthFt: 12, widthFt: 10, length2Ft: 6, width2Ft: 8,
+      shape: "l-shape",
+      lengthFt: 12,
+      widthFt: 10,
+      length2Ft: 6,
+      width2Ft: 8,
     });
     expect(r.areaFt2).toBe(168);
   });

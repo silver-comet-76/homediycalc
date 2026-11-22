@@ -7,7 +7,7 @@ import { ceilUp } from "../units";
  * Pure functions only. Canonical units: feet for lengths.
  *
  * Formula:
- *   `net length = perimeter − doors × door width`
+ *   `net length = max(0, perimeter − doors × door width)`
  *   (or the total wall length entered directly)
  *   `adjusted length = net length × (1 + waste%)`
  *   `pieces = ceil(adjusted length ÷ piece length)`
@@ -55,17 +55,18 @@ export function calculateBaseboard(input: BaseboardInput): BaseboardResult {
   const adjustedFt = input.netLengthFt * (1 + input.wastePct / 100);
   const pieces = ceilUp(adjustedFt / input.pieceLengthFt);
   const purchasedFt = pieces * input.pieceLengthFt;
-  const costUsd =
-    input.pricePerFt !== undefined ? purchasedFt * input.pricePerFt : undefined;
+  const costUsd = input.pricePerFt !== undefined ? purchasedFt * input.pricePerFt : undefined;
   return { adjustedFt, pieces, purchasedFt, costUsd };
 }
 
-/** Net wall length for a rectangular room, in feet. */
+/** Net wall length for a rectangular room, in feet. Never below zero:
+ * more door width than perimeter means no baseboard, not a negative
+ * length (a 12 × 12 ft room with fifty 3 ft doors has 0 ft, not −102 ft). */
 export function roomNetLengthFt(
   lengthFt: number,
   widthFt: number,
   doors: number,
   doorWidthFt: number,
 ): number {
-  return 2 * (lengthFt + widthFt) - doors * doorWidthFt;
+  return Math.max(0, 2 * (lengthFt + widthFt) - doors * doorWidthFt);
 }

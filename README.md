@@ -42,7 +42,7 @@ No backend, no database, no paid API. No external API is required by any calcula
 ## Local Setup
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/silver-comet-76/homediycalc
 cd homediycalc
 npm install
 npm run dev
@@ -73,12 +73,12 @@ Deployment is to Cloudflare Pages (free tier), via Git integration or manual upl
 | `docs/DECISIONS.md` | Architecture decision records (ADR-style) |
 | `docs/DEPLOYMENT.md` | Cloudflare Pages deployment, build command, custom domain notes, ads.txt, Search Console |
 | `docs/FORMULAS.md` | Documented formulas for all 25 calculators, with worked test-case examples |
-| `docs/QA-REPORT.md` | Initial QA report: test plan and acceptance checklist (no tests have run yet) |
-| `docs/PHASE-REPORT.md` | Phase reports; Phase 0 filled in, later phases as stubs |
+| `docs/QA-REPORT.md` | QA report: test plan, acceptance checklist, Phase 1–6 results, and the ADR-9 release-gate record (passed 2026-11-20) |
+| `docs/PHASE-REPORT.md` | Phase reports for Phases 0–6 |
 
 ## Status
 
-**Phase 6 (deployment preparation) — complete.** See `docs/PHASE-REPORT.md`. Clean production build re-verified (39 pages), Vitest 204/204 (including 3 new ads-guard tests), Playwright 68/68 on desktop + mobile, strict typecheck clean (0 errors, 0 warnings, 0 hints), final smoke test 25/25 calculator URLs returning 200 with zero console errors on the local production build. Cloudflare Pages deployment is prepared but **not executed**: Git integration and manual deploy paths, Node 24 build settings, `_headers` verification, rollback procedure, Search Console instructions (all three verification methods), and AdSense scaffolding with ads verified disabled are all documented in `docs/DEPLOYMENT.md`. Nothing is deployed anywhere — no Cloudflare account, no Pages project, no GitHub repository (creation still blocked on the GitHub App installation), no domain — and the project is not complete: ADR-9 requires 3 consecutive clean full test rounds after Phases 4–6.
+**Phase 7 (independent audit and remediation) — audit and remediation complete, ADR-9 re-gate passed; on GitHub as PR #2, awaiting final re-review.** See `docs/PHASE-REPORT.md` Phase 7 and `docs/QA-REPORT.md` §13. The audit ordered by GitHub Issue #1 found 11 major and 19 minor formula defects across 18 of 25 calculators (7 passed) plus 6 accessibility findings, a no-op lint script, 24 stale statements, and category pages thinner than documented — all fixed on the `phase-7` branch with 78 new regression tests (Vitest 282/282, Playwright 76/76, typecheck 0/0/0, lint passes, 40 pages built — 39 indexable + custom 404 — Lighthouse Home 100/100/100/83 every round and Paint Performance 98–100 across rounds, 3 consecutive clean gate rounds, re-gated after each review response). The branch is on GitHub (snapshot head `0f042c7f`, pushed 2026-11-22); PR #2 (`phase-7` → `main`) is open and the Issue #1 summary comment is posted. The reviewer returned REQUEST_CHANGES twice (reviews 6009535299 and 6009895920, 2026-11-22): the mortar-bag method now follows the manufacturer count rating (18 bags, not 9, for the worked example), `ceilUp` can no longer recommend zero packages for a positive requirement, the gate scripts are committed in the repo, and the rating now applies only to standard geometry — for wider joints or non-modular brick, no bag count is shown unless the user enters a verified bag yield (see `docs/QA-REPORT.md` §13.4–13.5). The re-gate after the second response passed with 3 fresh clean rounds on 2026-11-22 ~12:04–12:09 JST (Vitest 282/282, Playwright 76/76, Lighthouse Home + Paint 100/100/100/83 every round); its record is in `docs/QA-REPORT.md` §13.5. Nothing is deployed anywhere — no Cloudflare account, no Pages project, no domain; the code is on GitHub at https://github.com/silver-comet-76/homediycalc (main at snapshot 34b917a8, pushed 2026-11-21). ADR-9 passed on 2026-11-20 at commit ca29ba1, again on 2026-11-21 after the Phase 7 remediation, again on 2026-11-22 after the first PR #2 review response, and again on 2026-11-22 after the second review response (3 consecutive clean full test rounds each time).
 
 ## Contributing
 

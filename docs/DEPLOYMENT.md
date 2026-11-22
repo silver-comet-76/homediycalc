@@ -2,14 +2,14 @@
 
 > Status: Phase 6 — deployment preparation complete (2026-11-20). Nothing has
 > been deployed. There is no Cloudflare account, no Cloudflare Pages project,
-> no GitHub repository, and no domain yet. Everything below is preparation
+> and no domain yet. The code is on GitHub at https://github.com/silver-comet-76/homediycalc (main at snapshot 34b917a8). Everything below is preparation
 > and documentation; the first real deployment still needs owner approval
 > (see §13).
 
 ## 1. Overview
 
 - **Host:** Cloudflare Pages, free tier.
-- **Source:** GitHub repository (Astro static build output) — repository does not exist yet; see §2.
+- **Source:** GitHub repository https://github.com/silver-comet-76/homediycalc (main at snapshot 34b917a8).
 - **Build command:** `npm run build`
 - **Build output directory:** `dist/`
 - **Node version for the build:** 24 (set `NODE_VERSION=24` in the Pages project; see §3). The project's `package.json` engines field requires Node `>=22.23.4` — per the license audit, the Cloudflare Pages build image must be Node ≥22.23.4, and Node 24 is what the project is developed and tested on (v24.22.1).
@@ -18,14 +18,14 @@
 
 ## 2. Prerequisites
 
-1. **GitHub repository with the project pushed** (all 25 calculators and main pages complete). **Not done:** the repository `silver-comet-76/homediycalc` does not exist yet. Creating it via the GitHub connector failed with 403 "Resource not accessible by integration" because the Muse GitHub App installation is not finished (the user authorized OAuth but has not completed the repository-selection step). Creating the repo is blocked on that step; the fallback is the browser web-UI route. Until the repo exists, the Git-integration path in §3 cannot be executed.
+1. **GitHub repository with the project pushed** (all 25 calculators and main pages complete). **Done 2026-11-21:** the repository https://github.com/silver-comet-76/homediycalc exists (public, main at snapshot 34b917a8, pushed via the browser web UI after the GitHub App installation step stayed incomplete). The Git-integration path in §3 can now be executed once a Cloudflare account and Pages project exist.
 2. **A Cloudflare account (free).** **Not created.** The agent does not create accounts on the user's behalf without instruction. Do not create one as part of Phase 6.
 3. **Node.js 24** for the build (see §1). Locally verified: Node v24.22.1.
 4. **Wrangler (for the manual path only).** **Not installed** in this environment (`command -v wrangler` returns nothing). Do not add it as a project dependency without a license note; install it only when a manual deploy is actually being done (see §4).
 
 ## 3. Deployment via Git Integration (recommended)
 
-Documented, not executed — the GitHub repository in §2 item 1 does not exist yet, so no Pages project can be connected today.
+Documented, not executed — no Cloudflare account or Pages project exists yet, so no Pages project can be connected today.
 
 1. Push the project to GitHub (once the repository exists), branch `main`.
 2. In the Cloudflare dashboard: **Workers & Pages → Create → Pages → Connect to Git**.
@@ -69,7 +69,8 @@ Confirm the exact command against the installed Wrangler version at the time —
 
 ## 5. Pre-Deploy Checklist (every deploy)
 
-- [ ] `npm run build` succeeds locally with no errors (clean `dist/`, 39 pages).
+- [ ] `npm run build` succeeds locally with no errors (clean `dist/`, 40 pages: 39 shipped + 404).
+- [ ] `npm run lint` passes (Prettier formatting check, ADR-10).
 - [ ] `npm run typecheck` passes (0 errors, 0 warnings, 0 hints).
 - [ ] `npm run test` (Vitest) passes.
 - [ ] `npm run test:e2e` (Playwright) passes against the production build.
@@ -223,14 +224,14 @@ following are done, in order. No single step enables ads on its own.
 - Final smoke test against the local production build: 25/25 calculator URLs return 200 with zero console errors; home, calculators index, My Project, and all 6 category pages also 200 with zero console errors.
 - Deployment documentation completed: Git integration path (§3), manual deploy path with exact Wrangler commands (§4), build settings including Node 24 (§1, §3), `_headers` verified and documented (§11), rollback procedure (§9), Search Console verification instructions for all three methods (§8), AdSense scaffolding with config, guard tests, and template (§7, §12).
 - AdSense verified disabled: `AdSlot` renders nothing (and is now wired into the shared layout, so the slot exists but is empty), no ad/analytics scripts ship in `dist/`, publisher/slot IDs are placeholders (`ca-pub-XXXXXXXXXXXXXXXX`, `XXXXXXXXXX`) in the single config `src/lib/ads.ts`.
+- GitHub repository — done: https://github.com/silver-comet-76/homediycalc exists (main at snapshot 34b917a8).
 
 **Still needs owner approval (not done, not attempted):**
 
 - Public deployment to Cloudflare Pages (no account, no Pages project, no deploy run).
-- GitHub repository creation (blocked on the GitHub App installation — repository-selection step not completed; fallback is the browser web-UI route).
 - Domain: none purchased, none connected; canonicals and the robots.txt sitemap URL stay relative until one exists.
 - AdSense: stays disabled (ADR-8). Enabling needs the owner decision and the full §12 checklist.
 - Search Console: nothing submitted (no domain, no live site).
 - Project license: still undecided (`package.json` has no license field; `"private": true`).
 
-The project is **not** complete: ADR-9 requires 3 consecutive clean full test rounds after Phases 4–6, which run separately after this phase.
+ADR-9 passed on 2026-11-20 at commit ca29ba1 (3 consecutive clean full test rounds — see `docs/QA-REPORT.md` §12); the release gate is met. Still outstanding: public deployment, domain, and the owner decisions in §13.

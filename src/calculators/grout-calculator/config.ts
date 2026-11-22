@@ -12,11 +12,7 @@ import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
 
-function groutOutput(
-  areaFt2: number,
-  v: Record<string, number>,
-  present: Set<string>,
-) {
+function groutOutput(areaFt2: number, v: Record<string, number>, present: Set<string>) {
   const r = calculateGrout({
     areaFt2,
     tileLengthIn: req(v, "tileLength"),
@@ -55,10 +51,57 @@ function groutOutput(
 }
 
 const COMMON_FIELDS: FieldSpec[] = [
-  { id: "tileLength", label: "Tile length", kind: "length", unitKind: "length", canonicalUnit: "in", impUnit: "in", metUnit: "cm", defaultImp: "12", defaultMet: "30.5", allowUnitSelect: true, unitOptions: ["in", "cm", "mm"] },
-  { id: "tileWidth", label: "Tile width", kind: "length", unitKind: "length", canonicalUnit: "in", impUnit: "in", metUnit: "cm", defaultImp: "12", defaultMet: "30.5", allowUnitSelect: true, unitOptions: ["in", "cm", "mm"] },
-  { id: "jointWidth", label: "Joint width", kind: "length", unitKind: "length", canonicalUnit: "in", impUnit: "in", metUnit: "cm", min: 0, defaultImp: "0.125", defaultMet: "0.32", hint: "1/8 in (0.125 in) is common for floors. Under 1/8 in usually calls for unsanded grout." },
-  { id: "jointDepth", label: "Joint depth", kind: "length", unitKind: "length", canonicalUnit: "in", impUnit: "in", metUnit: "cm", defaultImp: "0.375", defaultMet: "0.95", hint: "Usually the tile thickness — 3/8 in for standard floor tile, 1/4 in for mosaic." },
+  {
+    id: "tileLength",
+    label: "Tile length",
+    kind: "length",
+    unitKind: "length",
+    canonicalUnit: "in",
+    impUnit: "in",
+    metUnit: "cm",
+    defaultImp: "12",
+    defaultMet: "30.5",
+    allowUnitSelect: true,
+    unitOptions: ["in", "cm", "mm"],
+  },
+  {
+    id: "tileWidth",
+    label: "Tile width",
+    kind: "length",
+    unitKind: "length",
+    canonicalUnit: "in",
+    impUnit: "in",
+    metUnit: "cm",
+    defaultImp: "12",
+    defaultMet: "30.5",
+    allowUnitSelect: true,
+    unitOptions: ["in", "cm", "mm"],
+  },
+  {
+    id: "jointWidth",
+    label: "Joint width",
+    kind: "length",
+    unitKind: "length",
+    canonicalUnit: "in",
+    impUnit: "in",
+    metUnit: "cm",
+    min: 0,
+    defaultImp: "0.125",
+    defaultMet: "0.32",
+    hint: "1/8 in (0.125 in) is common for floors. Under 1/8 in usually calls for unsanded grout.",
+  },
+  {
+    id: "jointDepth",
+    label: "Joint depth",
+    kind: "length",
+    unitKind: "length",
+    canonicalUnit: "in",
+    impUnit: "in",
+    metUnit: "cm",
+    defaultImp: "0.375",
+    defaultMet: "0.95",
+    hint: "Usually the tile thickness — 3/8 in for standard floor tile, 1/4 in for mosaic.",
+  },
   {
     id: "density",
     label: "Grout density (lb per ft³)",
@@ -68,9 +111,31 @@ const COMMON_FIELDS: FieldSpec[] = [
     min: 1,
     hint: "98.5 lb/ft³ reproduces the MAPEI Ultracolor Plus FA chart to within 2%. CUSTOM Polyblend Plus sanded implies about 110 lb/ft³. Premixed, urethane, and epoxy grouts cover differently — use their own charts.",
   },
-  { id: "bagWeight", label: "Bag weight (lb)", kind: "number", defaultImp: "10", defaultMet: "10", min: 1, hint: "Grout is commonly sold in 10 lb and 25 lb bags. Enter the size on your bag." },
-  { id: "waste", label: "Extra allowance", kind: "percent", defaultImp: "10", defaultMet: "10", hint: "10% covers what stays on the float, in the bucket, and in the sponge. Use 15% for mosaic or very small tile." },
-  { id: "pricePerBag", label: "Price per bag (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
+  {
+    id: "bagWeight",
+    label: "Bag weight (lb)",
+    kind: "number",
+    defaultImp: "10",
+    defaultMet: "10",
+    min: 1,
+    hint: "Grout is commonly sold in 10 lb and 25 lb bags. Enter the size on your bag.",
+  },
+  {
+    id: "waste",
+    label: "Extra allowance",
+    kind: "percent",
+    defaultImp: "10",
+    defaultMet: "10",
+    hint: "10% covers what stays on the float, in the bucket, and in the sponge. Use 15% for mosaic or very small tile.",
+  },
+  {
+    id: "pricePerBag",
+    label: "Price per bag (optional)",
+    kind: "price",
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
 ];
 
 export const groutConfig: CalculatorConfig = {
@@ -114,7 +179,7 @@ export const groutConfig: CalculatorConfig = {
     {
       question: "How much grout does a 25 lb bag cover?",
       answer:
-        "For 12 × 12 in tile with ⅛ in joints, about 267 sq ft. For 24 × 24 in tile, about 533 sq ft; for 2 × 2 in mosaic, only about 67 sq ft. The bag's own coverage chart, for your tile size and joint width, is the final word.",
+        "For 12 × 12 in tile with ⅛ in joints, about 388 sq ft. For 24 × 24 in tile, about 776 sq ft; for 2 × 2 in mosaic, only about 97.5 sq ft (MAPEI Ultracolor Plus FA coverage chart, 25 lb bag, ⅛ in joints). The bag's own coverage chart, for your tile size and joint width, is the final word.",
     },
   ],
   modes: [
@@ -122,18 +187,44 @@ export const groutConfig: CalculatorConfig = {
       id: "dimensions",
       label: "Room dimensions",
       fields: [
-        { id: "length", label: "Length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
-        { id: "width", label: "Width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
+        {
+          id: "length",
+          label: "Length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
+        {
+          id: "width",
+          label: "Width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
         ...COMMON_FIELDS,
       ],
-      compute: (v, present) =>
-        groutOutput(req(v, "length") * req(v, "width"), v, present),
+      compute: (v, present) => groutOutput(req(v, "length") * req(v, "width"), v, present),
     },
     {
       id: "area",
       label: "Known area",
       fields: [
-        { id: "area", label: "Tiled area", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "100", defaultMet: "9.29" },
+        {
+          id: "area",
+          label: "Tiled area",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "100",
+          defaultMet: "9.29",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => groutOutput(req(v, "area"), v, present),

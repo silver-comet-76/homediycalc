@@ -9,9 +9,7 @@ import { expect, test } from "@playwright/test";
  * Pixel 5 mobile (see playwright.config.ts).
  */
 
-test("styles: the Tailwind stylesheet loads and applies", async ({
-  page,
-}) => {
+test("styles: the Tailwind stylesheet loads and applies", async ({ page }) => {
   await page.goto("/calculators/paint-calculator/");
   await expect(page.locator("[data-hydrated='true']")).toBeVisible();
 
@@ -46,4 +44,46 @@ test("styles: the Tailwind stylesheet loads and applies", async ({
   // Header nav links meet the 24 px minimum touch-target height
   // (WCAG 2.2 Target Size, Minimum) once the stylesheet applies.
   expect(styles.navHeight).toBeGreaterThanOrEqual(24);
+});
+
+test("styles: card-title links meet the 24px minimum target height", async ({ page }) => {
+  // Phase 7, F1: every link inside a calculator card (home popular list,
+  // All Calculators list, category lists, Related sections) must be at
+  // least 24px tall (WCAG 2.2 Target Size, Minimum).
+  for (const url of [
+    "/",
+    "/calculators/",
+    "/categories/concrete-and-masonry/",
+    "/calculators/paint-calculator/",
+  ]) {
+    await page.goto(url);
+    const links = await page.evaluate(() => {
+      const out: { href: string; height: number }[] = [];
+      for (const a of document.querySelectorAll(".card a")) {
+        out.push({
+          href: a.getAttribute("href") ?? "",
+          height: a.getBoundingClientRect().height,
+        });
+      }
+      return out;
+    });
+    expect(links.length, `${url}: expected card links`).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(link.height, `${url}: ${link.href} is ${link.height}px tall`).toBeGreaterThanOrEqual(
+        24,
+      );
+    }
+  }
+
+  // The "See all 25 calculators" link on the home page is not inside a
+  // card, but it is the same font-semibold pattern and must also clear
+  // 24px.
+  await page.goto("/");
+  const seeAllHeight = await page.evaluate(() => {
+    const a = [...document.querySelectorAll("a")].find((el) =>
+      el.textContent?.includes("See all 25 calculators"),
+    );
+    return a?.getBoundingClientRect().height ?? 0;
+  });
+  expect(seeAllHeight).toBeGreaterThanOrEqual(24);
 });

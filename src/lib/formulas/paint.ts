@@ -65,7 +65,6 @@ export function calculatePaint(input: PaintInput): PaintResult {
     adjustedGallons,
     gallonsToBuy,
     litersToBuy: gallonsToLiters(gallonsToBuy),
-    costUsd:
-      input.pricePerGal !== undefined ? gallonsToBuy * input.pricePerGal : undefined,
+    costUsd: input.pricePerGal !== undefined ? gallonsToBuy * input.pricePerGal : undefined,
   };
 }

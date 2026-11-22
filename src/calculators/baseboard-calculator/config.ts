@@ -5,19 +5,12 @@
 
 import type { CalculatorConfig, FieldSpec } from "../../components/react/CalculatorConfig";
 import { req } from "../../components/react/CalculatorConfig";
-import {
-  calculateBaseboard,
-  roomNetLengthFt,
-} from "../../lib/formulas/baseboard";
+import { calculateBaseboard, roomNetLengthFt } from "../../lib/formulas/baseboard";
 import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
 
-function baseboardOutput(
-  netLengthFt: number,
-  v: Record<string, number>,
-  present: Set<string>,
-) {
+function baseboardOutput(netLengthFt: number, v: Record<string, number>, present: Set<string>) {
   const r = calculateBaseboard({
     netLengthFt,
     pieceLengthFt: req(v, "pieceLength"),
@@ -71,8 +64,22 @@ const COMMON_FIELDS: FieldSpec[] = [
     ],
     hint: "Trim is stocked in 8, 12, and 16 ft lengths at most home centers; some suppliers also carry 10 and 14 ft. Longer pieces mean fewer seams on long walls.",
   },
-  { id: "waste", label: "Waste allowance", kind: "percent", defaultImp: "10", defaultMet: "10", hint: "10% is the trade convention for a simple square room. Use 15–20% for alcoves, bay windows, or many outside corners." },
-  { id: "pricePerFt", label: "Price per linear foot (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
+  {
+    id: "waste",
+    label: "Waste allowance",
+    kind: "percent",
+    defaultImp: "10",
+    defaultMet: "10",
+    hint: "10% is the trade convention for a simple square room. Use 15–20% for alcoves, bay windows, or many outside corners.",
+  },
+  {
+    id: "pricePerFt",
+    label: "Price per linear foot (optional)",
+    kind: "price",
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
 ];
 
 export const baseboardConfig: CalculatorConfig = {
@@ -126,14 +133,56 @@ export const baseboardConfig: CalculatorConfig = {
       id: "room",
       label: "Room dimensions",
       fields: [
-        { id: "length", label: "Room length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "12", defaultMet: "3.66" },
-        { id: "width", label: "Room width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "12", defaultMet: "3.66" },
-        { id: "doors", label: "Doors", kind: "count", defaultImp: "1", defaultMet: "1", min: 0, max: 50, hint: "Each door deducts the door width below — baseboard does not run across a threshold." },
-        { id: "doorWidth", label: "Door width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "3", defaultMet: "0.91", hint: "About 3 ft for a standard interior door. Measure yours if they are wider or double doors." },
+        {
+          id: "length",
+          label: "Room length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "12",
+          defaultMet: "3.66",
+        },
+        {
+          id: "width",
+          label: "Room width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "12",
+          defaultMet: "3.66",
+        },
+        {
+          id: "doors",
+          label: "Doors",
+          kind: "count",
+          defaultImp: "1",
+          defaultMet: "1",
+          min: 0,
+          max: 50,
+          hint: "Each door deducts the door width below — baseboard does not run across a threshold.",
+        },
+        {
+          id: "doorWidth",
+          label: "Door width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "3",
+          defaultMet: "0.91",
+          hint: "About 3 ft for a standard interior door. Measure yours if they are wider or double doors.",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => {
-        const net = roomNetLengthFt(req(v, "length"), req(v, "width"), req(v, "doors"), req(v, "doorWidth"));
+        const net = roomNetLengthFt(
+          req(v, "length"),
+          req(v, "width"),
+          req(v, "doors"),
+          req(v, "doorWidth"),
+        );
         return baseboardOutput(net, v, present);
       },
     },
@@ -141,7 +190,17 @@ export const baseboardConfig: CalculatorConfig = {
       id: "length",
       label: "Known wall length",
       fields: [
-        { id: "wallLength", label: "Total wall length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "45", defaultMet: "13.72", hint: "Wall length after subtracting door openings. Add up the runs wall by wall for irregular rooms." },
+        {
+          id: "wallLength",
+          label: "Total wall length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "45",
+          defaultMet: "13.72",
+          hint: "Wall length after subtracting door openings. Add up the runs wall by wall for irregular rooms.",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => baseboardOutput(req(v, "wallLength"), v, present),

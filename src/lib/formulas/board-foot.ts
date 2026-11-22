@@ -44,12 +44,9 @@ export interface BoardFootResult {
 export function calculateBoardFoot(input: BoardFootInput): BoardFootResult {
   const boardFeetPerPiece =
     (input.thicknessIn * input.widthIn * input.lengthFt) / BOARD_FEET_PER_CUBIC_FOOT;
-  const boardFeetTotal =
-    boardFeetPerPiece * input.pieces * (1 + input.wastePct / 100);
+  const boardFeetTotal = boardFeetPerPiece * input.pieces * (1 + input.wastePct / 100);
   const volumeFt3 = boardFeetTotal / BOARD_FEET_PER_CUBIC_FOOT;
   const costUsd =
-    input.pricePerBoardFoot !== undefined
-      ? boardFeetTotal * input.pricePerBoardFoot
-      : undefined;
+    input.pricePerBoardFoot !== undefined ? boardFeetTotal * input.pricePerBoardFoot : undefined;
   return { boardFeetPerPiece, boardFeetTotal, volumeFt3, costUsd };
 }

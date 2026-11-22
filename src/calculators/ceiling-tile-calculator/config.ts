@@ -9,6 +9,7 @@ import { req } from "../../components/react/CalculatorConfig";
 import {
   calculateCeilingGrid,
   calculateCeilingTiles,
+  tilesPerCartonForTileArea,
 } from "../../lib/formulas/ceiling-tile";
 import { formatNumber } from "../../lib/validation";
 
@@ -22,14 +23,17 @@ function ceilingOutput(
   present: Set<string>,
 ) {
   const tileArea = req(v, "tileSize");
+  // The carton count follows the tile size unless the user entered
+  // their own: 16 per carton for 2 × 2 ft, 8 for 2 × 4 ft.
+  const tilesPerCarton = present.has("tilesPerCarton")
+    ? req(v, "tilesPerCarton")
+    : tilesPerCartonForTileArea(tileArea);
   const r = calculateCeilingTiles({
     areaFt2,
     tileAreaFt2: tileArea,
-    tilesPerCarton: req(v, "tilesPerCarton"),
+    tilesPerCarton,
     wastePct: req(v, "waste"),
-    pricePerCarton: present.has("pricePerCarton")
-      ? req(v, "pricePerCarton")
-      : undefined,
+    pricePerCarton: present.has("pricePerCarton") ? req(v, "pricePerCarton") : undefined,
   });
   const tileLabel = tileArea === 4 ? "2 × 2 ft" : "2 × 4 ft";
   const rows: { label: string; value: string; detail?: string }[] = [
@@ -41,11 +45,11 @@ function ceilingOutput(
     {
       label: "Cartons to buy",
       value: `${r.cartons} cartons`,
-      detail: `${fmt(req(v, "tilesPerCarton"), 0)} tiles per carton — rounded up`,
+      detail: `${fmt(tilesPerCarton, 0)} tiles per carton — rounded up`,
     },
   ];
   const lines = [
-    `Ceiling tiles (${tileLabel}): ${r.tiles} tiles (${r.cartons} cartons of ${fmt(req(v, "tilesPerCarton"), 0)})`,
+    `Ceiling tiles (${tileLabel}): ${r.tiles} tiles (${r.cartons} cartons of ${fmt(tilesPerCarton, 0)})`,
   ];
   let workedLine = `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(tileArea, 0)} ft² = ${r.tiles} tiles → ${r.cartons} cartons.`;
   if (lengthFt !== undefined && widthFt !== undefined) {
@@ -81,15 +85,9 @@ function ceilingOutput(
         detail: "One every 4 ft along each main beam",
       },
     );
-    lines.push(
-      `Main tees (12 ft): ${g.mainTees}`,
-      `Cross tees (4 ft): ${g.crossTees4Ft}`,
-    );
+    lines.push(`Main tees (12 ft): ${g.mainTees}`, `Cross tees (4 ft): ${g.crossTees4Ft}`);
     if (g.crossTees2Ft > 0) lines.push(`Cross tees (2 ft): ${g.crossTees2Ft}`);
-    lines.push(
-      `Wall angle (10 ft): ${g.wallAnglePieces}`,
-      `Hanger wires: ${g.hangers}`,
-    );
+    lines.push(`Wall angle (10 ft): ${g.wallAnglePieces}`, `Hanger wires: ${g.hangers}`);
     workedLine += ` Grid: ${g.mainLines} main lines × ${fmt(lengthFt)} ft → ${g.mainTees} main tees; ${g.crossTees4Ft} four-foot tees${g.crossTees2Ft > 0 ? `, ${g.crossTees2Ft} two-foot tees` : ""}.`;
   }
   return {
@@ -114,9 +112,32 @@ const COMMON_FIELDS: FieldSpec[] = [
     ],
     hint: "2 × 2 ft and 2 × 4 ft are the standard drop-ceiling sizes. 2 × 4 ft tiles need no 2 ft cross tees.",
   },
-  { id: "tilesPerCarton", label: "Tiles per carton", kind: "number", defaultImp: "16", defaultMet: "16", min: 1, hint: "2 × 2 ft tiles commonly come 16 per carton, 2 × 4 ft commonly 8. Check your carton — counts vary by product." },
-  { id: "waste", label: "Waste allowance", kind: "percent", defaultImp: "10", defaultMet: "10", hint: "10% covers border cuts and the odd cracked tile. Use 15% for a room with many borders or fixtures." },
-  { id: "pricePerCarton", label: "Price per carton (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
+  {
+    id: "tilesPerCarton",
+    label: "Tiles per carton",
+    kind: "number",
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+    min: 1,
+    hint: "Leave blank for the standard count for your tile size: 16 per carton for 2 × 2 ft, 8 for 2 × 4 ft. Check your carton — counts vary by product.",
+  },
+  {
+    id: "waste",
+    label: "Waste allowance",
+    kind: "percent",
+    defaultImp: "10",
+    defaultMet: "10",
+    hint: "10% covers border cuts and the odd cracked tile. Use 15% for a room with many borders or fixtures.",
+  },
+  {
+    id: "pricePerCarton",
+    label: "Price per carton (optional)",
+    kind: "price",
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
 ];
 
 export const ceilingTileConfig: CalculatorConfig = {
@@ -125,12 +146,13 @@ export const ceilingTileConfig: CalculatorConfig = {
   defaultMode: "room",
   formula:
     "Tiles = ceiling area × (1 + waste%) ÷ tile area, rounded up; cartons = tiles ÷ tiles per carton, rounded up. " +
+    "Tiles per carton follows the tile size unless you enter your own count: 16 per carton for 2 × 2 ft tiles, 8 for 2 × 4 ft tiles. " +
     "The grid follows Armstrong's installation guide: main beams on 4 ft centers (12 ft tees), 4 ft cross tees every 2 ft along each bay, " +
     "2 ft cross tees only for 2 × 2 ft tiles, wall angle in 10 ft pieces around the perimeter, and a hanger wire every 4 ft of main beam.",
   howTo: [
     "Measure the room's length and width at the height the new ceiling will sit — the ceiling area is length × width.",
     "Pick the tile size: 2 × 2 ft tiles need a full grid with 2 ft cross tees; 2 × 4 ft tiles span main beam to main beam and need no 2 ft tees.",
-    "Check the carton count on the tile you are buying — 2 × 2 ft tiles commonly come 16 per carton and 2 × 4 ft commonly 8, but it varies by product.",
+    "Check the carton count on the tile you are buying — 2 × 2 ft tiles commonly come 16 per carton and 2 × 4 ft commonly 8, but it varies by product. Leave the tiles-per-carton field blank to use the standard count for your tile size, or enter the count printed on your carton.",
     "Find the joist direction above: main beams run across the joists. If they must run the other way, swap length and width in the calculator.",
     "Allow at least 3 in of clearance above the grid for the tiles to tilt into place — 4 in if you are fitting recessed lights.",
   ],
@@ -170,18 +192,51 @@ export const ceilingTileConfig: CalculatorConfig = {
       id: "room",
       label: "Room dimensions",
       fields: [
-        { id: "length", label: "Room length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "12", defaultMet: "3.66" },
-        { id: "width", label: "Room width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "12", defaultMet: "3.66" },
+        {
+          id: "length",
+          label: "Room length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "12",
+          defaultMet: "3.66",
+        },
+        {
+          id: "width",
+          label: "Room width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "12",
+          defaultMet: "3.66",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) =>
-        ceilingOutput(req(v, "length") * req(v, "width"), req(v, "length"), req(v, "width"), v, present),
+        ceilingOutput(
+          req(v, "length") * req(v, "width"),
+          req(v, "length"),
+          req(v, "width"),
+          v,
+          present,
+        ),
     },
     {
       id: "area",
       label: "Known area",
       fields: [
-        { id: "area", label: "Ceiling area", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "144", defaultMet: "13.38" },
+        {
+          id: "area",
+          label: "Ceiling area",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "144",
+          defaultMet: "13.38",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => ceilingOutput(req(v, "area"), undefined, undefined, v, present),

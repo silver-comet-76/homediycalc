@@ -1,0 +1,6 @@
+*.astro
+*.md
+dist
+node_modules
+coverage
+package-lock.json

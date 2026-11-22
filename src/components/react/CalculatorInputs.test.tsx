@@ -7,14 +7,7 @@ describe("NumberInput", () => {
   it("renders a labeled input and reports changes", () => {
     const onChange = vi.fn();
     render(
-      <NumberInput
-        id="length"
-        label="Length"
-        value="10"
-        onChange={onChange}
-        unit="ft"
-        required
-      />,
+      <NumberInput id="length" label="Length" value="10" onChange={onChange} unit="ft" required />,
     );
     const input = screen.getByLabelText("Length (ft) *") as HTMLInputElement;
     expect(input.value).toBe("10");
@@ -31,9 +24,7 @@ describe("NumberInput", () => {
         error="Length must be greater than 0"
       />,
     );
-    expect(screen.getByRole("alert").textContent).toBe(
-      "Length must be greater than 0",
-    );
+    expect(screen.getByRole("alert").textContent).toBe("Length must be greater than 0");
   });
 });
 
@@ -41,15 +32,11 @@ describe("UnitToggle", () => {
   it("marks the active system with aria-pressed and switches on click", () => {
     const onChange = vi.fn();
     const { rerender } = render(<UnitToggle value="imperial" onChange={onChange} />);
-    expect(screen.getByText("Imperial (ft, in, gal)").getAttribute("aria-pressed")).toBe(
-      "true",
-    );
+    expect(screen.getByText("Imperial (ft, in, gal)").getAttribute("aria-pressed")).toBe("true");
     screen.getByText("Metric (m, cm, L)").click();
     expect(onChange).toHaveBeenCalledWith("metric");
     rerender(<UnitToggle value="metric" onChange={onChange} />);
-    expect(screen.getByText("Metric (m, cm, L)").getAttribute("aria-pressed")).toBe(
-      "true",
-    );
+    expect(screen.getByText("Metric (m, cm, L)").getAttribute("aria-pressed")).toBe("true");
   });
 });
 

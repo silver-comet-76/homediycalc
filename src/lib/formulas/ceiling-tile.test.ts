@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { calculateCeilingGrid, calculateCeilingTiles } from "./ceiling-tile";
+import {
+  calculateCeilingGrid,
+  calculateCeilingTiles,
+  tilesPerCartonForTileArea,
+} from "./ceiling-tile";
 
 describe("calculateCeilingTiles", () => {
   it("matches the FORMULAS.md worked example: 12 × 12 ft room, 2 × 2 ft tiles", () => {
@@ -24,6 +28,38 @@ describe("calculateCeilingTiles", () => {
     });
     expect(r.tiles).toBe(20);
     expect(r.cartons).toBe(3);
+  });
+
+  it("derives the carton count from the tile size when none is given (CEI-1)", () => {
+    expect(tilesPerCartonForTileArea(4)).toBe(16);
+    expect(tilesPerCartonForTileArea(8)).toBe(8);
+    // 2 × 4 ft tiles, 144 ft², 10% waste: 20 tiles. Divided by the
+    // 2 × 2 ft carton count of 16 that would be 2 cartons (16 tiles) —
+    // an under-buy. With the 2 × 4 ft count of 8 it is 3 cartons.
+    const r = calculateCeilingTiles({
+      areaFt2: 144,
+      tileAreaFt2: 8,
+      wastePct: 10,
+    });
+    expect(r.tiles).toBe(20);
+    expect(r.cartons).toBe(3);
+    const twoByTwo = calculateCeilingTiles({
+      areaFt2: 144,
+      tileAreaFt2: 4,
+      wastePct: 10,
+    });
+    expect(twoByTwo.tiles).toBe(40);
+    expect(twoByTwo.cartons).toBe(3);
+  });
+
+  it("still respects an explicitly entered carton count", () => {
+    const r = calculateCeilingTiles({
+      areaFt2: 144,
+      tileAreaFt2: 8,
+      tilesPerCarton: 16,
+      wastePct: 10,
+    });
+    expect(r.cartons).toBe(2);
   });
 
   it("prices cartons only when a price is entered", () => {
@@ -85,6 +121,41 @@ describe("calculateCeilingGrid", () => {
     expect(g.crossTees2Ft).toBe(0);
     expect(g.crossTees4Ft).toBe(15);
     expect(g.mainTees).toBe(2);
+  });
+
+  it("handles odd widths: 12 ft room, 9/10/11 ft wide, 2 × 2 ft tiles", () => {
+    // Main lines sit 4 ft apart across the width, so 9, 10, and 11 ft
+    // widths all have 2 interior main lines; the 2 ft cross tees step
+    // up when the width passes 10 ft (the third 2 ft offset appears).
+    for (const widthFt of [9, 10, 11]) {
+      const g = calculateCeilingGrid({ lengthFt: 12, widthFt, tileAreaFt2: 4 });
+      expect(g.mainLines).toBe(2);
+      expect(g.mainTees).toBe(2);
+      expect(g.crossTees4Ft).toBe(15);
+      expect(g.wallAnglePieces).toBe(5);
+      expect(g.hangers).toBe(6);
+    }
+    expect(calculateCeilingGrid({ lengthFt: 12, widthFt: 9, tileAreaFt2: 4 }).crossTees2Ft).toBe(
+      12,
+    );
+    expect(calculateCeilingGrid({ lengthFt: 12, widthFt: 10, tileAreaFt2: 4 }).crossTees2Ft).toBe(
+      12,
+    );
+    expect(calculateCeilingGrid({ lengthFt: 12, widthFt: 11, tileAreaFt2: 4 }).crossTees2Ft).toBe(
+      18,
+    );
+  });
+
+  it("lays out a 2 × 4 ft grid with no 2 ft cross tees", () => {
+    // 10 × 8 ft room, 2 × 4 ft tiles: 1 main line, 1 main tee,
+    // 8 four-foot tees, no two-foot tees, 4 wall-angle pieces, 3 hangers.
+    const g = calculateCeilingGrid({ lengthFt: 10, widthFt: 8, tileAreaFt2: 8 });
+    expect(g.mainLines).toBe(1);
+    expect(g.mainTees).toBe(1);
+    expect(g.crossTees4Ft).toBe(8);
+    expect(g.crossTees2Ft).toBe(0);
+    expect(g.wallAnglePieces).toBe(4);
+    expect(g.hangers).toBe(3);
   });
 
   it("handles a narrow room with no interior main line", () => {

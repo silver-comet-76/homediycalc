@@ -8,10 +8,7 @@
 
 import type { CalculatorConfig, FieldSpec } from "../../components/react/CalculatorConfig";
 import { req } from "../../components/react/CalculatorConfig";
-import {
-  calculateWallpaper,
-  getWallpaperRoll,
-} from "../../lib/formulas/wallpaper";
+import { calculateWallpaper, getWallpaperRoll } from "../../lib/formulas/wallpaper";
 import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
@@ -83,9 +80,35 @@ const COMMON_FIELDS: FieldSpec[] = [
     ],
     hint: "Wallpaper is priced per single roll but sold per double roll. Always confirm against the label on the roll you buy.",
   },
-  { id: "repeat", label: "Pattern repeat", kind: "length", unitKind: "length", canonicalUnit: "in", impUnit: "in", metUnit: "cm", min: 0, defaultImp: "18", defaultMet: "45.7", hint: "Printed on the roll label, in inches. 0 for a plain or random-match paper. A large repeat is what eats rolls." },
-  { id: "waste", label: "Waste allowance", kind: "percent", defaultImp: "10", defaultMet: "10", hint: "Covers cutting mistakes and damaged strips. The pattern repeat waste is already in the strip count — this is extra." },
-  { id: "pricePerRoll", label: "Price per roll (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
+  {
+    id: "repeat",
+    label: "Pattern repeat",
+    kind: "length",
+    unitKind: "length",
+    canonicalUnit: "in",
+    impUnit: "in",
+    metUnit: "cm",
+    min: 0,
+    defaultImp: "18",
+    defaultMet: "45.7",
+    hint: "Printed on the roll label, in inches. 0 for a plain or random-match paper. A large repeat is what eats rolls.",
+  },
+  {
+    id: "waste",
+    label: "Waste allowance",
+    kind: "percent",
+    defaultImp: "10",
+    defaultMet: "10",
+    hint: "Covers cutting mistakes and damaged strips. The pattern repeat waste is already in the strip count — this is extra.",
+  },
+  {
+    id: "pricePerRoll",
+    label: "Price per roll (optional)",
+    kind: "price",
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
 ];
 
 export const wallpaperConfig: CalculatorConfig = {
@@ -122,7 +145,7 @@ export const wallpaperConfig: CalculatorConfig = {
     {
       question: "Why does dividing wall area by roll area give the wrong answer?",
       answer:
-        "Because you cannot use every square foot on a roll — only whole strips. On a 9 ft wall with an 18 in repeat, three 10.5 ft strips come off a 33 ft roll and a 1.5 ft tail is left over. That tail is perfectly good paper and it is scrap, because no strip on the wall is that short. Area division assumes the tail is usable; strip counting does not.",
+        "Because you cannot use every square foot on a roll — only whole strips. On a 9 ft wall with an 18 in repeat, three 10.83 ft strips come off a 33 ft roll and a 0.5 ft tail is left over. That tail is perfectly good paper and it is scrap, because no strip on the wall is that short. Area division assumes the tail is usable; strip counting does not.",
     },
     {
       question: "What is a pattern repeat?",
@@ -140,9 +163,36 @@ export const wallpaperConfig: CalculatorConfig = {
       id: "room",
       label: "Room dimensions",
       fields: [
-        { id: "length", label: "Room length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "12", defaultMet: "3.66" },
-        { id: "width", label: "Room width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "15", defaultMet: "4.57" },
-        { id: "height", label: "Wall height", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "8", defaultMet: "2.44" },
+        {
+          id: "length",
+          label: "Room length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "12",
+          defaultMet: "3.66",
+        },
+        {
+          id: "width",
+          label: "Room width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "15",
+          defaultMet: "4.57",
+        },
+        {
+          id: "height",
+          label: "Wall height",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "8",
+          defaultMet: "2.44",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) =>
@@ -152,12 +202,30 @@ export const wallpaperConfig: CalculatorConfig = {
       id: "length",
       label: "Known wall length",
       fields: [
-        { id: "wallLength", label: "Total wall length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "54", defaultMet: "16.46", hint: "Add up every wall you are papering. For a whole rectangular room this is 2 × (length + width)." },
-        { id: "height", label: "Wall height", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "8", defaultMet: "2.44" },
+        {
+          id: "wallLength",
+          label: "Total wall length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "54",
+          defaultMet: "16.46",
+          hint: "Add up every wall you are papering. For a whole rectangular room this is 2 × (length + width).",
+        },
+        {
+          id: "height",
+          label: "Wall height",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "8",
+          defaultMet: "2.44",
+        },
         ...COMMON_FIELDS,
       ],
-      compute: (v, present) =>
-        wallpaperOutput(req(v, "wallLength"), req(v, "height"), v, present),
+      compute: (v, present) => wallpaperOutput(req(v, "wallLength"), req(v, "height"), v, present),
     },
   ],
 };

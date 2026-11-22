@@ -25,9 +25,7 @@ function resultRows(r: ReturnType<typeof calculateCubicYardFromDimensions>) {
       { label: "Liters", value: `${fmt(r.volumeLiters, 0)} L` },
       { label: "US gallons", value: `${fmt(r.volumeGallons)} gal` },
     ],
-    lines: [
-      `Volume: ${fmt(r.volumeYd3)} yd³ (${fmt(r.volumeFt3)} ft³, ${fmt(r.volumeM3)} m³)`,
-    ],
+    lines: [`Volume: ${fmt(r.volumeYd3)} yd³ (${fmt(r.volumeFt3)} ft³, ${fmt(r.volumeM3)} m³)`],
   };
 }
 
@@ -58,8 +56,7 @@ export const cubicYardConfig: CalculatorConfig = {
     },
     {
       question: "How many cubic yards are in a cubic meter?",
-      answer:
-        "About 1.31 yd³. A cubic meter is 35.31 ft³, and 35.31 ÷ 27 = 1.31.",
+      answer: "About 1.31 yd³. A cubic meter is 35.31 ft³, and 35.31 ÷ 27 = 1.31.",
     },
     {
       question: "How do I work out cubic yards from feet and inches?",
@@ -73,27 +70,68 @@ export const cubicYardConfig: CalculatorConfig = {
       label: "Convert a volume",
       fields: [
         {
-          id: "value", label: "Volume", kind: "volume", unitKind: "volume",
-          impUnit: "ft3", metUnit: "m3", defaultImp: "27", defaultMet: "1",
-          allowUnitSelect: true, unitOptions: ["ft3", "yd3", "m3", "L", "gal"],
+          id: "value",
+          label: "Volume",
+          kind: "volume",
+          unitKind: "volume",
+          impUnit: "ft3",
+          metUnit: "m3",
+          defaultImp: "27",
+          defaultMet: "1",
+          allowUnitSelect: true,
+          unitOptions: ["ft3", "yd3", "m3", "L", "gal"],
           hint: "Pick the unit of the volume you already know.",
         },
       ],
       compute: (v) => {
         const r = convertCubicYardValue(req(v, "value"), "ft3");
-        return { ...resultRows(r), workedLine: `${fmt(req(v, "value"))} ft³ ÷ 27 = ${fmt(r.volumeYd3)} yd³.` };
+        return {
+          ...resultRows(r),
+          workedLine: `${fmt(req(v, "value"))} ft³ ÷ 27 = ${fmt(r.volumeYd3)} yd³.`,
+        };
       },
     },
     {
       id: "dimensions",
       label: "From dimensions",
       fields: [
-        { id: "length", label: "Length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "3", defaultMet: "0.91" },
-        { id: "width", label: "Width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "3", defaultMet: "0.91" },
-        { id: "depth", label: "Depth", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "3", defaultMet: "0.91" },
+        {
+          id: "length",
+          label: "Length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "3",
+          defaultMet: "0.91",
+        },
+        {
+          id: "width",
+          label: "Width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "3",
+          defaultMet: "0.91",
+        },
+        {
+          id: "depth",
+          label: "Depth",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "3",
+          defaultMet: "0.91",
+        },
       ],
       compute: (v) => {
-        const r = calculateCubicYardFromDimensions({ lengthFt: req(v, "length"), widthFt: req(v, "width"), depthFt: req(v, "depth") });
+        const r = calculateCubicYardFromDimensions({
+          lengthFt: req(v, "length"),
+          widthFt: req(v, "width"),
+          depthFt: req(v, "depth"),
+        });
         return {
           ...resultRows(r),
           workedLine: `${fmt(req(v, "length"))} × ${fmt(req(v, "width"))} × ${fmt(req(v, "depth"))} ft = ${fmt(r.volumeFt3)} ft³ = ${fmt(r.volumeYd3)} yd³.`,

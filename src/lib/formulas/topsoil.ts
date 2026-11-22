@@ -43,6 +43,8 @@ export interface TopsoilResult {
   adjustedYd3: number;
   /** Volume after the allowance, in cubic meters. */
   adjustedM3: number;
+  /** Bulk cubic yards to order (rounded up to whole yards). */
+  orderYd3: number;
   /** Weight in pounds. */
   weightLb: number;
   /** Weight in US short tons. */
@@ -59,19 +61,25 @@ export function calculateTopsoil(input: TopsoilInput): TopsoilResult {
   const adjustedFt3 = input.volumeFt3 * (1 + input.wastePct / 100);
   const adjustedYd3 = cubicFeetToCubicYards(adjustedFt3);
   const adjustedM3 = cubicFeetToCubicMeters(adjustedFt3);
+  const orderYd3 = ceilUp(adjustedYd3);
   const weightLb = adjustedYd3 * input.densityLbYd3;
   const weightTons = poundsToShortTons(weightLb);
   const weightKg = poundsToKilograms(weightLb);
   const bags = ceilUp(adjustedFt3 / input.bagSizeFt3);
+  // A buyer buys bulk OR bags, never both: the bulk price wins when
+  // both prices are entered (as in the Mulch Calculator), and the bulk
+  // cost uses the rounded order quantity, not the unrounded volume.
   const costUsd =
-    input.pricePerYd3 !== undefined || input.pricePerBag !== undefined
-      ? (input.pricePerYd3 !== undefined ? adjustedYd3 * input.pricePerYd3 : 0) +
-        (input.pricePerBag !== undefined ? bags * input.pricePerBag : 0)
-      : undefined;
+    input.pricePerYd3 !== undefined
+      ? orderYd3 * input.pricePerYd3
+      : input.pricePerBag !== undefined
+        ? bags * input.pricePerBag
+        : undefined;
   return {
     adjustedFt3,
     adjustedYd3,
     adjustedM3,
+    orderYd3,
     weightLb,
     weightTons,
     weightKg,

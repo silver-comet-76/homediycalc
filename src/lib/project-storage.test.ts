@@ -103,10 +103,7 @@ describe("project LocalStorage behavior", () => {
   it("returns an empty project for corrupt stored data instead of throwing", () => {
     localStorage.setItem(PROJECT_STORAGE_KEY, "{not json");
     expect(loadProject().items).toHaveLength(0);
-    localStorage.setItem(
-      PROJECT_STORAGE_KEY,
-      JSON.stringify({ version: 99, items: [] }),
-    );
+    localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify({ version: 99, items: [] }));
     expect(loadProject().items).toHaveLength(0);
   });
 });

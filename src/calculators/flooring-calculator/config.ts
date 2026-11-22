@@ -12,11 +12,7 @@ import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
 
-function flooringOutput(
-  areaFt2: number,
-  v: Record<string, number>,
-  present: Set<string>,
-) {
+function flooringOutput(areaFt2: number, v: Record<string, number>, present: Set<string>) {
   const r = calculateFlooring({
     areaFt2,
     wastePct: req(v, "waste"),
@@ -62,7 +58,9 @@ function flooringOutput(
       `Flooring (${fmt(req(v, "boxCoverage"), 2)} ft² per box): ${r.boxes} boxes`,
       ...(r.planks !== undefined ? [`Planks: ${r.planks}`] : []),
       ...(r.underlaymentRolls !== undefined
-        ? [`Underlayment (${fmt(req(v, "rollCoverage"), 0)} ft² per roll): ${r.underlaymentRolls} rolls`]
+        ? [
+            `Underlayment (${fmt(req(v, "rollCoverage"), 0)} ft² per roll): ${r.underlaymentRolls} rolls`,
+          ]
         : []),
     ],
     costUsd: r.costUsd,
@@ -80,7 +78,16 @@ const COMMON_FIELDS = [
     min: 0.1,
     hint: "Printed on the box. Typical: laminate 18–24 ft², vinyl plank 18–30 ft², hardwood 20–25 ft². Always use your box's figure.",
   },
-  { id: "planksPerBox", label: "Planks per box (optional)", kind: "count" as const, defaultImp: "", defaultMet: "", optional: true, min: 1, hint: "Printed on the box. Enter it to see the plank count as well as boxes." },
+  {
+    id: "planksPerBox",
+    label: "Planks per box (optional)",
+    kind: "count" as const,
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+    min: 1,
+    hint: "Printed on the box. Enter it to see the plank count as well as boxes.",
+  },
   {
     id: "underlayment",
     label: "Underlayment",
@@ -92,10 +99,39 @@ const COMMON_FIELDS = [
       { value: "0", label: "No underlayment (glue-down or built-in pad)" },
     ],
   },
-  { id: "rollCoverage", label: "Underlayment coverage per roll (ft²)", kind: "number" as const, defaultImp: "100", defaultMet: "100", min: 1, hint: "About 100 ft² per roll is typical. Skip this if you chose no underlayment." },
-  { id: "waste", label: "Waste allowance", kind: "percent" as const, defaultImp: "10", defaultMet: "10", hint: "10% for a straight lay; 15% for diagonal layouts, 15–20% for herringbone or chevron." },
-  { id: "pricePerBox", label: "Price per box (optional)", kind: "price" as const, defaultImp: "", defaultMet: "", optional: true },
-  { id: "pricePerRoll", label: "Price per underlayment roll (optional)", kind: "price" as const, defaultImp: "", defaultMet: "", optional: true },
+  {
+    id: "rollCoverage",
+    label: "Underlayment coverage per roll (ft²)",
+    kind: "number" as const,
+    defaultImp: "100",
+    defaultMet: "100",
+    min: 1,
+    hint: "About 100 ft² per roll is typical. Skip this if you chose no underlayment.",
+  },
+  {
+    id: "waste",
+    label: "Waste allowance",
+    kind: "percent" as const,
+    defaultImp: "10",
+    defaultMet: "10",
+    hint: "10% for a straight lay; 15% for diagonal layouts, 15–20% for herringbone or chevron.",
+  },
+  {
+    id: "pricePerBox",
+    label: "Price per box (optional)",
+    kind: "price" as const,
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
+  {
+    id: "pricePerRoll",
+    label: "Price per underlayment roll (optional)",
+    kind: "price" as const,
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
 ];
 
 export const flooringConfig: CalculatorConfig = {
@@ -108,7 +144,8 @@ export const flooringConfig: CalculatorConfig = {
     "vinyl plank about 18–30 ft², hardwood about 20–25 ft² — so the " +
     "coverage field is editable and defaults to 20 ft². Waste default " +
     "10% for a straight lay; 15% for diagonal, 15–20% for herringbone. " +
-    "Underlayment rolls cover about 100 ft² each.",
+    "Underlayment rolls cover about 100 ft² each and are counted on the " +
+    "floor area without waste — offcuts are reusable.",
   howTo: [
     "Measure the room wall to wall, in feet — go to the bottom of the baseboard and round up to the next inch. For an L-shaped room, split it into rectangles and add them (or use the Square Footage Calculator first).",
     "Add closets and nooks as extra square feet, or measure them as separate rectangles.",
@@ -147,18 +184,44 @@ export const flooringConfig: CalculatorConfig = {
       id: "dimensions",
       label: "Room dimensions",
       fields: [
-        { id: "length", label: "Room length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "12", defaultMet: "3.66" },
-        { id: "width", label: "Room width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "15", defaultMet: "4.57" },
+        {
+          id: "length",
+          label: "Room length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "12",
+          defaultMet: "3.66",
+        },
+        {
+          id: "width",
+          label: "Room width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "15",
+          defaultMet: "4.57",
+        },
         ...COMMON_FIELDS,
       ],
-      compute: (v, present) =>
-        flooringOutput(req(v, "length") * req(v, "width"), v, present),
+      compute: (v, present) => flooringOutput(req(v, "length") * req(v, "width"), v, present),
     },
     {
       id: "area",
       label: "Known area",
       fields: [
-        { id: "area", label: "Floor area", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "180", defaultMet: "16.72" },
+        {
+          id: "area",
+          label: "Floor area",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "180",
+          defaultMet: "16.72",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => flooringOutput(req(v, "area"), v, present),

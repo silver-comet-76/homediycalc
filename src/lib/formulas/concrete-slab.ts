@@ -61,10 +61,13 @@ export function calculateSlab(input: SlabInput): SlabResult {
   const edgeDepthFt = input.edgeDepthFt ?? 0;
   const edgeWidthFt = input.edgeWidthFt ?? 0;
   const extraDepthFt = Math.max(0, edgeDepthFt - input.thicknessFt);
-  // Perimeter band approximation: the edge band runs around the slab.
-  // Corner overlap is small and is absorbed by the waste allowance.
-  const perimeterFt = 2 * (input.lengthFt + input.widthFt);
-  const edgeExtraFt3 = perimeterFt * edgeWidthFt * extraDepthFt;
+  // Thickened-edge band: the band runs around the slab perimeter, but
+  // a plain perimeter band counts each corner twice (once for each side
+  // meeting there). Shortening the band by one edge width at each end —
+  // 2 × (L + W − 2w) — counts every corner once, so no waste allowance
+  // is needed to absorb an overcount.
+  const bandLengthFt = 2 * (input.lengthFt + input.widthFt - 2 * edgeWidthFt);
+  const edgeExtraFt3 = Math.max(0, bandLengthFt) * edgeWidthFt * extraDepthFt;
   const volumeFt3 = baseVolumeFt3 + edgeExtraFt3;
   const volumeYd3 = cubicFeetToCubicYards(volumeFt3);
   const factor = 1 + input.wastePct / 100;

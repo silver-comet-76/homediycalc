@@ -1,0 +1,27 @@
+HomeDIYCalc ADR-9 re-gate after the PR #2 review response — summary
+=====================================================================
+Date: 2026-11-22 ~11:05-11:10 JST (02:05-02:10 UTC)
+Branch: phase-7, local commit 5e558e6 ("Phase 7 review response (PR #2)")
+Gate scripts: scripts/gate-round.sh + scripts/gate-audit.py (Lighthouse pinned to 12.8.2)
+Full logs: round-1.log, round-2.log, round-3.log (this directory)
+Full record: docs/QA-REPORT.md §13.4
+
+What changed vs the §13.3 gate (commit 43ce2bf):
+- Mortar bags from the QUIKRETE count rating (18 bags, not 9, for the worked example)
+- ceilUp: relative 1e-12 epsilon, >= 1 package for any positive requirement
+- Gate scripts committed to the repo; Lighthouse reported as ranges
+
+| Check | Round 1 (~11:05-11:06) | Round 2 (~11:07-11:08) | Round 3 (~11:08-11:10) |
+|---|---|---|---|
+| Clean production build | 40 pages (39 indexable + 404) | 40 pages | 40 pages |
+| Vitest | 258/258 | 258/258 | 258/258 |
+| Typecheck | 0/0/0 | 0/0/0 | 0/0/0 |
+| Lint (Prettier check) | pass | pass | pass |
+| Audit checks (scripts/gate-audit.py) | PASS (14 checks) | PASS | PASS |
+| Playwright e2e | 76/76 (39.8s) | 76/76 (38.5s) | 76/76 (39.9s) |
+| Lighthouse Home | 100/100/100/83 (LCP 0.2s, CLS 0, TTI 0.2s) | 100/100/100/83 (LCP 0.2s, CLS 0, TTI 0.2s) | 100/100/100/83 (LCP 0.2s, CLS 0, TTI 0.2s) |
+| Lighthouse Paint | 100/100/100/83 (LCP 0.4s, CLS 0, TTI 0.4s) | 100/100/100/83 (LCP 0.4s, CLS 0, TTI 0.4s) | 100/100/100/83 (LCP 0.2s, CLS 0.005, TTI 0.2s) |
+
+Result: 3 consecutive clean rounds — ADR-9 re-gate PASSED.
+SEO 83 is the expected score (relative canonical + relative robots.txt sitemap URL, no domain yet).
+No failures, no issues in any round.

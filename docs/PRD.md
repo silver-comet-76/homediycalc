@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD) — HomeDIYCalc
 
-> Status: Phase 0 — planning document. No code has been written and no tests have run yet.
+> Status: Phase 0 planning document (written before any code existed). The site has since been built: 25 calculators, 39 pages, Vitest 204/204, Playwright 68/68 — see `docs/PHASE-REPORT.md`.
 > Position: "Calculate Materials. Estimate Costs. Build Your Shopping List."
 > Market: US primary; UK, Canada, Australia, New Zealand secondary.
 > Language: US English throughout.

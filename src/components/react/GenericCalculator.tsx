@@ -11,23 +11,15 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  NumberInput,
-  ResultPanel,
-  UnitToggle,
-  type UnitSystem,
-} from "./CalculatorInputs";
-import type {
-  CalculatorConfig,
-  CalcOutput,
-  FieldSpec,
-  ModeSpec,
-} from "./CalculatorConfig";
+import { NumberInput, ResultPanel, UnitToggle, type UnitSystem } from "./CalculatorInputs";
+import type { CalculatorConfig, CalcOutput, FieldSpec, ModeSpec } from "./CalculatorConfig";
 import {
   convertArea,
+  convertCoverage,
   convertLength,
   convertVolume,
   type AreaUnit,
+  type CoverageUnit,
   type LengthUnit,
   type VolumeUnit,
 } from "../../lib/units";
@@ -68,6 +60,8 @@ function convertValue(
     converted = convertLength(value, from as LengthUnit, to as LengthUnit);
   } else if (unitKind === "area") {
     converted = convertArea(value, from as AreaUnit, to as AreaUnit);
+  } else if (unitKind === "coverage") {
+    converted = convertCoverage(value, from as CoverageUnit, to as CoverageUnit);
   } else {
     converted = convertVolume(value, from as VolumeUnit, to as VolumeUnit);
   }
@@ -78,20 +72,19 @@ function convertValue(
 function toCanonical(value: number, unit: string, field: FieldSpec): number {
   if (!field.unitKind) return value;
   if (field.unitKind === "length") {
-    return convertLength(
-      value,
-      unit as LengthUnit,
-      (field.canonicalUnit ?? "ft") as LengthUnit,
-    );
+    return convertLength(value, unit as LengthUnit, (field.canonicalUnit ?? "ft") as LengthUnit);
   }
   if (field.unitKind === "area") {
     return convertArea(value, unit as AreaUnit, (field.canonicalUnit ?? "ft2") as AreaUnit);
   }
-  return convertVolume(
-    value,
-    unit as VolumeUnit,
-    (field.canonicalUnit ?? "ft3") as VolumeUnit,
-  );
+  if (field.unitKind === "coverage") {
+    return convertCoverage(
+      value,
+      unit as CoverageUnit,
+      (field.canonicalUnit ?? "ft2/gal") as CoverageUnit,
+    );
+  }
+  return convertVolume(value, unit as VolumeUnit, (field.canonicalUnit ?? "ft3") as VolumeUnit);
 }
 
 function modeDefaults(mode: ModeSpec, system: UnitSystem) {
@@ -114,19 +107,21 @@ export interface GenericCalculatorProps {
 }
 
 export function GenericCalculator({ slug, calculatorName }: GenericCalculatorProps) {
-  const config: CalculatorConfig = CALCULATOR_CONFIGS[slug] ?? (() => {
-    throw new Error(`No calculator config for slug: ${slug}`);
-  })();
+  const config: CalculatorConfig =
+    CALCULATOR_CONFIGS[slug] ??
+    (() => {
+      throw new Error(`No calculator config for slug: ${slug}`);
+    })();
   const [system, setSystem] = useState<UnitSystem>("imperial");
   const [modeId, setModeId] = useState<string>(config.defaultMode);
   const firstMode = config.modes[0];
   if (!firstMode) throw new Error(`No modes configured for ${config.slug}`);
   const mode = config.modes.find((m) => m.id === modeId) ?? firstMode;
-  const [values, setValues] = useState<Record<string, string>>(() =>
-    modeDefaults(mode, "imperial").values,
+  const [values, setValues] = useState<Record<string, string>>(
+    () => modeDefaults(mode, "imperial").values,
   );
-  const [fieldUnits, setFieldUnits] = useState<Record<string, string>>(() =>
-    modeDefaults(mode, "imperial").units,
+  const [fieldUnits, setFieldUnits] = useState<Record<string, string>>(
+    () => modeDefaults(mode, "imperial").units,
   );
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
@@ -156,12 +151,7 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
     for (const field of mode.fields) {
       const oldUnit = fieldUnits[field.id] ?? "";
       const newUnit = defaultUnit(field, next);
-      nextValues[field.id] = convertValue(
-        values[field.id] ?? "",
-        oldUnit,
-        newUnit,
-        field.unitKind,
-      );
+      nextValues[field.id] = convertValue(values[field.id] ?? "", oldUnit, newUnit, field.unitKind);
       nextUnits[field.id] = newUnit;
     }
     setValues(nextValues);
@@ -199,8 +189,7 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
         label: field.label,
         optional: field.optional,
         min: field.min ?? 0,
-        exclusiveMin:
-          field.min === undefined && !(isPercent || isPrice || field.kind === "select"),
+        exclusiveMin: field.min === undefined && !(isPercent || isPrice || field.kind === "select"),
         max: field.max ?? MAX_DEFAULTS[field.kind] ?? 1000000,
         integer: field.kind === "count",
       });
@@ -273,7 +262,7 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
                 onClick={() => switchMode(m.id)}
                 className={
                   modeId === m.id
-                    ? "rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+                    ? "toggle-pressed rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
                     : "rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
                 }
               >
@@ -298,6 +287,13 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
                   setValues((prev) => ({ ...prev, [field.id]: event.target.value }))
                 }
                 aria-invalid={errors[field.id] ? true : undefined}
+                aria-describedby={
+                  errors[field.id]
+                    ? `${config.slug}-${mode.id}-${field.id}-error`
+                    : field.hint
+                      ? `${config.slug}-${mode.id}-${field.id}-hint`
+                      : undefined
+                }
                 className="input-field"
               >
                 {(field.options ?? []).map((option) => (
@@ -307,46 +303,54 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
                 ))}
               </select>
               {errors[field.id] ? (
-                <p role="alert" className="mt-1 text-sm font-medium text-red-700">
+                <p
+                  id={`${config.slug}-${mode.id}-${field.id}-error`}
+                  role="alert"
+                  className="mt-1 text-sm font-medium text-red-700"
+                >
                   {errors[field.id]}
                 </p>
               ) : field.hint ? (
-                <p className="mt-1 text-sm text-slate-500">{field.hint}</p>
+                <p
+                  id={`${config.slug}-${mode.id}-${field.id}-hint`}
+                  className="mt-1 text-sm text-slate-500"
+                >
+                  {field.hint}
+                </p>
               ) : null}
             </div>
           ) : (
-          <div key={field.id}>
-            <NumberInput
-              id={`${config.slug}-${mode.id}-${field.id}`}
-              label={field.label}
-              value={values[field.id] ?? ""}
-              onChange={(value) =>
-                setValues((prev) => ({ ...prev, [field.id]: value }))
-              }
-              unit={field.unitKind ? fieldUnits[field.id] : undefined}
-              error={errors[field.id]}
-              hint={field.hint}
-              required={!field.optional}
-            />
-            {field.allowUnitSelect && field.unitOptions ? (
-              <label className="mt-1 block text-sm text-slate-600">
-                Unit for {field.label.toLowerCase()}:{" "}
-                <select
-                  aria-label={`${field.label} unit`}
-                  value={fieldUnits[field.id] ?? ""}
-                  onChange={(event) => changeFieldUnit(field, event.target.value)}
-                  className="rounded-md border border-slate-300 px-2 py-1 text-sm"
-                >
-                  {field.unitOptions.map((unit) => (
-                    <option key={unit} value={unit}>
-                      {unit}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-          </div>
-        ))}
+            <div key={field.id}>
+              <NumberInput
+                id={`${config.slug}-${mode.id}-${field.id}`}
+                label={field.label}
+                value={values[field.id] ?? ""}
+                onChange={(value) => setValues((prev) => ({ ...prev, [field.id]: value }))}
+                unit={field.unitKind ? fieldUnits[field.id] : undefined}
+                error={errors[field.id]}
+                hint={field.hint}
+                required={!field.optional}
+              />
+              {field.allowUnitSelect && field.unitOptions ? (
+                <label className="mt-1 block text-sm text-slate-600">
+                  Unit for {field.label.toLowerCase()}:{" "}
+                  <select
+                    aria-label={`${field.label} unit`}
+                    value={fieldUnits[field.id] ?? ""}
+                    onChange={(event) => changeFieldUnit(field, event.target.value)}
+                    className="rounded-md border border-slate-300 px-2 py-1 text-sm"
+                  >
+                    {field.unitOptions.map((unit) => (
+                      <option key={unit} value={unit}>
+                        {unit}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
+            </div>
+          ),
+        )}
       </div>
 
       {result ? (
@@ -405,8 +409,8 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
         </div>
       ) : (
         <p className="mt-6 text-slate-600">
-          Enter your measurements above to see results. Fix any highlighted
-          fields first — a result is only shown when every required input is valid.
+          Enter your measurements above to see results. Fix any highlighted fields first — a result
+          is only shown when every required input is valid.
         </p>
       )}
     </div>

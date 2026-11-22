@@ -94,9 +94,7 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
     return undefined;
   }
   const quantity =
-    typeof raw.quantity === "number" &&
-    Number.isInteger(raw.quantity) &&
-    raw.quantity >= 1
+    typeof raw.quantity === "number" && Number.isInteger(raw.quantity) && raw.quantity >= 1
       ? raw.quantity
       : 1;
   return {
@@ -106,9 +104,7 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
     lines: raw.lines as string[],
     quantity,
     costUsd:
-      typeof raw.costUsd === "number" && Number.isFinite(raw.costUsd)
-        ? raw.costUsd
-        : undefined,
+      typeof raw.costUsd === "number" && Number.isFinite(raw.costUsd) ? raw.costUsd : undefined,
     room: typeof raw.room === "string" && raw.room !== "" ? raw.room : DEFAULT_ROOM,
     savedAt: raw.savedAt,
   };
@@ -136,9 +132,7 @@ export function parseProject(raw: string | null): ProjectData {
     return {
       version: PROJECT_SCHEMA_VERSION,
       name:
-        typeof parsed.name === "string" && parsed.name !== ""
-          ? parsed.name
-          : DEFAULT_PROJECT_NAME,
+        typeof parsed.name === "string" && parsed.name !== "" ? parsed.name : DEFAULT_PROJECT_NAME,
       items,
     };
   } catch {
@@ -148,10 +142,7 @@ export function parseProject(raw: string | null): ProjectData {
 
 /** Total estimated cost of a project: sum of unit cost × quantity. */
 export function totalProjectCost(project: ProjectData): number {
-  return project.items.reduce(
-    (sum, item) => sum + (item.costUsd ?? 0) * item.quantity,
-    0,
-  );
+  return project.items.reduce((sum, item) => sum + (item.costUsd ?? 0) * item.quantity, 0);
 }
 
 /** True when at least one item has a cost. */
@@ -230,19 +221,9 @@ export function formatProjectAsCsv(project: ProjectData): string {
     ]);
   }
   if (projectHasCost(project)) {
-    rows.push([
-      "",
-      "",
-      "Total",
-      "",
-      "",
-      "",
-      totalProjectCost(project).toFixed(2),
-    ]);
+    rows.push(["", "", "Total", "", "", "", totalProjectCost(project).toFixed(2)]);
   }
-  return rows
-    .map((row) => row.map(escapeCsvCell).join(","))
-    .join("\n");
+  return rows.map((row) => row.map(escapeCsvCell).join(",")).join("\n");
 }
 
 /** Read the saved project from LocalStorage. Empty when nothing is stored. */
@@ -271,9 +252,7 @@ export function saveProject(project: ProjectData): void {
  * "General" room. Saving is explicit only — called from the "Add to
  * Project" button on a calculator page.
  */
-export function addItemToProject(
-  item: Omit<ProjectItem, "id" | "quantity" | "room">,
-): ProjectData {
+export function addItemToProject(item: Omit<ProjectItem, "id" | "quantity" | "room">): ProjectData {
   const project = loadProject();
   project.items.push({
     ...item,
@@ -298,10 +277,7 @@ export interface ProjectItemPatch {
  * clears the price; a missing item leaves the project unchanged.
  * Returns the updated project.
  */
-export function updateProjectItem(
-  id: string,
-  patch: ProjectItemPatch,
-): ProjectData {
+export function updateProjectItem(id: string, patch: ProjectItemPatch): ProjectData {
   const project = loadProject();
   const item = project.items.find((entry) => entry.id === id);
   if (item) {
@@ -313,9 +289,7 @@ export function updateProjectItem(
     }
     if (patch.costUsd !== undefined) {
       item.costUsd =
-        Number.isFinite(patch.costUsd) && patch.costUsd >= 0
-          ? patch.costUsd
-          : undefined;
+        Number.isFinite(patch.costUsd) && patch.costUsd >= 0 ? patch.costUsd : undefined;
     }
     if (patch.room !== undefined && patch.room !== "") {
       item.room = patch.room;

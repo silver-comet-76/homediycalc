@@ -7,6 +7,7 @@
  *   - area: square feet (ft²)
  *   - volume: cubic feet (ft³)
  *   - liquid volume: US gallons (gal)
+ *   - coverage: square feet per US gallon (ft²/gal)
  *
  * Rule (AGENTS.md): never convert inline in a component or formula module.
  * Always call the functions in this file. Conversion constants are named and
@@ -31,6 +32,13 @@ export type AreaUnit = "ft2" | "in2" | "yd2" | "m2" | "cm2";
 /** Volume units accepted anywhere on the site. */
 export type VolumeUnit = "ft3" | "yd3" | "in3" | "m3" | "L" | "gal";
 
+/**
+ * Coverage units: area covered per unit of liquid volume. Cans print
+ * ft² per US gallon in imperial and m² per liter in metric — never
+ * m² per gallon — so coverage is its own unit family, not a pure area.
+ */
+export type CoverageUnit = "ft2/gal" | "m2/L";
+
 /** Meters in one foot — exact by the 1959 international yard agreement. */
 export const METERS_PER_FOOT = 0.3048;
 
@@ -48,6 +56,16 @@ export const CUBIC_FEET_PER_CUBIC_YARD = 27;
 
 /** Liters in one US gallon — exact (231 in³ = 3.785411784 L). */
 export const LITERS_PER_US_GALLON = 3.785411784;
+
+/**
+ * Square meters per liter in one square foot per US gallon — exact,
+ * derived from the two exact constants above: 1 ft² = 0.09290304 m²
+ * and 1 US gal = 3.785411784 L. A coverage rate is an area-per-volume
+ * quantity, not a pure area: converting it as a pure area overstates
+ * the metric figure by the gallon-to-liter ratio (3.785×).
+ */
+export const SQM_PER_LITER_PER_SQFT_PER_GALLON =
+  (METERS_PER_FOOT * METERS_PER_FOOT) / LITERS_PER_US_GALLON;
 
 /** Cubic inches in one US gallon — exact. */
 export const CUBIC_INCHES_PER_US_GALLON = 231;
@@ -100,9 +118,7 @@ const CUFT_PER_VOLUME_UNIT: Record<VolumeUnit, number> = {
   m3: 1 / (METERS_PER_FOOT * METERS_PER_FOOT * METERS_PER_FOOT),
   // 1 L = 0.001 m³; 1 ft³ = 0.028316846592 m³.
   L: 0.001 / (METERS_PER_FOOT * METERS_PER_FOOT * METERS_PER_FOOT),
-  gal:
-    (LITERS_PER_US_GALLON * 0.001) /
-    (METERS_PER_FOOT * METERS_PER_FOOT * METERS_PER_FOOT),
+  gal: (LITERS_PER_US_GALLON * 0.001) / (METERS_PER_FOOT * METERS_PER_FOOT * METERS_PER_FOOT),
 };
 
 /**
@@ -110,11 +126,7 @@ const CUFT_PER_VOLUME_UNIT: Record<VolumeUnit, number> = {
  * is preserved: converting a value and converting it back returns the
  * original value (up to floating-point rounding).
  */
-export function convertLength(
-  value: number,
-  from: LengthUnit,
-  to: LengthUnit,
-): number {
+export function convertLength(value: number, from: LengthUnit, to: LengthUnit): number {
   if (from === to) return value;
   const inFeet = value * FEET_PER_LENGTH_UNIT[from];
   return inFeet / FEET_PER_LENGTH_UNIT[to];
@@ -135,14 +147,32 @@ export function convertArea(value: number, from: AreaUnit, to: AreaUnit): number
  * volume: US gallons and liters). The measured quantity is preserved on
  * round-trip.
  */
-export function convertVolume(
-  value: number,
-  from: VolumeUnit,
-  to: VolumeUnit,
-): number {
+export function convertVolume(value: number, from: VolumeUnit, to: VolumeUnit): number {
   if (from === to) return value;
   const inCuFt = value * CUFT_PER_VOLUME_UNIT[from];
   return inCuFt / CUFT_PER_VOLUME_UNIT[to];
+}
+
+/**
+ * Convert a coverage rate between ft² per US gallon and m² per liter.
+ * The covered area per unit of liquid is preserved: converting a value
+ * and converting it back returns the original value (up to
+ * floating-point rounding).
+ */
+export function convertCoverage(value: number, from: CoverageUnit, to: CoverageUnit): number {
+  if (from === to) return value;
+  if (from === "ft2/gal") return value * SQM_PER_LITER_PER_SQFT_PER_GALLON;
+  return value / SQM_PER_LITER_PER_SQFT_PER_GALLON;
+}
+
+/** Convert any coverage rate to the canonical unit, ft² per US gallon. */
+export function toSquareFeetPerGallon(value: number, from: CoverageUnit): number {
+  return convertCoverage(value, from, "ft2/gal");
+}
+
+/** Convert a coverage rate in ft² per US gallon to the requested display unit. */
+export function fromSquareFeetPerGallon(valueInFt2PerGal: number, to: CoverageUnit): number {
+  return convertCoverage(valueInFt2PerGal, "ft2/gal", to);
 }
 
 /** Convert any length to the canonical unit, feet. */
@@ -244,9 +274,26 @@ export function roundForDisplay(value: number, decimals = 2): number {
  * Round a purchase quantity up, tolerating floating-point noise: a value
  * that is mathematically whole (e.g. 100 × 1.10 = 110) must not round up
  * to the next whole number because binary floating point stored it as
- * 110.00000000000001. The 1e-9 epsilon only corrects that noise.
+ * 110.00000000000001.
+ *
+ * Tolerance (ADR-11): a *relative* epsilon of 1e-12 — the larger of
+ * 1e-12 absolute and 1e-12 × |value|. Binary floating-point noise after
+ * the short calculation chains in this codebase is at most ~1e-13
+ * relative, so anything within 1e-12 relative of a whole number is
+ * noise, not a real extra unit. A genuinely above-integer requirement
+ * (e.g. 5.0000000005, 5e-10 above 5 — far outside the tolerance) still
+ * rounds up. Inputs are user-entered quantities with at most a few
+ * decimal places, so a real requirement can never land within 1e-12
+ * relative of an integer except by floating-point error.
+ *
+ * Guarantee: any strictly positive requirement orders at least one
+ * package — a positive valid material requirement never recommends
+ * zero packages. Zero or negative (including NaN) returns 0; callers
+ * validate inputs upstream, so a zero requirement (e.g. a wall fully
+ * covered by openings) stays zero.
  */
 export function ceilUp(value: number): number {
-  const rounded = Math.ceil(value - 1e-9);
-  return rounded === 0 ? 0 : rounded;
+  if (!(value > 0)) return 0;
+  const epsilon = Math.max(1e-12, Math.abs(value) * 1e-12);
+  return Math.max(1, Math.ceil(value - epsilon));
 }

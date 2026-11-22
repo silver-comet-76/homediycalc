@@ -12,6 +12,9 @@ import { ceilUp } from "../units";
  * coverage field is editable and defaults to 20 ft². Waste default
  * 10% for a straight lay; 15–20% for diagonal or herringbone layouts.
  * Underlayment rolls typically cover about 100 ft² per roll.
+ * Underlayment is laid edge-to-edge over the floor area only — offcuts
+ * are reusable — so no waste allowance is applied to the roll count,
+ * unlike the flooring boxes.
  */
 
 export interface FlooringInput {
@@ -48,10 +51,11 @@ export interface FlooringResult {
 export function calculateFlooring(input: FlooringInput): FlooringResult {
   const adjustedAreaFt2 = input.areaFt2 * (1 + input.wastePct / 100);
   const boxes = ceilUp(adjustedAreaFt2 / input.boxCoverageFt2);
-  const planks =
-    input.planksPerBox !== undefined ? boxes * input.planksPerBox : undefined;
+  const planks = input.planksPerBox !== undefined ? boxes * input.planksPerBox : undefined;
   const underlaymentRolls = input.includeUnderlayment
-    ? ceilUp(adjustedAreaFt2 / input.underlaymentRollCoverageFt2)
+    ? // Underlayment covers the floor area only — offcuts are reusable,
+      // so the waste allowance does not apply here.
+      ceilUp(input.areaFt2 / input.underlaymentRollCoverageFt2)
     : undefined;
   const costUsd =
     input.pricePerBox !== undefined || input.pricePerRoll !== undefined

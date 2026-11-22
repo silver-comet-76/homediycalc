@@ -43,7 +43,8 @@ export interface TileResult {
 export function calculateTile(input: TileInput): TileResult {
   const tileAreaFt2 = (input.tileLengthIn * input.tileWidthIn) / SQUARE_INCHES_PER_SQUARE_FOOT;
   const effectiveTileAreaFt2 =
-    ((input.tileLengthIn + input.jointIn) * (input.tileWidthIn + input.jointIn)) / SQUARE_INCHES_PER_SQUARE_FOOT;
+    ((input.tileLengthIn + input.jointIn) * (input.tileWidthIn + input.jointIn)) /
+    SQUARE_INCHES_PER_SQUARE_FOOT;
   const adjustedAreaFt2 = input.areaFt2 * (1 + input.wastePct / 100);
   const tilesNeeded = ceilUp(adjustedAreaFt2 / effectiveTileAreaFt2);
   const boxesNeeded = ceilUp(tilesNeeded / input.tilesPerBox);

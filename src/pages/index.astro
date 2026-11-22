@@ -24,7 +24,7 @@ const faqs = [
   {
     question: "Are all the calculators available?",
     answer:
-      "Yes — all 25 calculators are available now. Calculators are linked only once they are built and tested.",
+      "Yes — all 25 calculators are built, tested, and available now.",
   },
   {
     question: "Is my project data sent anywhere?",
@@ -89,7 +89,7 @@ const faqs = [
       {
         popular.map((calc) => (
           <li class="card">
-            <a href={calc.url} class="font-semibold text-slate-900">
+            <a href={calc.url} class="inline-block py-0.5 leading-6 font-semibold text-slate-900">
               {calc.name}
             </a>
             <p class="mt-1 text-sm text-slate-600">{calc.summary}</p>
@@ -98,7 +98,7 @@ const faqs = [
       }
     </ul>
     <p class="mt-4">
-      <a href="/calculators/" class="font-semibold">See all 25 calculators →</a>
+      <a href="/calculators/" class="inline-block py-0.5 leading-6 font-semibold">See all 25 calculators →</a>
     </p>
   </section>
 
