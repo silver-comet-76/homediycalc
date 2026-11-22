@@ -393,4 +393,37 @@ Ranges across these three rounds: Home 100/100/100/83 every round; Paint Perform
 
 **Counts changed since §13.3:** Vitest 254 → 258 (4 new regression tests: brick rating floor + zero-waste case, block 80 ft² case, rating-floor sweep, `ceilUp` tiny-positive cases). Playwright still 76/76, pages still 40 (39 indexable + 404), sitemap still 39 URLs.
 
-**Standing limitations carried forward (not gate failures):** unchanged from §13.3 — no domain yet (SEO 83 cap), no public deployment, AdSense disabled, WebKit/Safari untested, project license undecided (owner decision), canonical/sitemap/robots absolute-URL readiness blocked on an owner-approved origin. The review-response changes are ready to push to the remote `phase-7` branch; the review will be answered on PR #2 once pushed. Nothing is merged, deployed, or closed.
+**Standing limitations carried forward (not gate failures):** unchanged from §13.3 — no domain yet (SEO 83 cap), no public deployment, AdSense disabled, WebKit/Safari untested, project license undecided (owner decision), canonical/sitemap/robots absolute-URL readiness blocked on an owner-approved origin. The review-response changes were pushed to the remote `phase-7` branch (head `0f042c7f`, 2026-11-22) and the review was answered on PR #2 (comment 7073041173, re-review requested). The reviewer then returned a second review (6009895920) with one remaining P0 — see §13.5. Nothing is merged, deployed, or closed.
+
+### 13.5 PR #2 second re-review response (ADR-12) — ✅ re-gate PASSED (2026-11-22 ~12:04–12:09 JST)
+
+**Review:** PR #2, review 6009895920 (submitted 2026-11-22T02:55:17Z, against commit `0f042c7f`). The reviewer accepted the standard-case fixes (18 bags), the `ceilUp` guard, and the committed gate scripts/logs, and raised one remaining P0: the count-only manufacturer rating breaks for custom geometry. Both calculators accept an adjustable joint width and Brick accepts custom brick dimensions, yet the bag count used the fixed standard-unit rating — so on the 80 ft² modular wall at 15% mortar waste, widening the joint from ⅜ to ¾ in raises the mortar volume from 5.09 to 8.82 ft³ while the recommended bags fall from 18 to 15, contradicting the claim that the bag count covers the waste-adjusted volume.
+
+**Fixes (all in `src/lib/formulas/brick.ts`, `src/lib/formulas/mortar.ts`, both calculator configs, `docs/FORMULAS.md` §§10/18, ADR-12):**
+
+- **P0 — rating limited to standard geometry.** The manufacturer count rating now applies only to modular brick (7⅝ × 2¼ × 3⅝ in) or standard 8 × 8 × 16 block at the standard ⅜ in joint or narrower, within a 1% relative tolerance that absorbs metric rounding only (9.5 mm joint, 194 × 57 × 92 mm brick). A narrower joint stays applicable: it uses no more mortar per unit than the standard case, so the rating remains a conservative basis (¼ in joint → 3.58 ft³, 19 bags, still covering the volume at the rating's implied yield). The standard case is unchanged: 18 bags for the worked example in both calculators.
+- **P0 — verified user-entered yield for custom geometry.** For wider joints or non-modular brick, the bag count comes from a user-entered verified yield (ft³ per 80 lb bag, from the bag's own data sheet — no default, no product yield claimed): bags = ceil(waste-adjusted mortar volume ÷ yield). With no yield entered, no bag count, bag cost, or shopping-list bag line is shown, and the page explains why and what to enter (a `note` under the results). The rejected alternative — adding a volume-coverage check against the rating's implied yield — would itself invent a product yield, since the implied yield (≈ 0.30 ft³/bag) is a property of the standard geometry, not of the bag.
+- **Nonblocking notes addressed in the same change.** The gate script no longer hardcodes the Chromium path: it resolves `$CHROME_PATH` when set, otherwise the newest `chromium_headless_shell-*` under the Playwright cache. It now enforces explicit Lighthouse launch thresholds (Performance/Accessibility/Best Practices ≥ 90, SEO ≥ 80, documented in the script header) — a passing round now means the scores were checked, not just produced. The stale "ready to push" line at the end of §13.4 is corrected (the changes were pushed and the review answered).
+
+**Regression tests:** 24 new tests (Vitest 258 → 282) — formula level: wide joint suppressed (8.82 ft³, no bags), user-yield path (30 bags at 0.3 ft³/bag, agreeing across both calculators), narrow joint (19 bags, volume covered), custom depth/length/height suppressed, metric equivalents (19.05 mm → suppressed; 9.5 mm and 194 × 57 × 92 mm → 18 bags); config level: bag row/line/cost suppression and the yield path in both calculators, including the site-mix parts still coming from the volume when bags are suppressed.
+
+**Re-gate — 3 consecutive clean full rounds PASSED (2026-11-22 ~12:04–12:09 JST):**
+
+| Check | Round 1 (03:04:52Z) | Round 2 (03:06:34Z) | Round 3 (03:08:09Z) |
+|---|---|---|---|
+| Clean build | 40 pages | 40 pages | 40 pages |
+| Vitest | 282/282 | 282/282 | 282/282 |
+| Typecheck | 0 errors / 0 warnings / 0 hints | 0/0/0 | 0/0/0 |
+| Lint (Prettier check) | pass | pass | pass |
+| Scripted audit checks (`scripts/gate-audit.py`) | ALL CHECKS PASSED | ALL CHECKS PASSED | ALL CHECKS PASSED |
+| Playwright e2e | 76/76 (40.6 s) | 76/76 (37.2 s) | 76/76 (37.8 s) |
+| Lighthouse Home (desktop) | 100/100/100/83 | 100/100/100/83 | 100/100/100/83 |
+| Lighthouse Paint (desktop) | 100/100/100/83 | 100/100/100/83 | 100/100/100/83 |
+
+Ranges across these three rounds: Home 100/100/100/83 every round (LCP 0.2 s, CLS 0, TTI 0.2 s); Paint 100/100/100/83 every round (LCP 0.4 s, TTI 0.4 s; CLS 0, 0, 0.005). Across all three gates (§13.3, §13.4, this one) Paint Performance is 98–100; the 98/99 in §13.3 were shared-VM load variance. SEO 83 is the expected score (relative canonical + relative robots.txt sitemap URL, which need a domain). Lighthouse thresholds were enforced by the script in every round (all scores above their floors). No failures, no issues found in any of the three counted rounds. Running tally: **3 consecutive clean rounds.**
+
+**Counts changed since §13.4:** Vitest 258 → 282 (24 new regression tests, listed above). Playwright still 76/76, pages still 40 (39 indexable + 404), sitemap still 39 URLs.
+
+**Standing limitations carried forward (not gate failures):** unchanged from §13.4 — no domain yet (SEO 83 cap), no public deployment, AdSense disabled, WebKit/Safari untested, project license undecided (owner decision), canonical/sitemap/robots absolute-URL readiness blocked on an owner-approved origin. The second-review-response changes are ready to push to the remote `phase-7` branch; the review will be answered on PR #2 once pushed, with final re-review requested. Nothing is merged, deployed, or closed.
+
+**Method note (same as §13.3):** all rounds run from a clean state (`rm -rf dist/`) with `bash scripts/gate-round.sh <round> <log-file>`; per-round logs in `docs/gate-logs/2026-11-22-second-review-response/` (`round-1.log`, `round-2.log`, `round-3.log`, `summary.txt`); Lighthouse pinned to 12.8.2; the Chromium headless-shell binary is resolved dynamically (see the script header); the gate now asserts the Lighthouse launch thresholds instead of only reporting the scores. Node v24.22.1, npm 10.9.4, Python 3.12.3.
