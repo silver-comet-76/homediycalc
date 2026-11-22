@@ -1,1 +1,13 @@
-{"compilerOptions":{"exactOptionalPropertyTypes":false,"jsx":"react-jsx","noImplicitAny":true,"noUncheckedIndexedAccess":true,"strict":true,"types":["vitest/globals","node"]},"exclude":["dist","node_modules"],"extends":"astro/tsconfigs/strict","include":["src","tests","astro.config.mjs"]}
+{
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": false,
+    "jsx": "react-jsx",
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "types": ["vitest/globals", "node"]
+  },
+  "exclude": ["dist", "node_modules"],
+  "extends": "astro/tsconfigs/strict",
+  "include": ["src", "tests", "astro.config.mjs"]
+}

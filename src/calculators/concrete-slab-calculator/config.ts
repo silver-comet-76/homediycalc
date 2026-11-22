@@ -22,8 +22,8 @@ export const concreteSlabConfig: CalculatorConfig = {
   defaultMode: "slab",
   formula:
     "Volume (ft³) = length × width × thickness, all in feet, plus the thickened edge if you enter one: " +
-    "perimeter × edge width × (edge depth − thickness). Volume (yd³) = volume (ft³) ÷ 27. " +
-    "Add 10% waste, then round the ready-mix order up to the next quarter cubic yard. " +
+    "2 × (length + width − 2 × edge width) × edge width × (edge depth − thickness), so each corner is counted once. Volume (yd³) = volume (ft³) ÷ 27. " +
+    "Add your waste allowance (default 10%), then round the ready-mix order up to the next quarter cubic yard. " +
     "Wire-mesh sheets = slab area ÷ sheet area (a standard 8 × 20 ft sheet is 160 ft²). " +
     "Bag yields are the QUIKRETE Concrete Mix No. 1101 figures: 80 lb = 0.60 ft³, 60 lb = 0.45 ft³, 40 lb = 0.30 ft³.",
   howTo: [
@@ -34,11 +34,11 @@ export const concreteSlabConfig: CalculatorConfig = {
     "Plan control joints: saw-cut or tooled joints about every 8–12 ft, so the slab cracks where you choose, not where it wants to.",
   ],
   workedExample:
-    "A 20 ft × 12 ft slab, 4 in thick: 20 × 12 × 0.33 ft = 80 ft³ = 2.96 yd³. " +
+    "A 20 ft × 12 ft slab, 4 in thick: 20 × 12 × ⅓ ft = 80 ft³ = 2.96 yd³. " +
     "With 10% waste that is 3.26 yd³, so order 3.5 yd³ — or 147 bags of 80 lb mix.",
   limitations: [
     "Assumes uniform thickness unless a thickened edge is entered. It does not design reinforcement or check structural requirements — a slab's structural design needs a qualified professional, and local code may require a permit and inspection.",
-    "The thickened-edge volume is a perimeter-band approximation; corner overlap is absorbed by the waste allowance.",
+    "The thickened-edge volume is a perimeter band with the corner overlap removed, so each corner is counted once.",
     "The wire-mesh count is a quantity guide only. Mesh size, bar spacing, and whether mesh or rebar is right for your slab are engineering decisions, not calculator outputs.",
     "Bag yields are the QUIKRETE figures for its Concrete Mix; other brands print their own yield on the bag.",
   ],
@@ -69,26 +69,115 @@ export const concreteSlabConfig: CalculatorConfig = {
       id: "slab",
       label: "Slab",
       fields: [
-        { id: "length", label: "Length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "20", defaultMet: "6.1" },
-        { id: "width", label: "Width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "12", defaultMet: "3.66" },
-        { id: "thickness", label: "Thickness", kind: "length", unitKind: "length", impUnit: "in", metUnit: "cm", defaultImp: "4", defaultMet: "10", hint: "4 in for a patio or walkway; 5–6 in for a garage or driveway." },
-        { id: "waste", label: "Waste allowance", kind: "percent", defaultImp: "10", defaultMet: "10", hint: "10% is the usual default for a slab pour on reasonably level ground." },
         {
-          id: "quarterYard", label: "Ready-mix order increment", kind: "select", defaultImp: "1", defaultMet: "1",
+          id: "length",
+          label: "Length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "20",
+          defaultMet: "6.1",
+        },
+        {
+          id: "width",
+          label: "Width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "12",
+          defaultMet: "3.66",
+        },
+        {
+          id: "thickness",
+          label: "Thickness",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "in",
+          metUnit: "cm",
+          defaultImp: "4",
+          defaultMet: "10",
+          hint: "4 in for a patio or walkway; 5–6 in for a garage or driveway.",
+        },
+        {
+          id: "waste",
+          label: "Waste allowance",
+          kind: "percent",
+          defaultImp: "10",
+          defaultMet: "10",
+          hint: "10% is the usual default for a slab pour on reasonably level ground.",
+        },
+        {
+          id: "quarterYard",
+          label: "Ready-mix order increment",
+          kind: "select",
+          defaultImp: "1",
+          defaultMet: "1",
           options: [
             { value: "1", label: "Quarter yard (0.25 yd³) — most suppliers" },
             { value: "0", label: "Whole yard (1 yd³)" },
           ],
         },
-        { id: "edgeDepth", label: "Thickened edge depth (optional)", kind: "length", unitKind: "length", impUnit: "in", metUnit: "cm", defaultImp: "", defaultMet: "", optional: true, hint: "Depth of the deeper edge footing, e.g. 12 in. Leave empty for a flat slab." },
-        { id: "edgeWidth", label: "Thickened edge width (optional)", kind: "length", unitKind: "length", impUnit: "in", metUnit: "cm", defaultImp: "", defaultMet: "", optional: true, hint: "Width of the edge band, e.g. 12 in. Only used when an edge depth is entered." },
-        { id: "meshArea", label: "Wire-mesh sheet area (ft²)", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "160", defaultMet: "14.86", hint: `A standard 8 × 20 ft sheet is ${STANDARD_MESH_SHEET_AREA_FT2} ft². Change it to match the sheets you buy.` },
-        { id: "pricePerYd3", label: "Price per cubic yard (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
-        { id: "pricePerBag80", label: "Price per 80 lb bag (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true, hint: "Used only when no per-yard price is entered." },
+        {
+          id: "edgeDepth",
+          label: "Thickened edge depth (optional)",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "in",
+          metUnit: "cm",
+          defaultImp: "",
+          defaultMet: "",
+          optional: true,
+          hint: "Depth of the deeper edge footing, e.g. 12 in. Leave empty for a flat slab.",
+        },
+        {
+          id: "edgeWidth",
+          label: "Thickened edge width (optional)",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "in",
+          metUnit: "cm",
+          defaultImp: "",
+          defaultMet: "",
+          optional: true,
+          hint: "Width of the edge band, e.g. 12 in. Only used when an edge depth is entered.",
+        },
+        {
+          id: "meshArea",
+          label: "Wire-mesh sheet area (ft²)",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "160",
+          defaultMet: "14.86",
+          hint: `A standard 8 × 20 ft sheet is ${STANDARD_MESH_SHEET_AREA_FT2} ft². Change it to match the sheets you buy.`,
+        },
+        {
+          id: "pricePerYd3",
+          label: "Price per cubic yard (optional)",
+          kind: "price",
+          defaultImp: "",
+          defaultMet: "",
+          optional: true,
+        },
+        {
+          id: "pricePerBag80",
+          label: "Price per 80 lb bag (optional)",
+          kind: "price",
+          defaultImp: "",
+          defaultMet: "",
+          optional: true,
+          hint: "Used only when no per-yard price is entered.",
+        },
       ],
       compute: (v, present) => {
         const r = calculateSlab({
-          lengthFt: req(v, "length"), widthFt: req(v, "width"), thicknessFt: req(v, "thickness"), wastePct: req(v, "waste"),
+          lengthFt: req(v, "length"),
+          widthFt: req(v, "width"),
+          thicknessFt: req(v, "thickness"),
+          wastePct: req(v, "waste"),
           quarterYardRounding: req(v, "quarterYard") === 1,
           edgeDepthFt: present.has("edgeDepth") ? req(v, "edgeDepth") : undefined,
           edgeWidthFt: present.has("edgeWidth") ? req(v, "edgeWidth") : undefined,
@@ -99,13 +188,41 @@ export const concreteSlabConfig: CalculatorConfig = {
         const quarter = req(v, "quarterYard") === 1;
         return {
           rows: [
-            { label: "Slab volume", value: `${fmt(r.volumeYd3)} yd³`, detail: `${fmt(r.volumeFt3)} ft³${r.edgeExtraFt3 > 0 ? ` (includes ${fmt(r.edgeExtraFt3)} ft³ thickened edge)` : ""}` },
-            { label: `With ${fmt(req(v, "waste"), 0)}% waste`, value: `${fmt(r.adjustedYd3)} yd³`, detail: `${fmt(r.adjustedFt3)} ft³` },
-            { label: "Ready-mix to order", value: `${fmt(r.orderYd3)} yd³`, detail: quarter ? "Rounded up to the next 0.25 yd³" : "Rounded up to whole yards" },
-            { label: "80 lb bags", value: `${r.bags80} bags`, detail: `${CONCRETE_BAG_YIELDS_FT3[80]} ft³ per bag (QUIKRETE No. 1101)` },
-            { label: "60 lb bags", value: `${r.bags60} bags`, detail: `${CONCRETE_BAG_YIELDS_FT3[60]} ft³ per bag` },
-            { label: "40 lb bags", value: `${r.bags40} bags`, detail: `${CONCRETE_BAG_YIELDS_FT3[40]} ft³ per bag` },
-            { label: "Wire-mesh sheets", value: `${r.meshSheets} sheets`, detail: "Information only — not a structural specification" },
+            {
+              label: "Slab volume",
+              value: `${fmt(r.volumeYd3)} yd³`,
+              detail: `${fmt(r.volumeFt3)} ft³${r.edgeExtraFt3 > 0 ? ` (includes ${fmt(r.edgeExtraFt3)} ft³ thickened edge)` : ""}`,
+            },
+            {
+              label: `With ${fmt(req(v, "waste"), 0)}% waste`,
+              value: `${fmt(r.adjustedYd3)} yd³`,
+              detail: `${fmt(r.adjustedFt3)} ft³`,
+            },
+            {
+              label: "Ready-mix to order",
+              value: `${fmt(r.orderYd3)} yd³`,
+              detail: quarter ? "Rounded up to the next 0.25 yd³" : "Rounded up to whole yards",
+            },
+            {
+              label: "80 lb bags",
+              value: `${r.bags80} bags`,
+              detail: `${CONCRETE_BAG_YIELDS_FT3[80]} ft³ per bag (QUIKRETE No. 1101)`,
+            },
+            {
+              label: "60 lb bags",
+              value: `${r.bags60} bags`,
+              detail: `${CONCRETE_BAG_YIELDS_FT3[60]} ft³ per bag`,
+            },
+            {
+              label: "40 lb bags",
+              value: `${r.bags40} bags`,
+              detail: `${CONCRETE_BAG_YIELDS_FT3[40]} ft³ per bag`,
+            },
+            {
+              label: "Wire-mesh sheets",
+              value: `${r.meshSheets} sheets`,
+              detail: "Information only — not a structural specification",
+            },
           ],
           lines: [
             `Ready-mix concrete: ${fmt(r.orderYd3)} yd³`,

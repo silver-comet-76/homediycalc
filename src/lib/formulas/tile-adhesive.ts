@@ -73,7 +73,6 @@ export function calculateTileAdhesive(input: TileAdhesiveInput): TileAdhesiveRes
   const exactBags = adjustedAreaFt2 / effectiveCoverageFt2PerBag;
   const bags = ceilUp(exactBags);
   const adhesiveLb = exactBags * input.bagWeightLb;
-  const costUsd =
-    input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
+  const costUsd = input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
   return { adhesiveLb, bags, effectiveCoverageFt2PerBag, costUsd };
 }

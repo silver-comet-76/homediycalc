@@ -27,7 +27,7 @@ export const gravelConfig: CalculatorConfig = {
   ],
   workedExample:
     "A 10 ft × 10 ft area, 3 in deep: 10 × 10 × 0.25 ft = 25 ft³ = 0.93 yd³. " +
-    "At 2,800 lb/yd³ that weighs 2,593 lb, about 1.30 US tons.",
+    "At 2,800 lb/yd³ the unrounded 0.926 yd³ weighs 2,593 lb, about 1.30 US tons.",
   limitations: [
     "Density varies by stone type, size, and moisture — wet gravel can weigh 10–15% more than dry. Treat the weight as an estimate for ordering and hauling.",
     "The waste allowance only approximates compaction and settling. Crushed stone compacts to roughly 85% of its loose volume once driven on.",
@@ -55,31 +55,115 @@ export const gravelConfig: CalculatorConfig = {
       id: "area",
       label: "Area and depth",
       fields: [
-        { id: "length", label: "Length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
-        { id: "width", label: "Width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
-        { id: "depth", label: "Depth", kind: "length", unitKind: "length", impUnit: "in", metUnit: "cm", defaultImp: "3", defaultMet: "7.6", hint: "Depth after spreading and compacting, not the height of the loose pile." },
-        { id: "waste", label: "Compaction allowance", kind: "percent", defaultImp: "5", defaultMet: "5", hint: "Covers settling and compaction. Use 5% for a path, 10% for a driveway base." },
-        { id: "density", label: "Density (lb per yd³)", kind: "number", defaultImp: "2800", defaultMet: "2800", min: 500, max: 5000, hint: "Typical: general gravel 2,800; pea gravel 2,700; crusher run 3,000 lb/yd³. Ask your supplier for their figure." },
-        { id: "bagWeight", label: "Bag weight in lb (optional)", kind: "number", defaultImp: "", defaultMet: "", optional: true, hint: "Enter a bag weight (e.g. 50 lb) to also see a bag count." },
-        { id: "pricePerYd3", label: "Price per cubic yard (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
+        {
+          id: "length",
+          label: "Length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
+        {
+          id: "width",
+          label: "Width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
+        {
+          id: "depth",
+          label: "Depth",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "in",
+          metUnit: "cm",
+          defaultImp: "3",
+          defaultMet: "7.6",
+          hint: "Depth after spreading and compacting, not the height of the loose pile.",
+        },
+        {
+          id: "waste",
+          label: "Compaction allowance",
+          kind: "percent",
+          defaultImp: "5",
+          defaultMet: "5",
+          hint: "Covers settling and compaction. Use 5% for a path, 10% for a driveway base.",
+        },
+        {
+          id: "density",
+          label: "Density (lb per yd³)",
+          kind: "number",
+          defaultImp: "2800",
+          defaultMet: "2800",
+          min: 500,
+          max: 5000,
+          hint: "Typical: general gravel 2,800; pea gravel 2,700; crusher run 3,000 lb/yd³. Ask your supplier for their figure.",
+        },
+        {
+          id: "bagWeight",
+          label: "Bag weight in lb (optional)",
+          kind: "number",
+          defaultImp: "",
+          defaultMet: "",
+          optional: true,
+          hint: "Enter a bag weight (e.g. 50 lb) to also see a bag count.",
+        },
+        {
+          id: "pricePerYd3",
+          label: "Price per cubic yard (optional)",
+          kind: "price",
+          defaultImp: "",
+          defaultMet: "",
+          optional: true,
+        },
       ],
       compute: (v, present) => {
         const r = calculateGravel({
-          lengthFt: req(v, "length"), widthFt: req(v, "width"), depthFt: req(v, "depth"), wastePct: req(v, "waste"),
+          lengthFt: req(v, "length"),
+          widthFt: req(v, "width"),
+          depthFt: req(v, "depth"),
+          wastePct: req(v, "waste"),
           densityLbPerYd3: req(v, "density"),
           bagWeightLb: present.has("bagWeight") ? req(v, "bagWeight") : undefined,
           pricePerYd3: present.has("pricePerYd3") ? req(v, "pricePerYd3") : undefined,
         });
         return {
           rows: [
-            { label: "Volume", value: `${fmt(r.volumeYd3)} yd³`, detail: `${fmt(r.volumeFt3)} ft³` },
-            { label: "Cubic yards to order", value: `${r.orderYd3} yd³`, detail: `${fmt(r.adjustedYd3)} yd³ with ${fmt(req(v, "waste"), 0)}% compaction allowance — rounded up` },
-            { label: "Weight", value: `${fmt(r.weightTons)} tons`, detail: `${fmt(r.weightLb)} lb (${fmt(r.weightKg)} kg) at ${fmt(req(v, "density"), 0)} lb/yd³` },
-            ...(r.bags !== undefined ? [{ label: "Bags", value: `${r.bags} bags`, detail: `At ${fmt(req(v, "bagWeight"), 0)} lb per bag` }] : []),
+            {
+              label: "Volume",
+              value: `${fmt(r.volumeYd3)} yd³`,
+              detail: `${fmt(r.volumeFt3)} ft³`,
+            },
+            {
+              label: "Cubic yards to order",
+              value: `${r.orderYd3} yd³`,
+              detail: `${fmt(r.adjustedYd3)} yd³ with ${fmt(req(v, "waste"), 0)}% compaction allowance — rounded up`,
+            },
+            {
+              label: "Weight",
+              value: `${fmt(r.weightTons)} tons`,
+              detail: `${fmt(r.weightLb)} lb (${fmt(r.weightKg)} kg) at ${fmt(req(v, "density"), 0)} lb/yd³`,
+            },
+            ...(r.bags !== undefined
+              ? [
+                  {
+                    label: "Bags",
+                    value: `${r.bags} bags`,
+                    detail: `At ${fmt(req(v, "bagWeight"), 0)} lb per bag`,
+                  },
+                ]
+              : []),
           ],
           lines: [
             `Gravel: ${r.orderYd3} yd³ (${fmt(r.weightTons)} tons)`,
-            ...(r.bags !== undefined ? [`Gravel bags (${fmt(req(v, "bagWeight"), 0)} lb): ${r.bags}`] : []),
+            ...(r.bags !== undefined
+              ? [`Gravel bags (${fmt(req(v, "bagWeight"), 0)} lb): ${r.bags}`]
+              : []),
           ],
           costUsd: r.costUsd,
           workedLine: `${fmt(req(v, "length"))} × ${fmt(req(v, "width"))} × ${fmt(req(v, "depth"), 3)} ft = ${fmt(r.volumeFt3)} ft³ = ${fmt(r.volumeYd3)} yd³; at ${fmt(req(v, "density"), 0)} lb/yd³ = ${fmt(r.weightLb)} lb.`,

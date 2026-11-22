@@ -58,14 +58,11 @@ export function calculateLiquidWaterproofing(
   input: LiquidWaterproofingInput,
 ): LiquidWaterproofingResult {
   const gallons =
-    (input.areaFt2 * input.coats * (1 + input.wastePct / 100)) /
-    input.coveragePerCoatFt2PerGal;
+    (input.areaFt2 * input.coats * (1 + input.wastePct / 100)) / input.coveragePerCoatFt2PerGal;
   const containers = ceilUp(gallons / input.containerGal);
   const litersToBuy = gallonsToLiters(containers * input.containerGal);
   const costUsd =
-    input.pricePerContainer !== undefined
-      ? containers * input.pricePerContainer
-      : undefined;
+    input.pricePerContainer !== undefined ? containers * input.pricePerContainer : undefined;
   return { gallons, containers, litersToBuy, costUsd };
 }
 
@@ -89,10 +86,7 @@ export interface SheetWaterproofingResult {
 export function calculateSheetWaterproofing(
   input: SheetWaterproofingInput,
 ): SheetWaterproofingResult {
-  const rolls = ceilUp(
-    (input.areaFt2 * (1 + input.wastePct / 100)) / input.rollCoverageFt2,
-  );
-  const costUsd =
-    input.pricePerRoll !== undefined ? rolls * input.pricePerRoll : undefined;
+  const rolls = ceilUp((input.areaFt2 * (1 + input.wastePct / 100)) / input.rollCoverageFt2);
+  const costUsd = input.pricePerRoll !== undefined ? rolls * input.pricePerRoll : undefined;
   return { rolls, costUsd };
 }

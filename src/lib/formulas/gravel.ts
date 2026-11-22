@@ -55,11 +55,7 @@ export function calculateGravel(input: GravelInput): GravelResult {
     weightLb,
     weightTons: poundsToShortTons(weightLb),
     weightKg: poundsToKilograms(weightLb),
-    bags:
-      input.bagWeightLb !== undefined
-        ? ceilUp(weightLb / input.bagWeightLb)
-        : undefined,
-    costUsd:
-      input.pricePerYd3 !== undefined ? orderYd3 * input.pricePerYd3 : undefined,
+    bags: input.bagWeightLb !== undefined ? ceilUp(weightLb / input.bagWeightLb) : undefined,
+    costUsd: input.pricePerYd3 !== undefined ? orderYd3 * input.pricePerYd3 : undefined,
   };
 }

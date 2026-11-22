@@ -10,11 +10,7 @@ import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
 
-function adhesiveOutput(
-  areaFt2: number,
-  v: Record<string, number>,
-  present: Set<string>,
-) {
+function adhesiveOutput(areaFt2: number, v: Record<string, number>, present: Set<string>) {
   const r = calculateTileAdhesive({
     areaFt2,
     coveragePer50LbBagFt2: req(v, "trowel"),
@@ -66,7 +62,15 @@ const COMMON_FIELDS: FieldSpec[] = [
     ],
     hint: "Coverage per 50 lb bag, low end of the CUSTOM VersaBond chart (TDS-119). Bigger tile needs a deeper notch — and a deeper notch covers far fewer square feet per bag.",
   },
-  { id: "bagWeight", label: "Bag weight (lb)", kind: "number", defaultImp: "50", defaultMet: "50", min: 1, hint: "Thinset is usually sold in 50 lb bags; some lightweight mortars come in 25–30 lb bags. Coverage scales with the bag weight." },
+  {
+    id: "bagWeight",
+    label: "Bag weight (lb)",
+    kind: "number",
+    defaultImp: "50",
+    defaultMet: "50",
+    min: 1,
+    hint: "Thinset is usually sold in 50 lb bags; some lightweight mortars come in 25–30 lb bags. Coverage scales with the bag weight.",
+  },
   {
     id: "backButter",
     label: "Back-buttering",
@@ -79,8 +83,22 @@ const COMMON_FIELDS: FieldSpec[] = [
     ],
     hint: "Back-butter tile over 15 in and all wet or exterior installs. It adds about 35% to the adhesive used (estimating guidance).",
   },
-  { id: "waste", label: "Waste allowance", kind: "percent", defaultImp: "10", defaultMet: "10", hint: "10% covers what stays in the bucket, on the trowel, and in the joints. Use 15% on an uneven substrate." },
-  { id: "pricePerBag", label: "Price per bag (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
+  {
+    id: "waste",
+    label: "Waste allowance",
+    kind: "percent",
+    defaultImp: "10",
+    defaultMet: "10",
+    hint: "10% covers what stays in the bucket, on the trowel, and in the joints. Use 15% on an uneven substrate.",
+  },
+  {
+    id: "pricePerBag",
+    label: "Price per bag (optional)",
+    kind: "price",
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
 ];
 
 export const tileAdhesiveConfig: CalculatorConfig = {
@@ -130,18 +148,44 @@ export const tileAdhesiveConfig: CalculatorConfig = {
       id: "dimensions",
       label: "Room dimensions",
       fields: [
-        { id: "length", label: "Length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
-        { id: "width", label: "Width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
+        {
+          id: "length",
+          label: "Length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
+        {
+          id: "width",
+          label: "Width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
         ...COMMON_FIELDS,
       ],
-      compute: (v, present) =>
-        adhesiveOutput(req(v, "length") * req(v, "width"), v, present),
+      compute: (v, present) => adhesiveOutput(req(v, "length") * req(v, "width"), v, present),
     },
     {
       id: "area",
       label: "Known area",
       fields: [
-        { id: "area", label: "Tiled area", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "100", defaultMet: "9.29" },
+        {
+          id: "area",
+          label: "Tiled area",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "100",
+          defaultMet: "9.29",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => adhesiveOutput(req(v, "area"), v, present),

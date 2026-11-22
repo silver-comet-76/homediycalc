@@ -125,7 +125,8 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoDescription:
       "Calculate how much concrete you need in cubic yards, cubic feet, and bags. Enter length, width, and depth — get an exact order amount.",
     related: ["concrete-slab-calculator", "concrete-bags-calculator", "cubic-yard-calculator"],
-    summary: "Works out concrete volume in cubic yards, cubic feet, and bags from length, width, and depth.",
+    summary:
+      "Works out concrete volume in cubic yards, cubic feet, and bags from length, width, and depth.",
   },
   {
     slug: "square-footage-calculator",
@@ -151,7 +152,8 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoDescription:
       "Calculate how much paint you need in gallons. Enter wall area and coats — get gallons, quarts, and a shopping list.",
     related: ["primer-calculator", "square-footage-calculator", "wallpaper-calculator"],
-    summary: "Works out how many gallons of paint a room needs, based on area, coats, and coverage.",
+    summary:
+      "Works out how many gallons of paint a room needs, based on area, coats, and coverage.",
   },
   {
     slug: "gravel-calculator",
@@ -203,7 +205,8 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoDescription:
       "Convert cubic feet to cubic yards and back, or calculate volume from dimensions. Free, instant, and exact.",
     related: ["cubic-feet-calculator", "concrete-calculator", "gravel-calculator"],
-    summary: "Converts between cubic feet, cubic yards, and cubic meters, or calculates volume from dimensions.",
+    summary:
+      "Converts between cubic feet, cubic yards, and cubic meters, or calculates volume from dimensions.",
   },
   {
     slug: "cubic-feet-calculator",
@@ -216,7 +219,8 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoDescription:
       "Calculate volume in cubic feet from length, width, and height. Convert to cubic yards and cubic meters too.",
     related: ["cubic-yard-calculator", "square-footage-calculator", "board-foot-calculator"],
-    summary: "Works out volume in cubic feet from dimensions, with conversion to cubic yards and cubic meters.",
+    summary:
+      "Works out volume in cubic feet from dimensions, with conversion to cubic yards and cubic meters.",
   },
   {
     slug: "tile-calculator",
@@ -229,7 +233,8 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoDescription:
       "Calculate how many tiles and boxes you need for a floor or wall. Enter area and tile size — get counts with waste included.",
     related: ["flooring-calculator", "grout-calculator", "tile-adhesive-calculator"],
-    summary: "Works out tile and box counts from area and tile size, with waste allowance included.",
+    summary:
+      "Works out tile and box counts from area and tile size, with waste allowance included.",
   },
   {
     slug: "brick-calculator",
@@ -242,7 +247,8 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoDescription:
       "Calculate how many bricks you need for a wall. Enter wall area and brick size — get a count with mortar joints included.",
     related: ["mortar-calculator", "concrete-calculator", "square-footage-calculator"],
-    summary: "Works out brick counts for a wall from wall area, brick size, and mortar joint width.",
+    summary:
+      "Works out brick counts for a wall from wall area, brick size, and mortar joint width.",
   },
   // ---- P1 (Phase 3) ----
   {
@@ -256,7 +262,8 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoDescription:
       "Calculate how many drywall sheets you need for walls and ceilings. Enter area — get sheet counts and joint compound estimates.",
     related: ["square-footage-calculator", "ceiling-tile-calculator", "paint-calculator"],
-    summary: "Works out drywall sheet counts for walls and ceilings, plus joint compound and tape estimates.",
+    summary:
+      "Works out drywall sheet counts for walls and ceilings, plus joint compound and tape estimates.",
   },
   {
     slug: "concrete-bags-calculator",

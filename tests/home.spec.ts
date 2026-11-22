@@ -20,18 +20,14 @@ test("home page loads, nav works, no console errors", async ({ page }) => {
   // Header nav: All Calculators.
   await page.getByRole("link", { name: "All Calculators", exact: true }).first().click();
   await expect(page).toHaveURL(/\/calculators\/?$/);
-  await expect(
-    page.getByRole("heading", { name: "All Calculators", exact: true }),
-  ).toBeVisible();
-  await expect(page.getByText("Concrete Calculator")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "All Calculators", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Concrete Calculator" })).toBeVisible();
 
   // Category page via the nav.
   await page.getByRole("link", { name: "Painting", exact: true }).first().click();
   await expect(page).toHaveURL(/\/categories\/painting\/?$/);
-  await expect(
-    page.getByRole("heading", { name: "Painting Calculators" }),
-  ).toBeVisible();
-  await expect(page.getByText("Paint Calculator")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Painting Calculators" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Paint Calculator" })).toBeVisible();
   // Breadcrumb trail is present.
   await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toBeVisible();
 

@@ -63,9 +63,7 @@ describe("registry completeness", () => {
   });
   it("places P0 calculators in Phase 2, P1 in Phase 3, and P2 in Phase 4", () => {
     for (const calc of CALCULATORS) {
-      expect(calc.phase).toBe(
-        calc.priority === "P0" ? 2 : calc.priority === "P1" ? 3 : 4,
-      );
+      expect(calc.phase).toBe(calc.priority === "P0" ? 2 : calc.priority === "P1" ? 3 : 4);
     }
   });
   it("resolves every related slug to a registered calculator", () => {

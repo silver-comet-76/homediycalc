@@ -27,6 +27,26 @@ describe("calculateBaseboard", () => {
     expect(r.pieces).toBe(7);
   });
 
+  it("needs fewer, longer pieces in 16 ft stock", () => {
+    // 49.5 ÷ 16 = 3.09 -> 4 pieces (64 ft purchased).
+    const r = calculateBaseboard({ netLengthFt: 45, pieceLengthFt: 16, wastePct: 10 });
+    expect(r.adjustedFt).toBeCloseTo(49.5, 2);
+    expect(r.pieces).toBe(4);
+    expect(r.purchasedFt).toBe(64);
+  });
+
+  it("clamps the net length at zero instead of going negative (BAS-1)", () => {
+    // 12 × 12 ft room, fifty 3 ft doors: perimeter 48 ft − 150 ft
+    // would be −102 ft unclamped. Net length is 0, never negative.
+    const net = roomNetLengthFt(12, 12, 50, 3);
+    expect(net).toBe(0);
+    expect(net).toBeGreaterThanOrEqual(0);
+    const r = calculateBaseboard({ netLengthFt: net, pieceLengthFt: 8, wastePct: 10 });
+    expect(r.adjustedFt).toBe(0);
+    expect(r.pieces).toBe(0);
+    expect(r.purchasedFt).toBe(0);
+  });
+
   it("prices purchased feet only when a price is entered", () => {
     const r = calculateBaseboard({
       netLengthFt: 45,

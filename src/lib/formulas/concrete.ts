@@ -65,5 +65,15 @@ export function calculateConcrete(input: ConcreteInput): ConcreteResult {
       : input.pricePerBag80 !== undefined
         ? bags80 * input.pricePerBag80
         : undefined;
-  return { volumeFt3, volumeYd3, adjustedFt3, adjustedYd3, orderYd3, bags80, bags60, bags40, costUsd };
+  return {
+    volumeFt3,
+    volumeYd3,
+    adjustedFt3,
+    adjustedYd3,
+    orderYd3,
+    bags80,
+    bags60,
+    bags40,
+    costUsd,
+  };
 }

@@ -85,20 +85,14 @@ describe("project storage (LocalStorage key and schema)", () => {
   });
 
   it("ignores unknown-version data instead of throwing", () => {
-    expect(parseProject(JSON.stringify({ version: 99, items: [] }))).toEqual(
-      emptyProject(),
-    );
+    expect(parseProject(JSON.stringify({ version: 99, items: [] }))).toEqual(emptyProject());
   });
 
   it("drops malformed items and keeps valid ones", () => {
     const raw = JSON.stringify({
       version: 2,
       name: "My Project",
-      items: [
-        { ...PAINT_ITEM },
-        { calculatorSlug: "broken" },
-        "not an object",
-      ],
+      items: [{ ...PAINT_ITEM }, { calculatorSlug: "broken" }, "not an object"],
     });
     const parsed = parseProject(raw);
     expect(parsed.items).toHaveLength(1);
@@ -162,9 +156,7 @@ describe("project text and CSV export", () => {
     project.items.push({ ...PAINT_ITEM }, { ...PRIMER_ITEM });
     const csv = formatProjectAsCsv(project);
     const lines = csv.split("\n");
-    expect(lines[0]).toBe(
-      "Room,Calculator,Item,Details,Quantity,Unit cost (USD),Line total (USD)",
-    );
+    expect(lines[0]).toBe("Room,Calculator,Item,Details,Quantity,Unit cost (USD),Line total (USD)");
     expect(lines[1]).toContain("Living room,paint-calculator,Paint — Living room walls");
     expect(lines[1]).toContain("1,48.50,48.50");
     expect(lines[2]).toContain("2,30.00,60.00");

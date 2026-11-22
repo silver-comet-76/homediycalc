@@ -1,5 +1,7 @@
 # Phase Report — HomeDIYCalc
 
+> Note 2026-11-21: the repo now exists at https://github.com/silver-comet-76/homediycalc, main at snapshot 34b917a8; the per-phase 'not pushed' rows below describe the state at the time of each phase.
+
 > One section per phase. Phase 0 is filled in below. Later phases are empty stubs until that phase's work is done and its exit criteria are checked against evidence.
 
 ## Phase 0 — Planning and Documentation
@@ -205,7 +207,7 @@ Build and test the ten P0 calculators: registry-driven pages, pure formula modul
 - **Playwright (`npm run test:e2e`):** 26 tests passed, 0 failed — 10 calculator tests × 2 viewports (loads, default result renders, invalid input shows an inline error and hides results, Reset restores the default result, Add to Project saves to LocalStorage with no console errors) + home smoke + sitemap tests, against `npm run preview` (production build). Duration ~16s.
 - **Typecheck (`npm run typecheck`, `astro check`):** 0 errors, 0 warnings, 0 hints.
 - **Build (`npm run build`):** success in ~1s; 24 pages (14 foundation + 10 calculator pages) + sitemap.xml with 24 URLs.
-- **Spot checks (manual, via Playwright probe):** tile defaults render 108 tiles / 11 boxes for 100 ft² with 12×12 in tiles, ⅛ in joint, 10% waste; brick defaults render 576 bricks, 18 mortar bags, 5.34 ft³ mortar for the 10×8 ft modular wall — both matching the `docs/FORMULAS.md` worked examples.
+- **Spot checks (manual, via Playwright probe):** tile defaults render 108 tiles / 11 boxes for 100 ft² with 12×12 in tiles, ⅛ in joint, 10% waste; brick defaults render 576 bricks, 18 mortar bags, 5.34 ft³ mortar for the 10×8 ft modular wall — both matching the `docs/FORMULAS.md` worked examples. (Note 2026-11-21, Phase 7: corrected to 9 mortar bags and 5.09 ft³ — see `docs/QA-REPORT.md` §13.)
 
 ### 7. Outstanding Issues
 
@@ -288,7 +290,7 @@ Build and test the eight P1 calculators — Drywall, Concrete Bags, Flooring, Pa
 - **Playwright (`npm run test:e2e`):** 42 tests passed, 0 failed — 18 calculator tests × 2 viewports (loads, default result renders, invalid input shows an inline error and hides results, Reset restores the default result, Add to Project saves to LocalStorage with no console errors) + home smoke + sitemap tests, against `npm run preview` (production build). Duration ~24s.
 - **Typecheck (`npm run typecheck`, `astro check`):** 0 errors, 0 warnings, 1 hint.
 - **Build (`npm run build`):** success in ~1s; 32 pages (14 foundation + 18 calculator pages) + sitemap.xml with 32 URLs.
-- **Spot checks (manual, via Playwright probe):** drywall defaults render 17 sheets / 2 pails / 1 roll / 483 screws for the 12×12 ft room; concrete bags defaults render 50 × 80 lb bags for 1 yd³ with 10% waste; paver defaults render 207 pavers / 2.96 yd³ loose base / 2 joint-sand bags for the 16×12 ft patio — all matching the `docs/FORMULAS.md` worked examples.
+- **Spot checks (manual, via Playwright probe):** drywall defaults render 17 sheets / 2 pails / 1 roll / 483 screws for the 12×12 ft room; concrete bags defaults render 50 × 80 lb bags for 1 yd³ with 10% waste; paver defaults render 207 pavers / 2.96 yd³ loose base / 2 joint-sand bags for the 16×12 ft patio — all matching the `docs/FORMULAS.md` worked examples. (Note 2026-11-21, Phase 7: the paver loose base was corrected to 3.41 yd³ with the 6-in base extension — see `docs/QA-REPORT.md` §13.)
 
 ### 7. Outstanding Issues
 
@@ -420,7 +422,7 @@ Re-verify every one of the 25 calculators' formulas against the worked examples 
 
 ### 2. Status
 
-**Complete.** All 11 items in the Phase 5 scope are done and verified on 2026-11-20 (Node v24.22.1). `npm run build` succeeds (39 pages), `npm run test` passes 201/201, `npm run test:e2e` passes 68/68 (Chromium desktop + Pixel 5 mobile), `npm run typecheck` passes with 0 errors, 0 warnings, 0 hints. Lighthouse measured on Home, Paint, and Concrete pages. Eight defects were found and fixed, including one blocking defect (the site shipped with no CSS at all — see §5). The site is not deployed anywhere, and the project is **not** reported as complete: ADR-9 requires 3 consecutive clean full test rounds after Phases 4–6, which run after this phase.
+**Complete.** All 11 items in the Phase 5 scope are done and verified on 2026-11-20 (Node v24.22.1). `npm run build` succeeds (39 pages), `npm run test` passes 201/201, `npm run test:e2e` passes 68/68 (Chromium desktop + Pixel 5 mobile), `npm run typecheck` passes with 0 errors, 0 warnings, 0 hints. Lighthouse measured on Home, Paint, and Concrete pages. Eight defects were found and fixed, including one blocking defect (the site shipped with no CSS at all — see §5). The site is not deployed anywhere, and the project is **not** reported as complete: ADR-9 requires 3 consecutive clean full test rounds after Phases 4–6, which run after this phase. (Note 2026-11-20: ADR-9 has since passed at commit ca29ba1 — see `docs/QA-REPORT.md` §12.)
 
 ### 3. Completed Work
 
@@ -489,7 +491,7 @@ Re-verify every one of the 25 calculators' formulas against the worked examples 
 ### 10. Next Steps
 
 1. Phase 6 — deployment prep: Cloudflare Pages project, absolute canonicals/sitemap once a domain exists, Search Console verification, final smoke test, AdSense stays disabled.
-2. ADR-9: run the 3 consecutive clean full test rounds after Phases 4–6.
+2. ADR-9: run the 3 consecutive clean full test rounds after Phases 4–6. (Note 2026-11-20: ADR-9 has since passed at commit ca29ba1 — see `docs/QA-REPORT.md` §12.)
 3. Decide the project license and record it in `package.json` + `docs/DECISIONS.md`.
 4. Complete the GitHub App installation so the repo can be created and pushed.
 
@@ -507,7 +509,7 @@ Verify the production build from a clean state and re-run the full test suites a
 
 ### 2. Status
 
-**Complete (preparation only).** All 11 items in the Phase 6 scope are done and verified on 2026-11-20 (Node v24.22.1). Clean build succeeds (39 pages), `npm run test` passes 204/204 (31 files, including 3 new ads-guard tests), `npm run test:e2e` passes 68/68 (Chromium desktop + Pixel 5 mobile), `npm run typecheck` passes with 0 errors, 0 warnings, 0 hints. The final smoke test against the local production build is 25/25 calculator URLs returning 200 with zero console errors. **Nothing is deployed anywhere** — no Cloudflare account, no Pages project, no GitHub repository, no domain — and the project is **not** reported as complete: ADR-9 requires 3 consecutive clean full test rounds after Phases 4–6, which run separately after this phase.
+**Complete (preparation only).** All 11 items in the Phase 6 scope are done and verified on 2026-11-20 (Node v24.22.1). Clean build succeeds (39 pages), `npm run test` passes 204/204 (31 files, including 3 new ads-guard tests), `npm run test:e2e` passes 68/68 (Chromium desktop + Pixel 5 mobile), `npm run typecheck` passes with 0 errors, 0 warnings, 0 hints. The final smoke test against the local production build is 25/25 calculator URLs returning 200 with zero console errors. **Nothing is deployed anywhere** — no Cloudflare account, no Pages project, no domain. The code is on GitHub at https://github.com/silver-comet-76/homediycalc (main at snapshot 34b917a8). ADR-9 passed on 2026-11-20 at commit ca29ba1 (3 consecutive clean rounds — see `docs/QA-REPORT.md` §12); the release gate is met.
 
 ### 3. Completed Work
 
@@ -516,14 +518,14 @@ Verify the production build from a clean state and re-run the full test suites a
 | 1 | Clean production build verified | `rm -rf dist/ && npm run build`: success in ~1.5s, 39 pages (14 foundation + 25 calculator pages). `dist/` contains 39 `index.html` files, `sitemap.xml` with 39 URLs, `robots.txt`, `public/_headers` copied to `dist/_headers` (900 bytes), `favicon.svg`, `og-image.svg`. Total `dist/` size ~1.4 MB. |
 | 2 | Full test suites re-run against the clean build | Vitest 204/204 (31 files, ~7s) — 201 pre-existing + 3 new ads-guard tests. Playwright 68/68 (~37s) — 25 calculator tests × 2 viewports + home smoke × 2 + sitemap × 2 + planner × 2 + a11y × 2 + styles × 2, against `npm run preview`. Typecheck (`astro check`): 0 errors, 0 warnings, 0 hints, 113 files (was 111 in Phase 5; +2 for the new ads files). |
 | 3 | Final smoke test | Served the production build locally (`npm run preview`, 127.0.0.1:4321) and probed every URL with a Playwright script: 25/25 calculator URLs return 200, hydrate (`data-hydrated="true"`), and show zero console errors and zero page errors; home, calculators index, My Project, and all 6 category pages also 200 with zero console errors. `sitemap.xml`, `robots.txt`, `favicon.svg`, `og-image.svg` all 200. Re-run after the AdSlot wiring change so the numbers describe the final build. |
-| 4 | Cloudflare Pages Git integration documented | `docs/DEPLOYMENT.md` §3: exact dashboard steps, build command `npm run build`, output directory `dist/`, root `/`, environment variable `NODE_VERSION=24`. Documented, not executed — the GitHub repository does not exist yet (App installation pending; see §7). |
+| 4 | Cloudflare Pages Git integration documented | `docs/DEPLOYMENT.md` §3: exact dashboard steps, build command `npm run build`, output directory `dist/`, root `/`, environment variable `NODE_VERSION=24`. Documented, not executed — no Cloudflare account or Pages project exists yet. |
 | 5 | Manual deploy path documented | `docs/DEPLOYMENT.md` §4: dashboard upload steps plus exact Wrangler commands (`npm install -g wrangler`, `wrangler login`, `npx wrangler pages deploy dist --project-name homediycalc`). Wrangler is **not** installed in this environment and was **not** installed or added as a dependency — the install is documented as a future step, to be done only when a manual deploy is actually run. No deploy was run. |
 | 6 | Build settings recorded | `docs/DEPLOYMENT.md` §1 and §3: build command `npm run build`, output `dist/`, Node 24 (`NODE_VERSION=24`; `package.json` engines requires ≥22.23.4 per the license audit). No environment variable is required; the only optional ones are the AdSense placeholders, ignored while ads are disabled. |
 | 7 | `_headers` verified and documented | `docs/DEPLOYMENT.md` §11: the file is valid Cloudflare Pages `_headers` format (`/*` rule, indented headers) and the clean build copies it to `dist/_headers`. Each header's purpose is documented in the existing table. Honest limitation recorded: `astro preview` does not apply `_headers` locally, so the live header check is a post-launch step (§10). |
 | 8 | Rollback procedure documented | `docs/DEPLOYMENT.md` §9: Git-integration rollback (Deployments → Rollback, or revert + push), manual rollback (rebuild from the tagged release commit and re-upload — `dist/` is gitignored, so the tag is the only durable record), plus the content-error and CSP-problem playbooks. |
 | 9 | Search Console instructions documented | `docs/DEPLOYMENT.md` §8: property setup, all three verification methods with exact steps (HTML file → `public/`; HTML meta tag → shared `Layout.astro` head; DNS TXT record → domain DNS provider), sitemap submission, and the weekly first-month checklist (Coverage, Performance, Enhancements, Core Web Vitals, Manual actions / Security issues). Cross-referenced from `docs/SEO-STRATEGY.md` §11. Nothing submitted — no domain, no live site. |
 | 10 | AdSense scaffolding (disabled) | New single config `src/lib/ads.ts` (`ADS_ENABLED = false`, publisher ID `ca-pub-XXXXXXXXXXXXXXXX`, slot IDs `XXXXXXXXXX` — obvious placeholders, no digits); `src/components/AdSlot.astro` now gates on `ADS_ENABLED` and renders nothing while disabled; the slot is wired into the shared `src/components/Layout.astro` (renders nothing today). New guard tests `src/lib/ads.test.ts` (3 tests) assert ads are disabled and every ID is still a placeholder. `docs/ads.txt.template` prepared with `pub-REPLACE-WITH-REAL-PUBLISHER-ID`; no `public/ads.txt` exists. `docs/DEPLOYMENT.md` §7 (ads.txt) and §12 (9-step enablement checklist: owner ADR, consent management, privacy policy update, real IDs, switch, AdSense script + CSP, ads.txt, performance re-check, verification). Verified disabled: grep of `dist/` finds no `adsbygoogle`/`pagead2`/`googlesyndication` markup or script anywhere (the only "ads" hits are React's `onDoubleClick` event names and the privacy-policy prose stating ads are disabled). |
-| 11 | Docs updated + committed locally | This Phase 6 section; `docs/DEPLOYMENT.md` (rewritten: status, prerequisites, both deploy paths, checklist, ads.txt, Search Console, rollback, headers, AdSense enablement checklist, §13 status); `docs/SEO-STRATEGY.md` §11; `docs/QA-REPORT.md` (§1, §11 results); `README.md` status → Phase 6. Committed on branch `main` with repo-local identity 和香 / itgaminglim@gmail.com. **Not pushed** — no remote exists yet; the GitHub repo creation is still blocked on the App installation (see Phase 0 §7). |
+| 11 | Docs updated + committed locally | This Phase 6 section; `docs/DEPLOYMENT.md` (rewritten: status, prerequisites, both deploy paths, checklist, ads.txt, Search Console, rollback, headers, AdSense enablement checklist, §13 status); `docs/SEO-STRATEGY.md` §11; `docs/QA-REPORT.md` (§1, §11 results); `README.md` status → Phase 6. Committed on branch `main` with repo-local identity 和香 / itgaminglim@gmail.com. **Pushed 2026-11-21** as snapshot commit 34b917a8 on main at https://github.com/silver-comet-76/homediycalc (local history stays local; see `docs/QA-REPORT.md` §12). |
 
 ### 4. Approach
 
@@ -550,7 +552,7 @@ Verify the production build from a clean state and re-run the full test suites a
 
 ### 7. Outstanding Issues
 
-- **No domain, no deployment, no GitHub repo yet.** Canonicals are relative paths; the repo remains local-only (App installation pending — see Phase 0 §7). Unchanged from Phase 5. Public deployment needs owner approval.
+- **No domain, no deployment yet.** Canonicals are relative paths. The code is on GitHub at https://github.com/silver-comet-76/homediycalc (main at snapshot 34b917a8). Public deployment needs owner approval.
 - **Project license undecided** (`package.json` has no license field; `"private": true`). Unchanged from Phase 5.
 - **SEO 83 until a domain exists** (relative canonicals + relative robots.txt sitemap URL). Fix at deploy time per `docs/DEPLOYMENT.md` §6, then re-run Lighthouse on the live host.
 - **Safari/WebKit not tested.** Firefox 159 probed and passed in Phase 5; no WebKit browser is installed in this environment.
@@ -574,7 +576,7 @@ Verify the production build from a clean state and re-run the full test suites a
 ### 10. Next Steps
 
 1. Owner decisions needed before anything else deploys: approve the public deployment, complete the GitHub App installation (or create the repo via the web UI), and decide whether a custom domain is involved (none to be purchased).
-2. ADR-9: run the 3 consecutive clean full test rounds after Phases 4–6.
+2. ADR-9: done — passed 2026-11-20 at commit ca29ba1 (see `docs/QA-REPORT.md` §12).
 3. Decide the project license and record it in `package.json` + `docs/DECISIONS.md`.
 4. After the first live deploy: run the `docs/DEPLOYMENT.md` §10 post-launch checks, verify the `_headers` headers live, submit the sitemap to Search Console, and re-run Lighthouse on the live host.
 
@@ -585,3 +587,103 @@ Verify the production build from a clean state and re-run the full test suites a
 - **Custom domain** — only if the owner already owns one; none to be purchased.
 - **AdSense** — stays disabled (ADR-8); enabling needs the owner decision and the full `docs/DEPLOYMENT.md` §12 checklist.
 - Standing items from earlier phases: project license; choosing a Contact form backend if a submitting form is ever wanted.
+
+---
+
+## Phase 7 — Independent Audit and Remediation (GitHub Issue #1)
+
+### 1. Objectives
+
+Execute the independent formula and launch-readiness audit ordered by GitHub Issue #1 (reviewer fnaticjohn / ChatGPT, Product Manager): audit all 25 formulas against independently derived examples and authoritative references; audit WebKit/Safari, keyboard and visual-state accessibility, and actual computed styles; audit absolute canonical/sitemap/robots URL readiness using an owner-approved origin (none exists — no invented domain); review thin category content and the actual lint configuration (a no-op); reconcile README and phase status with the final three clean rounds in `docs/QA-REPORT.md` and the now-existing GitHub repo (without implying deployment occurred); record the license as an owner decision; create separate GitHub issues for substantiated defects and remediation tasks; remediate on a separate phase-7 branch; complete three consecutive clean full test rounds per ADR-9 after remediation; submit for independent review. Do not merge into main, close issues, deploy publicly, enable advertisements, purchase domains, or incur costs without approval.
+
+### 2. Status
+
+**Complete except the GitHub steps, which are blocked on user approval.** All 11 items in the Phase 7 scope are done and verified on 2026-11-21 (Node v24.22.1). Audit: 25-calculator matrix produced (7 PASS, 18 DEFECT — 11 major, 19 minor formula defects), WebKit/Safari recorded honestly as untestable, canonical/robots recorded as a deployment blocker, lint fixed for real (ADR-10), 24 stale statements corrected, 6 category pages rewritten to ≥ 300 words. Remediation: every audit defect fixed on the local `phase-7` branch with regression tests. ADR-9 re-gate: **3 consecutive clean full test rounds PASSED** (see `docs/QA-REPORT.md` §13). **Not yet done (blocked):** the remote `phase-7` branch does not exist — the connector `create_branch` approval expired before it was answered (2026-11-21 ~02:40 JST) and was not retried, per the approval-timeout rule; the per-defect GitHub issues and the Issue #1 summary comment therefore still need fresh user approvals before they can be created. Nothing is deployed anywhere.
+
+### 3. Completed Work
+
+| # | Item | Evidence |
+|---|---|---|
+| 1 | 25-calculator formula audit | Five independent read-only auditors; every worked example hand-derived and checked against manufacturer/standards sources (QUIKRETE, Sherwin-Williams, MAPEI, ASTM C270, BIA TN10, ICPI Tech Spec 2, CUSTOM TDS-119, RedGard TDS-104, Schluter KERDI). Matrix: 7 PASS, 18 DEFECT (11 major + 19 minor). |
+| 2 | Formula remediation | All 30 formula defects fixed on the `phase-7` branch with regression tests (see §5); `docs/FORMULAS.md` updated for every fix. New `coverage` unitKind (ft²/gal ↔ m²/L) fixes the systematic metric-coverage defect on paint, primer, waterproofing, and drywall compound. |
+| 3 | WebKit/Safari + keyboard + computed-styles audit | WebKit binary downloaded (webkit-2388) but cannot launch — 12 missing host libraries, sudo/apt install required; recorded honestly as UNAVAILABLE, no WebKit claim made. Chromium a11y/styles specs 3/3 × 2 projects; contrast fix verified from rendered pixels at exactly 7.14:1. Six minor findings (F1–F6) fixed with tests. |
+| 4 | Canonical/sitemap/robots audit | All relative on all 39 pages; plumbing complete; recorded as deployment blocker / owner decision. No invented domain anywhere. |
+| 5 | Lint | `prettier@3.10.1` (MIT) promoted to direct devDependency (exact pin); `npm run lint` is now a real `prettier --check` (`.prettierrc` printWidth 100, `.prettierignore` for `.astro`/Markdown/`dist`/generated); whole code tree formatted once with `prettier --write`; ADR-10 in `docs/DECISIONS.md`; `docs/LICENSE-AUDIT.md` entry; wired into `docs/DEPLOYMENT.md` §5. |
+| 6 | Thin category content | All 6 category pages rewritten to ≥ 300 words of original prose (Painting 90 → 629, Landscaping 133 → 680, Flooring and Tiles 136 → 704, Measurement 137 → 624, Concrete and Masonry 162 → 695, Interior and Maintenance 162 → 807); stale "linked only when built and tested" boilerplate replaced on 7 pages + Home FAQ; 108–180 claim corrected in `docs/QA-REPORT.md`. |
+| 7 | README + phase-status reconciliation | All 24 stale Category-A statements corrected (README status + clone URL, DEPLOYMENT §§1–3/13, QA-REPORT §§1/11/12, PHASE-REPORT Phase 6, ROADMAP, PRD); ADR-9 outcome line in `docs/DECISIONS.md`; dated note atop this report; historical per-phase rows left untouched with the note. |
+| 8 | License | Confirmed: no `LICENSE` file, no `license` field in `package.json`, `"private": true`. Recorded as an owner decision; no license selected. |
+| 9 | Competitor/SEO opportunities | 12 opportunities from `docs/MARKET-RESEARCH.md` listed separately from defects (long-tail concrete family, cubic-yard as winnable head term, paint/tile/drywall gaps, free shopping-list differentiator, etc.). To be filed as their own issue(s) once GitHub writes are approved. |
+| 10 | ADR-9 re-gate | 3 consecutive clean full rounds PASSED after remediation (see `docs/QA-REPORT.md` §13): clean build 40 pages, Vitest 254/254, typecheck 0/0/0, lint pass, audit checks PASS, Playwright 76/76, Lighthouse Home + Paint 100/100/100/83 (Paint performance 99/98 on rounds 2–3 — shared-VM variance). One failed pre-count attempt (home.spec strict-mode violation from new category prose) fixed by a test-precision change; count restarted from 0. |
+| 11 | Docs updated + committed locally | This Phase 7 section; `docs/QA-REPORT.md` §13 (audit, remediation, gate); `docs/DECISIONS.md` (ADR-9 outcome, ADR-10); `docs/LICENSE-AUDIT.md` (Prettier); `docs/DEPLOYMENT.md` §5 (lint in checklist, 40 pages); `README.md` status → Phase 7; `docs/ROADMAP.md` Phase 7 section. Committed on branch `phase-7` with repo-local identity 和香 / itgaminglim@gmail.com. **Not pushed** — the remote branch does not exist yet (see §2). |
+
+### 4. Approach
+
+- Audit first, by independent agents that could not edit files: each auditor derived expected values by hand from authoritative references rather than re-running the program, and reported defects with evidence, source links, affected paths, and acceptance criteria. Defects where doc + code + tests agreed with each other but disagreed with the external reference (the majority) were caught exactly this way.
+- Remediation by five parallel agents with partitioned file ownership (one owns live `docs/FORMULAS.md` edits; the others wrote exact old→new spec files the coordinator applied and verified — all 19 spec edits matched exactly once). The coordinator fixed one more defect found during integration (drywall compound coverage, same metric-coverage class) and the lint setup, and ran the gate.
+- Gate discipline per ADR-9: the first post-remediation e2e failure (74/76) restarted the count from zero, and an incomplete round (Lighthouse never ran because `--chrome-path` is rejected by Lighthouse 12.8.2 — `CHROME_PATH` env var required) was discarded, not counted. The gate script `/tmp/phase7-gate-round.sh` runs every step identically and fails the round if Lighthouse produces no output.
+
+### 5. Decisions
+
+- **Volume/yield is the primary mortar-bag method (B-1).** The Brick Calculator's 37-bricks-per-bag rating and the Mortar Calculator's 0.6 ft³/bag yield contradicted each other 2× for the same wall. The volume/yield method governs (mortar volume is the calculator's own output); the manufacturer rating is shown as a cross-check with its waste-inclusive nature explained. Both calculators now agree (9 bags for the 80 ft² wall).
+- **ASTM C270 table yields replace share-of-volume site-mix (M-1).** Shares understated ingredients by 24–39% (an under-buy). Yields per ft³ of mortar: N 0.17/0.17/1.0, S 0.22/0.11/1.0, M 0.33/0.08/1.0, O 0.11/0.22/1.0 (cement/lime/sand), verified against two fetched sources. The displayed Type M ratio stays 1:¼:3¾ (sand at 3× cementitious, inside C270's 2¼–3× range); the yield table implies ~2.44× for Type M — both inside the range, and the range is now documented.
+- **Coverage is a true area-per-volume unit (P-1/PRI-1/WTP-2).** New `coverage` unitKind (ft²/gal ↔ m²/L, 1 ft²/gal = 0.024542 m²/L exact): paint 8.59, primer 7.36, waterproofing 2.70, drywall compound 2.45 m²/L. Hints state both units in one line — there is no per-system hint mechanism, and adding one was out of scope.
+- **Slab edge band corrected, not documented-around (S-1).** The formula is now the true non-overlapping band 2(L+W−2w)·w·e (40.00 ft³ for the tested case), not the overcounting perimeter approximation.
+- **Paver base on the extended footprint (PVR-2).** Base and bedding volumes use the paver area + 6 in per side (or the base thickness when deeper than 6 in); when only the area is known the footprint is estimated as if square (documented; exact with length + width). Corrected audit figures: loose 3.41 yd³ / 4.77 t (the audit brief's 3.42/4.79 were wrong by rounding — re-derived exactly).
+- **Lint is Prettier formatting only (ADR-10).** ESLint was deferred; the immediate gap was the false-green no-op. `.astro` files and Markdown prose are excluded (no Prettier parser for Astro; reformatting all docs would churn the audit branch). The one-time `--write` pass reformatted ~80 code files mechanically.
+- **Historical rows are annotated, not rewritten.** `docs/QA-REPORT.md` §§7–8 and this report's Phase 2–3 spot checks quoted pre-fix figures (18 bags, 5.34 ft³, 2.96 yd³); each carries a dated Phase 7 note pointing at `docs/QA-REPORT.md` §13 with the corrected figures.
+
+### 6. Test Results
+
+- **Vitest (`npm run test`):** 254 tests passed, 0 failed, 37 files — 204 pre-existing + 50 new Phase 7 regression tests (coverage-unit 9, `ceilUp` suite, corrected topsoil/brick/mortar/paver/drywall/ceiling-tile/waterproofing/baseboard cases, config-level tests for drywall/ceiling-tile/waterproofing/paver, a11y/styles/404 tests). Duration ~10s.
+- **Playwright (`npm run test:e2e`):** 76 tests passed, 0 failed — 68 pre-existing + 8 new (a11y focus-outline, toggle marker, 404 page, card-link heights × 2 viewports), against `npm run preview` (production build). Duration ~38–40s per round.
+- **Typecheck (`npm run typecheck`, `astro check`):** 0 errors, 0 warnings, 0 hints, 122 files.
+- **Lint (`npm run lint`, `prettier --check`):** passes on the clean tree.
+- **Build (`npm run build`, from `rm -rf dist/`):** success in ~1.6s; 40 pages (39 shipped + 404) + sitemap.xml with 39 URLs + `public/_headers` + `favicon.svg` + `og-image.svg`.
+- **Audit checks (`/tmp/phase7-gate-audit.py`):** PASS all three gate rounds — 39 pages, sitemap 39 URLs matching shipped pages, unique titles/descriptions, canonicals, one H1 each, zero dead internal links, no external scripts, no tracking/ad strings, no fetch/XHR/WebSocket, ads.ts placeholder.
+- **Lighthouse 12.8.2** (local preview, desktop emulation, headless-shell Chrome): Home 100/100/100/83 all three rounds; Paint 100/100/100/83, then 99 and 98 on performance (shared-VM variance; LCP 0.8–1.7s, CLS 0, TTI 0.8–1.7s). SEO 83 everywhere is the relative-canonical/robots.txt issue (no domain yet).
+- **Smoke test (implicit in e2e + audit):** all 25 calculator URLs load with defaults rendering; the custom 404 page serves with a single H1 and links home + All Calculators.
+
+### 7. Outstanding Issues
+
+- **Remote `phase-7` branch does not exist yet** (blocked on a fresh user approval for the connector `create_branch` write). Local branch `phase-7` at the Phase 7 commit is unpushed. The per-defect GitHub issues and the Issue #1 summary comment are likewise unfiled — they need the same approval path.
+- **No domain, no deployment.** Canonicals are relative paths. Public deployment needs owner approval.
+- **Project license undecided** (`package.json` has no license field; `"private": true`; no `LICENSE` file). Owner decision.
+- **SEO 83 until a domain exists** (relative canonicals + relative robots.txt sitemap URL). Fix at deploy time per `docs/DEPLOYMENT.md` §6, then re-run Lighthouse on the live host.
+- **Safari/WebKit not tested.** WebKit binary downloaded but cannot launch (12 missing host libraries; needs sudo/apt approval). No WebKit claim is made.
+- **Toggle-button state by color alone (low) — resolved in Phase 7.** Pressed toggles now show a ✓ marker in addition to color + border + `aria-pressed`; the deferred item is closed.
+- **Category pages are thin — resolved in Phase 7.** All 6 pages now have ≥ 300 words of original prose (624–807 words each).
+- **Unused JavaScript (~35 KiB of the shared React client bundle on a calculator page).** Deferred; informational.
+- **LGPL in the transitive tree** (sharp/libvips build-time binaries only). Unchanged from Phase 1; see `docs/LICENSE-AUDIT.md` §7.
+- **Observation:** raw `npx tsc --noEmit` reports a pre-existing error in `src/lib/ads.ts(23,25)` (`import.meta.env` not typed under plain tsc). Not a project command; the project's own typecheck is clean; not fixed in this phase.
+- **ADR-9 re-gate passed** (see §10 / `docs/QA-REPORT.md` §13). The Phase 7 work itself is complete except the GitHub steps above.
+
+### 8. Deviations
+
+- GitHub issues were not created before remediation (the task order said issues first), because the remote branch and every connector write need user approval and the first approval expired before it was answered. Issues will be filed after the branch exists, referencing the branch and the remediation commits; the audit findings are fully recorded in `docs/QA-REPORT.md` §13 meanwhile.
+- The task brief's paver figures (loose 3.42 yd³, 4.79 tons) were corrected to 3.41 yd³ / 4.77 t by exact re-derivation (2.7284 × 1.25 = 3.4105, not 3.42); code, tests, config, and docs all use the corrected figures.
+- Type M's displayed mortar ratio stays 1:¼:3¾ while the C270 yield table implies sand ≈ 2.44× cementitious; both are inside C270's 2¼–3× range and the range is documented (see §5).
+- The drywall compound-coverage metric defect (same class as P-1/PRI-1/WTP-2) was found during integration, not by an auditor, and fixed the same way (2.45 m²/L + equivalence test).
+- Lighthouse measurement note: Lighthouse 12.8.2 requires the `CHROME_PATH` environment variable; `--chrome-path` is rejected. The gate script sets it to the Playwright headless-shell binary.
+
+### 9. Risks / Assumptions
+
+- **Assumption:** the snapshot-push mechanism will carry the local `phase-7` branch (including the Prettier reformat of ~80 files) to GitHub as one commit when the branch is created and approved; the reviewer is told the reformat is mechanical so the substantive fixes stay reviewable via the file list in `docs/QA-REPORT.md` §13.
+- **Risk:** the Prettier `--write` pass touched ~80 code files; a formatting-only change cannot alter behavior, and the full suite (254 Vitest, 76 Playwright, typecheck, build) was re-run green afterwards on every gate round — but a reviewer diffing the branch against `main` will see formatting noise alongside the fixes.
+- **Assumption:** the ASTM C270 yield table, BIA TN10, ICPI Tech Spec 2, and manufacturer TDS figures as fetched in the audit remain current; the periodic content refresh in the roadmap backlog re-checks them.
+
+### 10. Next Steps
+
+1. Owner approval on the connector card: create the remote `phase-7` branch from `main`, push the local branch, then file the separate GitHub issues (one per substantiated defect group + opportunities issue) and post the Issue #1 summary comment requesting reviewer sign-off. Do NOT close Issue #1.
+2. After reviewer sign-off: merge decision (owner approval required — do NOT merge without it).
+3. Owner decisions still pending (unchanged): domain/origin, project license, public deployment to Cloudflare Pages, AdSense enablement.
+4. After the first live deploy: run the `docs/DEPLOYMENT.md` §10 post-launch checks, verify the `_headers` headers live, submit the sitemap to Search Console, and re-run Lighthouse on the live host.
+
+### 11. Decisions Needing Owner Approval
+
+- **Remote branch creation + push + GitHub issues + Issue #1 comment** (needs fresh approval on the connector cards; the first branch-creation approval expired unanswered).
+- **Merge of the `phase-7` branch into `main`** (only after independent reviewer sign-off).
+- **Public deployment to Cloudflare Pages** (no account, no Pages project, no deploy run yet).
+- **Custom domain** — only if the owner already owns one; none to be purchased.
+- **Project license** — no license selected in this phase.
+- **AdSense** — stays disabled (ADR-8); enabling needs the owner decision and the full `docs/DEPLOYMENT.md` §12 checklist.
+- Standing items from earlier phases: choosing a Contact form backend if a submitting form is ever wanted.

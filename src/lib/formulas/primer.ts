@@ -69,12 +69,10 @@ export interface PrimerResult {
 
 export function calculatePrimer(input: PrimerInput): PrimerResult {
   const rawGallons =
-    (input.netAreaFt2 * input.coats * input.conditionFactor) /
-    input.coverageFt2PerGal;
+    (input.netAreaFt2 * input.coats * input.conditionFactor) / input.coverageFt2PerGal;
   const adjustedGallons = rawGallons * (1 + input.wastePct / 100);
   const gallonsToBuy = ceilUp(adjustedGallons);
   const litersToBuy = gallonsToLiters(gallonsToBuy);
-  const costUsd =
-    input.pricePerGal !== undefined ? gallonsToBuy * input.pricePerGal : undefined;
+  const costUsd = input.pricePerGal !== undefined ? gallonsToBuy * input.pricePerGal : undefined;
   return { adjustedGallons, gallonsToBuy, litersToBuy, costUsd };
 }

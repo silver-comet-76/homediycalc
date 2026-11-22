@@ -53,9 +53,7 @@ export function calculateMulch(input: MulchInput): MulchResult {
   const orderYd3 = ceilUp(adjustedYd3);
   const bags = ceilUp(adjustedFt3 / input.bagSizeFt3);
   const weightLb =
-    input.densityLbPerYd3 !== undefined
-      ? adjustedYd3 * input.densityLbPerYd3
-      : undefined;
+    input.densityLbPerYd3 !== undefined ? adjustedYd3 * input.densityLbPerYd3 : undefined;
   const costUsd =
     input.pricePerYd3 !== undefined
       ? orderYd3 * input.pricePerYd3

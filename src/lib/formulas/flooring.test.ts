@@ -49,6 +49,27 @@ describe("calculateFlooring", () => {
     expect(unpriced.costUsd).toBeUndefined();
   });
 
+  it("counts underlayment rolls on the raw floor area, without waste (FLR-1)", () => {
+    // 100 ft² at 100 ft² per roll is exactly 1 roll — the old
+    // waste-adjusted figure (110 ft²) wrongly gave 2.
+    const r = calculateFlooring({ ...BASE, areaFt2: 100 });
+    expect(r.underlaymentRolls).toBe(1);
+    // 180 ft² with 20% waste: boxes use 216 ft², but underlayment
+    // still uses 180 ft² -> 2 rolls, not 3.
+    const herringbone = calculateFlooring({ ...BASE, areaFt2: 180, wastePct: 20 });
+    expect(herringbone.underlaymentRolls).toBe(2);
+  });
+
+  it("uses 15% waste for diagonal and 20% for herringbone layouts", () => {
+    // 180 ft² at 15%: 207 ft² -> 11 boxes; at 20%: 216 ft² -> 11 boxes.
+    const diagonal = calculateFlooring({ ...BASE, areaFt2: 180, wastePct: 15 });
+    expect(diagonal.adjustedAreaFt2).toBeCloseTo(207, 2);
+    expect(diagonal.boxes).toBe(11);
+    const herringbone = calculateFlooring({ ...BASE, areaFt2: 180, wastePct: 20 });
+    expect(herringbone.adjustedAreaFt2).toBeCloseTo(216, 2);
+    expect(herringbone.boxes).toBe(11);
+  });
+
   it("handles zero area", () => {
     const r = calculateFlooring({ ...BASE, areaFt2: 0 });
     expect(r.boxes).toBe(0);

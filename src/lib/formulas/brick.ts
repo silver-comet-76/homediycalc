@@ -1,5 +1,8 @@
 import { ceilUp, CUBIC_INCHES_PER_CUBIC_FOOT, SQUARE_INCHES_PER_SQUARE_FOOT } from "../units";
 
+/** Mortar yielded by one 80 lb bag of pre-mixed mortar, in cubic feet (QUIKRETE Mortar Mix No. 1102). */
+export const MORTAR_BAG_YIELD_FT3 = 0.6;
+
 /**
  * Brick Calculator — brick and mortar counts for a wall.
  *
@@ -15,10 +18,15 @@ import { ceilUp, CUBIC_INCHES_PER_CUBIC_FOOT, SQUARE_INCHES_PER_SQUARE_FOOT } fr
  * the same brick, because three courses rise exactly 8 in; the two
  * figures differ by 1.6% and the page notes both. Mortar volume uses the
  * geometric joint volume, which for modular brick gives 8.06 ft³ per
- * 1,000 bricks — BIA TN10 Table 4 lists 8.1 ft³. Mortar bags use the
- * QUIKRETE Mason Mix No. 1136 / Mortar Mix No. 1102 data sheet figure:
- * one 80 lb bag lays up to 37 standard bricks; BIA recommends adding
- * 15–25% to mortar for waste (default 15% here).
+ * 1,000 bricks — BIA TN10 Table 4 lists 8.1 ft³. Mortar volume is
+ * computed from the pre-waste brick count (brick waste is breakage, not
+ * extra joints) with only the mortar waste allowance applied, so it
+ * agrees with the Mortar Calculator for the same wall. Mortar bags use
+ * the volume method — mortar volume ÷ 0.6 ft³ per 80 lb bag (QUIKRETE
+ * Mortar Mix No. 1102) — the same method the Mortar Calculator uses, so
+ * both calculators return the same bag count. The QUIKRETE rating of up
+ * to 37 standard bricks per bag is shown only as a cross-check: that
+ * rating already bakes in heavy field waste, so it runs higher.
  */
 
 export interface BrickInput {
@@ -57,6 +65,8 @@ export interface BrickResult {
   mortarVolumeFt3: number;
   /** 80 lb bags of mortar mix to buy (rounded up, waste included). */
   mortarBags: number;
+  /** Cross-check from the manufacturer rating (bricks ÷ bricks per bag, no extra waste). */
+  mortarBagsByRating: number;
   /** Pallets to buy, only when a pallet size was entered. */
   pallets?: number;
   /** Cost in USD, only when a price was entered. */
@@ -72,21 +82,25 @@ export function calculateBrick(input: BrickInput): BrickResult {
   const bricksNeeded = ceilUp(netAreaFt2 * bricksPerFt2 * (1 + input.wastePct / 100));
   // Mortar per brick: the joint volume around one brick (bed + head joint).
   const mortarPerBrickIn3 =
-    (faceAreaPerBrickIn2 - input.brickLengthIn * input.brickHeightIn) *
-    input.brickDepthIn;
+    (faceAreaPerBrickIn2 - input.brickLengthIn * input.brickHeightIn) * input.brickDepthIn;
+  // Mortar volume comes from the pre-waste brick count: brick waste is
+  // breakage, not extra joints, so inflating the brick count first and
+  // then applying mortar waste would count the waste twice. The mortar
+  // waste allowance is applied once, here — the same calculation the
+  // Mortar Calculator performs, so the two agree for the same wall.
+  const bricksBeforeWaste = ceilUp(netAreaFt2 * bricksPerFt2);
   const mortarVolumeFt3 =
-    (bricksNeeded * mortarPerBrickIn3) / CUBIC_INCHES_PER_CUBIC_FOOT * (1 + input.mortarWastePct / 100);
-  const mortarBags = ceilUp(
-    (bricksNeeded / input.bricksPerMortarBag) * (1 + input.mortarWastePct / 100),
-  );
+    ((bricksBeforeWaste * mortarPerBrickIn3) / CUBIC_INCHES_PER_CUBIC_FOOT) *
+    (1 + input.mortarWastePct / 100);
+  // Primary method: mortar volume ÷ bag yield. Cross-check: the
+  // manufacturer rating (bricks per bag) with no extra waste added,
+  // because that rating already bakes in heavy field waste.
+  const mortarBags = ceilUp(mortarVolumeFt3 / MORTAR_BAG_YIELD_FT3);
+  const mortarBagsByRating = ceilUp(bricksNeeded / input.bricksPerMortarBag);
   const costUsd =
     input.pricePerBrick !== undefined || input.pricePerMortarBag !== undefined
-      ? (input.pricePerBrick !== undefined
-          ? bricksNeeded * input.pricePerBrick
-          : 0) +
-        (input.pricePerMortarBag !== undefined
-          ? mortarBags * input.pricePerMortarBag
-          : 0)
+      ? (input.pricePerBrick !== undefined ? bricksNeeded * input.pricePerBrick : 0) +
+        (input.pricePerMortarBag !== undefined ? mortarBags * input.pricePerMortarBag : 0)
       : undefined;
   return {
     grossAreaFt2,
@@ -96,10 +110,8 @@ export function calculateBrick(input: BrickInput): BrickResult {
     bricksNeeded,
     mortarVolumeFt3,
     mortarBags,
-    pallets:
-      input.palletSize !== undefined
-        ? ceilUp(bricksNeeded / input.palletSize)
-        : undefined,
+    mortarBagsByRating,
+    pallets: input.palletSize !== undefined ? ceilUp(bricksNeeded / input.palletSize) : undefined,
     costUsd,
   };
 }

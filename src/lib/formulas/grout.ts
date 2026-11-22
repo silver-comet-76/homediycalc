@@ -53,17 +53,14 @@ export interface GroutResult {
 
 export function calculateGrout(input: GroutInput): GroutResult {
   const jointVolumeIn3PerFt2 =
-    ((input.tileLengthIn + input.tileWidthIn) /
-      (input.tileLengthIn * input.tileWidthIn)) *
+    ((input.tileLengthIn + input.tileWidthIn) / (input.tileLengthIn * input.tileWidthIn)) *
     input.jointWidthIn *
     input.jointDepthIn *
     144;
   const groutLbPerFt2 =
     (jointVolumeIn3PerFt2 * input.groutDensityLbFt3) / CUBIC_INCHES_PER_CUBIC_FOOT;
-  const groutLb =
-    input.areaFt2 * groutLbPerFt2 * (1 + input.wastePct / 100);
+  const groutLb = input.areaFt2 * groutLbPerFt2 * (1 + input.wastePct / 100);
   const bags = ceilUp(groutLb / input.bagWeightLb);
-  const costUsd =
-    input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
+  const costUsd = input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
   return { groutLbPerFt2, groutLb, bags, costUsd };
 }

@@ -25,9 +25,7 @@ export interface CubicYardResult {
   volumeGallons: number;
 }
 
-export function calculateCubicYardFromDimensions(
-  input: CubicYardDimensionsInput,
-): CubicYardResult {
+export function calculateCubicYardFromDimensions(input: CubicYardDimensionsInput): CubicYardResult {
   const volumeFt3 = input.lengthFt * input.widthFt * input.depthFt;
   return {
     volumeFt3,
@@ -39,10 +37,7 @@ export function calculateCubicYardFromDimensions(
 }
 
 /** Convert a volume given in any supported unit into all the others. */
-export function convertCubicYardValue(
-  value: number,
-  from: VolumeUnit,
-): CubicYardResult {
+export function convertCubicYardValue(value: number, from: VolumeUnit): CubicYardResult {
   const volumeFt3 = convertVolume(value, from, "ft3");
   return {
     volumeFt3,

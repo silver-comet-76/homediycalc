@@ -43,9 +43,7 @@ export function calculateSquareFootage(input: SquareFootageInput): SquareFootage
       areaFt2 = 0.5 * input.lengthFt * input.widthFt;
       break;
     case "l-shape":
-      areaFt2 =
-        input.lengthFt * input.widthFt +
-        (input.length2Ft ?? 0) * (input.width2Ft ?? 0);
+      areaFt2 = input.lengthFt * input.widthFt + (input.length2Ft ?? 0) * (input.width2Ft ?? 0);
       break;
   }
   return {

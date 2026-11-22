@@ -178,4 +178,18 @@ module had no types. The fix was the types package (pinned exact) plus
 warnings, 0 hints. No runtime code changed and no new runtime dependency
 was added.
 
+**Phase 7 addition:** `prettier@3.10.1` (MIT) was promoted from a
+transitive dependency (via `@astrojs/check` → `@astrojs/language-server`)
+to a direct devDependency, pinned exact. The Phase 7 audit found
+`npm run lint` was a no-op echo that exited 0 — a false green. The
+`lint` script is now `prettier --check` over the code tree
+(`src/**/*.{ts,tsx,css}`, `tests/**/*.{ts,tsx}`, `*.{json,mjs}`), with
+`.prettierrc` (printWidth 100) and `.prettierignore` (`.astro` files —
+Prettier has no Astro parser — Markdown prose, `dist/`, `node_modules`,
+`coverage`, `package-lock.json`). The whole code tree was formatted once
+with `prettier --write` so the check passes on a clean tree; formatting
+is mechanical only and changes no behavior (full suite re-run green
+afterwards). No runtime dependency was added. See ADR-10 in
+`docs/DECISIONS.md`.
+
 > The §7 checklist items were all actioned at scaffold time on 2026-11-20; results are above. The one expectation that did not hold is recorded there: LGPL-3.0-or-later does appear in the transitive tree (sharp/libvips build-time binaries only).

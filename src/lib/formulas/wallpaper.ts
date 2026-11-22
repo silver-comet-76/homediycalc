@@ -33,26 +33,24 @@ import { ceilUp, convertLength } from "../units";
  */
 
 /** Roll sizes, in inches of width and feet of length. */
-export const WALLPAPER_ROLLS: Record<
-  string,
-  { widthIn: number; lengthFt: number; label: string }
-> = {
-  double: {
-    widthIn: 20.5,
-    lengthFt: 33,
-    label: "US double roll (20.5 in × 33 ft)",
-  },
-  single: {
-    widthIn: 20.5,
-    lengthFt: 16.5,
-    label: "US single roll (20.5 in × 16.5 ft)",
-  },
-  metric: {
-    widthIn: convertLength(0.53, "m", "in"),
-    lengthFt: convertLength(10, "m", "ft"),
-    label: "Metric roll (0.53 m × 10 m)",
-  },
-};
+export const WALLPAPER_ROLLS: Record<string, { widthIn: number; lengthFt: number; label: string }> =
+  {
+    double: {
+      widthIn: 20.5,
+      lengthFt: 33,
+      label: "US double roll (20.5 in × 33 ft)",
+    },
+    single: {
+      widthIn: 20.5,
+      lengthFt: 16.5,
+      label: "US single roll (20.5 in × 16.5 ft)",
+    },
+    metric: {
+      widthIn: convertLength(0.53, "m", "in"),
+      lengthFt: convertLength(10, "m", "ft"),
+      label: "Metric roll (0.53 m × 10 m)",
+    },
+  };
 
 /** Roll-type codes in select order: 0 = double, 1 = single, 2 = metric. */
 export const WALLPAPER_ROLL_TYPE_CODES = ["double", "single", "metric"] as const;
@@ -63,13 +61,15 @@ export function getWallpaperRoll(code: number): {
   lengthFt: number;
   label: string;
 } {
-  const key =
-    WALLPAPER_ROLL_TYPE_CODES[code] ?? WALLPAPER_ROLL_TYPE_CODES[0];
-  return WALLPAPER_ROLLS[key ?? "double"] ?? WALLPAPER_ROLLS["double"] ?? {
-    widthIn: 20.5,
-    lengthFt: 33,
-    label: "US double roll (20.5 in × 33 ft)",
-  };
+  const key = WALLPAPER_ROLL_TYPE_CODES[code] ?? WALLPAPER_ROLL_TYPE_CODES[0];
+  return (
+    WALLPAPER_ROLLS[key ?? "double"] ??
+    WALLPAPER_ROLLS["double"] ?? {
+      widthIn: 20.5,
+      lengthFt: 33,
+      label: "US double roll (20.5 in × 33 ft)",
+    }
+  );
 }
 
 /** Trim allowance at the top and bottom of each strip, in inches. */
@@ -107,15 +107,10 @@ export interface WallpaperResult {
 
 export function calculateWallpaper(input: WallpaperInput): WallpaperResult {
   const strips = ceilUp((input.wallLengthFt * 12) / input.rollWidthIn);
-  const stripLengthFt =
-    input.wallHeightFt +
-    input.patternRepeatIn / 12 +
-    WALLPAPER_TRIM_IN / 12;
+  const stripLengthFt = input.wallHeightFt + input.patternRepeatIn / 12 + WALLPAPER_TRIM_IN / 12;
   const stripsPerRoll = Math.floor(input.rollLengthFt / stripLengthFt);
   const adjustedStrips = ceilUp(strips * (1 + input.wastePct / 100));
-  const rolls =
-    stripsPerRoll > 0 ? ceilUp(adjustedStrips / stripsPerRoll) : 0;
-  const costUsd =
-    input.pricePerRoll !== undefined ? rolls * input.pricePerRoll : undefined;
+  const rolls = stripsPerRoll > 0 ? ceilUp(adjustedStrips / stripsPerRoll) : 0;
+  const costUsd = input.pricePerRoll !== undefined ? rolls * input.pricePerRoll : undefined;
   return { strips, stripLengthFt, stripsPerRoll, rolls, costUsd };
 }

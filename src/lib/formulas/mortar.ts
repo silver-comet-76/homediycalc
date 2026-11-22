@@ -1,8 +1,4 @@
-import {
-  ceilUp,
-  CUBIC_INCHES_PER_CUBIC_FOOT,
-  SQUARE_INCHES_PER_SQUARE_FOOT,
-} from "../units";
+import { ceilUp, CUBIC_INCHES_PER_CUBIC_FOOT, SQUARE_INCHES_PER_SQUARE_FOOT } from "../units";
 
 /**
  * Mortar Calculator — mortar volume and bags for brick or block walls,
@@ -26,9 +22,15 @@ import {
  *   editable.
  * - Mix ratios are the ASTM C270 proportion specification, by volume:
  *   Type N 1:1:6, Type S 1:½:4½, Type M 1:¼:3¾, Type O 1:2:9
- *   (cement : lime : sand). A 94 lb sack of portland cement is about
- *   1 ft³. The site-mix parts are shares of the mortar volume — an
- *   ordering guide, not an exact dry-volume recipe.
+ *   (cement : lime : sand). C270 specifies sand at 2¼–3× the
+ *   cementitious volume, and the ratios above use the 3× end.
+ *   The site-mix parts are NOT shares of the mortar volume: dry volumes
+ *   do not add up to the mixed volume, because the cement and lime fill
+ *   the voids between sand grains. They use the ASTM C270 batch yields
+ *   (ft³ of each ingredient per ft³ of mortar): Type N 0.17 / 0.17 / 1.0,
+ *   Type S 0.22 / 0.11 / 1.0, Type M 0.33 / 0.08 / 1.0, Type O 0.11 /
+ *   0.22 / 1.0 (cement / lime / sand) — see MORTAR_MIX_YIELDS_FT3_PER_FT3.
+ *   A 94 lb sack of portland cement is about 1 ft³.
  */
 
 export type MasonryUnit = "brick" | "block";
@@ -51,14 +53,32 @@ export const UNIT_PRESETS: Record<MasonryUnit, UnitDimensions> = {
 };
 
 /** ASTM C270 mix proportions by volume (cement : lime : sand). */
-export const MORTAR_MIX_RATIOS: Record<
+export const MORTAR_MIX_RATIOS: Record<MortarType, { cement: number; lime: number; sand: number }> =
+  {
+    N: { cement: 1, lime: 1, sand: 6 },
+    S: { cement: 1, lime: 0.5, sand: 4.5 },
+    M: { cement: 1, lime: 0.25, sand: 3.75 },
+    O: { cement: 1, lime: 2, sand: 9 },
+  };
+
+/**
+ * ASTM C270 batch yields: cubic feet of each ingredient per cubic foot
+ * of mixed mortar. Sand is 1.0 ft³ per ft³ of mortar for every type —
+ * one cubic foot of damp, loose sand makes about one cubic foot of
+ * mortar (BIA Technical Note 10) — and the cement and lime follow from
+ * the mix ratio against that sand volume (e.g. Type N 1:1:6 gives
+ * 1/6 ≈ 0.17 ft³ of cement and of lime per ft³ of mortar). Using shares
+ * of the mortar volume instead (1/8 each for Type N) understates the
+ * batch by 24–39%.
+ */
+export const MORTAR_MIX_YIELDS_FT3_PER_FT3: Record<
   MortarType,
   { cement: number; lime: number; sand: number }
 > = {
-  N: { cement: 1, lime: 1, sand: 6 },
-  S: { cement: 1, lime: 0.5, sand: 4.5 },
-  M: { cement: 1, lime: 0.25, sand: 3.75 },
-  O: { cement: 1, lime: 2, sand: 9 },
+  N: { cement: 0.17, lime: 0.17, sand: 1.0 },
+  S: { cement: 0.22, lime: 0.11, sand: 1.0 },
+  M: { cement: 0.33, lime: 0.08, sand: 1.0 },
+  O: { cement: 0.11, lime: 0.22, sand: 1.0 },
 };
 
 /** Cubic feet in one 94 lb sack of portland cement (about 1 ft³). */
@@ -87,7 +107,7 @@ export interface MortarResult {
   mortarVolumeFt3: number;
   /** 80 lb bags of pre-mixed mortar to buy (rounded up). */
   bags: number;
-  /** Cement for site mixing, in cubic feet (share of the mortar volume). */
+  /** Cement for site mixing, in cubic feet (ASTM C270 batch yield per ft³ of mortar). */
   cementFt3: number;
   /** 94 lb sacks of portland cement to buy (rounded up). */
   cementSacks: number;
@@ -101,25 +121,20 @@ export interface MortarResult {
 
 export function calculateMortar(input: MortarInput): MortarResult {
   const dims = UNIT_PRESETS[input.unit];
-  const faceAreaPerUnitIn2 =
-    (dims.lengthIn + input.jointIn) * (dims.heightIn + input.jointIn);
+  const faceAreaPerUnitIn2 = (dims.lengthIn + input.jointIn) * (dims.heightIn + input.jointIn);
   const unitsPerFt2 = SQUARE_INCHES_PER_SQUARE_FOOT / faceAreaPerUnitIn2;
   const unitsNeeded = ceilUp(input.areaFt2 * unitsPerFt2);
-  const jointAreaIn2 =
-    faceAreaPerUnitIn2 - dims.lengthIn * dims.heightIn;
+  const jointAreaIn2 = faceAreaPerUnitIn2 - dims.lengthIn * dims.heightIn;
   const mortarPerUnitIn3 = jointAreaIn2 * dims.depthIn;
   const mortarVolumeFt3 =
-    ((unitsNeeded * mortarPerUnitIn3) / CUBIC_INCHES_PER_CUBIC_FOOT) *
-    (1 + input.wastePct / 100);
+    ((unitsNeeded * mortarPerUnitIn3) / CUBIC_INCHES_PER_CUBIC_FOOT) * (1 + input.wastePct / 100);
   const bags = ceilUp(mortarVolumeFt3 / input.bagYieldFt3);
-  const ratio = MORTAR_MIX_RATIOS[input.mortarType];
-  const totalParts = ratio.cement + ratio.lime + ratio.sand;
-  const cementFt3 = (mortarVolumeFt3 * ratio.cement) / totalParts;
-  const limeFt3 = (mortarVolumeFt3 * ratio.lime) / totalParts;
-  const sandFt3 = (mortarVolumeFt3 * ratio.sand) / totalParts;
+  const yields = MORTAR_MIX_YIELDS_FT3_PER_FT3[input.mortarType];
+  const cementFt3 = mortarVolumeFt3 * yields.cement;
+  const limeFt3 = mortarVolumeFt3 * yields.lime;
+  const sandFt3 = mortarVolumeFt3 * yields.sand;
   const cementSacks = ceilUp(cementFt3 / CEMENT_SACK_FT3);
-  const costUsd =
-    input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
+  const costUsd = input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
   return {
     unitsPerFt2,
     unitsNeeded,

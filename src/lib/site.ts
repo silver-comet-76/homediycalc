@@ -4,8 +4,7 @@
  * docs/SEO-STRATEGY.md §3. Do not invent a domain here.
  */
 export const SITE_NAME = "HomeDIYCalc";
-export const SITE_TAGLINE =
-  "Calculate Materials. Estimate Costs. Build Your Shopping List.";
+export const SITE_TAGLINE = "Calculate Materials. Estimate Costs. Build Your Shopping List.";
 export const SITE_DESCRIPTION =
   "Free home improvement calculators: work out how much concrete, paint, gravel, tile, and more you need, with a shopping list to take to the store. No signup, no cost.";
 // No contact email exists yet and there is no form backend (ADR-3), so no

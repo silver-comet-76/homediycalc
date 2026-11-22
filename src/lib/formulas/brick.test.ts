@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calculateBrick } from "./brick";
+import { calculateMortar } from "./mortar";
 
 const MODULAR = {
   wallLengthFt: 10,
@@ -31,13 +32,30 @@ describe("calculateBrick", () => {
     expect(r.bricksNeeded).toBe(425);
   });
 
-  it("estimates mortar volume near the BIA figure and bags from the QUIKRETE yield", () => {
+  it("estimates mortar volume near the BIA figure and bags from the volume method", () => {
     const r = calculateBrick(MODULAR);
-    // Geometric joint volume: 576 bricks × 0.00806 ft³ × 1.15 ≈ 5.34 ft³.
+    // Geometric joint volume from the pre-waste count: 549 bricks × 0.00806 ft³ × 1.15 ≈ 5.09 ft³.
     // BIA TN10 Table 4 lists 8.1 ft³ per 1,000 bricks (8.06 geometric here).
-    expect(r.mortarVolumeFt3).toBeCloseTo(5.34, 2);
-    // 576 ÷ 37 × 1.15 = 17.9 -> 18 bags of 80 lb mortar mix.
-    expect(r.mortarBags).toBe(18);
+    expect(r.mortarVolumeFt3).toBeCloseTo(5.09, 2);
+    // Volume method: 5.09 ÷ 0.6 = 8.49 -> 9 bags of 80 lb mortar mix.
+    expect(r.mortarBags).toBe(9);
+    // Cross-check from the QUIKRETE rating (no extra waste — the rating
+    // already bakes in heavy field waste): 576 ÷ 37 = 15.57 -> 16 bags.
+    expect(r.mortarBagsByRating).toBe(16);
+  });
+
+  it("agrees with the Mortar Calculator on mortar volume and bags for the same wall", () => {
+    const brick = calculateBrick(MODULAR);
+    const mortar = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: 0.375,
+      wastePct: 15,
+      bagYieldFt3: 0.6,
+      mortarType: "N",
+    });
+    expect(brick.mortarVolumeFt3).toBeCloseTo(mortar.mortarVolumeFt3, 2);
+    expect(brick.mortarBags).toBe(mortar.bags);
   });
 
   it("counts pallets only when a pallet size is entered", () => {
@@ -48,7 +66,7 @@ describe("calculateBrick", () => {
 
   it("adds brick and mortar costs only when prices are entered", () => {
     const both = calculateBrick({ ...MODULAR, pricePerBrick: 0.5, pricePerMortarBag: 8 });
-    expect(both.costUsd).toBe(576 * 0.5 + 18 * 8);
+    expect(both.costUsd).toBe(576 * 0.5 + 9 * 8);
     const bricksOnly = calculateBrick({ ...MODULAR, pricePerBrick: 0.5 });
     expect(bricksOnly.costUsd).toBe(288);
     expect(calculateBrick(MODULAR).costUsd).toBeUndefined();

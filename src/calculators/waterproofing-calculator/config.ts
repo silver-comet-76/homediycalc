@@ -15,37 +15,62 @@ import { formatNumber } from "../../lib/validation";
 const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 const LIQUID_FIELDS: FieldSpec[] = [
-  { id: "coats", label: "Coats", kind: "count", defaultImp: "2", defaultMet: "2", min: 1, max: 5, hint: "Two coats is the minimum for a liquid membrane — the second goes on at right angles to the first. A shower pan liner may need the heavier IAPMO rate instead." },
+  {
+    id: "coats",
+    label: "Coats",
+    kind: "count",
+    defaultImp: "2",
+    defaultMet: "2",
+    min: 2,
+    max: 5,
+    hint: "Two coats is the minimum for a liquid membrane — the second goes on at right angles to the first. A shower pan liner may need the heavier IAPMO rate instead.",
+  },
   {
     id: "coverage",
     label: "Coverage per coat",
     kind: "number",
-    unitKind: "area",
-    impUnit: "ft2",
-    metUnit: "m2",
+    unitKind: "coverage",
+    impUnit: "ft2/gal",
+    metUnit: "m2/L",
     defaultImp: "110",
-    defaultMet: "10.22",
-    hint: "ft² per gallon for one coat. RedGard (TDS-104): 110 ft²/gal general waterproofing, 80 ft²/gal for an IAPMO shower-pan liner, 100 ft²/gal for crack prevention. Check your product.",
+    defaultMet: "2.70",
+    hint: "ft² per gallon for one coat (2.70 m² per litre in metric). RedGard (TDS-104): 110 ft²/gal general waterproofing, 80 ft²/gal for an IAPMO shower-pan liner, 100 ft²/gal for crack prevention. Check your product.",
   },
-  { id: "containerGal", label: "Container size (gal)", kind: "number", defaultImp: "1", defaultMet: "1", min: 0.25, hint: "RedGard comes in 1 gal and 3.5 gal pails. Enter the size you are buying." },
-  { id: "waste", label: "Waste allowance", kind: "percent", defaultImp: "10", defaultMet: "10", hint: "Covers corners, seams, and what stays in the roller and tray." },
-  { id: "pricePerContainer", label: "Price per container (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
+  {
+    id: "containerGal",
+    label: "Container size (gal)",
+    kind: "number",
+    defaultImp: "1",
+    defaultMet: "1",
+    min: 0.25,
+    hint: "RedGard comes in 1 gal and 3.5 gal pails. Enter the size you are buying.",
+  },
+  {
+    id: "waste",
+    label: "Waste allowance",
+    kind: "percent",
+    defaultImp: "10",
+    defaultMet: "10",
+    hint: "Covers corners, seams, and what stays in the roller and tray.",
+  },
+  {
+    id: "pricePerContainer",
+    label: "Price per container (optional)",
+    kind: "price",
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
 ];
 
-function liquidOutput(
-  areaFt2: number,
-  v: Record<string, number>,
-  present: Set<string>,
-) {
+function liquidOutput(areaFt2: number, v: Record<string, number>, present: Set<string>) {
   const r = calculateLiquidWaterproofing({
     areaFt2,
     coats: req(v, "coats"),
     coveragePerCoatFt2PerGal: req(v, "coverage"),
     containerGal: req(v, "containerGal"),
     wastePct: req(v, "waste"),
-    pricePerContainer: present.has("pricePerContainer")
-      ? req(v, "pricePerContainer")
-      : undefined,
+    pricePerContainer: present.has("pricePerContainer") ? req(v, "pricePerContainer") : undefined,
   });
   return {
     rows: [
@@ -126,18 +151,45 @@ export const waterproofingConfig: CalculatorConfig = {
       id: "liquid-dimensions",
       label: "Liquid membrane — room dimensions",
       fields: [
-        { id: "length", label: "Length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
-        { id: "width", label: "Width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
+        {
+          id: "length",
+          label: "Length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
+        {
+          id: "width",
+          label: "Width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
         ...LIQUID_FIELDS,
       ],
-      compute: (v, present) =>
-        liquidOutput(req(v, "length") * req(v, "width"), v, present),
+      compute: (v, present) => liquidOutput(req(v, "length") * req(v, "width"), v, present),
     },
     {
       id: "liquid-area",
       label: "Liquid membrane — known area",
       fields: [
-        { id: "area", label: "Area to waterproof", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "100", defaultMet: "9.29", hint: "Walls plus floor, in square feet." },
+        {
+          id: "area",
+          label: "Area to waterproof",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "100",
+          defaultMet: "9.29",
+          hint: "Walls plus floor, in square feet.",
+        },
         ...LIQUID_FIELDS,
       ],
       compute: (v, present) => liquidOutput(req(v, "area"), v, present),
@@ -146,10 +198,44 @@ export const waterproofingConfig: CalculatorConfig = {
       id: "sheet",
       label: "Sheet membrane — rolls",
       fields: [
-        { id: "area", label: "Area to waterproof", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "100", defaultMet: "9.29", hint: "Walls plus floor, in square feet." },
-        { id: "rollCoverage", label: "Coverage per roll", kind: "number", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "108", defaultMet: "10.03", hint: "ft² per roll. KERDI 200/10M is 108 ft² (3 ft 3 in × 33 ft); other KERDI rolls run 54–323 ft²." },
-        { id: "waste", label: "Waste allowance", kind: "percent", defaultImp: "10", defaultMet: "10", hint: "Covers seams, overlaps, and cuts. Seams need KERDI-BAND — not included here." },
-        { id: "pricePerRoll", label: "Price per roll (optional)", kind: "price", defaultImp: "", defaultMet: "", optional: true },
+        {
+          id: "area",
+          label: "Area to waterproof",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "100",
+          defaultMet: "9.29",
+          hint: "Walls plus floor, in square feet.",
+        },
+        {
+          id: "rollCoverage",
+          label: "Coverage per roll",
+          kind: "number",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "108",
+          defaultMet: "10.03",
+          hint: "ft² per roll. KERDI 200/10M is 108 ft² (3 ft 3 in × 33 ft); other KERDI rolls run 54–323 ft².",
+        },
+        {
+          id: "waste",
+          label: "Waste allowance",
+          kind: "percent",
+          defaultImp: "10",
+          defaultMet: "10",
+          hint: "Covers seams, overlaps, and cuts. Seams need KERDI-BAND — not included here.",
+        },
+        {
+          id: "pricePerRoll",
+          label: "Price per roll (optional)",
+          kind: "price",
+          defaultImp: "",
+          defaultMet: "",
+          optional: true,
+        },
       ],
       compute: (v, present) => {
         const r = calculateSheetWaterproofing({

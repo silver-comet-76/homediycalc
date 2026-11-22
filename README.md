@@ -42,7 +42,7 @@ No backend, no database, no paid API. No external API is required by any calcula
 ## Local Setup
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/silver-comet-76/homediycalc
 cd homediycalc
 npm install
 npm run dev
@@ -73,12 +73,12 @@ Deployment is to Cloudflare Pages (free tier), via Git integration or manual upl
 | `docs/DECISIONS.md` | Architecture decision records (ADR-style) |
 | `docs/DEPLOYMENT.md` | Cloudflare Pages deployment, build command, custom domain notes, ads.txt, Search Console |
 | `docs/FORMULAS.md` | Documented formulas for all 25 calculators, with worked test-case examples |
-| `docs/QA-REPORT.md` | Initial QA report: test plan and acceptance checklist (no tests have run yet) |
-| `docs/PHASE-REPORT.md` | Phase reports; Phase 0 filled in, later phases as stubs |
+| `docs/QA-REPORT.md` | QA report: test plan, acceptance checklist, Phase 1–6 results, and the ADR-9 release-gate record (passed 2026-11-20) |
+| `docs/PHASE-REPORT.md` | Phase reports for Phases 0–6 |
 
 ## Status
 
-**Phase 6 (deployment preparation) — complete.** See `docs/PHASE-REPORT.md`. Clean production build re-verified (39 pages), Vitest 204/204 (including 3 new ads-guard tests), Playwright 68/68 on desktop + mobile, strict typecheck clean (0 errors, 0 warnings, 0 hints), final smoke test 25/25 calculator URLs returning 200 with zero console errors on the local production build. Cloudflare Pages deployment is prepared but **not executed**: Git integration and manual deploy paths, Node 24 build settings, `_headers` verification, rollback procedure, Search Console instructions (all three verification methods), and AdSense scaffolding with ads verified disabled are all documented in `docs/DEPLOYMENT.md`. Nothing is deployed anywhere — no Cloudflare account, no Pages project, no GitHub repository (creation still blocked on the GitHub App installation), no domain — and the project is not complete: ADR-9 requires 3 consecutive clean full test rounds after Phases 4–6.
+**Phase 7 (independent audit and remediation) — audit and remediation complete, ADR-9 re-gate passed; awaiting independent review.** See `docs/PHASE-REPORT.md` Phase 7 and `docs/QA-REPORT.md` §13. The audit ordered by GitHub Issue #1 found 11 major and 19 minor formula defects across 18 of 25 calculators (7 passed) plus 6 accessibility findings, a no-op lint script, 24 stale statements, and category pages thinner than documented — all fixed on the local `phase-7` branch with 50 new regression tests (Vitest 254/254, Playwright 76/76, typecheck 0/0/0, lint passes, 40 pages built, Lighthouse Home + Paint 100/100/100/83, 3 consecutive clean gate rounds). **The work is not on GitHub yet:** the remote `phase-7` branch does not exist (the branch-creation approval expired before it was answered), so the branch, the per-defect GitHub issues, and the Issue #1 summary comment still need the owner's approval. Nothing is deployed anywhere — no Cloudflare account, no Pages project, no domain; the code is on GitHub at https://github.com/silver-comet-76/homediycalc (main at snapshot 34b917a8, pushed 2026-11-21). ADR-9 passed on 2026-11-20 at commit ca29ba1 and again on 2026-11-21 after the Phase 7 remediation (3 consecutive clean full test rounds); the release gate is met.
 
 ## Contributing
 

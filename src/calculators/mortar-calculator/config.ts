@@ -9,11 +9,7 @@
 
 import type { CalculatorConfig, FieldSpec } from "../../components/react/CalculatorConfig";
 import { req } from "../../components/react/CalculatorConfig";
-import {
-  calculateMortar,
-  type MasonryUnit,
-  type MortarType,
-} from "../../lib/formulas/mortar";
+import { calculateMortar, type MasonryUnit, type MortarType } from "../../lib/formulas/mortar";
 import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
@@ -30,11 +26,7 @@ const TYPE_LABELS: Record<MortarType, string> = {
   O: "Type O (1:2:9)",
 };
 
-function mortarOutput(
-  areaFt2: number,
-  v: Record<string, number>,
-  present: Set<string>,
-) {
+function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<string>) {
   const unit: MasonryUnit = req(v, "unit") === 2 ? "block" : "brick";
   const typeCode = req(v, "mortarType");
   const mortarType: MortarType =
@@ -77,7 +69,7 @@ function mortarOutput(
       `Masonry units in the wall: ${r.unitsNeeded} ${UNIT_LABELS[unit]}`,
     ],
     costUsd: r.costUsd,
-    note: "Site-mix parts are shares of the mortar volume by the ASTM C270 ratio — an ordering guide, not an exact dry-volume recipe. Mix by volume, not by weight: one 94 lb sack of cement is about 1 ft³.",
+    note: "Site-mix parts are the ASTM C270 batch yields per cubic foot of mortar — an ordering guide, not an exact dry-volume recipe: dry volumes do not add up to the mixed volume. Mix by volume, not by weight: one 94 lb sack of cement is about 1 ft³.",
     workedLine: `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³ ÷ ${fmt(req(v, "bagYield"), 2)} ft³ per bag = ${r.bags} bags.`,
   };
 }
@@ -94,8 +86,27 @@ const COMMON_FIELDS: FieldSpec[] = [
       { value: "2", label: "Standard block (8 × 8 × 16 in)" },
     ],
   },
-  { id: "joint", label: "Mortar joint width", kind: "length", unitKind: "length", canonicalUnit: "in", impUnit: "in", metUnit: "cm", min: 0, defaultImp: "0.375", defaultMet: "0.95", hint: "⅜ in (0.375 in) is the standard joint." },
-  { id: "waste", label: "Mortar waste allowance", kind: "percent" as const, defaultImp: "15", defaultMet: "15", hint: "BIA suggests 15–25% for mortar waste. Use 25% for repointing or irregular units." },
+  {
+    id: "joint",
+    label: "Mortar joint width",
+    kind: "length",
+    unitKind: "length",
+    canonicalUnit: "in",
+    impUnit: "in",
+    metUnit: "cm",
+    min: 0,
+    defaultImp: "0.375",
+    defaultMet: "0.95",
+    hint: "⅜ in (0.375 in) is the standard joint.",
+  },
+  {
+    id: "waste",
+    label: "Mortar waste allowance",
+    kind: "percent" as const,
+    defaultImp: "15",
+    defaultMet: "15",
+    hint: "BIA suggests 15–25% for mortar waste. Use 25% for repointing or irregular units.",
+  },
   {
     id: "bagYield",
     label: "Mortar per 80 lb bag (ft³)",
@@ -117,9 +128,16 @@ const COMMON_FIELDS: FieldSpec[] = [
       { value: "3", label: "Type M (1:¼:3¾) — heavy loads, foundations" },
       { value: "4", label: "Type O (1:2:9) — soft brick, interior" },
     ],
-    hint: "ASTM C270 proportions by volume (cement : lime : sand). Type N is the default for ordinary above-grade residential brickwork.",
+    hint: "ASTM C270 proportions by volume (cement : lime : sand). C270 specifies sand at 2¼–3× the cementitious volume; the calculator uses the 3× end (Type M 3¾). Type N is the default for ordinary above-grade residential brickwork.",
   },
-  { id: "pricePerBag", label: "Price per 80 lb bag (optional)", kind: "price" as const, defaultImp: "", defaultMet: "", optional: true },
+  {
+    id: "pricePerBag",
+    label: "Price per 80 lb bag (optional)",
+    kind: "price" as const,
+    defaultImp: "",
+    defaultMet: "",
+    optional: true,
+  },
 ];
 
 export const mortarConfig: CalculatorConfig = {
@@ -133,8 +151,10 @@ export const mortarConfig: CalculatorConfig = {
     "For a modular brick with a ⅜ in joint this gives 8.06 ft³ per 1,000 " +
     "bricks — the Brick Industry Association lists 8.1 ft³. " +
     "Bags = volume ÷ yield per bag (about 0.6 ft³ per 80 lb bag), rounded up. " +
-    "Site-mix parts follow the ASTM C270 ratio by volume: Type N 1:1:6, " +
-    "Type S 1:½:4½, Type M 1:¼:3¾, Type O 1:2:9 (cement : lime : sand).",
+    "Site-mix parts use the ASTM C270 batch yields per cubic foot of mortar: " +
+    "Type N 0.17 ft³ cement, 0.17 ft³ lime, 1.0 ft³ sand; Type S 0.22 / 0.11 / 1.0; " +
+    "Type M 0.33 / 0.08 / 1.0; Type O 0.11 / 0.22 / 1.0. " +
+    "(Mix ratios by volume: Type N 1:1:6, Type S 1:½:4½, Type M 1:¼:3¾, Type O 1:2:9 — cement : lime : sand.)",
   howTo: [
     "Measure the wall: length × height in feet. Subtract large openings (doors, windows) — enter them as an area, or use the Brick Calculator's opening inputs and bring the net area here.",
     "Pick the masonry unit: modular brick (7⅝ × 2¼ × 3⅝ in) or standard 8 × 8 × 16 in concrete block. The joint volume — and therefore the mortar — is different for each.",
@@ -144,12 +164,12 @@ export const mortarConfig: CalculatorConfig = {
   workedExample:
     "A 10 × 8 ft modular brick wall (80 ft²) with ⅜ in joints and 15% waste: " +
     "549 bricks need 5.09 ft³ of mortar — 9 bags of 80 lb pre-mixed mortar. " +
-    "Mixed on site as Type N (1:1:6), that is 0.64 ft³ of cement (1 sack), " +
-    "0.64 ft³ of lime, and 3.82 ft³ of sand.",
+    "Mixed on site as Type N (1:1:6), that is 0.87 ft³ of cement (1 sack), " +
+    "0.87 ft³ of lime, and 5.09 ft³ of sand.",
   limitations: [
     "Mortar volume is the geometric joint volume. In practice, mortar also fills the cores of hollow block and the gaps behind irregular stone — block and stone walls can need more than this estimate.",
     "Bag yields vary between manufacturers by 20% or more — the yield printed on your bag wins over the 0.6 ft³ default.",
-    "Site-mix parts are shares of the mortar volume by the ASTM C270 ratio. They are an ordering guide; dry volumes do not add up exactly to the mixed volume, and sand must be measured damp and loose.",
+    "Site-mix parts are the ASTM C270 batch yields per cubic foot of mortar. They are an ordering guide; dry volumes do not add up exactly to the mixed volume, and sand must be measured damp and loose.",
     "This calculator estimates materials only. Mortar type and strength are structural decisions — for load-bearing walls, foundations, or historic brick, follow the specification from a qualified professional.",
   ],
   faqs: [
@@ -179,9 +199,38 @@ export const mortarConfig: CalculatorConfig = {
       id: "dimensions",
       label: "Wall dimensions",
       fields: [
-        { id: "length", label: "Wall length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "10", defaultMet: "3.05" },
-        { id: "height", label: "Wall height", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "8", defaultMet: "2.44" },
-        { id: "openings", label: "Openings area (optional)", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "", defaultMet: "", optional: true, hint: "Total area of doors and windows to subtract." },
+        {
+          id: "length",
+          label: "Wall length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "10",
+          defaultMet: "3.05",
+        },
+        {
+          id: "height",
+          label: "Wall height",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "8",
+          defaultMet: "2.44",
+        },
+        {
+          id: "openings",
+          label: "Openings area (optional)",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "",
+          defaultMet: "",
+          optional: true,
+          hint: "Total area of doors and windows to subtract.",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => {
@@ -194,7 +243,16 @@ export const mortarConfig: CalculatorConfig = {
       id: "area",
       label: "Known area",
       fields: [
-        { id: "area", label: "Wall area", kind: "area", unitKind: "area", impUnit: "ft2", metUnit: "m2", defaultImp: "80", defaultMet: "7.43" },
+        {
+          id: "area",
+          label: "Wall area",
+          kind: "area",
+          unitKind: "area",
+          impUnit: "ft2",
+          metUnit: "m2",
+          defaultImp: "80",
+          defaultMet: "7.43",
+        },
         ...COMMON_FIELDS,
       ],
       compute: (v, present) => mortarOutput(req(v, "area"), v, present),

@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  calculateLiquidWaterproofing,
-  calculateSheetWaterproofing,
-} from "./waterproofing";
+import { calculateLiquidWaterproofing, calculateSheetWaterproofing } from "./waterproofing";
 
 describe("calculateLiquidWaterproofing", () => {
   it("matches the FORMULAS.md worked example: 100 ft² shower, 2 coats at 110 ft²/gal", () => {
@@ -39,6 +36,21 @@ describe("calculateLiquidWaterproofing", () => {
       wastePct: 10,
     });
     expect(pail.containers).toBe(1);
+  });
+
+  it("uses the crack-prevention two-coat rate of 50 ft²/gal per coat", () => {
+    // RedGard TDS-104: crack prevention is 100 ft²/gal in one coat,
+    // i.e. 50 ft²/gal per coat for the two-coat ANSI A118.12
+    // application. 100 ft² × 2 coats ÷ 50 ft²/gal × 1.10 = 4.40 gal.
+    const r = calculateLiquidWaterproofing({
+      areaFt2: 100,
+      coats: 2,
+      coveragePerCoatFt2PerGal: 50,
+      containerGal: 1,
+      wastePct: 10,
+    });
+    expect(r.gallons).toBeCloseTo(4.4, 2);
+    expect(r.containers).toBe(5);
   });
 
   it("prices containers only when a price is entered", () => {

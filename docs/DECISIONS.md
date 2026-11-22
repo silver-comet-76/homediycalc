@@ -98,3 +98,14 @@
   - *One full round* — rejected by the owner; a single pass can hide flaky or order-dependent issues.
   - *Three rounds without the clean-state restart* — rejected; fixes must be proven by fresh consecutive passes, not by counting a pass from before the fix.
 - **Consequences:** The release gate runs after Phases 4–6 are done. No "complete" report to the owner until 3 consecutive clean rounds are recorded. A failure in round 2 or 3 resets the count to zero even if round 1 was clean.
+- **Outcome 2026-11-20:** gate PASSED at commit ca29ba1 (3 consecutive clean rounds); see `docs/QA-REPORT.md` §12.
+
+## ADR-10: Linting with Prettier (formatting only)
+
+- **Status:** Accepted (Phase 7, 2026-11-21)
+- **Context:** The Phase 7 audit found `npm run lint` was a no-op echo that exited 0 — a check that always passes is worse than no check, because it looks like verification. No linter was installed and `docs/DECISIONS.md` never recorded the deferral, so the `package.json` pointer ("see docs/DECISIONS.md") dangled.
+- **Decision:** Formatting is enforced with Prettier 3.10.1 (MIT), promoted from a transitive dependency to a direct devDependency, pinned exact. `npm run lint` runs `prettier --check` over the code tree (`src/**/*.{ts,tsx,css}`, `tests/**/*.{ts,tsx}`, `*.{json,mjs}`) with `.prettierrc` (printWidth 100) and `.prettierignore` (`.astro` files — Prettier has no Astro parser — Markdown prose, `dist/`, `node_modules`, `coverage`, `package-lock.json`). The code tree was formatted once with `prettier --write` so the check passes on a clean tree. `npm run lint` is part of the pre-deploy checklist (`docs/DEPLOYMENT.md` §5).
+- **Alternatives considered:**
+  - *ESLint + typescript-eslint + eslint-plugin-astro* — real linting (unused variables, bad patterns), not just formatting; deferred — it needs new devDependencies, a flat config, and a license-audit entry, and the audit's immediate gap was the false-green no-op. Revisit if the project wants rule-based linting.
+  - *Prettier over the whole tree including docs* — rejected for now; reformatting all Markdown prose would churn the docs (including the audit branch) for no correctness gain. Docs stay out of the check via `.prettierignore`.
+- **Consequences:** `npm run lint` can now fail, and does so on any unformatted code file. It is formatting only — it does not catch unused variables or logic errors; `npm run typecheck` remains the correctness check. The one-time `--write` pass reformatted ~80 code files; the diff is mechanical (line breaks, spacing) and changes no behavior.

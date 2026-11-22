@@ -56,14 +56,11 @@ export interface SealantResult {
 
 export function calculateSealant(input: SealantInput): SealantResult {
   const crossSectionIn2 = input.beadWidthIn * input.beadDepthIn;
-  const volumeIn3 =
-    input.jointLengthFt * 12 * crossSectionIn2 * (1 + input.wastePct / 100);
+  const volumeIn3 = input.jointLengthFt * 12 * crossSectionIn2 * (1 + input.wastePct / 100);
   const volumeFlOz = volumeIn3 / CUBIC_INCHES_PER_FLUID_OUNCE;
-  const tubeVolumeIn3 =
-    input.tubeVolumeFlOz * CUBIC_INCHES_PER_FLUID_OUNCE;
+  const tubeVolumeIn3 = input.tubeVolumeFlOz * CUBIC_INCHES_PER_FLUID_OUNCE;
   const coverageFtPerTube = tubeVolumeIn3 / crossSectionIn2 / 12;
   const tubes = ceilUp(volumeFlOz / input.tubeVolumeFlOz);
-  const costUsd =
-    input.pricePerTube !== undefined ? tubes * input.pricePerTube : undefined;
+  const costUsd = input.pricePerTube !== undefined ? tubes * input.pricePerTube : undefined;
   return { volumeIn3, volumeFlOz, coverageFtPerTube, tubes, costUsd };
 }

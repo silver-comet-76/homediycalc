@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --color-brand-50: #fff7ed;
   --color-brand-100: #ffedd5;
   --color-brand-500: #ea580c;
@@ -19,6 +19,19 @@
   }
   a {
     @apply text-brand-700 underline-offset-2 hover:underline;
+  }
+  /* Phase 7, F2: plain links get the same visible keyboard-focus ring
+     as buttons and inputs (2px brand-600 outline, 2px offset) instead
+     of the 1px UA-default outline. */
+  a:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  /* Phase 7, F5: honor prefers-reduced-motion for smooth scrolling. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }
 
@@ -37,5 +50,12 @@
   }
   .label {
     @apply mb-1 block text-sm font-semibold text-slate-700;
+  }
+  /* Phase 7, F3: visible non-color marker for a pressed toggle. The
+     check mark is rendered via ::before so the button's accessible name
+     and text content are unchanged; aria-pressed still carries the
+     programmatic state. */
+  .toggle-pressed::before {
+    content: "✓ ";
   }
 }

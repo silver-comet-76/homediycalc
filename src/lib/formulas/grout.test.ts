@@ -55,4 +55,25 @@ describe("calculateGrout", () => {
     expect(r.groutLb).toBe(0);
     expect(r.bags).toBe(0);
   });
+
+  it("reproduces the MAPEI chart coverage behind the 25 lb FAQ figures", () => {
+    // Coverage of one 25 lb bag = 25 ÷ lb/ft², no waste. The formula
+    // (98.5 lb/ft³) lands within ~1% of the MAPEI Ultracolor Plus FA
+    // chart for every cell: 12 × 12 -> 388 sq ft, 24 × 24 -> 776 sq ft,
+    // 2 × 2 mosaic -> 97.5 sq ft (chart prints 97, rounded).
+    const coverage25lb = (tileLengthIn: number, tileWidthIn: number, jointDepthIn: number) => {
+      const r = calculateGrout({
+        ...BASE,
+        areaFt2: 1,
+        tileLengthIn,
+        tileWidthIn,
+        jointDepthIn,
+        wastePct: 0,
+      });
+      return 25 / r.groutLbPerFt2;
+    };
+    expect(coverage25lb(12, 12, 0.375)).toBeCloseTo(388, -1);
+    expect(coverage25lb(24, 24, 0.375)).toBeCloseTo(776, -1);
+    expect(coverage25lb(2, 2, 0.25)).toBeCloseTo(97.5, 1);
+  });
 });

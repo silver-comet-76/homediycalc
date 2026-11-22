@@ -31,8 +31,7 @@ export const cubicFeetConfig: CalculatorConfig = {
     "Measure inside dimensions for a container (what it holds), outside dimensions for the space it occupies.",
     "For a room, volume in cubic feet is what matters for heating, cooling, and ventilation — multiply floor area by ceiling height.",
   ],
-  workedExample:
-    "A box 5 ft × 4 ft × 2 ft is 40 ft³ = 1.48 yd³ (1.13 m³), or 69,120 in³.",
+  workedExample: "A box 5 ft × 4 ft × 2 ft is 40 ft³ = 1.48 yd³ (1.13 m³), or 69,120 in³.",
   limitations: [
     "Pure volume math for a rectangular space. Irregular shapes need to be split into boxes and added.",
     "It does not convert volume to weight — that depends on the material. Use the Gravel or Mulch Calculator for material weights.",
@@ -45,8 +44,7 @@ export const cubicFeetConfig: CalculatorConfig = {
     },
     {
       question: "How many cubic feet are in a cubic yard?",
-      answer:
-        "27 ft³. Divide cubic feet by 27 to get cubic yards.",
+      answer: "27 ft³. Divide cubic feet by 27 to get cubic yards.",
     },
     {
       question: "What is the difference between this and the Cubic Yard Calculator?",
@@ -59,12 +57,49 @@ export const cubicFeetConfig: CalculatorConfig = {
       id: "dimensions",
       label: "Dimensions",
       fields: [
-        { id: "length", label: "Length", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "5", defaultMet: "1.52", allowUnitSelect: true, unitOptions: DIMENSION_UNITS },
-        { id: "width", label: "Width", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "4", defaultMet: "1.22", allowUnitSelect: true, unitOptions: DIMENSION_UNITS },
-        { id: "height", label: "Height", kind: "length", unitKind: "length", impUnit: "ft", metUnit: "m", defaultImp: "2", defaultMet: "0.61", allowUnitSelect: true, unitOptions: DIMENSION_UNITS },
+        {
+          id: "length",
+          label: "Length",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "5",
+          defaultMet: "1.52",
+          allowUnitSelect: true,
+          unitOptions: DIMENSION_UNITS,
+        },
+        {
+          id: "width",
+          label: "Width",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "4",
+          defaultMet: "1.22",
+          allowUnitSelect: true,
+          unitOptions: DIMENSION_UNITS,
+        },
+        {
+          id: "height",
+          label: "Height",
+          kind: "length",
+          unitKind: "length",
+          impUnit: "ft",
+          metUnit: "m",
+          defaultImp: "2",
+          defaultMet: "0.61",
+          allowUnitSelect: true,
+          unitOptions: DIMENSION_UNITS,
+        },
       ],
       compute: (v) => {
-        const r = calculateCubicFeet({ lengthFt: req(v, "length"), widthFt: req(v, "width"), heightFt: req(v, "height") });
+        const r = calculateCubicFeet({
+          lengthFt: req(v, "length"),
+          widthFt: req(v, "width"),
+          heightFt: req(v, "height"),
+        });
         return {
           rows: [
             { label: "Cubic feet", value: `${fmt(r.volumeFt3)} ft³` },
@@ -74,7 +109,9 @@ export const cubicFeetConfig: CalculatorConfig = {
             { label: "Liters", value: `${fmt(r.volumeLiters, 0)} L` },
             { label: "US gallons", value: `${fmt(r.volumeGallons)} gal` },
           ],
-          lines: [`Volume: ${fmt(r.volumeFt3)} ft³ (${fmt(r.volumeYd3)} yd³, ${fmt(r.volumeM3)} m³)`],
+          lines: [
+            `Volume: ${fmt(r.volumeFt3)} ft³ (${fmt(r.volumeYd3)} yd³, ${fmt(r.volumeM3)} m³)`,
+          ],
           workedLine: `${fmt(req(v, "length"))} × ${fmt(req(v, "width"))} × ${fmt(req(v, "height"))} ft = ${fmt(r.volumeFt3)} ft³.`,
         };
       },

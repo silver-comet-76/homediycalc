@@ -17,9 +17,7 @@ async function addCalculatorToProject(page: import("@playwright/test").Page, slu
   await expect(page.getByText("Saved to")).toBeVisible();
 }
 
-test("planner: add from two calculators, edit, export CSV, clear", async ({
-  page,
-}) => {
+test("planner: add from two calculators, edit, export CSV, clear", async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on("console", (msg) => {
     if (msg.type() === "error") consoleErrors.push(msg.text());
@@ -30,9 +28,7 @@ test("planner: add from two calculators, edit, export CSV, clear", async ({
   await addCalculatorToProject(page, "primer-calculator");
 
   await page.goto("/my-project/");
-  await expect(
-    page.getByRole("heading", { name: "My Project", exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "My Project", exact: true })).toBeVisible();
   // Item names render in editable inputs, not as plain text.
   const itemNames = page.locator("input[aria-label='Item name']");
   await expect(itemNames.nth(0)).toHaveValue("Paint Calculator — Room dimensions");
@@ -82,9 +78,7 @@ test("planner: add from two calculators, edit, export CSV, clear", async ({
   page.on("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Clear project" }).click();
   await expect(page.getByText("Nothing saved yet.")).toBeVisible();
-  const stored = await page.evaluate(() =>
-    localStorage.getItem("homediycalc:project:v1"),
-  );
+  const stored = await page.evaluate(() => localStorage.getItem("homediycalc:project:v1"));
   expect(stored).not.toBeNull();
   expect(JSON.parse(stored as string).items).toEqual([]);
 
@@ -95,12 +89,10 @@ test("planner: print button calls window.print", async ({ page }) => {
   await addCalculatorToProject(page, "paint-calculator");
 
   await page.goto("/my-project/");
-  await expect(
-    page.getByRole("heading", { name: "My Project", exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.locator("input[aria-label='Item name']").nth(0),
-  ).toHaveValue("Paint Calculator — Room dimensions");
+  await expect(page.getByRole("heading", { name: "My Project", exact: true })).toBeVisible();
+  await expect(page.locator("input[aria-label='Item name']").nth(0)).toHaveValue(
+    "Paint Calculator — Room dimensions",
+  );
 
   // Stub window.print before clicking so the test can observe the call
   // without opening a real print dialog.
@@ -117,9 +109,7 @@ test("planner: print button calls window.print", async ({ page }) => {
   expect(printed).toBe(true);
 });
 
-test("planner: corrupt stored data shows the empty state, not a crash", async ({
-  page,
-}) => {
+test("planner: corrupt stored data shows the empty state, not a crash", async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on("console", (msg) => {
     if (msg.type() === "error") consoleErrors.push(msg.text());

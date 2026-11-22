@@ -35,14 +35,14 @@ Every default the eight P1 calculators ship with was checked against a named sou
 |---|---|---|
 | Drywall sheet sizes | 4 × 8 ft = 32 ft² (standard), 4 × 10 ft = 40 ft², 4 × 12 ft = 48 ft² | Standard sheet sizes; 4 × 8 ft as the DIY standard — https://www.measureandbuild.com/drywall-calculator/ and https://www.workshopcalcs.com/articles/how-much-drywall-do-i-need/ |
 | Drywall joint compound coverage | About 100 ft²/gal for a Level 4 three-coat finish (USG: about two 4.5 gal pails per 1,000 ft², i.e. 0.29 gal per 4 × 8 sheet; other guides give 1 gal per 85 ft²) | https://www.measureandbuild.com/drywall-calculator/ (100 ft²/gal, Level 4) and https://materialguides.com/guides/drywall-screws-mud-and-tape/ (USG: two 4.5 gal pails per 1,000 ft²) |
-| Drywall screws per sheet | About 28 per 4 × 8 sheet on walls, about 35 on ceilings (16 in framing; ASTM C840 / GA-216 spacing); about 250 screws per pound for 1¼ in coarse-thread screws | https://materialguides.com/guides/drywall-screws-mud-and-tape/ (28 wall / 35 ceiling; ~250/lb) and https://www.workshopcalcs.com/articles/how-much-drywall-do-i-need/ (~32 per sheet; 4 lb per 1,000 ft²) |
+| Drywall screws per sheet | About 28 per 4 × 8 sheet on walls, about 35 on ceilings; 4 × 10 ft takes 32 wall / 40 ceiling, 4 × 12 ft takes 40 wall / 50 ceiling (16 in framing; ASTM C840 / GA-216 spacing); about 250 screws per pound for 1¼ in coarse-thread screws | https://materialguides.com/guides/drywall-screws-mud-and-tape/ (per-sheet table: 28/35 for 4 × 8 ft, 32/40 for 4 × 10 ft, 40/50 for 4 × 12 ft; ~250/lb) and https://www.workshopcalcs.com/articles/how-much-drywall-do-i-need/ (~32 per sheet; 4 lb per 1,000 ft²) |
 | Drywall paper tape | About 370 linear ft per 1,000 ft²; rolls commonly 250 or 500 ft | https://www.measureandbuild.com/drywall-calculator/ (0.37 ft per ft²) and https://materialguides.com/guides/drywall-screws-mud-and-tape/ (370 ft per 1,000 ft²) |
 | Drywall door/window deductions | 20 ft² per door, 15 ft² per window (estimating convention) | https://calc.orbitalfour.com/drywall-calculator.html |
 | Concrete bag yields (QUIKRETE No. 1101) | 40 lb = 0.30 ft³; 60 lb = 0.45 ft³; 80 lb = 0.60 ft³ (45 bags/yd³ at 80 lb) — reused from Phase 2, not re-confirmed | QUIKRETE Concrete Mix No. 1101 data sheet, revised October 2022 (see Phase 2 table above) |
 | Flooring box coverage | Varies by brand — laminate about 18–24 ft²/box, vinyl plank about 18–30 ft², hardwood about 20–25 ft²; default 20 ft²/box, editable | https://calcthejob.com/flooring-calculator/ (vinyl/laminate 18–24 ft²/box) and https://www.calcmyproject.com/flooring.html (laminate 18–24, vinyl plank 18–30 ft²/box) |
 | Flooring waste conventions | 10% straight lay (5–7% for a simple rectangle); 15% diagonal; 15–20% herringbone/chevron | https://calcthejob.com/flooring-calculator/ and https://www.calcmyproject.com/flooring.html |
 | Flooring underlayment roll coverage | About 100 ft² per roll | https://www.fishjiang.online/flooring-calculator.html (underlayment rolls ~100 ft²) |
-| Paver base depth (ICPI) | 4 in compacted for a patio/walkway, 8 in for a residential driveway; add 2 in in frost or on clay; bedding sand exactly 1 in | ICPI Tech Spec 2 and 4, as summarized in https://www.measureandbuild.com/paver-base-calculator/ and https://calcthejob.com/paver-calculator/ |
+| Paver base depth (ICPI) | 4 in compacted for a patio/walkway, 6 in for a residential driveway; add 2–4 in in frost, wet, or weak soil (8–10 in total for a driveway); bedding sand exactly 1 in | ICPI Tech Spec 2 and 4, as summarized in https://www.measureandbuild.com/paver-base-calculator/ and https://calcthejob.com/paver-calculator/ |
 | Paver base compaction loss | Crushed base loses about 20% of its volume to compaction — order 1.25× the compacted volume | https://www.measureandbuild.com/paver-base-calculator/ |
 | Bedding sand density | About 2,750 lb/yd³ dry | https://calcthejob.com/paver-calculator/ |
 | Polymeric joint sand density | About 100 lb/ft³ (a 50 lb bag is about 0.5 ft³) | https://www.calcbooth.com/paver-calculator/ |
@@ -88,26 +88,27 @@ Every default the seven P2 calculators ship with was checked against a named sou
 - **Packages:** ready-mix by the cubic yard, rounded up to the next 0.25 yd³ by default (the usual supplier increment — see the Phase 2 reference table above; whole-yard rounding is offered as an option) and/or bag counts (QUIKRETE yields in the Phase 2 reference table above).
 - **Rounding:** volume displayed to 2 decimal places; yd³ rounded up per the packaging rule above.
 - **Limitations:** Assumes a level, rectangular pour of uniform depth. Does not account for slope, uneven subgrade, spillage, or over-excavation beyond the waste allowance.
-- **Worked example:** 10 ft × 10 ft slab, 4 in (0.333 ft) deep: 10 × 10 × 0.333 = 33.33 ft³ = 1.23 yd³. With 10% waste: 1.36 yd³ → order 1.5 yd³ (quarter-yard rounding).
+- **Worked example:** 10 ft × 10 ft slab, 4 in (⅓ ft) deep: 10 × 10 × ⅓ = 33.33 ft³ = 1.23 yd³. With 10% waste: 1.36 yd³ → order 1.5 yd³ (quarter-yard rounding).
 - **Validation status:** validated by Vitest in Phase 2 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 2. Square Footage Calculator — `/calculators/square-footage-calculator/`
 
-- **Formula:** rectangle `area (ft²) = length (ft) × width (ft)`; circle `area = π × r²`; triangle `area = ½ × base × height`.
-- **Units:** Inputs in ft/in or m/cm; outputs in ft² and m².
+- **Formula:** rectangle `area (ft²) = length (ft) × width (ft)`; circle `area = π × r²`; triangle `area = ½ × base × height`; L-shape `area = L₁ × W₁ + L₂ × W₂` (the two rectangles added together).
+- **Units:** Inputs in ft/in or m/cm; outputs in ft², m², yd², and acres.
 - **Waste:** not applicable (pure area measurement); the result feeds other calculators' waste inputs.
 - **Rounding:** area displayed to 2 decimal places.
 - **Limitations:** Measures flat area only; does not deduct openings (that is the Paint calculator's job) or account for irregular shapes beyond the supported shapes.
-- **Worked example:** 12 ft × 15 ft room: 12 × 15 = 180 ft² (≈ 16.72 m²).
+- **L-shape split:** the two rectangles must not overlap — any shared area would be counted twice. Split the room along the inside corner so the rectangles only meet at an edge.
+- **Worked example:** 12 ft × 15 ft room: 12 × 15 = 180 ft² (≈ 16.72 m²). L-shape: 12 × 10 ft plus 6 × 8 ft = 120 + 48 = 168 ft².
 - **Validation status:** validated by Vitest in Phase 2 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 3. Paint Calculator — `/calculators/paint-calculator/`
 
-- **Formula:** `net area (ft²) = gross wall area − doors/windows area` (where entered); `paint volume = net area × coats ÷ coverage (ft²/gal)`.
-- **Units:** Inputs in ft/in or m/cm; outputs in US gallons (and liters); coverage editable in ft²/gal or m²/L.
-- **Reference coverage:** 350 ft²/gal per coat — the low end of the 350–400 ft²/gal range on Sherwin-Williams interior latex data sheets (see the Phase 2 reference table above). The field is user-editable and the reference is labeled as typical for that manufacturer's paint, not guaranteed for any paint.
+- **Formula:** `net area (ft²) = gross wall area − doors/windows area` (where entered); `paint volume = net area × coats ÷ coverage (ft²/gal)`. A standard door deducts 21 ft² — the true 3 × 7 ft area. (The Drywall Calculator, §11, deducts 20 ft² per door instead, as a drywall estimating convention.)
+- **Units:** Inputs in ft/in or m/cm; outputs in US gallons (and liters); coverage editable in ft²/gal or m²/L. Coverage is an area-per-volume rate, not a pure area: 350 ft²/gal = 8.59 m²/L (1 ft²/gal = 0.09290304 ÷ 3.785411784 m²/L ≈ 0.024542 m²/L), so the metric default is 8.59 m²/L, not the pure-area figure 32.52.
+- **Reference coverage:** 350 ft²/gal per coat (8.59 m²/L in metric) — the low end of the 350–400 ft²/gal range on Sherwin-Williams interior latex data sheets (see the Phase 2 reference table above). The field is user-editable and the reference is labeled as typical for that manufacturer's paint, not guaranteed for any paint.
 - **Waste:** user-editable percentage, applied to paint volume.
-- **Packages:** gallons rounded up (whole gallons); quarts shown as a remainder where useful.
+- **Packages:** gallons rounded up (whole gallons).
 - **Cost:** `cost = rounded gallons × price per gallon` (price optional).
 - **Rounding:** gallons rounded up to whole gallons for purchase; raw volume shown to 2 decimal places.
 - **Limitations:** Coverage varies by surface, color change, and application method; the reference value is an estimate. Does not include primer (see Primer Calculator).
@@ -124,7 +125,7 @@ Every default the seven P2 calculators ship with was checked against a named sou
 - **Cost:** `cost = rounded yd³ × price per yd³` (price optional).
 - **Rounding:** yd³ to 2 decimal places for display, rounded up for ordering; tons to 2 decimal places.
 - **Limitations:** Density varies by stone type, size, and moisture; compaction and settling are only approximated by the waste allowance.
-- **Worked example:** 10 ft × 10 ft area, 3 in (0.25 ft) deep: 10 × 10 × 0.25 = 25 ft³ = 0.93 yd³. At 2,800 lb/yd³: 0.93 × 2,800 = 2,593 lb ≈ 1.30 US tons.
+- **Worked example:** 10 ft × 10 ft area, 3 in (0.25 ft) deep: 10 × 10 × 0.25 = 25 ft³ = 0.93 yd³. At 2,800 lb/yd³: the unrounded 0.926 yd³ × 2,800 = 2,593 lb ≈ 1.30 US tons.
 - **Validation status:** validated by Vitest in Phase 2 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 5. Mulch Calculator — `/calculators/mulch-calculator/`
@@ -142,14 +143,14 @@ Every default the seven P2 calculators ship with was checked against a named sou
 
 ## 6. Concrete Slab Calculator — `/calculators/concrete-slab-calculator/`
 
-- **Formula:** same volume core as the Concrete Calculator: `volume (ft³) = length (ft) × width (ft) × thickness (ft)`; `volume (yd³) = volume (ft³) ÷ 27`. Slab-specific additions: edge thickening / footing input where applicable (to be specified in Phase 2), and reinforcement estimate (rebar/wire mesh) as a separate optional output.
+- **Formula:** same volume core as the Concrete Calculator: `volume (ft³) = length (ft) × width (ft) × thickness (ft)`; `volume (yd³) = volume (ft³) ÷ 27`. Slab-specific additions: thickened-edge volume `edge (ft³) = 2 × (length + width − 2 × edge width) × edge width × (edge depth − thickness)` — the band is shortened by one edge width at each end so every corner is counted once; and wire-mesh sheets `meshSheets = ceil(slab area ÷ sheet area)` with a standard 8 × 20 ft sheet (160 ft²). Waste applies to the concrete volume only, not to the mesh count; the mesh output is always shown.
 - **Units:** Inputs in ft/in or m/cm; outputs in yd³, ft³, m³; bag counts by bag size.
 - **Waste:** default 10% for slabs — the usual general default (see the Phase 2 reference table above); user-editable.
 - **Packages:** yd³ rounded up to the next quarter yard by default (whole-yard option offered); bags via `ceil`.
 - **Cost:** `cost = rounded qty × unit price` (price optional).
 - **Rounding:** as for the Concrete Calculator.
 - **Limitations:** Assumes uniform thickness unless edge thickening is entered; does not design reinforcement or check structural requirements — a slab's structural design needs a qualified professional (stated on the page and in the Disclaimer).
-- **Worked example:** 20 ft × 12 ft slab, 4 in (0.333 ft) thick: 20 × 12 × 0.333 = 80 ft³ = 2.96 yd³. With 10% waste: 3.26 yd³ → order 3.5 yd³ (quarter-yard rounding).
+- **Worked example:** 20 ft × 12 ft slab, 4 in (⅓ ft) thick: 20 × 12 × ⅓ = 80 ft³ = 2.96 yd³. With 10% waste: 3.26 yd³ → order 3.5 yd³ (quarter-yard rounding). With a 1 ft wide, 1 ft deep thickened edge on that slab: 2 × (20 + 12 − 2 × 1) × 1 × (1 − ⅓) = 40.00 ft³ of extra concrete. Mesh: ceil(240 ÷ 160) = 2 sheets.
 - **Validation status:** validated by Vitest in Phase 2 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 7. Cubic Yard Calculator — `/calculators/cubic-yard-calculator/`
@@ -174,40 +175,40 @@ Every default the seven P2 calculators ship with was checked against a named sou
 
 ## 9. Tile Calculator — `/calculators/tile-calculator/`
 
-- **Formula:** `tiles needed = ceil(area (ft²) ÷ single tile area (ft²) × (1 + waste%))`; `boxes = ceil(tiles needed ÷ tiles per box)`.
+- **Formula:** `tiles needed = ceil(area (ft²) ÷ effective tile area (ft²) × (1 + waste%))`; `boxes = ceil(tiles needed ÷ tiles per box)`. Effective tile area = `(tile length + joint) × (tile width + joint)` — the grout joint widens each tile's footprint, so the joint is part of the divisor, not an afterthought.
 - **Units:** Inputs in ft/in or m/cm; tile size in inches or cm; outputs in tile count and box count, plus area in ft²/m².
 - **Waste:** user-editable percentage (typical 10% for straight lay, higher for diagonal/pattern — the page states this as guidance, not a rule); applied before rounding to tiles.
 - **Packages:** boxes rounded up via `ceil`.
 - **Cost:** `cost = rounded boxes × price per box` (price optional).
 - **Rounding:** tile count is a whole number rounded up; boxes are whole numbers rounded up.
 - **Limitations:** Assumes rectangular tiles and a rectangular area unless a shape input is provided; does not account for cuts at edges beyond the waste allowance; grout and adhesive are separate calculators.
-- **Worked example:** 100 ft² floor, 12 in × 12 in (1 ft²) tiles, 10% waste: 100 × 1.10 = 110 tiles. At 10 tiles per box: 11 boxes.
+- **Worked example:** 100 ft² floor, 12 in × 12 in tiles, ⅛ in joints, 10% waste: effective tile area = (12.125 × 12.125) ÷ 144 = 1.02 ft²; 100 × 1.10 ÷ 1.02 = 108 tiles. At 10 tiles per box: 11 boxes.
 - **Validation status:** validated by Vitest in Phase 2 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 10. Brick Calculator — `/calculators/brick-calculator/`
 
-- **Formula:** `wall area (ft²) = length (ft) × height (ft)` (minus openings where entered); `bricks = ceil(wall area ÷ area per brick including mortar joint × (1 + waste%))`. Area per brick including joint = `(brick length + joint) × (brick height + joint)`.
+- **Formula:** `wall area (ft²) = length (ft) × height (ft)` (minus openings where entered); `bricks = ceil(wall area ÷ area per brick including mortar joint × (1 + waste%))`. Area per brick including joint = `(brick length + joint) × (brick height + joint)`. `mortar volume (ft³) = pre-waste brick count × joint volume per brick ÷ 1,728 × (1 + mortar waste%)` — the pre-waste count, because brick waste is breakage, not extra joints. `mortar bags = ceil(mortar volume ÷ 0.6 ft³ per 80 lb bag)`, the same volume method the Mortar Calculator uses, so both calculators return the same bag count for the same wall. The QUIKRETE rating of up to 37 bricks per bag is shown only as a cross-check — it already bakes in heavy field waste, so it runs higher than the volume figure.
 - **Units:** Inputs in ft/in or m/cm; brick size in inches or mm; outputs in brick count (and pallets where a pallet size is entered).
 - **Reference brick size:** US standard modular brick 7⅝ in × 2¼ in × 3⅝ in with a ⅜ in mortar joint — Brick Industry Association Technical Note 10 (see the Phase 2 reference table above). The field is user-editable. Note: the face-area method used here gives 6.86 bricks/ft², while BIA's coursing table lists 6.75/ft² (675 per 100 ft²) for the same brick — a 1.6% difference, noted on the page.
 - **Waste:** user-editable percentage (typical 5–10% for breakage/cuts — stated as guidance); applied before rounding.
 - **Packages:** bricks rounded up; pallets via `ceil` where a pallet quantity is entered.
 - **Cost:** `cost = rounded bricks × price per brick` (price optional).
 - **Rounding:** brick count is a whole number rounded up.
-- **Limitations:** Single-wythe wall assumption unless a wall-thickness input is added in Phase 2; does not calculate mortar volume (see Mortar Calculator, P1) or structural requirements.
-- **Worked example:** 10 ft × 8 ft wall = 80 ft². Modular brick with ⅜ in joint: face area per brick = (7.625 + 0.375) × (2.25 + 0.375) in = 8 × 2.625 = 21 in² = 0.1458 ft². Bricks = 80 ÷ 0.1458 ≈ 549. With 5% waste: 576 bricks. *(Verified by unit tests in Phase 2.)*
+- **Limitations:** Single-wythe wall assumption unless a wall-thickness input is added in Phase 2; does not give a site-mix breakdown (cement, lime, sand — see Mortar Calculator) or structural requirements.
+- **Worked example:** 10 ft × 8 ft wall = 80 ft². Modular brick with ⅜ in joint: face area per brick = (7.625 + 0.375) × (2.25 + 0.375) in = 8 × 2.625 = 21 in² = 0.1458 ft². Bricks = 80 ÷ 0.1458 ≈ 549. With 5% waste: 576 bricks. Mortar: 549 bricks × 13.93 in³ ÷ 1,728 × 1.15 = 5.09 ft³ → 9 bags at 0.6 ft³ per bag (the 37-brick rating cross-check is 16 bags). *(Verified by unit tests in Phase 2.)*
 - **Validation status:** validated by Vitest in Phase 2 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 11. Drywall Calculator — `/calculators/drywall-calculator/`
 
-- **Formula:** `wall area (ft²) = 2 × (length + width) × height − doors × 20 ft² − windows × 15 ft²`; `ceiling area (ft²) = length × width` (when included); `sheets to buy = ceil(total area × (1 + waste%) ÷ sheet area)`. Compound `gallons = total area ÷ coverage (ft²/gal)`; `pails = ceil(gallons ÷ pail size)`. Tape `feet = total area × 370 ÷ 1,000`; `rolls = ceil(feet ÷ 250)`. Screws `= wall sheets × 28 + ceiling sheets × 35`.
+- **Formula:** `wall area (ft²) = 2 × (length + width) × height − doors × 20 ft² − windows × 15 ft²`; `ceiling area (ft²) = length × width` (when included); `sheets to buy = ceil(total area × (1 + waste%) ÷ sheet area)`. Compound `gallons = total area ÷ coverage (ft²/gal)`; `pails = ceil(gallons ÷ pail size)`. Tape `feet = total area × 370 ÷ 1,000`; `rolls = ceil(feet ÷ 250)`. Screws `= wall sheets × screws per sheet (walls) + ceiling sheets × screws per sheet (ceilings)`, where the screws per sheet scale with sheet size: 28 / 35 for 4 × 8 ft, 32 / 40 for 4 × 10 ft, 40 / 50 for 4 × 12 ft. The 20 ft² per door is the drywall estimating convention; the true 3 × 7 ft door area is 21 ft², as used by the Paint Calculator (§3).
 - **Units:** Inputs in ft/in or m/cm; outputs in sheets, gallons, feet, and screws.
-- **Reference values:** standard sheet 4 × 8 ft = 32 ft²; compound about 100 ft²/gal for a Level 4 three-coat finish; tape about 370 ft per 1,000 ft²; screws about 28 per sheet on walls, 35 on ceilings (see the Phase 3 reference table above). Compound coverage and screws per sheet are user-editable.
+- **Reference values:** standard sheet 4 × 8 ft = 32 ft²; compound about 100 ft²/gal (2.45 m²/L in metric) for a Level 4 three-coat finish; tape about 370 ft per 1,000 ft²; screws per sheet scale with sheet size — 28 on walls / 35 on ceilings for 4 × 8 ft, 32 / 40 for 4 × 10 ft, 40 / 50 for 4 × 12 ft (see the Phase 3 reference table above). Compound coverage and screws per sheet are user-editable; leaving the screw fields blank uses the standard count for the selected sheet size.
 - **Waste:** user-editable percentage (default 10%), applied to the sheet count only — compound, tape, and screws are estimated from the area actually hung.
 - **Packages:** sheets, pails, and tape rolls rounded up via `ceil`.
 - **Cost:** `cost = sheets × price per sheet + pails × price per pail` (prices optional).
 - **Rounding:** sheets/pails/rolls are whole numbers rounded up; compound shown to 2 decimal places.
 - **Limitations:** Assumes rectangular walls and ceilings of uniform height. Compound, tape, and screw figures are estimating rules of thumb for a Level 4 finish; a Level 5 skim coat takes much more compound. Corner bead is not included.
-- **Worked example:** 12 × 12 ft room, 8 ft walls, 1 door, 2 windows, ceiling included: wall area = 48 × 8 − 20 − 30 = 334 ft²; ceiling 144 ft²; total 478 ft². Sheets hung: 11 walls + 5 ceiling = 16; with 10% waste: 17 sheets. Compound: 478 ÷ 100 = 4.78 gal → 2 pails of 4.5 gal. Tape: 478 × 370 ÷ 1,000 = 176.86 ft → 1 roll. Screws: 11 × 28 + 5 × 35 = 483 (≈ 1.93 lb).
+- **Worked example:** 12 × 12 ft room, 8 ft walls, 1 door, 2 windows, ceiling included: wall area = 48 × 8 − 20 − 30 = 334 ft²; ceiling 144 ft²; total 478 ft². Sheets hung: 11 walls + 5 ceiling = 16; with 10% waste: 17 sheets. Compound: 478 ÷ 100 = 4.78 gal → 2 pails of 4.5 gal. Tape: 478 × 370 ÷ 1,000 = 176.86 ft → 1 roll. Screws: 11 × 28 + 5 × 35 = 483 (≈ 1.93 lb). In 4 × 12 ft sheets the same room hangs 7 wall + 3 ceiling sheets: 7 × 40 + 3 × 50 = 430 screws.
 - **Validation status:** validated by Vitest in Phase 3 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 12. Concrete Bags Calculator — `/calculators/concrete-bags-calculator/`
@@ -225,7 +226,7 @@ Every default the seven P2 calculators ship with was checked against a named sou
 
 ## 13. Flooring Calculator — `/calculators/flooring-calculator/`
 
-- **Formula:** `adjusted area (ft²) = floor area × (1 + waste%)`; `boxes = ceil(adjusted area ÷ coverage per box)`; `planks = boxes × planks per box` (when entered); `underlayment rolls = ceil(adjusted area ÷ coverage per roll)` (when included).
+- **Formula:** `adjusted area (ft²) = floor area × (1 + waste%)`; `boxes = ceil(adjusted area ÷ coverage per box)`; `planks = boxes × planks per box` (when entered); `underlayment rolls = ceil(floor area ÷ coverage per roll)` (when included) — the waste allowance does not apply to underlayment, which is laid edge-to-edge over the floor area only (offcuts are reusable).
 - **Units:** Inputs in ft/in or m/cm; outputs in boxes, planks, and rolls.
 - **Reference coverage:** box coverage varies by brand — laminate about 18–24 ft²/box, vinyl plank about 18–30 ft², hardwood about 20–25 ft². The field defaults to 20 ft² and is editable; underlayment rolls cover about 100 ft² each (see the Phase 3 reference table above).
 - **Waste:** user-editable percentage (default 10% for a straight lay; 15% diagonal, 15–20% herringbone/chevron), applied before packaging.
@@ -238,15 +239,15 @@ Every default the seven P2 calculators ship with was checked against a named sou
 
 ## 14. Paver Calculator — `/calculators/paver-calculator/`
 
-- **Formula:** `paver area (ft²) = (length + joint) × (width + joint) ÷ 144`; `pavers = ceil(area × (1 + waste%) ÷ paver area)`. Base gravel (compacted) `yd³ = area × base depth ÷ 12 ÷ 27`; loose volume to order `= compacted × 1.25`; `tons = compacted yd³ × density ÷ 2,000`. Bedding sand `ft³ = area × 1 ÷ 12`. Joint sand `in³/ft² = 144 × (L·J + W·J + J²) ÷ ((L+J)(W+J)) × thickness`; `bags = ceil(weight ÷ bag weight)`.
+- **Formula:** `paver area (ft²) = (length + joint) × (width + joint) ÷ 144`; `pavers = ceil(area × (1 + waste%) ÷ paver area)`. Base gravel (compacted) `yd³ = extended footprint × base depth ÷ 12 ÷ 27`, where the extended footprint is the paver area plus the base extension on every side — at least 6 in, or the base thickness when the base is deeper than 6 in; loose volume to order `= compacted × 1.25`; `tons = loose yd³ × density ÷ 2,000` (mass is conserved through compaction, so the weight comes from the loose volume ordered). Bedding sand `ft³ = extended footprint × 1 ÷ 12`. When only the area is known, the extended footprint is estimated as if the paved area were square; length and width give the exact figure. Joint sand `in³/ft² = 144 × (L·J + W·J + J²) ÷ ((L+J)(W+J)) × thickness`; `bags = ceil(weight ÷ bag weight)`.
 - **Units:** Inputs in ft/in or m/cm; paver size in inches or cm; outputs in paver count, yd³, tons, and bags.
-- **Reference values:** ICPI base depth 4 in compacted for a patio/walkway, 8 in for a driveway (add 2 in in frost or on clay); bedding sand exactly 1 in; base gravel 2,800 lb/yd³; bedding sand about 2,750 lb/yd³ dry; joint sand about 100 lb/ft³ (see the Phase 3 reference table above). Base depth, base density, joint sand density, and bag weight are user-editable.
+- **Reference values:** ICPI base depth 4 in compacted for a patio/walkway, 6 in for a driveway (add 2–4 in in frost, wet, or weak soil, for 8–10 in total); bedding sand exactly 1 in; base gravel 2,800 lb/yd³; bedding sand about 2,750 lb/yd³ dry; joint sand about 100 lb/ft³ (see the Phase 3 reference table above). Base depth, base density, joint sand density, and bag weight are user-editable.
 - **Waste:** user-editable percentage (default 10%), applied to the paver count only.
 - **Packages:** pavers and joint sand bags rounded up via `ceil`.
 - **Cost:** `cost = pavers × price per paver + loose base yd³ × price per yd³ + joint sand bags × price per bag` (prices optional).
 - **Rounding:** paver and bag counts are whole numbers rounded up; yd³ and tons shown to 2 decimal places.
 - **Limitations:** Assumes a rectangular paved area on level ground. Base depths follow ICPI guidance for typical residential work — weak or wet subgrade, heavy vehicles, and local frost depth can require more. Joint sand is estimated from the geometric joint volume; the coverage printed on the bag is the final word. Edge restraint and excavation are not included.
-- **Worked example:** 16 × 12 ft patio (192 ft²), 12 × 12 in pavers, ⅛ in joints, 2⅜ in thick, 4 in base, 10% waste: effective paver area 1.0209 ft² → 207 pavers. Base: 2.37 yd³ compacted → 2.96 yd³ loose (3.32 tons). Bedding sand: 16 ft³ = 0.59 yd³ (0.81 tons). Joint sand: 7.02 in³/ft² → 77.95 lb → 2 bags of 50 lb.
+- **Worked example:** 16 × 12 ft patio (192 ft²), 12 × 12 in pavers, ⅛ in joints, 2⅜ in thick, 4 in base, 10% waste: effective paver area 1.0209 ft² → 207 pavers. Base (extended footprint 17 × 13 = 221 ft²): 2.73 yd³ compacted → 3.41 yd³ loose (4.77 tons). Bedding sand: 18.42 ft³ = 0.68 yd³ (0.94 tons). Joint sand: 7.02 in³/ft² → 77.95 lb → 2 bags of 50 lb.
 - **Validation status:** validated by Vitest in Phase 3 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 15. Topsoil Calculator — `/calculators/topsoil-calculator/`
@@ -255,11 +256,11 @@ Every default the seven P2 calculators ship with was checked against a named sou
 - **Units:** Inputs in ft/in or m/cm; outputs in yd³, ft³, m³, tons (US short tons) / kg, and bag count.
 - **Reference density:** no single confirmed figure — loose, dry screened topsoil about 2,000 lb/yd³; wet or compacted 2,400–3,400 lb/yd³. The field defaults to 2,000 lb/yd³ and is editable; the page states the range (see the Phase 3 reference table above). Bag size commonly 0.75 ft³, editable.
 - **Waste:** user-editable settling allowance (default 10%), applied to volume.
-- **Packages:** bulk yd³ shown to 2 decimal places; bags rounded up via `ceil`.
-- **Cost:** `cost = rounded yd³ × price per yd³ + bags × price per bag` (prices optional).
+- **Packages:** bulk yd³ rounded up to whole yards for ordering (`orderYd3 = ceil(adjusted yd³)`); bags rounded up via `ceil`.
+- **Cost:** `cost = rounded yd³ × price per yd³` when a bulk price is entered, otherwise `bags × price per bag` — bulk wins when both prices are entered, because a buyer buys bulk or bags, never both (prices optional).
 - **Rounding:** yd³ to 2 decimal places for display; bags are whole numbers rounded up.
 - **Limitations:** Weight is an estimate — the same cubic yard can weigh 2,000–3,400 lb depending on texture, organic content, and moisture. The volume is exact; the weight is only as good as the density entered. Does not account for compaction after spreading beyond the settling allowance.
-- **Worked example:** 10 ft × 10 ft bed, 6 in (0.5 ft) deep: 10 × 10 × 0.5 = 50 ft³ = 1.85 yd³. With 10% allowance: 55 ft³ = 2.04 yd³. At 2,000 lb/yd³: 4,074 lb ≈ 2.04 US tons. In 0.75 ft³ bags: ceil(55 ÷ 0.75) = 74 bags.
+- **Worked example:** 10 ft × 10 ft bed, 6 in (0.5 ft) deep: 10 × 10 × 0.5 = 50 ft³ = 1.85 yd³. With 10% allowance: 55 ft³ = 2.04 yd³. At 2,000 lb/yd³: the unrounded 2.037 yd³ × 2,000 = 4,074 lb ≈ 2.04 US tons. In 0.75 ft³ bags: ceil(55 ÷ 0.75) = 74 bags. Bulk to order: ceil(2.037) = 3 yd³.
 - **Validation status:** validated by Vitest in Phase 3 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 16. Grout Calculator — `/calculators/grout-calculator/`
@@ -290,28 +291,28 @@ Every default the seven P2 calculators ship with was checked against a named sou
 
 ## 18. Mortar Calculator — `/calculators/mortar-calculator/`
 
-- **Formula:** `units per ft² = 144 ÷ ((length + joint) × (height + joint))`; `units = ceil(area × units per ft²)`; `mortar per unit (in³) = ((length + joint) × (height + joint) − length × height) × depth`; `mortar volume (ft³) = units × mortar per unit ÷ 1,728 × (1 + waste%)`; `bags = ceil(volume ÷ yield per bag)`. Site mix: cement, lime, and sand are shares of the mortar volume by the ASTM C270 ratio (Type N 1:1:6, Type S 1:½:4½, Type M 1:¼:3¾, Type O 1:2:9); `cement sacks = ceil(cement ft³ ÷ 1)` (one 94 lb sack ≈ 1 ft³).
+- **Formula:** `units per ft² = 144 ÷ ((length + joint) × (height + joint))`; `units = ceil(area × units per ft²)`; `mortar per unit (in³) = ((length + joint) × (height + joint) − length × height) × depth`; `mortar volume (ft³) = units × mortar per unit ÷ 1,728 × (1 + waste%)`; `bags = ceil(volume ÷ yield per bag)`. Site mix: cement, lime, and sand use the ASTM C270 batch yields per ft³ of mortar — Type N 0.17 / 0.17 / 1.0, Type S 0.22 / 0.11 / 1.0, Type M 0.33 / 0.08 / 1.0, Type O 0.11 / 0.22 / 1.0 ft³ (cement / lime / sand); `cement sacks = ceil(cement ft³ ÷ 1)` (one 94 lb sack ≈ 1 ft³). The mix ratios by volume are Type N 1:1:6, Type S 1:½:4½, Type M 1:¼:3¾, Type O 1:2:9; C270 specifies sand at 2¼–3× the cementitious volume and the calculator uses the 3× end (Type M 3¾).
 - **Units:** Inputs in ft/in or m/cm; unit size in inches; outputs in ft³, bag count, and site-mix volumes.
 - **Reference values:** modular brick 7⅝ × 2¼ × 3⅝ in with a ⅜ in joint (BIA TN10) — geometric joint volume gives 8.06 ft³ per 1,000 bricks vs. BIA's 8.1 ft³; standard block 8 × 8 × 16 in (actual 7⅝ × 7⅝ × 15⅝ in); 80 lb bag yields about 0.6 ft³ (QUIKRETE: up to 37 bricks or 13 blocks per bag); BIA mortar waste 15–25% (see the Phase 3 reference table above). Joint width, waste, bag yield, and mortar type are user-editable.
 - **Waste:** user-editable percentage (default 15%), applied to mortar volume.
 - **Packages:** bags and cement sacks rounded up via `ceil`.
 - **Cost:** `cost = bags × price per bag` (price optional).
 - **Rounding:** mortar volume shown to 2 decimal places; bags and sacks are whole numbers rounded up.
-- **Limitations:** Mortar volume is the geometric joint volume. In practice, mortar also fills the cores of hollow block and gaps behind irregular stone — block and stone walls can need more. Bag yields vary by manufacturer. Site-mix parts are shares of the mortar volume — an ordering guide, not an exact dry-volume recipe. Mortar type and strength are structural decisions — follow a qualified professional's specification for load-bearing work.
-- **Worked example:** 10 ft × 8 ft modular brick wall = 80 ft², ⅜ in joint, 15% waste: 6.86 bricks/ft² → 549 bricks; mortar = 549 × 13.93 in³ ÷ 1,728 × 1.15 = 5.09 ft³ → 9 bags at 0.6 ft³ per bag. Site-mixed as Type N (1:1:6): 0.64 ft³ cement (1 sack), 0.64 ft³ lime, 3.82 ft³ sand.
+- **Limitations:** Mortar volume is the geometric joint volume. In practice, mortar also fills the cores of hollow block and gaps behind irregular stone — block and stone walls can need more. Bag yields vary by manufacturer. Site-mix parts are the ASTM C270 batch yields per ft³ of mortar — an ordering guide, not an exact dry-volume recipe: the dry volumes do not add up to the mixed volume. Mortar type and strength are structural decisions — follow a qualified professional's specification for load-bearing work.
+- **Worked example:** 10 ft × 8 ft modular brick wall = 80 ft², ⅜ in joint, 15% waste: 6.86 bricks/ft² → 549 bricks; mortar = 549 × 13.93 in³ ÷ 1,728 × 1.15 = 5.09 ft³ → 9 bags at 0.6 ft³ per bag. Site-mixed as Type N (1:1:6): 0.87 ft³ cement (1 sack), 0.87 ft³ lime, 5.09 ft³ sand.
 - **Validation status:** validated by Vitest in Phase 3 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 19. Ceiling Tile Calculator — `/calculators/ceiling-tile-calculator/`
 
-- **Formula:** `tiles = ceil(area (ft²) × (1 + waste%) ÷ tile area (ft²))`; `cartons = ceil(tiles ÷ tiles per carton)`. Grid (room mode only): `main lines = max(0, ceil(width ÷ 4) − 1)`; `main tees (12 ft) = ceil(main lines × length ÷ 12)`; `4 ft cross tees = (main lines + 1) × max(0, ceil(length ÷ 2) − 1)`; `2 ft cross tees = ceil((width − 2) ÷ 4) × ceil(length ÷ 2)` for 2 × 2 ft tiles only (0 for 2 × 4 ft); `wall angle (10 ft) = ceil(perimeter ÷ 10)`; `hangers = ceil(main lines × length ÷ 4)`.
+- **Formula:** `tiles = ceil(area (ft²) × (1 + waste%) ÷ tile area (ft²))`; `cartons = ceil(tiles ÷ tiles per carton)`, where tiles per carton defaults to the tile size — 16 for 2 × 2 ft tiles, 8 for 2 × 4 ft — unless the user enters the count on their carton. Grid (room mode only): `main lines = max(0, ceil(width ÷ 4) − 1)`; `main tees (12 ft) = ceil(main lines × length ÷ 12)`; `4 ft cross tees = (main lines + 1) × max(0, ceil(length ÷ 2) − 1)`; `2 ft cross tees = ceil((width − 2) ÷ 4) × ceil(length ÷ 2)` for 2 × 2 ft tiles only (0 for 2 × 4 ft); `wall angle (10 ft) = ceil(perimeter ÷ 10)`; `hangers = ceil(main lines × length ÷ 4)`.
 - **Units:** Inputs in ft/in or m/cm; outputs in tile count, carton count, and grid component counts.
-- **Reference values:** 2 × 2 ft tiles (4 ft²) and 2 × 4 ft tiles (8 ft²); Armstrong guide puts main beams on 4 ft centers, cross tees 2 ft apart, hanger wires 4 ft apart; main tees 12 ft, wall angle 10 ft pieces; tiles per carton commonly 16 (2 × 2 ft) or 8 (2 × 4 ft), editable (see the Phase 4 reference table above). The geometric grid counts reproduce the published room tables cited there.
+- **Reference values:** 2 × 2 ft tiles (4 ft²) and 2 × 4 ft tiles (8 ft²); Armstrong guide puts main beams on 4 ft centers, cross tees 2 ft apart, hanger wires 4 ft apart; main tees 12 ft, wall angle 10 ft pieces; tiles per carton commonly 16 (2 × 2 ft) or 8 (2 × 4 ft), editable; leaving the field blank uses the common count for the selected tile size (see the Phase 4 reference table above). The geometric grid counts reproduce the published room tables cited there.
 - **Waste:** user-editable percentage (default 10%), applied to the tile count only — grid components are counted geometrically, not waste-adjusted.
 - **Packages:** cartons and grid components rounded up via `ceil`.
 - **Cost:** `cost = cartons × price per carton` (price optional). Grid components are not priced.
 - **Rounding:** tile and component counts are whole numbers rounded up.
 - **Limitations:** Grid counts are a planning estimate from the room dimensions — border cuts, light fixtures, and joist direction change the real layout; draw the grid before ordering. Assumes a rectangular room with a level ceiling. Does not check that the existing ceiling can carry heavy tiles. The Known area mode counts tiles and cartons only (no dimensions to lay a grid out on).
-- **Worked example:** 12 × 12 ft room (144 ft²), 2 × 2 ft tiles, 10% waste: 144 × 1.10 ÷ 4 = 39.6 → 40 tiles; 40 ÷ 16 = 2.5 → 3 cartons. Grid: 2 main tees (12 ft), 15 four-foot cross tees, 18 two-foot cross tees, 5 pieces of 10 ft wall angle, 6 hanger wires.
+- **Worked example:** 12 × 12 ft room (144 ft²), 2 × 2 ft tiles, 10% waste: 144 × 1.10 ÷ 4 = 39.6 → 40 tiles; 40 ÷ 16 = 2.5 → 3 cartons. In 2 × 4 ft tiles the same room is 20 tiles — 3 cartons of 8. Grid: 2 main tees (12 ft), 15 four-foot cross tees, 18 two-foot cross tees, 5 pieces of 10 ft wall angle, 6 hanger wires.
 - **Validation status:** validated by Vitest in Phase 4 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 20. Tile Adhesive Calculator — `/calculators/tile-adhesive-calculator/`
@@ -330,8 +331,8 @@ Every default the seven P2 calculators ship with was checked against a named sou
 ## 21. Primer Calculator — `/calculators/primer-calculator/`
 
 - **Formula:** `primer (gal) = net area (ft²) × coats × surface factor ÷ coverage (ft²/gal) × (1 + waste%)`; `gallons to buy = ceil(primer)`.
-- **Units:** Inputs in ft/in or m/cm; outputs in US gallons (and liters); coverage editable in ft²/gal.
-- **Reference coverage:** 300 ft²/gal default — between Sherwin-Williams ProBlock primers at 400 ft²/gal (4 mils wet) and PVA drywall primer at 250–300 ft²/gal on new drywall (see the Phase 4 reference table above). The field is user-editable. Surface-condition factors: ×1.00 previously painted, ×1.20 new drywall/bare plaster, ×1.30 bare wood, ×1.15 stained/patched — estimating guidance derived from those published ranges, not manufacturer figures.
+- **Units:** Inputs in ft/in or m/cm; outputs in US gallons (and liters); coverage editable in ft²/gal or m²/L. Coverage is an area-per-volume rate, not a pure area: 300 ft²/gal = 7.36 m²/L (1 ft²/gal ≈ 0.024542 m²/L), so the metric default is 7.36 m²/L, not the pure-area figure 27.87.
+- **Reference coverage:** 300 ft²/gal default (7.36 m²/L in metric) — between Sherwin-Williams ProBlock primers at 400 ft²/gal (4 mils wet) and PVA drywall primer at 250–300 ft²/gal on new drywall (see the Phase 4 reference table above). The field is user-editable. Surface-condition factors: ×1.00 previously painted, ×1.20 new drywall/bare plaster, ×1.30 bare wood, ×1.15 stained/patched — estimating guidance derived from those published ranges, not manufacturer figures.
 - **Waste:** user-editable percentage (default 10%), applied to primer volume.
 - **Packages:** gallons rounded up to whole gallons.
 - **Cost:** `cost = rounded gallons × price per gallon` (price optional).
@@ -369,8 +370,8 @@ Every default the seven P2 calculators ship with was checked against a named sou
 ## 24. Waterproofing Calculator — `/calculators/waterproofing-calculator/`
 
 - **Formula:** liquid: `gallons = area (ft²) × coats ÷ coverage per coat (ft²/gal) × (1 + waste%)`; `containers = ceil(gallons ÷ container size (gal))`. Sheet: `rolls = ceil(area (ft²) × (1 + waste%) ÷ coverage per roll (ft²))`.
-- **Units:** Inputs in ft/in or m/cm; outputs in US gallons (and liters) or roll count; coverage editable in ft²/gal or ft²/roll.
-- **Reference values:** RedGard (TDS-104) general waterproofing 110 ft²/gal per coat, IAPMO shower-pan liner 80 ft²/gal per coat, crack prevention 100 ft²/gal in one coat; MAPEI AquaDefense about 210 ft² per 3.5 gal pail over two coats; Schluter-KERDI 200/10M roll 3 ft 3 in × 33 ft = 108 ft² (see the Phase 4 reference table above). Two coats is the minimum for a liquid membrane.
+- **Units:** Inputs in ft/in or m/cm; outputs in US gallons (and liters) or roll count; liquid coverage editable in ft²/gal or m²/L, sheet coverage in ft²/roll or m²/roll. Liquid coverage is an area-per-volume rate, not a pure area: 110 ft²/gal = 2.70 m²/L (1 ft²/gal ≈ 0.024542 m²/L), so the metric default is 2.70 m²/L, not the pure-area figure 10.22. Coverage per roll is a pure area and converts as one (108 ft² = 10.03 m² per roll).
+- **Reference values:** RedGard (TDS-104) general waterproofing 110 ft²/gal per coat (2.70 m²/L in metric), IAPMO shower-pan liner 80 ft²/gal per coat, crack prevention 100 ft²/gal in one coat; MAPEI AquaDefense about 210 ft² per 3.5 gal pail over two coats; Schluter-KERDI 200/10M roll 3 ft 3 in × 33 ft = 108 ft² (see the Phase 4 reference table above). Two coats is the minimum for a liquid membrane.
 - **Waste:** user-editable percentage (default 10%), applied before packaging.
 - **Packages:** containers and rolls rounded up via `ceil`.
 - **Cost:** `cost = containers × price per container` or `rolls × price per roll` (price optional).
@@ -381,7 +382,7 @@ Every default the seven P2 calculators ship with was checked against a named sou
 
 ## 25. Baseboard Calculator — `/calculators/baseboard-calculator/`
 
-- **Formula:** `net length (ft) = perimeter − doors × door width` (or the total wall length entered directly); `adjusted length = net length × (1 + waste%)`; `pieces = ceil(adjusted length ÷ piece length)`; `purchased length = pieces × piece length`.
+- **Formula:** `net length (ft) = max(0, perimeter − doors × door width)` (or the total wall length entered directly); `adjusted length = net length × (1 + waste%)`; `pieces = ceil(adjusted length ÷ piece length)`; `purchased length = pieces × piece length`.
 - **Units:** Inputs in ft/in or m/cm; outputs in linear feet and piece counts.
 - **Reference values:** stock lengths 8, 12, and 16 ft at most home centers (some suppliers also carry 10 and 14 ft); 10% miter-cut allowance is the trade convention for a simple square room, 15–20% for rooms with alcoves, bay windows, or many outside corners (see the Phase 4 reference table above). Standard door width 3 ft.
 - **Waste:** user-editable percentage (default 10%), applied before packaging.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateMortar, MORTAR_MIX_RATIOS } from "./mortar";
+import { calculateMortar, MORTAR_MIX_RATIOS, MORTAR_MIX_YIELDS_FT3_PER_FT3 } from "./mortar";
 
 describe("calculateMortar", () => {
   it("matches the FORMULAS.md worked example: 10 × 8 ft modular brick wall, ⅜ in joint, 15% waste", () => {
@@ -18,11 +18,11 @@ describe("calculateMortar", () => {
     expect(r.unitsNeeded).toBe(549);
     expect(r.mortarVolumeFt3).toBeCloseTo(5.09, 2);
     expect(r.bags).toBe(9);
-    // Type N is 1:1:6 by volume (8 parts): cement and lime 5.09/8 each.
-    expect(r.cementFt3).toBeCloseTo(0.64, 2);
+    // Type N batch yields per ft³ of mortar: 0.17 cement, 0.17 lime, 1.0 sand.
+    expect(r.cementFt3).toBeCloseTo(0.87, 2);
     expect(r.cementSacks).toBe(1);
-    expect(r.limeFt3).toBeCloseTo(0.64, 2);
-    expect(r.sandFt3).toBeCloseTo(3.82, 2);
+    expect(r.limeFt3).toBeCloseTo(0.87, 2);
+    expect(r.sandFt3).toBeCloseTo(5.09, 2);
   });
 
   it("reproduces the BIA figure of 8.1 ft³ of mortar per 1,000 modular bricks", () => {
@@ -53,10 +53,45 @@ describe("calculateMortar", () => {
     expect(r.unitsNeeded).toBe(113);
     expect(r.mortarVolumeFt3).toBeCloseTo(5.08, 2);
     expect(r.bags).toBe(9);
-    // Type S is 1:½:4½ (6 parts): cement 5.08/6, lime 5.08/12, sand 5.08 × 4.5/6.
-    expect(r.cementFt3).toBeCloseTo(0.85, 2);
-    expect(r.limeFt3).toBeCloseTo(0.42, 2);
-    expect(r.sandFt3).toBeCloseTo(3.81, 2);
+    // Type S batch yields per ft³ of mortar: 0.22 cement, 0.11 lime, 1.0 sand.
+    expect(r.cementFt3).toBeCloseTo(1.12, 2);
+    expect(r.cementSacks).toBe(2);
+    expect(r.limeFt3).toBeCloseTo(0.56, 2);
+    expect(r.sandFt3).toBeCloseTo(5.08, 2);
+  });
+
+  it("calculates site-mix parts for Type M from the ASTM C270 batch yields", () => {
+    const r = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: 0.375,
+      wastePct: 15,
+      bagYieldFt3: 0.6,
+      mortarType: "M",
+    });
+    expect(r.mortarVolumeFt3).toBeCloseTo(5.09, 2);
+    // Type M batch yields per ft³ of mortar: 0.33 cement, 0.08 lime, 1.0 sand.
+    expect(r.cementFt3).toBeCloseTo(1.68, 2);
+    expect(r.cementSacks).toBe(2);
+    expect(r.limeFt3).toBeCloseTo(0.41, 2);
+    expect(r.sandFt3).toBeCloseTo(5.09, 2);
+  });
+
+  it("calculates site-mix parts for Type O from the ASTM C270 batch yields", () => {
+    const r = calculateMortar({
+      areaFt2: 80,
+      unit: "brick",
+      jointIn: 0.375,
+      wastePct: 15,
+      bagYieldFt3: 0.6,
+      mortarType: "O",
+    });
+    expect(r.mortarVolumeFt3).toBeCloseTo(5.09, 2);
+    // Type O batch yields per ft³ of mortar: 0.11 cement, 0.22 lime, 1.0 sand.
+    expect(r.cementFt3).toBeCloseTo(0.56, 2);
+    expect(r.cementSacks).toBe(1);
+    expect(r.limeFt3).toBeCloseTo(1.12, 2);
+    expect(r.sandFt3).toBeCloseTo(5.09, 2);
   });
 
   it("uses the ASTM C270 ratios for every mortar type", () => {
@@ -64,6 +99,13 @@ describe("calculateMortar", () => {
     expect(MORTAR_MIX_RATIOS.S).toEqual({ cement: 1, lime: 0.5, sand: 4.5 });
     expect(MORTAR_MIX_RATIOS.M).toEqual({ cement: 1, lime: 0.25, sand: 3.75 });
     expect(MORTAR_MIX_RATIOS.O).toEqual({ cement: 1, lime: 2, sand: 9 });
+  });
+
+  it("uses the ASTM C270 batch yields for every mortar type", () => {
+    expect(MORTAR_MIX_YIELDS_FT3_PER_FT3.N).toEqual({ cement: 0.17, lime: 0.17, sand: 1.0 });
+    expect(MORTAR_MIX_YIELDS_FT3_PER_FT3.S).toEqual({ cement: 0.22, lime: 0.11, sand: 1.0 });
+    expect(MORTAR_MIX_YIELDS_FT3_PER_FT3.M).toEqual({ cement: 0.33, lime: 0.08, sand: 1.0 });
+    expect(MORTAR_MIX_YIELDS_FT3_PER_FT3.O).toEqual({ cement: 0.11, lime: 0.22, sand: 1.0 });
   });
 
   it("prices bags only when a price is entered", () => {
