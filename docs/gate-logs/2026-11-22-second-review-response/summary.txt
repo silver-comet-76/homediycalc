@@ -1,0 +1,17 @@
+ADR-9 re-gate after the second PR #2 review response — 3 consecutive clean rounds, 2026-11-22 12:04–12:09 JST
+================================================================================================================
+
+Head: local phase-7 c0e8c0c (second re-review response, ADR-12). Gate scripts: scripts/gate-round.sh
+(dynamic Chromium resolution, explicit Lighthouse thresholds Perf/A11y/BP >= 90, SEO >= 80),
+scripts/gate-audit.py. Lighthouse pinned to 12.8.2. Node v24.22.1, npm 10.9.4, Python 3.12.3.
+
+Round | Started (UTC) | Build | Vitest | Typecheck | Lint | Audit | Playwright | Lighthouse Home | Lighthouse Paint
+------+---------------+-------+--------+-----------+------+-------+------------+-----------------+------------------
+1     | 03:04:52Z     | 40 pp | 282/282| 0/0/0     | pass | PASS  | 76/76 40.6s| 100/100/100/83  | 100/100/100/83
+2     | 03:06:34Z     | 40 pp | 282/282| 0/0/0     | pass | PASS  | 76/76 37.2s| 100/100/100/83  | 100/100/100/83
+3     | 03:08:09Z     | 40 pp | 282/282| 0/0/0     | pass | PASS  | 76/76 37.8s| 100/100/100/83  | 100/100/100/83
+
+Notes: 40 pages = 39 indexable + custom 404. Home LCP 0.2s / CLS 0 / TTI 0.2s every round.
+Paint LCP 0.4s / TTI 0.4s every round; CLS 0, 0, 0.005 (round 3). Paint Performance 100 in all
+three rounds of this gate (98-100 across all gates). Lighthouse thresholds enforced by the
+script (all scores above their floors in every round). Full logs: round-1/2/3.log (249 lines each).
