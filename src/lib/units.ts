@@ -274,9 +274,26 @@ export function roundForDisplay(value: number, decimals = 2): number {
  * Round a purchase quantity up, tolerating floating-point noise: a value
  * that is mathematically whole (e.g. 100 × 1.10 = 110) must not round up
  * to the next whole number because binary floating point stored it as
- * 110.00000000000001. The 1e-9 epsilon only corrects that noise.
+ * 110.00000000000001.
+ *
+ * Tolerance (ADR-11): a *relative* epsilon of 1e-12 — the larger of
+ * 1e-12 absolute and 1e-12 × |value|. Binary floating-point noise after
+ * the short calculation chains in this codebase is at most ~1e-13
+ * relative, so anything within 1e-12 relative of a whole number is
+ * noise, not a real extra unit. A genuinely above-integer requirement
+ * (e.g. 5.0000000005, 5e-10 above 5 — far outside the tolerance) still
+ * rounds up. Inputs are user-entered quantities with at most a few
+ * decimal places, so a real requirement can never land within 1e-12
+ * relative of an integer except by floating-point error.
+ *
+ * Guarantee: any strictly positive requirement orders at least one
+ * package — a positive valid material requirement never recommends
+ * zero packages. Zero or negative (including NaN) returns 0; callers
+ * validate inputs upstream, so a zero requirement (e.g. a wall fully
+ * covered by openings) stays zero.
  */
 export function ceilUp(value: number): number {
-  const rounded = Math.ceil(value - 1e-9);
-  return rounded === 0 ? 0 : rounded;
+  if (!(value > 0)) return 0;
+  const epsilon = Math.max(1e-12, Math.abs(value) * 1e-12);
+  return Math.max(1, Math.ceil(value - epsilon));
 }

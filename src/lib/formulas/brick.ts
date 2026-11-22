@@ -1,8 +1,5 @@
 import { ceilUp, CUBIC_INCHES_PER_CUBIC_FOOT, SQUARE_INCHES_PER_SQUARE_FOOT } from "../units";
 
-/** Mortar yielded by one 80 lb bag of pre-mixed mortar, in cubic feet (QUIKRETE Mortar Mix No. 1102). */
-export const MORTAR_BAG_YIELD_FT3 = 0.6;
-
 /**
  * Brick Calculator — brick and mortar counts for a wall.
  *
@@ -21,12 +18,27 @@ export const MORTAR_BAG_YIELD_FT3 = 0.6;
  * 1,000 bricks — BIA TN10 Table 4 lists 8.1 ft³. Mortar volume is
  * computed from the pre-waste brick count (brick waste is breakage, not
  * extra joints) with only the mortar waste allowance applied, so it
- * agrees with the Mortar Calculator for the same wall. Mortar bags use
- * the volume method — mortar volume ÷ 0.6 ft³ per 80 lb bag (QUIKRETE
- * Mortar Mix No. 1102) — the same method the Mortar Calculator uses, so
- * both calculators return the same bag count. The QUIKRETE rating of up
- * to 37 standard bricks per bag is shown only as a cross-check: that
- * rating already bakes in heavy field waste, so it runs higher.
+ * agrees with the Mortar Calculator for the same wall.
+ *
+ * Mortar bags — manufacturer count rating governs (ADR-11, PR #2
+ * review response). The QUIKRETE Mortar Mix No. 1102 data sheet states
+ * only a count rating — "each 80 lb bag will lay up to 37 standard
+ * bricks" — and states NO cubic-foot yield per bag and NO waste
+ * allowance, so this calculator claims no volumetric bag yield for the
+ * product. (The 0.6 ft³/bag figure used before this fix is not on the
+ * data sheet; it is removed.) The rating is a maximum ("up to"), so the
+ * bag count must satisfy both constraints and the larger governs:
+ *   1. the bricks you buy: bricksNeeded ÷ bricks per bag (576 ÷ 37 = 16
+ *      for the worked example — the reviewer's stated minimum); and
+ *   2. the waste-adjusted mortar need: installed bricks × (1 + mortar
+ *      waste) ÷ bricks per bag (549 × 1.15 ÷ 37 = 18).
+ * Waste is counted exactly once per material: brick breakage (5%) is in
+ * the brick count only — broken bricks are never laid, so they take no
+ * mortar — and the mortar waste allowance (15%) derates the rating
+ * only. At the rating's implied yield (37 bricks × 0.00806 ft³ per
+ * brick ≈ 0.30 ft³ per bag), 18 bags provide ≈ 5.37 ft³, covering the
+ * 5.09 ft³ waste-adjusted volume; the old volume figure of 9 bags
+ * (5.09 ÷ 0.6) undercut the manufacturer maximum and is gone.
  */
 
 export interface BrickInput {
@@ -65,7 +77,7 @@ export interface BrickResult {
   mortarVolumeFt3: number;
   /** 80 lb bags of mortar mix to buy (rounded up, waste included). */
   mortarBags: number;
-  /** Cross-check from the manufacturer rating (bricks ÷ bricks per bag, no extra waste). */
+  /** Bags for the bricks you buy at the manufacturer maximum (bricksNeeded ÷ bricks per bag, no extra waste) — the floor the recommendation never goes below. */
   mortarBagsByRating: number;
   /** Pallets to buy, only when a pallet size was entered. */
   pallets?: number;
@@ -92,11 +104,17 @@ export function calculateBrick(input: BrickInput): BrickResult {
   const mortarVolumeFt3 =
     ((bricksBeforeWaste * mortarPerBrickIn3) / CUBIC_INCHES_PER_CUBIC_FOOT) *
     (1 + input.mortarWastePct / 100);
-  // Primary method: mortar volume ÷ bag yield. Cross-check: the
-  // manufacturer rating (bricks per bag) with no extra waste added,
-  // because that rating already bakes in heavy field waste.
-  const mortarBags = ceilUp(mortarVolumeFt3 / MORTAR_BAG_YIELD_FT3);
+  // Primary method: the manufacturer count rating, which must satisfy
+  // both constraints — the bricks you buy, and the waste-adjusted
+  // mortar need — with the larger governing. The rating is a maximum
+  // ("up to 37") with no waste allowance stated on the data sheet, so
+  // the mortar waste allowance derates it; brick breakage is not
+  // counted again (broken bricks take no mortar).
   const mortarBagsByRating = ceilUp(bricksNeeded / input.bricksPerMortarBag);
+  const mortarBagsByWasteAdjustedVolume = ceilUp(
+    (bricksBeforeWaste * (1 + input.mortarWastePct / 100)) / input.bricksPerMortarBag,
+  );
+  const mortarBags = Math.max(mortarBagsByRating, mortarBagsByWasteAdjustedVolume);
   const costUsd =
     input.pricePerBrick !== undefined || input.pricePerMortarBag !== undefined
       ? (input.pricePerBrick !== undefined ? bricksNeeded * input.pricePerBrick : 0) +
