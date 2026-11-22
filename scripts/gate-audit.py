@@ -51,6 +51,7 @@ class PageParser(HTMLParser):
         self._in_title = False
         self.description = None
         self.canonical = None
+        self.noindex = False
         self.h1_count = 0
         self.og = False
         self.twitter = False
@@ -69,6 +70,10 @@ class PageParser(HTMLParser):
         elif tag == "meta":
             if a.get("name") == "description":
                 self.description = a.get("content", "")
+            if a.get("name") == "robots" and "noindex" in a.get("content", ""):
+                # A preview noindex tag must never ship in a production
+                # build (Phase 8): the gate runs without PUBLIC_PREVIEW.
+                self.noindex = True
             if a.get("property", "").startswith("og:"):
                 self.og = True
             if a.get("name", "").startswith("twitter:"):
@@ -170,6 +175,7 @@ def main() -> int:
     bad_h1 = []
     bad_social = []
     bad_jsonld = []
+    bad_noindex = []
     for p in pages:
         parser = parsed[p]
         url_path = "/" + str(p.relative_to(dist)).removesuffix("index.html").removesuffix(".html")
@@ -177,8 +183,14 @@ def main() -> int:
             url_path = "/"
         elif not url_path.endswith("/"):
             url_path += "/"
-        if parser.canonical != url_path:
+        # Canonical may be relative (default) or absolute when the build
+        # sets PUBLIC_SITE_URL (Phase 8); either way its path must be the
+        # page's own path.
+        canonical_path = urlparse(parser.canonical).path if parser.canonical else None
+        if canonical_path != url_path:
             bad_canonical.append(str(p.relative_to(dist)))
+        if parser.noindex:
+            bad_noindex.append(str(p.relative_to(dist)))
         if parser.h1_count != 1:
             bad_h1.append(str(p.relative_to(dist)))
         if not (parser.og and parser.twitter):
@@ -189,6 +201,7 @@ def main() -> int:
             except json.JSONDecodeError:
                 bad_jsonld.append(str(p.relative_to(dist)))
     check("canonical present and self-referential on every page", not bad_canonical, "; ".join(bad_canonical[:3]))
+    check("no page carries a robots noindex meta (production builds are indexable)", not bad_noindex, "; ".join(bad_noindex[:3]))
     check("exactly one H1 per page", not bad_h1, "; ".join(bad_h1[:3]))
     check("Open Graph + Twitter card on every page", not bad_social, "; ".join(bad_social[:3]))
     check("every JSON-LD block parses", not bad_jsonld, "; ".join(bad_jsonld[:3]))

@@ -424,6 +424,71 @@ Ranges across these three rounds: Home 100/100/100/83 every round (LCP 0.2 s, CL
 
 **Counts changed since §13.4:** Vitest 258 → 282 (24 new regression tests, listed above). Playwright still 76/76, pages still 40 (39 indexable + 404), sitemap still 39 URLs.
 
-**Standing limitations carried forward (not gate failures):** unchanged from §13.4 — no domain yet (SEO 83 cap), no public deployment, AdSense disabled, WebKit/Safari untested, project license undecided (owner decision), canonical/sitemap/robots absolute-URL readiness blocked on an owner-approved origin. The second-review-response changes are ready to push to the remote `phase-7` branch; the review will be answered on PR #2 once pushed, with final re-review requested. Nothing is merged, deployed, or closed.
+**Standing limitations carried forward (not gate failures):** unchanged from §13.4 — no domain yet (SEO 83 cap), no public deployment, AdSense disabled, WebKit/Safari untested, project license undecided (owner decision), canonical/sitemap/robots absolute-URL readiness blocked on an owner-approved origin. The second-review-response changes were pushed to the remote `phase-7` branch (head `f4d2f3e1`, 2026-11-22, 121 files) and the review was answered on PR #2 (comment 7077400091, final re-review requested). The reviewer then approved (review 6011576970) and the owner approved the merge — see §13.6. Nothing is deployed or closed.
 
 **Method note (same as §13.3):** all rounds run from a clean state (`rm -rf dist/`) with `bash scripts/gate-round.sh <round> <log-file>`; per-round logs in `docs/gate-logs/2026-11-22-second-review-response/` (`round-1.log`, `round-2.log`, `round-3.log`, `summary.txt`); Lighthouse pinned to 12.8.2; the Chromium headless-shell binary is resolved dynamically (see the script header); the gate now asserts the Lighthouse launch thresholds instead of only reporting the scores. Node v24.22.1, npm 10.9.4, Python 3.12.3.
+
+### 13.6 PR #2 merged into main (2026-11-22)
+
+**Verification before the merge:** PR #2 was read back from GitHub — state open, not merged, head `f4d2f3e13a04d0329c73300d1bf014d2461d351b` (`f4d2f3e1`), exactly the head ChatGPT's final approval review 6011576970 (fnaticjohn, APPROVED, 2026-11-22T09:52:14Z) was given against. The Project Owner's approval to merge was given in chat on 2026-11-22.
+
+**Merge:** PR #2 merged into `main` on 2026-11-22 with a merge commit (method: merge, not squash/rebase, so the review history stays attached to the PR). **Merge commit: `e8345f7e0cb04051767955968bd8ef0efabd65e9`.** No unrelated changes were included — the merge contains only the reviewed `phase-7` head `f4d2f3e1` on top of `main` at snapshot `34b917a8`.
+
+**Post-merge verification (completed 2026-11-22 ~20:30 JST):** read back from GitHub — PR #2 state `closed`, `merged: true`, `merged_at` 2026-11-22T10:25:04Z, `merged_by` silver-comet-76, head `f4d2f3e1` (ref `phase-7`), base `34b917a8` (ref `main`). (The MCP pull-request schema carries no `merge_commit_sha` field; the merge SHA is established from the branch head instead.) The `phase-8-launch` branch created from `main` points at head `e8345f7e0cb04051767955968bd8ef0efabd65e9`, whose message is "Merge pull request #2 from silver-comet-76/phase-7" — confirming the merge commit. Key files read back from `main`: `scripts/gate-round.sh` byte-identical to the reviewed head; `src/lib/formulas/brick.ts` matches the reviewed head exactly (the local copy differs only by the Phase 8 ADR-13 partial-cost changes); `docs/QA-REPORT.md` matches the reviewed head exactly (the local copy differs only by the §13.5 correction and the new §13.6/§14). The merged baseline is fully verified. Phase 8 work proceeds from the local `phase-8-launch` branch created from `f5a533b`, which is content-identical to the reviewed head `f4d2f3e1` — the merge adds no content changes of its own.
+
+**Counts at merge:** 25 calculators, Vitest 282/282, Playwright 76/76, 40 pages (39 indexable + 404), Lighthouse Home + Paint 100/100/100/83. Issue #1 stays open (no auto-close keyword was ever in the PR body) until reviewer sign-off + owner approval are both recorded; the owner has approved the merge only, not the closure. Nothing is deployed.
+
+## 14. Phase 8 — Controlled Staging and Pre-Public-Launch Readiness (Issue #3)
+
+### 14.1 Scope and baseline
+
+Phase 8 works from the merged `main` (PR #2, merge commit `e8345f7e`, reviewed head `f4d2f3e1`) on the local `phase-8-launch` branch (base `f5a533b`, content-identical to the reviewed head — the merge adds no content changes of its own). The Phase 8 change is local commit `c533731`. Scope per Issue #3: Brick partial-cost display; stale README/QA push-status reconciliation and merged-baseline documentation; privacy/terms/disclaimer/contact and ownership/license review; Cloudflare Pages configuration and controlled staging; environment-specific absolute canonical/sitemap/robots URLs from a verified owner-approved production origin; preview noindex and duplicate-content guards; launch/rollback documentation; WebKit/Safari verification or a documented blocker; security-header live checks (pending — no staging exists); Search Console steps. No new calculators, no scope creep, no public deploy, no domain purchase, no account creation, no ads/analytics, no indexing requests, no AdSense applications.
+
+### 14.2 Fixes
+
+- **Brick partial cost (ADR-13).** `src/lib/formulas/brick.ts` builds the cost per component: a mortar price alone with no bag count buys no countable quantity, so the total is suppressed (`costUsd` undefined) — never $0. A brick price with no bag count still buys a known brick count, so that figure is shown with `costPartial: true`. `CalculatorConfig.ts` adds `costLabel` / `costDetail` to `CalcOutput` and the `costShoppingListLine()` helper; `GenericCalculator.tsx` renders "Partial cost (bricks only)" with the detail "Excludes mortar — no bag count for this brick size or joint" in the results row and the copied shopping list. The Mortar Calculator already suppressed its cost when its bag count was unknown, so Brick was the only calculator with this defect. Known limitation (deferred, not fixed here): a partial brick cost added to My Project is stored as its bricks-only figure, so the project total excludes mortar — the calculator page labels it partial before the user adds it, and the versioned LocalStorage schema change is out of scope for this issue.
+- **Environment-specific absolute URLs + preview noindex (ADR-14).** `src/lib/site.ts` exposes `SITE_URL` / `absoluteUrl()` from `PUBLIC_SITE_URL` (undefined when unset — no host is ever defaulted or invented) and `IS_PREVIEW` from `PUBLIC_PREVIEW`. `astro.config.mjs` sets `site` from the same variable. Canonical, `og:url`, breadcrumb `item` URLs (`SEO.astro`), sitemap `<loc>` entries (`sitemap.xml.ts`), and the robots `Sitemap:` directive (new build-time route `src/pages/robots.txt.ts`, replacing static `public/robots.txt`) all go through `absoluteUrl` — with the variable unset, every URL stays relative, exactly as before. `Layout.astro` adds `<meta name="robots" content="noindex, nofollow">` when `PUBLIC_PREVIEW=true`. The gate audit (`scripts/gate-audit.py`) now accepts absolute canonicals (path must still match the page's own path) and fails any build in which a page carries a noindex meta tag.
+- **Privacy Policy §6** corrected: hosting was described as live ("The pages are served as static files from the hosting provider") before any deployment — now "once the site is deployed — it is not live yet" (date bumped to 2026-11-22). Terms, Disclaimer, and Contact reviewed: no invented identity or legal claim found. The Terms name no governing law and the pages speak as "HomeDIYCalc" with no personal/company operator — both are open owner decisions (`docs/DEPLOYMENT.md` §14.10), not decided here. Contact still honestly says no contact route exists and one will be set up before launch.
+- **Deployment/staging documentation** (`docs/DEPLOYMENT.md` §14): exact Pages project settings, production-vs-preview environment-variable table, Cloudflare Access restriction steps (Zero Trust free tier, 50 users), local-preview staging procedure, live header-check commands (pending), Search Console notes, launch/rollback sequence, duplicate-content guard, and the owner-decisions table. No account, project, or deployment was created.
+- **Merged-baseline reconciliation:** §13.5 stale closing line corrected; §13.6 records the merge; `README.md` Phase 7 paragraph updated to merged state + new Phase 8 paragraph; `docs/DEPLOYMENT.md` baseline references updated from snapshot `34b917a8` to merge `e8345f7e`; `docs/SEO-STRATEGY.md` §§3–4 and `AGENTS.md` layout updated to the ADR-14 design; `docs/FORMULAS.md` §10 Cost line corrected (it previously described only the brick component) and documents the partial rule.
+
+### 14.3 Environment mechanism verification (local, before the gate)
+
+Built with `PUBLIC_SITE_URL=https://example.com PUBLIC_PREVIEW=true` (the RFC 2606 test origin — a mechanism test only, never a production host): canonicals absolute (`https://example.com/`, `https://example.com/calculators/paint-calculator/`), 39/39 sitemap locations absolute, robots `Sitemap: https://example.com/sitemap.xml`, and a noindex meta on every page. The gate audit on that build passed the canonical check and correctly **failed** the noindex check — proving the guard works. The default build was rebuilt afterwards: relative URLs, no noindex anywhere. No production origin was set or invented at any point.
+
+### 14.4 WebKit / Safari — blocked, with procedure
+
+**Not verified in this environment.** The Playwright WebKit binary is installed (`webkit-2388`) but cannot launch: the host is missing 12 system libraries (`libgtk-4-1`, `libgstreamer1.0-0`, `libgstreamer-plugins-base1.0-0`, `libgstreamer-gl1.0-0`, `libgstreamer-plugins-bad1.0-0`, `libgraphene-1.0-0`, `libevent-2.1-7t64`, `libavif16`, `libmanette-0.2-0`, `libenchant-2-2`, `libsecret-1-0`, `libgles2`). Installing them needs `npx playwright install-deps webkit` (privileged `apt-get`); its approval card timed out on 2026-11-22 and the install did not run — retrying needs the owner's approval tap. The precise blocker and the independent device test procedure (real iPhone + Mac Safari, step by step) are documented in `docs/DEPLOYMENT.md` §14.8. No WebKit claim is made.
+
+### 14.5 Security headers — live check pending
+
+`public/_headers` is committed and copied to `dist/_headers` by the build, but `astro preview` does not apply it, so the headers cannot be verified locally. The live check (`curl -sI https://<live-host>/`) and the expected values are in `docs/DEPLOYMENT.md` §14.6. Until a staging or production host exists, this check is **pending**, not passed. No live deployment evidence exists for Phase 8 — all evidence below is local.
+
+### 14.6 Regression tests — 16 new (Vitest 282 → 298; Playwright 76 → 78)
+
+- Formula level (`brick.test.ts`, +4): mortar-only price with unknown bags → `costUsd` undefined (never $0); brick-only price → 241 partial; both prices → 241 partial; standard geometry → not partial; no prices → undefined.
+- Config level (`brick config.test.ts`, +3): mortar-only → cost suppressed; brick price → "Partial cost (bricks only)" + "Excludes mortar"; standard geometry → no partial label.
+- Shopping-list line (`CalculatorConfig.test.ts`, +4): undefined when no cost; full cost → "Estimated total…"; partial cost → "Partial cost (bricks only): $241.00 (Excludes mortar — …)" and never contains "total"; label kept without a detail.
+- Site env (`site.test.ts`, +5): relative by default; absolute with an explicit origin; leading slash added; no origin and not a preview by default.
+- Playwright (`home.spec.ts`, +1 test × 2 projects): default build carries no noindex meta and a relative canonical (`/`).
+
+### 14.7 Re-gate — 3 consecutive clean full rounds PASSED (2026-11-22 ~20:18–20:23 JST)
+
+| Check | Round 1 (11:18:49Z) | Round 2 (11:20:38Z) | Round 3 (11:22:16Z) |
+|---|---|---|---|
+| Clean build | 40 pages | 40 pages | 40 pages |
+| Vitest | 298/298 | 298/298 | 298/298 |
+| Typecheck | 0 errors / 0 warnings / 0 hints | 0/0/0 | 0/0/0 |
+| Lint (Prettier check) | pass | pass | pass |
+| Scripted audit checks (`scripts/gate-audit.py`) | ALL CHECKS PASSED | ALL CHECKS PASSED | ALL CHECKS PASSED |
+| Playwright e2e | 78/78 (45.7 s) | 78/78 (39.4 s) | 78/78 (37.7 s) |
+| Lighthouse Home (desktop) | 100/100/100/83 | 100/100/100/83 | 100/100/100/83 |
+| Lighthouse Paint (desktop) | 100/100/100/83 | 100/100/100/83 | 100/100/100/83 |
+
+Ranges across these three rounds: Home 100/100/100/83 every round (LCP 0.2 s, CLS 0, TTI 0.2 s); Paint 100/100/100/83 every round (LCP 0.4/0.3/0.4 s, CLS 0.005, TTI 0.4/0.3/0.4 s). SEO 83 is the expected score (relative canonical + relative robots.txt sitemap URL, which need a production origin). Lighthouse thresholds were enforced by the script in every round (all scores above their floors). No failures, no issues found in any of the three counted rounds. Running tally: **3 consecutive clean rounds.**
+
+**Counts changed since §13.5:** Vitest 282 → 298 (16 new tests, §14.6). Playwright 76 → 78 (the new noindex test × 2 projects). Pages still 40 (39 indexable + 404), sitemap still 39 URLs.
+
+**Standing limitations carried forward (not gate failures):** no domain/production origin yet (SEO 83 cap; absolute URLs ready but unactivated — ADR-14); no public deployment; AdSense disabled; WebKit/Safari unverified (§14.4); project license undecided (owner decision); security-headers live check pending (§14.5); post-merge read-back from GitHub completed (§13.6, 2026-11-22 ~20:30 JST). Nothing is merged, deployed, or closed.
+
+**Method note (same as §13.3):** all rounds run from a clean state (`rm -rf dist/`) with `bash scripts/gate-round.sh <round> <log-file>`; per-round logs in `docs/gate-logs/2026-11-22-phase-8/` (`round-1.log`, `round-2.log`, `round-3.log`, `summary.txt`); Lighthouse pinned to 12.8.2; the Chromium headless-shell binary is resolved dynamically (see the script header); the gate asserts the Lighthouse launch thresholds instead of only reporting the scores. Node v24.22.1, npm 10.9.4, Python 3.12.3.

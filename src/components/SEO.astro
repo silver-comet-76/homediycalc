@@ -1,5 +1,5 @@
 ---
-import { SITE_DESCRIPTION, SITE_NAME } from "../lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, absoluteUrl } from "../lib/site";
 
 export interface Props {
   title: string;
@@ -23,6 +23,9 @@ const {
   faqs,
 } = Astro.props;
 
+// Canonical and Open Graph URLs are absolute only when a production
+// origin is set (PUBLIC_SITE_URL); otherwise they stay relative paths.
+const canonicalUrl = canonical ? absoluteUrl(canonical) : undefined;
 const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
 const breadcrumbJsonLd =
   breadcrumbs && breadcrumbs.length > 0
@@ -35,7 +38,8 @@ const breadcrumbJsonLd =
           name: crumb.name,
           // The current page has no path in the visible trail; fall back to
           // the page's own canonical so the structured data stays complete.
-          item: crumb.path ?? canonical ?? "/",
+          // Breadcrumb URLs are absolute when a production origin is set.
+          item: absoluteUrl(crumb.path ?? canonical ?? "/"),
         })),
       }
     : undefined;
@@ -55,12 +59,12 @@ const faqJsonLd =
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
-{canonical && <link rel="canonical" href={canonical} />}
+{canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 <meta property="og:site_name" content={SITE_NAME} />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:type" content={ogType} />
-{canonical && <meta property="og:url" content={canonical} />}
+{canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
 <meta property="og:image" content="/og-image.svg" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />

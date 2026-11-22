@@ -65,10 +65,36 @@ export interface CalcOutput {
   lines: string[];
   /** Total estimated cost in USD, only when prices were entered. */
   costUsd?: number;
+  /**
+   * Label for the cost row and shopping-list cost line when costUsd
+   * covers only part of the job — e.g. "Partial cost (bricks only)".
+   * When absent, the cost is shown as the estimated total.
+   */
+  costLabel?: string;
+  /**
+   * Detail shown with a partial cost — what it excludes and why,
+   * e.g. "Excludes mortar — no bag count for this brick size or joint".
+   */
+  costDetail?: string;
   /** One-line substitution showing the actual numbers, e.g. "10 × 10 × 0.33 ft = 33.33 ft³". */
   workedLine?: string;
   /** Extra note shown under the results. */
   note?: string;
+}
+
+/**
+ * The shopping-list cost line for a compute result, or undefined when
+ * no cost is shown. A partial cost keeps its own label and says what
+ * it excludes, so a copied list never presents a bricks-only figure
+ * as a total.
+ */
+export function costShoppingListLine(output: CalcOutput): string | undefined {
+  if (output.costUsd === undefined) return undefined;
+  if (output.costLabel !== undefined) {
+    const detail = output.costDetail !== undefined ? ` (${output.costDetail})` : "";
+    return `${output.costLabel}: $${output.costUsd.toFixed(2)}${detail}`;
+  }
+  return `Estimated total: $${output.costUsd.toFixed(2)} (only if the prices you entered hold)`;
 }
 
 export interface ModeSpec {

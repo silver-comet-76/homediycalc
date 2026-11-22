@@ -56,3 +56,14 @@ test("sitemap and robots are served", async ({ request }) => {
   expect(robots.ok()).toBeTruthy();
   expect(await robots.text()).toContain("Sitemap: /sitemap.xml");
 });
+
+test("production build carries no robots noindex meta (Phase 8)", async ({ page }) => {
+  // The noindex tag exists only on preview builds (PUBLIC_PREVIEW=true).
+  // A default build must never tell search engines to skip the site.
+  await page.goto("/");
+  const noindex = page.locator('meta[name="robots"][content*="noindex"]');
+  await expect(noindex).toHaveCount(0);
+  // Canonical stays a relative self-reference without PUBLIC_SITE_URL.
+  const canonical = page.locator('link[rel="canonical"]');
+  await expect(canonical).toHaveAttribute("href", "/");
+});

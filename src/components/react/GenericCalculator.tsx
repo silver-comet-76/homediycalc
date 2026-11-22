@@ -13,6 +13,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { NumberInput, ResultPanel, UnitToggle, type UnitSystem } from "./CalculatorInputs";
 import type { CalculatorConfig, CalcOutput, FieldSpec, ModeSpec } from "./CalculatorConfig";
+import { costShoppingListLine } from "./CalculatorConfig";
 import {
   convertArea,
   convertCoverage,
@@ -206,13 +207,12 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
   const hasErrors = Object.keys(errors).length > 0;
   const result: CalcOutput | null = hasErrors ? null : mode.compute(canonical, present);
 
+  const costLine = result ? costShoppingListLine(result) : undefined;
   const shoppingList = result
     ? [
         `${calculatorName} — ${mode.label}`,
         ...result.lines,
-        ...(result.costUsd !== undefined
-          ? [`Estimated total: $${result.costUsd.toFixed(2)} (only if the prices you entered hold)`]
-          : []),
+        ...(costLine !== undefined ? [costLine] : []),
       ].join("\n")
     : "";
 
@@ -362,9 +362,9 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
                 ? [
                     ...result.rows,
                     {
-                      label: "Estimated cost",
+                      label: result.costLabel ?? "Estimated cost",
                       value: `$${result.costUsd.toFixed(2)}`,
-                      detail: "From the prices you entered only.",
+                      detail: result.costDetail ?? "From the prices you entered only.",
                     },
                   ]
                 : result.rows

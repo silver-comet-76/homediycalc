@@ -136,6 +136,7 @@ describe("calculateBrick — rating applicability (ADR-12, PR #2 second re-revie
     });
     expect(r.mortarBags).toBeNull();
     expect(r.costUsd).toBe(482 * 0.5); // bricks only — no invented bag cost
+    expect(r.costPartial).toBe(true); // and flagged partial, not a total
   });
 
   it("keeps the rating for a narrower joint: ¼ in joint, volume down, count covers it", () => {
@@ -172,5 +173,48 @@ describe("calculateBrick — rating applicability (ADR-12, PR #2 second re-revie
     const wideMetric = calculateBrick({ ...MODULAR, jointIn: convertLength(19.05, "mm", "in") });
     expect(wideMetric.mortarVolumeFt3).toBeCloseTo(8.82, 2);
     expect(wideMetric.mortarBags).toBeNull();
+  });
+});
+
+describe("calculateBrick — partial cost (Phase 8, Issue #3)", () => {
+  it("suppresses the total when only a mortar price is entered and the bag count is unknown", () => {
+    // ¾ in joint: no bag count. A mortar price alone buys no countable
+    // quantity, so the total is undefined — never $0.
+    const r = calculateBrick({ ...MODULAR, jointIn: 0.75, pricePerMortarBag: 8 });
+    expect(r.mortarBags).toBeNull();
+    expect(r.costUsd).toBeUndefined();
+    expect(r.costPartial).toBe(false);
+  });
+
+  it("flags a bricks-only figure partial when the bag count is unknown", () => {
+    const brickOnly = calculateBrick({ ...MODULAR, jointIn: 0.75, pricePerBrick: 0.5 });
+    expect(brickOnly.costUsd).toBe(482 * 0.5); // 241 — bricks only
+    expect(brickOnly.costPartial).toBe(true);
+    const both = calculateBrick({
+      ...MODULAR,
+      jointIn: 0.75,
+      pricePerBrick: 0.5,
+      pricePerMortarBag: 8,
+    });
+    expect(both.costUsd).toBe(482 * 0.5); // mortar price entered but unusable
+    expect(both.costPartial).toBe(true);
+  });
+
+  it("does not flag a cost partial when the bag count is known", () => {
+    const brickOnly = calculateBrick({ ...MODULAR, pricePerBrick: 0.5 });
+    expect(brickOnly.costUsd).toBe(288);
+    expect(brickOnly.costPartial).toBe(false);
+    const both = calculateBrick({ ...MODULAR, pricePerBrick: 0.5, pricePerMortarBag: 8 });
+    expect(both.costUsd).toBe(576 * 0.5 + 18 * 8);
+    expect(both.costPartial).toBe(false);
+    const mortarOnly = calculateBrick({ ...MODULAR, pricePerMortarBag: 8 });
+    expect(mortarOnly.costUsd).toBe(18 * 8);
+    expect(mortarOnly.costPartial).toBe(false);
+  });
+
+  it("has no cost at all when no price is entered", () => {
+    const r = calculateBrick({ ...MODULAR, jointIn: 0.75 });
+    expect(r.costUsd).toBeUndefined();
+    expect(r.costPartial).toBe(false);
   });
 });

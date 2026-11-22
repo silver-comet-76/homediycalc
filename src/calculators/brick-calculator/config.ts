@@ -287,6 +287,10 @@ export const brickConfig: CalculatorConfig = {
             ...(r.pallets !== undefined ? [`Pallets of brick: ${r.pallets}`] : []),
           ],
           costUsd: r.costUsd,
+          costLabel: r.costPartial ? "Partial cost (bricks only)" : undefined,
+          costDetail: r.costPartial
+            ? "Excludes mortar — no bag count for this brick size or joint"
+            : undefined,
           note:
             r.mortarBags === null
               ? "No bag count shown: the QUIKRETE rating (up to 37 standard bricks per 80 lb bag) applies only to modular brick at a ⅜ in joint or narrower. Your brick size or joint differs, so enter your bag's verified yield (ft³ per bag) above to get a bag count — or check your bag's data sheet."

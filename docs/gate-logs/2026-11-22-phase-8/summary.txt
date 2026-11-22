@@ -1,0 +1,22 @@
+ADR-9 gate after the Phase 8 fixes — 3 consecutive clean rounds, 2026-11-22 20:18–20:23 JST
+=============================================================================================
+
+Head: local phase-8-launch c533731 (Phase 8: Brick partial cost, env-specific SEO URLs, preview
+noindex, staging docs). Gate scripts: scripts/gate-round.sh (dynamic Chromium resolution,
+explicit Lighthouse thresholds Perf/A11y/BP >= 90, SEO >= 80), scripts/gate-audit.py (now also
+accepts absolute canonicals and fails any build carrying a robots noindex meta). Lighthouse
+pinned to 12.8.2. Node v24.22.1, npm 10.9.4, Python 3.12.3.
+
+Round | Started (UTC) | Build | Vitest | Typecheck | Lint | Audit | Playwright | Lighthouse Home | Lighthouse Paint
+------+---------------+-------+--------+-----------+------+-------+------------+-----------------+------------------
+1     | 11:18:49Z     | 40 pp | 298/298| 0/0/0     | pass | PASS  | 78/78 45.7s| 100/100/100/83  | 100/100/100/83
+2     | 11:20:38Z     | 40 pp | 298/298| 0/0/0     | pass | PASS  | 78/78 39.4s| 100/100/100/83  | 100/100/100/83
+3     | 11:22:16Z     | 40 pp | 298/298| 0/0/0     | pass | PASS  | 78/78 37.7s| 100/100/100/83  | 100/100/100/83
+
+Notes: 40 pages = 39 indexable + custom 404. Playwright is 78/78 (was 76/76): the Phase 8
+noindex test adds one test x two projects. Vitest 298/298 (was 282): 16 new Phase 8 tests —
+Brick partial cost 7 (4 formula + 3 config), shopping-list cost line 4, site env 5.
+Home LCP 0.2s / CLS 0 / TTI 0.2s every round. Paint LCP 0.4/0.3/0.4s, CLS 0.005,
+TTI 0.4/0.3/0.4s. Lighthouse thresholds enforced by the script (all scores above their
+floors in every round). SEO 83 is the expected score (relative canonical + relative
+robots.txt sitemap URL, which need a production origin). Full logs: round-1/2/3.log.
