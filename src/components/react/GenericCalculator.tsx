@@ -235,6 +235,12 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
       label: `${calculatorName} — ${mode.label}`,
       lines: result.lines,
       costUsd: result.costUsd,
+      // A partial cost (ADR-13) keeps its flag, label, and detail
+      // through the save, so My Project never presents a bricks-only
+      // figure as a total (ADR-16).
+      costPartial: result.costPartial,
+      costLabel: result.costLabel,
+      costDetail: result.costDetail,
       savedAt: Date.now(),
     });
     setSaved(true);

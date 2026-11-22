@@ -287,6 +287,7 @@ export const brickConfig: CalculatorConfig = {
             ...(r.pallets !== undefined ? [`Pallets of brick: ${r.pallets}`] : []),
           ],
           costUsd: r.costUsd,
+          costPartial: r.costPartial ? true : undefined,
           costLabel: r.costPartial ? "Partial cost (bricks only)" : undefined,
           costDetail: r.costPartial
             ? "Excludes mortar — no bag count for this brick size or joint"

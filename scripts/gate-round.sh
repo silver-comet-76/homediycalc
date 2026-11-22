@@ -8,21 +8,34 @@
 # Usage: bash scripts/gate-round.sh <round-number> <log-file>
 #   e.g. bash scripts/gate-round.sh 1 docs/gate-logs/2026-11-22-review-response/round-1.log
 #
-# Steps: clean build (40 pages: 39 indexable + custom 404), Vitest,
-# typecheck, lint (Prettier formatting check), scripted audit checks
-# (scripts/gate-audit.py), Playwright e2e (desktop + mobile), Lighthouse
-# 12.8.2 on Home and Paint (desktop preset) via the Playwright Chromium
-# headless-shell binary (CHROME_PATH; Lighthouse ignores --chrome-path).
-# Lighthouse is pinned to 12.8.2 so rounds stay comparable.
+# Steps: three mode builds (ADR-15) + the full check set.
+#   1. Production-mode build with the RFC 2606 test origin
+#      https://example.com (a mechanism test only — never a production
+#      host): clean build (40 pages), Vitest, typecheck, lint (Prettier),
+#      scripted audit checks with --mode production --origin
+#      https://example.com (exact-origin canonical/sitemap/robots, no
+#      noindex), Playwright e2e (desktop + mobile, also against this
+#      build), Lighthouse 12.8.2 on Home and Paint (desktop preset) via
+#      the Playwright Chromium headless-shell binary (CHROME_PATH;
+#      Lighthouse ignores --chrome-path). Lighthouse is pinned to 12.8.2
+#      so rounds stay comparable.
+#   2. Preview-mode build (PUBLIC_SITE_URL=https://example.com
+#      PUBLIC_PREVIEW=true): scripted audit checks with --mode preview
+#      --origin https://example.com — every page must carry a noindex
+#      meta tag and every URL must use exactly the test origin.
+#   3. Local build (no PUBLIC_* vars): scripted audit checks with
+#      --mode local — every page must carry a noindex meta tag and every
+#      URL must stay relative (the fail-closed default).
+# Vitest/typecheck/lint run once (the source does not change between
+# the three builds); Playwright and Lighthouse run only against the
+# production-mode build, which is the shippable one.
 #
 # Launch thresholds (enforced below — a score below its threshold fails
 # the round, so a passing round is not just "Lighthouse ran"): Home and
 # Paint each need Performance >= 90, Accessibility >= 90, Best
-# Practices >= 90, SEO >= 80. SEO is capped at 83 until the site has an
-# owner-approved domain (relative canonical + relative robots.txt
-# sitemap URL), so its threshold has only 3 points of margin by design;
-# Performance/Accessibility/Best Practices have run at 100 in every
-# gate round so far. The thresholds are minimums, not targets.
+# thresholds are minimums, not targets. (SEO ran at 83 in the Phase 7/8
+# gates with relative canonicals; a production-mode build with absolute
+# canonicals may score higher — the threshold stays 80 either way.)
 #
 # Requirements: node >= 22, npm, python3, npx (Lighthouse is fetched via
 # npx on first use and then cached), and a Playwright Chromium install
@@ -47,9 +60,27 @@ echo "=== ADR-9 gate round $ROUND — $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 echo "repo: $REPO_ROOT"
 echo "node: $(node --version)  npm: $(npm --version)  python: $(python3 --version)"
 
-echo "--- clean build ---"
+# Test origin for the production/preview builds (ADR-15): the RFC 2606
+# reserved domain https://example.com. It is a mechanism test only —
+# it proves the build mode, origin validation, and exact-origin audit
+# work; it is never a production host and no owner-approved origin
+# exists yet. The Playwright tests read the same variable to know which
+# canonical/noindex expectations apply to the build they run against.
+TEST_ORIGIN="https://example.com"
+
+echo "--- production-mode build (PUBLIC_SITE_URL=$TEST_ORIGIN) ---"
+export PUBLIC_SITE_URL="$TEST_ORIGIN"
+unset PUBLIC_PREVIEW || true
 rm -rf dist/
 npm run build
+
+# Unit tests, typecheck, and lint run WITHOUT the production env vars:
+# the site module's constants read the ambient environment, and a test
+# that asserts a default would fail spuriously under a production
+# origin. The mode logic itself is tested with pure functions
+# (src/lib/site.test.ts); the rendered production build is checked by
+# the audit and Playwright below, with the origin re-exported.
+unset PUBLIC_SITE_URL PUBLIC_PREVIEW || true
 
 echo "--- Vitest ---"
 npm run test
@@ -60,10 +91,11 @@ npm run typecheck
 echo "--- lint (Prettier formatting check) ---"
 npm run lint
 
-echo "--- scripted audit checks ---"
-python3 scripts/gate-audit.py dist/
+echo "--- scripted audit checks (production mode, exact origin) ---"
+export PUBLIC_SITE_URL="$TEST_ORIGIN"
+python3 scripts/gate-audit.py --mode production --origin "$TEST_ORIGIN" dist/
 
-echo "--- Playwright e2e ---"
+echo "--- Playwright e2e (against the production-mode build) ---"
 npm run test:e2e
 
 echo "--- Lighthouse 12.8.2 (Home + Paint, desktop) ---"
@@ -122,5 +154,20 @@ for PAGE in "" "calculators/paint-calculator/"; do
 done
 kill $PREVIEW_PID 2>/dev/null || true
 trap - EXIT
+
+echo "--- preview-mode build (PUBLIC_SITE_URL=$TEST_ORIGIN PUBLIC_PREVIEW=true) ---"
+export PUBLIC_SITE_URL="$TEST_ORIGIN"
+export PUBLIC_PREVIEW="true"
+rm -rf dist/
+npm run build
+echo "--- scripted audit checks (preview mode, exact origin + noindex on every page) ---"
+python3 scripts/gate-audit.py --mode preview --origin "$TEST_ORIGIN" dist/
+
+echo "--- local build (no PUBLIC_* vars — the fail-closed default) ---"
+unset PUBLIC_SITE_URL PUBLIC_PREVIEW || true
+rm -rf dist/
+npm run build
+echo "--- scripted audit checks (local mode, relative URLs + noindex on every page) ---"
+python3 scripts/gate-audit.py --mode local dist/
 
 echo "=== ADR-9 gate round $ROUND PASSED ==="

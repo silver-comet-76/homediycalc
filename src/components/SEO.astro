@@ -1,5 +1,5 @@
 ---
-import { SITE_DESCRIPTION, SITE_NAME, absoluteUrl } from "../lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "../lib/site";
 
 export interface Props {
   title: string;
@@ -24,8 +24,11 @@ const {
 } = Astro.props;
 
 // Canonical and Open Graph URLs are absolute only when a production
-// origin is set (PUBLIC_SITE_URL); otherwise they stay relative paths.
-const canonicalUrl = canonical ? absoluteUrl(canonical) : undefined;
+// origin is set (PUBLIC_SITE_URL, ADR-15): production and preview-with-
+// origin builds use it; local builds stay relative. The origin is
+// validated at build time, so a mistyped host fails the build instead
+// of shipping wrong URLs.
+const canonicalUrl = canonical ? absoluteUrl(canonical, SITE_URL) : undefined;
 const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
 const breadcrumbJsonLd =
   breadcrumbs && breadcrumbs.length > 0
@@ -39,7 +42,7 @@ const breadcrumbJsonLd =
           // The current page has no path in the visible trail; fall back to
           // the page's own canonical so the structured data stays complete.
           // Breadcrumb URLs are absolute when a production origin is set.
-          item: absoluteUrl(crumb.path ?? canonical ?? "/"),
+          item: absoluteUrl(crumb.path ?? canonical ?? "/", SITE_URL),
         })),
       }
     : undefined;

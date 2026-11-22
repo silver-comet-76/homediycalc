@@ -728,8 +728,19 @@ Execute the Phase 8 scope in GitHub Issue #3 from the merged `main` (merge commi
 ### 4. Open Items
 
 - **Post-merge read-back from GitHub: completed 2026-11-22 ~20:30 JST** — PR #2 `merged: true`, `merged_at` 2026-11-22T10:25:04Z, `merged_by` silver-comet-76, head `f4d2f3e1`, base `34b917a8`; merge commit `e8345f7e` confirmed via the new `phase-8-launch` branch head; key files on `main` match the reviewed head (see `docs/QA-REPORT.md` §13.6).
-- **WebKit/Safari verification** (blocked on owner approval for `npx playwright install-deps webkit`): rerun the temporary WebKit project on `tests/home.spec.ts` + `tests/calculators.spec.ts` once the libraries are installed, or run the §14.8 device procedure on a real Apple device.
+- **WebKit/Safari verification** (environment blocker cleared 2026-11-23): system libraries installed 2026-11-22 (owner-approved, install-deps exit 0); smoke test on the final production-mode build passed 29/29 (Desktop Safari, home + calculator specs, 2026-11-23 ~00:05 JST — see `docs/QA-REPORT.md` §15.5). Real Safari device checks remain pending (§14.8).
 - **Security headers live check** (pending): no staging exists yet; `curl -I` commands are in `docs/DEPLOYMENT.md` §14.6.
-- **ADR-9 re-gate** (3 consecutive clean rounds): **PASSED** 2026-11-22 ~20:18–20:23 JST — see `docs/QA-REPORT.md` §14.7.
-- **Push `phase-8-launch`, open the PR for ChatGPT review, post the completion summary on Issue #3** (next; needs the owner's approval taps for the GitHub write calls).
+- **ADR-9 re-gate** (3 consecutive clean rounds): **PASSED** 2026-11-22 ~20:18–20:23 JST — see `docs/QA-REPORT.md` §14.7. **Re-gate after the PR #4 review response: PASSED** 2026-11-22 23:58:52 JST – 2026-11-23 00:04:43 JST (Vitest 318/318, Playwright 80/80, Lighthouse Home + Paint 100/100/100/100 every round, audit ALL CHECKS PASSED in all three modes) — see `docs/QA-REPORT.md` §15.7.
+- **Push `phase-8-launch`, open the PR for ChatGPT review, post the completion summary on Issue #3** — done (PR #4, Issue #3 comment 7080590541). **Review response** (review 6012776210): P0 + P1 implemented, docs corrected, re-gate passed, WebKit smoke passed — ready to push and reply (see §5).
 - **Owner decisions** (see `docs/DEPLOYMENT.md` §14.10): production origin/domain, project license, contact route, governing law, operator identity, public deployment, merge of the Phase 8 PR, closure of Issues #1/#3.
+
+### 5. Review response — PR #4, review 6012776210 (CHANGES_REQUESTED, 2026-11-22)
+
+ChatGPT's review of PR #4 asked for two changes plus docs and WebKit:
+
+- **P0 (ADR-15):** explicit local/preview/production build modes, validated production origin, fail-closed noindex (only production is indexable), mode-aware gate audit with exact-origin checks; safe Pages creation and the native preview access policy in `docs/DEPLOYMENT.md` §14.
+- **P1 (ADR-16):** partial-cost flag/label/detail preserved through My Project (save/reload, item/room/project totals, quantity, text/CSV/print exports); no schema version bump; editing the unit price clears the flag.
+- **Tests:** Vitest 298 → 318, Playwright 78 → 80; the sitemap tests are origin-aware. One gate failure on the way (round 1, env leak in `site.test.ts` — see `docs/QA-REPORT.md` §15.6), fixed in commit `b3d396e` and re-run from zero.
+- **WebKit:** libraries installed (owner-approved), smoke test 29/29 on Desktop Safari against the final production-mode build.
+- **Re-gate:** 3 consecutive clean rounds PASSED (see `docs/QA-REPORT.md` §15.7); Lighthouse SEO rose from 83 to 100 on the production-mode build's absolute canonicals.
+- Commits: `54250c3` (P0 + P1 + docs) and `b3d396e` (gate round-1 fix), plus the §15 record. Nothing merged, deployed, or closed by this response.

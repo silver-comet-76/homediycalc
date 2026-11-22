@@ -84,8 +84,11 @@ test("calculator pages appear in the sitemap; all 25 calculators are shipped", a
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.ok()).toBeTruthy();
   const text = await sitemap.text();
+  // Origin-aware (ADR-15): a production/preview-with-origin build
+  // lists absolute <loc> URLs; a local build lists relative ones.
+  const origin = process.env.PUBLIC_SITE_URL ?? "";
   for (const { slug } of CALCULATORS) {
-    expect(text).toContain(`<loc>/calculators/${slug}/</loc>`);
+    expect(text).toContain(`<loc>${origin}/calculators/${slug}/</loc>`);
   }
   expect(CALCULATORS).toHaveLength(25);
 });

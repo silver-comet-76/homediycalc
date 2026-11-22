@@ -14,6 +14,13 @@
  * version 1 data (items without id/quantity/room) instead of dropping it —
  * a migration must never lose existing saved items.
  *
+ * Phase 8 review response (ADR-16): items gained three optional
+ * partial-cost fields (`costPartial`, `costLabel`, `costDetail`). No
+ * schema version bump: the fields are optional, `normalizeItem`
+ * carries them through a save/reload round-trip, and items saved
+ * before they existed normalize to "not partial" — a version bump is
+ * unnecessary when optional fields are safely normalized.
+ *
  * This module owns serialization and validation only. It never touches
  * `localStorage` directly in a way that throws: all parse/stringify paths
  * are guarded.
@@ -44,6 +51,27 @@ export interface ProjectItem {
   quantity: number;
   /** Cost in USD for one of this item, present only when prices were entered. */
   costUsd?: number;
+  /**
+   * True when costUsd covers only part of the job — e.g. the Brick
+   * Calculator's bricks-only figure when the mortar bag count is
+   * unknown (ADR-13/ADR-16). Optional and backward-compatible: items
+   * saved before this field existed have it undefined and are treated
+   * as full costs. A partial cost is never presented as a total: the
+   * project UI, text export, CSV export, and project total all label
+   * it partial (see formatProjectAsText / formatProjectAsCsv).
+   */
+  costPartial?: boolean;
+  /**
+   * Label for a partial cost, e.g. "Partial cost (bricks only)".
+   * Only meaningful when costPartial is true.
+   */
+  costLabel?: string;
+  /**
+   * Detail for a partial cost — what it excludes and why, e.g.
+   * "Excludes mortar — no bag count for this brick size or joint".
+   * Only meaningful when costPartial is true.
+   */
+  costDetail?: string;
   /** Project/room grouping, e.g. "Kitchen" (default "General"). */
   room: string;
   /** Epoch milliseconds when the item was saved. */
@@ -97,14 +125,31 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
     typeof raw.quantity === "number" && Number.isInteger(raw.quantity) && raw.quantity >= 1
       ? raw.quantity
       : 1;
+  const costUsd =
+    typeof raw.costUsd === "number" && Number.isFinite(raw.costUsd) ? raw.costUsd : undefined;
+  // Partial-cost fields (ADR-16) survive a save/reload round-trip.
+  // They are only meaningful with a finite cost: an unpriced item has
+  // no cost to be partial about, and items saved before the fields
+  // existed (costPartial undefined) are treated as full costs.
+  const costPartial = costUsd !== undefined && raw.costPartial === true;
+  const costLabel =
+    costPartial && typeof raw.costLabel === "string" && raw.costLabel !== ""
+      ? raw.costLabel
+      : undefined;
+  const costDetail =
+    costPartial && typeof raw.costDetail === "string" && raw.costDetail !== ""
+      ? raw.costDetail
+      : undefined;
   return {
     id: typeof raw.id === "string" && raw.id !== "" ? raw.id : newItemId(),
     calculatorSlug: raw.calculatorSlug,
     label: raw.label,
     lines: raw.lines as string[],
     quantity,
-    costUsd:
-      typeof raw.costUsd === "number" && Number.isFinite(raw.costUsd) ? raw.costUsd : undefined,
+    costUsd,
+    costPartial: costPartial ? true : undefined,
+    costLabel,
+    costDetail,
     room: typeof raw.room === "string" && raw.room !== "" ? raw.room : DEFAULT_ROOM,
     savedAt: raw.savedAt,
   };
@@ -150,12 +195,37 @@ export function projectHasCost(project: ProjectData): boolean {
   return project.items.some((item) => item.costUsd !== undefined);
 }
 
+/** True when an item's cost is partial (covers only part of the job). */
+export function isItemCostPartial(item: ProjectItem): boolean {
+  return item.costUsd !== undefined && item.costPartial === true;
+}
+
+/** True when at least one item has a partial cost. */
+export function projectHasPartialCost(project: ProjectData): boolean {
+  return project.items.some((item) => isItemCostPartial(item));
+}
+
+/** Display label for an item's cost line: its partial label, or "Estimated cost". */
+export function itemCostLabel(item: ProjectItem): string {
+  return isItemCostPartial(item) ? (item.costLabel ?? "Partial cost") : "Estimated cost";
+}
+
+/** Cost-note text for an item, or "" when its cost is complete. */
+export function itemCostNote(item: ProjectItem): string {
+  if (!isItemCostPartial(item)) return "";
+  const label = item.costLabel ?? "Partial cost";
+  return item.costDetail ? `${label}; ${item.costDetail}` : label;
+}
+
 /** Cost of one item line: unit cost × quantity (0 when unpriced). */
 export function itemLineCost(item: ProjectItem): number {
   return (item.costUsd ?? 0) * item.quantity;
 }
 
-/** Format a project as a plain-text shopping list for copy/export. */
+/** Format a project as a plain-text shopping list for copy/export.
+ * A partial item cost is shown with its partial label and detail, and
+ * a project containing any partial cost totals as a "Partial total
+ * (incomplete estimate)" — never as an "Estimated total". */
 export function formatProjectAsText(project: ProjectData): string {
   if (project.items.length === 0) return "";
   const rooms: string[] = [];
@@ -174,13 +244,22 @@ export function formatProjectAsText(project: ProjectData): string {
       for (const line of item.lines) sections.push(`  - ${line}`);
       if (item.quantity > 1) sections.push(`  Quantity: ${item.quantity}`);
       if (item.costUsd !== undefined) {
-        sections.push(`  Estimated cost: $${itemLineCost(item).toFixed(2)}`);
+        const costLine = `  ${itemCostLabel(item)}: $${itemLineCost(item).toFixed(2)}`;
+        sections.push(
+          isItemCostPartial(item) && item.costDetail
+            ? `${costLine} (${item.costDetail})`
+            : costLine,
+        );
       }
     }
     sections.push("");
   }
   if (projectHasCost(project)) {
-    sections.push(`Estimated total: $${totalProjectCost(project).toFixed(2)}`);
+    sections.push(
+      projectHasPartialCost(project)
+        ? `Partial total (incomplete estimate): $${totalProjectCost(project).toFixed(2)}`
+        : `Estimated total: $${totalProjectCost(project).toFixed(2)}`,
+    );
   }
   return sections.join("\n").trimEnd();
 }
@@ -196,7 +275,10 @@ export function escapeCsvCell(value: string): string {
 /**
  * Format a project as CSV for export. One row per item, plus a total
  * row when any item has a cost. Columns: Room, Calculator, Item,
- * Details, Quantity, Unit cost (USD), Line total (USD).
+ * Details, Quantity, Unit cost (USD), Line total (USD), Cost note.
+ * The Cost note column carries a partial item's label and detail, and
+ * a project containing any partial cost totals as a "Partial total
+ * (incomplete estimate)" row — never as a plain "Total".
  */
 export function formatProjectAsCsv(project: ProjectData): string {
   const header = [
@@ -207,6 +289,7 @@ export function formatProjectAsCsv(project: ProjectData): string {
     "Quantity",
     "Unit cost (USD)",
     "Line total (USD)",
+    "Cost note",
   ];
   const rows: string[][] = [header];
   for (const item of project.items) {
@@ -218,10 +301,20 @@ export function formatProjectAsCsv(project: ProjectData): string {
       String(item.quantity),
       item.costUsd !== undefined ? item.costUsd.toFixed(2) : "",
       item.costUsd !== undefined ? itemLineCost(item).toFixed(2) : "",
+      itemCostNote(item),
     ]);
   }
   if (projectHasCost(project)) {
-    rows.push(["", "", "Total", "", "", "", totalProjectCost(project).toFixed(2)]);
+    rows.push([
+      "",
+      "",
+      projectHasPartialCost(project) ? "Partial total (incomplete estimate)" : "Total",
+      "",
+      "",
+      "",
+      totalProjectCost(project).toFixed(2),
+      "",
+    ]);
   }
   return rows.map((row) => row.map(escapeCsvCell).join(",")).join("\n");
 }
@@ -275,6 +368,10 @@ export interface ProjectItemPatch {
  * Edit one saved item by id. Quantity is clamped to a whole number
  * of at least 1; a non-finite cost (NaN, from an emptied price field)
  * clears the price; a missing item leaves the project unchanged.
+ * Editing the unit price clears the partial-cost flag, label, and
+ * detail: the edited price is the user's own figure, no longer the
+ * calculator's partial output (ADR-16). Editing only the label,
+ * quantity, or room leaves the partial flag untouched.
  * Returns the updated project.
  */
 export function updateProjectItem(id: string, patch: ProjectItemPatch): ProjectData {
@@ -290,6 +387,11 @@ export function updateProjectItem(id: string, patch: ProjectItemPatch): ProjectD
     if (patch.costUsd !== undefined) {
       item.costUsd =
         Number.isFinite(patch.costUsd) && patch.costUsd >= 0 ? patch.costUsd : undefined;
+      // A user-edited price replaces the calculator's figure: the
+      // partial flag no longer describes this cost.
+      item.costPartial = undefined;
+      item.costLabel = undefined;
+      item.costDetail = undefined;
     }
     if (patch.room !== undefined && patch.room !== "") {
       item.room = patch.room;

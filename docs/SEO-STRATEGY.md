@@ -20,7 +20,7 @@ Rank in US search for calculator-intent queries (e.g. "concrete calculator", "ho
 |---|---|
 | Title tag | Unique per page; calculator pages follow "[Calculator Name] \| HomeDIYCalc" (final pattern to be confirmed in Phase 4); under ~60 characters where possible |
 | Meta description | Unique per page, plain US English, describes what the calculator does and what the user gets; under ~160 characters |
-| Canonical URL | Every page declares its own canonical. Absolute only when the build sets `PUBLIC_SITE_URL` (the owner-approved production origin, Phase 8 / ADR-14); relative/self-referential otherwise — never a hard-coded or invented host. |
+| Canonical URL | Every page declares its own canonical. Absolute with exactly the owner-approved production origin in a production build (ADR-15); relative otherwise — never a hard-coded or invented host. An invalid origin fails the build. |
 | Headings | One H1 per page (the calculator/page name); logical H2/H3 structure |
 | URL | `/calculators/<slug>/` for calculators; short, lowercase, hyphenated slugs |
 | Images/diagrams | Inline SVG (no SEO image work needed); any raster images get descriptive `alt` text |
@@ -29,9 +29,9 @@ Rank in US search for calculator-intent queries (e.g. "concrete calculator", "ho
 ## 4. Technical SEO
 
 - **Static HTML:** Astro SSG output; no client-side-only rendering of content.
-- **Sitemap:** `sitemap.xml` generated at build time from the registry (`src/pages/sitemap.xml.ts`), listing every shipped page. Locations are absolute only when `PUBLIC_SITE_URL` is set (Phase 8 / ADR-14); relative otherwise. No unshipped page appears in the sitemap.
+- **Sitemap:** `sitemap.xml` generated at build time from the registry (`src/pages/sitemap.xml.ts`), listing every shipped page. Locations are absolute with exactly the production origin in a production build (Phase 8 / ADR-15); relative otherwise. No unshipped page appears in the sitemap.
 - **robots.txt:** generated at build time (`src/pages/robots.txt.ts`, Phase 8 / ADR-14 — no longer a static file, so the `Sitemap:` directive can be absolute when `PUBLIC_SITE_URL` is set). Allows crawling of all public pages; points to the sitemap. Disallow nothing the site wants indexed.
-- **Preview noindex:** preview builds set `PUBLIC_PREVIEW=true` and carry `<meta name="robots" content="noindex, nofollow">` on every page (Phase 8 / ADR-14). This is a safety net, not access control — real restriction is Cloudflare Access on the preview hostname (`docs/DEPLOYMENT.md` §14.4). Production builds never carry the tag; the release-gate audit fails any build that does.
+- **Build modes and noindex (ADR-15):** three explicit modes — local (no env vars), preview (`PUBLIC_PREVIEW=true`), production (validated `PUBLIC_SITE_URL`, no preview flag). Only a production build is indexable: local and preview builds carry `<meta name="robots" content="noindex, nofollow">` on every page, so a build with missing or mistyped config can never leak into search results. This is a safety net, not access control — real restriction is the Cloudflare Pages preview access policy (`docs/DEPLOYMENT.md` §14.4). The release-gate audit enforces the exact origin and the per-mode noindex rule on all three mode builds.
 - **Performance:** static files on Cloudflare Pages; minimal JavaScript (islands only); target Lighthouse performance ≥ 90 on calculator pages (target, not a claim — to be measured in Phase 5).
 - **Mobile-first:** responsive design; mobile viewport is the primary test viewport.
 - **HTTPS:** provided by Cloudflare Pages by default.

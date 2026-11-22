@@ -3,7 +3,7 @@ import "../styles/global.css";
 import SEO from "./SEO.astro";
 import AdSlot from "./AdSlot.astro";
 import { CATEGORIES } from "../lib/registry";
-import { SITE_NAME, SITE_TAGLINE, IS_PREVIEW } from "../lib/site";
+import { SITE_NAME, SITE_TAGLINE, IS_PRODUCTION } from "../lib/site";
 
 export interface Props {
   title: string;
@@ -25,12 +25,15 @@ const currentPath = Astro.url.pathname;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {
-      /* Preview builds (PUBLIC_PREVIEW=true) are never indexed: a safety
-         net so a staging URL cannot leak into search results. This is
-         not access control — real restriction is Cloudflare Access on
-         the preview hostname (docs/DEPLOYMENT.md §14). Production builds
-         never carry this tag; the release-gate audit fails if one does. */
-      IS_PREVIEW && <meta name="robots" content="noindex, nofollow" />
+      /* Fail-closed noindex (Phase 8 review response, ADR-15): only a
+         production build — validated PUBLIC_SITE_URL, no preview flag —
+         is indexable. Local builds and preview builds (PUBLIC_PREVIEW=
+         true) carry this tag on every page, so a build with missing or
+         mistyped config can never leak into search results. This is
+         not access control — real restriction is the Cloudflare Pages
+         preview access policy (docs/DEPLOYMENT.md §14.4). The
+         release-gate audit enforces the rule per build mode. */
+      !IS_PRODUCTION && <meta name="robots" content="noindex, nofollow" />
     }
     <SEO
       title={title}

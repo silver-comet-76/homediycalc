@@ -5,12 +5,13 @@
  * page must appear in this list.
  *
  * Locations are absolute only when a production origin is set
- * (PUBLIC_SITE_URL, Phase 8); otherwise they stay relative paths, as
- * before — so local builds and the release gate are unchanged.
+ * (PUBLIC_SITE_URL, Phase 8 / ADR-15); otherwise they stay relative
+ * paths, as before — so local builds are relative and noindex
+ * (fail-closed), and only a production build carries absolute URLs.
  */
 import { CATEGORIES } from "../lib/registry";
 import { SHIPPED_CALCULATOR_SLUGS } from "../calculators/index";
-import { absoluteUrl } from "../lib/site";
+import { absoluteUrl, SITE_URL } from "../lib/site";
 import type { APIRoute } from "astro";
 
 const STATIC_PAGES = [
@@ -34,7 +35,7 @@ export const GET: APIRoute = () => {
   const body = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...urls.map((url) => `  <url><loc>${absoluteUrl(url)}</loc></url>`),
+    ...urls.map((url) => `  <url><loc>${absoluteUrl(url, SITE_URL)}</loc></url>`),
     "</urlset>",
   ].join("\n");
   return new Response(body, {

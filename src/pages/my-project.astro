@@ -94,7 +94,10 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "My Project" }];
       clearProject,
       formatProjectAsCsv,
       formatProjectAsText,
+      isItemCostPartial,
+      itemCostLabel,
       loadProject,
+      projectHasPartialCost,
       removeProjectItem,
       saveProject,
       totalProjectCost,
@@ -237,10 +240,23 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "My Project" }];
             roomHasCost = true;
             const lineCost = item.costUsd * item.quantity;
             roomTotal += lineCost;
+            // A partial cost (ADR-16) keeps its label and detail on the
+            // item, so a bricks-only figure is never shown as a plain
+            // line total. The line total still multiplies by quantity:
+            // the per-unit figure is partial, so the multiplied figure
+            // is partial too.
             const cost = document.createElement("p");
             cost.className = "mt-2 text-sm font-semibold text-slate-900";
-            cost.textContent = `Line total: ${money(lineCost)} (${money(item.costUsd)} × ${item.quantity})`;
+            cost.textContent = isItemCostPartial(item)
+              ? `Line total: ${money(lineCost)} (${money(item.costUsd)} × ${item.quantity}) — ${itemCostLabel(item)}`
+              : `Line total: ${money(lineCost)} (${money(item.costUsd)} × ${item.quantity})`;
             card.appendChild(cost);
+            if (isItemCostPartial(item) && item.costDetail) {
+              const detail = document.createElement("p");
+              detail.className = "mt-1 text-sm text-slate-600";
+              detail.textContent = item.costDetail;
+              card.appendChild(detail);
+            }
           }
 
           const remove = document.createElement("button");
@@ -255,15 +271,20 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "My Project" }];
           group.appendChild(card);
         }
         if (roomHasCost) {
+          const roomPartial = roomItems.some((entry) => isItemCostPartial(entry));
           const subtotal = document.createElement("p");
           subtotal.className = "mt-2 font-semibold text-slate-900";
-          subtotal.textContent = `Subtotal for ${room}: ${money(roomTotal)}`;
+          subtotal.textContent = roomPartial
+            ? `Subtotal for ${room}: ${money(roomTotal)} (partial total — some items exclude part of their cost, see item notes)`
+            : `Subtotal for ${room}: ${money(roomTotal)}`;
           group.appendChild(subtotal);
         }
         roomsEl.appendChild(group);
       }
       totalEl.textContent = projectHasCost(project)
-        ? `Estimated total: ${money(totalProjectCost(project))} (from the prices you entered only)`
+        ? projectHasPartialCost(project)
+          ? `Partial total (incomplete estimate): ${money(totalProjectCost(project))} (from the prices you entered only — some items are partial, see their notes)`
+          : `Estimated total: ${money(totalProjectCost(project))} (from the prices you entered only)`
         : "No prices entered yet — add a unit price to an item to see a total.";
     }
 

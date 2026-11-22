@@ -66,6 +66,14 @@ export interface CalcOutput {
   /** Total estimated cost in USD, only when prices were entered. */
   costUsd?: number;
   /**
+   * True when costUsd covers only part of the job — e.g. the Brick
+   * Calculator's bricks-only figure when the mortar bag count is
+   * unknown (ADR-13). A partial cost must never be presented as a
+   * total: the UI labels it with costLabel/costDetail, and My Project
+   * preserves the flag through save/reload and exports (ADR-16).
+   */
+  costPartial?: boolean;
+  /**
    * Label for the cost row and shopping-list cost line when costUsd
    * covers only part of the job — e.g. "Partial cost (bricks only)".
    * When absent, the cost is shown as the estimated total.
