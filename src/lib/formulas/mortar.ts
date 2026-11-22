@@ -16,10 +16,16 @@ import { ceilUp, CUBIC_INCHES_PER_CUBIC_FOOT, SQUARE_INCHES_PER_SQUARE_FOOT } fr
  *   per 1,000 bricks — the Brick Industry Association Technical Note
  *   10 Table 4 lists 8.1 ft³. BIA recommends adding 15–25% for mortar
  *   waste (default 15% here).
- * - Bag yield: one 80 lb bag of pre-mixed mortar yields about 0.6 ft³
- *   (QUIKRETE Mortar Mix No. 1102 is rated at up to 37 standard bricks
- *   or 13 standard 8 × 8 × 16 blocks per 80 lb bag). The yield field is
- *   editable.
+ * - Bag count: the manufacturer count rating governs (ADR-11, PR #2
+ *   review response). QUIKRETE Mortar Mix No. 1102 is rated at up to 37
+ *   standard bricks or 13 standard 8 × 8 × 16 blocks per 80 lb bag, and
+ *   its data sheet states NO cubic-foot yield per bag and NO waste
+ *   allowance — so this calculator claims no volumetric bag yield for
+ *   the product (the 0.6 ft³/bag figure used before this fix is not on
+ *   the data sheet; it is removed). The rating is a maximum ("up to"),
+ *   so the waste allowance derates it: bags = installed units ×
+ *   (1 + waste%) ÷ units per bag. The mortar volume (geometric joint
+ *   volume, BIA-corroborated) still feeds the site-mix parts.
  * - Mix ratios are the ASTM C270 proportion specification, by volume:
  *   Type N 1:1:6, Type S 1:½:4½, Type M 1:¼:3¾, Type O 1:2:9
  *   (cement : lime : sand). C270 specifies sand at 2¼–3× the
@@ -84,6 +90,20 @@ export const MORTAR_MIX_YIELDS_FT3_PER_FT3: Record<
 /** Cubic feet in one 94 lb sack of portland cement (about 1 ft³). */
 export const CEMENT_SACK_FT3 = 1;
 
+/**
+ * Masonry units laid by one 80 lb bag of pre-mixed mortar, at the
+ * manufacturer maximum. QUIKRETE Mortar Mix No. 1102 data sheet,
+ * YIELD section: "Each 80 lb (36.2 kg) bag of QUIKRETE® Mortar Mix
+ * will lay up to 37 standard bricks or 13 standard (8 in by 8 in by
+ * 16 in) blocks." A maximum, not an average — waste, joint width and
+ * technique all reduce it, which is why the bag count derates it by
+ * the waste allowance instead of dividing the bare unit count.
+ */
+export const UNITS_PER_MORTAR_BAG: Record<MasonryUnit, number> = {
+  brick: 37,
+  block: 13,
+};
+
 export interface MortarInput {
   areaFt2: number;
   unit: MasonryUnit;
@@ -91,8 +111,6 @@ export interface MortarInput {
   jointIn: number;
   /** Waste allowance for mortar in percent (BIA suggests 15–25%). */
   wastePct: number;
-  /** Mortar yielded by one 80 lb bag, in cubic feet (0.6). */
-  bagYieldFt3: number;
   mortarType: MortarType;
   /** Optional price per 80 lb bag, in USD. */
   pricePerBag?: number;
@@ -107,6 +125,8 @@ export interface MortarResult {
   mortarVolumeFt3: number;
   /** 80 lb bags of pre-mixed mortar to buy (rounded up). */
   bags: number;
+  /** Units one 80 lb bag lays at the manufacturer maximum (37 brick, 13 block). */
+  unitsPerBag: number;
   /** Cement for site mixing, in cubic feet (ASTM C270 batch yield per ft³ of mortar). */
   cementFt3: number;
   /** 94 lb sacks of portland cement to buy (rounded up). */
@@ -128,7 +148,15 @@ export function calculateMortar(input: MortarInput): MortarResult {
   const mortarPerUnitIn3 = jointAreaIn2 * dims.depthIn;
   const mortarVolumeFt3 =
     ((unitsNeeded * mortarPerUnitIn3) / CUBIC_INCHES_PER_CUBIC_FOOT) * (1 + input.wastePct / 100);
-  const bags = ceilUp(mortarVolumeFt3 / input.bagYieldFt3);
+  // Bags come from the manufacturer count rating, derated by the waste
+  // allowance: the rating is a maximum with no waste allowance stated,
+  // so installed units × (1 + waste%) ÷ units per bag. This is the same
+  // rule the Brick Calculator uses, so the two agree for the same wall
+  // and waste (the Brick Calculator additionally floors at the bags for
+  // the spare bricks you buy, so it can read one bag higher when the
+  // brick waste allowance is large — see its tests).
+  const unitsPerBag = UNITS_PER_MORTAR_BAG[input.unit];
+  const bags = ceilUp((unitsNeeded * (1 + input.wastePct / 100)) / unitsPerBag);
   const yields = MORTAR_MIX_YIELDS_FT3_PER_FT3[input.mortarType];
   const cementFt3 = mortarVolumeFt3 * yields.cement;
   const limeFt3 = mortarVolumeFt3 * yields.lime;
@@ -140,6 +168,7 @@ export function calculateMortar(input: MortarInput): MortarResult {
     unitsNeeded,
     mortarVolumeFt3,
     bags,
+    unitsPerBag,
     cementFt3,
     cementSacks,
     limeFt3,

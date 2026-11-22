@@ -21,10 +21,10 @@ export const brickConfig: CalculatorConfig = {
     "Association's Technical Note 10 lists 675 bricks per 100 ft² (6.75/ft²) for the same brick, because three " +
     "courses rise exactly 8 in — the two figures differ by 1.6%. Mortar volume is the geometric joint volume " +
     "(8.06 ft³ per 1,000 modular bricks; BIA TN10 lists 8.1 ft³), computed from the pre-waste brick count with " +
-    "only the mortar waste allowance applied. Mortar bags = mortar volume ÷ 0.6 ft³ per 80 lb bag, rounded up — " +
-    "the same volume method the Mortar Calculator uses, so both calculators return the same bag count for the " +
-    "same wall. The QUIKRETE figure of up to 37 standard bricks per bag is shown only as a cross-check: that " +
-    "rating already bakes in heavy field waste, so it runs higher than the volume figure.",
+    "only the mortar waste allowance applied. Mortar bags come from the QUIKRETE maximum of up to 37 standard " +
+    "bricks per 80 lb bag (Mortar Mix No. 1102 data sheet): the larger of the bricks you buy ÷ 37 and the " +
+    "installed bricks × (1 + mortar waste%) ÷ 37 governs, so the recommendation never undercuts the manufacturer " +
+    "maximum. The data sheet states no cubic-foot yield per bag, so no volumetric bag figure is claimed.",
   howTo: [
     "Measure the wall length and height in feet, and subtract the area of any doors, windows, or other openings.",
     "Use the modular brick defaults unless you know your brick size — measure one brick (length, height, depth) and the joint you plan to use. The standard US mortar joint is ⅜ in.",
@@ -33,12 +33,12 @@ export const brickConfig: CalculatorConfig = {
   ],
   workedExample:
     "A 10 ft × 8 ft wall is 80 ft². Modular brick with a ⅜ in joint takes 6.86 bricks/ft², so 80 × 6.86 = 549 bricks; " +
-    "with 5% waste, buy 576 bricks and 9 bags of 80 lb mortar mix (5.09 ft³ of mortar at 0.6 ft³ per bag).",
+    "with 5% waste, buy 576 bricks and 18 bags of 80 lb mortar mix (5.09 ft³ of mortar; 549 installed × 1.15 ÷ 37 = 18 bags at the QUIKRETE maximum of 37 bricks per bag).",
   limitations: [
     "Single-wythe wall assumption: one brick thick. Double the count for a double-wythe wall.",
     "Does not check structural requirements — load-bearing brickwork, lintels, and footings need a qualified professional and local code approval.",
     "The face-area brick count (6.86/ft²) and the BIA coursing figure (6.75/ft²) differ by 1.6%; either is a reasonable estimate, and the waste allowance covers the gap.",
-    "Mortar bags come from the mortar volume (0.6 ft³ per 80 lb bag). The QUIKRETE 'up to 37 bricks per bag' rating is shown only as a cross-check — it already bakes in heavy field waste, so it runs higher than the volume figure.",
+    "Mortar bags come from the QUIKRETE maximum of up to 37 standard bricks per 80 lb bag (Mortar Mix No. 1102 data sheet), derated by the mortar waste allowance — the larger of the bricks you buy ÷ 37 and the installed bricks × (1 + mortar waste%) ÷ 37 governs. The data sheet states no cubic-foot yield per bag, so the calculator claims none.",
   ],
   faqs: [
     {
@@ -54,7 +54,7 @@ export const brickConfig: CalculatorConfig = {
     {
       question: "How much mortar do I need for 1,000 bricks?",
       answer:
-        "About 8.1 ft³ of mortar (BIA Technical Note 10, Table 4) — about 14 bags of 80 lb premixed mortar at 0.6 ft³ per bag (16 with the usual 15% waste). QUIKRETE's rate of up to 37 bricks per bag would suggest 28 bags, or 32 with 15% waste — that rating already bakes in heavy field waste, so the volume figure governs and the calculator shows both.",
+        "About 8.1 ft³ of mortar (BIA Technical Note 10, Table 4) — about 32 bags of 80 lb premixed mortar at the QUIKRETE maximum of up to 37 bricks per bag with the usual 15% mortar waste (1,000 × 1.15 ÷ 37). That rating is a maximum, not an average, so the calculator plans from it and never recommends fewer bags.",
     },
     {
       question: "How much waste should I allow for bricks?",
@@ -175,7 +175,7 @@ export const brickConfig: CalculatorConfig = {
           defaultMet: "37",
           min: 1,
           max: 200,
-          hint: "QUIKRETE Mason Mix / Mortar Mix: one 80 lb bag lays up to 37 standard bricks. Check your bag.",
+          hint: "QUIKRETE Mortar Mix 1102: one 80 lb bag lays up to 37 standard bricks. That is a maximum — the calculator plans from it, derated by your mortar waste allowance. Check your bag.",
         },
         {
           id: "palletSize",
@@ -243,7 +243,7 @@ export const brickConfig: CalculatorConfig = {
             {
               label: "Mortar bags (80 lb)",
               value: `${r.mortarBags} bags`,
-              detail: `0.60 ft³ per bag — volume method; QUIKRETE ${fmt(req(v, "bricksPerBag"), 0)}-brick rating cross-check: ${r.mortarBagsByRating} bags`,
+              detail: `QUIKRETE ${fmt(req(v, "bricksPerBag"), 0)}-brick maximum, derated by ${fmt(req(v, "mortarWaste"), 0)}% waste — covers ${r.bricksNeeded} bricks (${r.mortarBagsByRating} bags) and the waste-adjusted volume`,
             },
             ...(r.pallets !== undefined
               ? [

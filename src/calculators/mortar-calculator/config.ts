@@ -36,7 +36,6 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
     unit,
     jointIn: req(v, "joint"),
     wastePct: req(v, "waste"),
-    bagYieldFt3: req(v, "bagYield"),
     mortarType,
     pricePerBag: present.has("pricePerBag") ? req(v, "pricePerBag") : undefined,
   });
@@ -55,7 +54,7 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       {
         label: "Pre-mixed mortar",
         value: `${r.bags} bags`,
-        detail: `80 lb bags at ${fmt(req(v, "bagYield"), 2)} ft³ per bag — rounded up`,
+        detail: `80 lb bags at up to ${r.unitsPerBag} ${UNIT_LABELS[unit]} per bag (QUIKRETE 1102 maximum), derated by ${fmt(req(v, "waste"), 0)}% waste — rounded up`,
       },
       {
         label: `Site mix — ${TYPE_LABELS[mortarType]}`,
@@ -70,7 +69,7 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
     ],
     costUsd: r.costUsd,
     note: "Site-mix parts are the ASTM C270 batch yields per cubic foot of mortar — an ordering guide, not an exact dry-volume recipe: dry volumes do not add up to the mixed volume. Mix by volume, not by weight: one 94 lb sack of cement is about 1 ft³.",
-    workedLine: `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³ ÷ ${fmt(req(v, "bagYield"), 2)} ft³ per bag = ${r.bags} bags.`,
+    workedLine: `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³; ${r.unitsNeeded} × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${r.unitsPerBag} per bag = ${r.bags} bags.`,
   };
 }
 
@@ -108,15 +107,6 @@ const COMMON_FIELDS: FieldSpec[] = [
     hint: "BIA suggests 15–25% for mortar waste. Use 25% for repointing or irregular units.",
   },
   {
-    id: "bagYield",
-    label: "Mortar per 80 lb bag (ft³)",
-    kind: "number" as const,
-    defaultImp: "0.6",
-    defaultMet: "0.6",
-    min: 0.1,
-    hint: "About 0.6 ft³ per 80 lb bag (QUIKRETE rates one bag at up to 37 standard bricks or 13 standard blocks). Check your bag.",
-  },
-  {
     id: "mortarType",
     label: "Mortar type (for site mixing)",
     kind: "select" as const,
@@ -150,7 +140,10 @@ export const mortarConfig: CalculatorConfig = {
     "summed over the units in the wall, then × (1 + waste%). " +
     "For a modular brick with a ⅜ in joint this gives 8.06 ft³ per 1,000 " +
     "bricks — the Brick Industry Association lists 8.1 ft³. " +
-    "Bags = volume ÷ yield per bag (about 0.6 ft³ per 80 lb bag), rounded up. " +
+    "Bags come from the QUIKRETE maximum of up to 37 standard bricks or 13 standard " +
+    "8 × 8 × 16 blocks per 80 lb bag (Mortar Mix No. 1102 data sheet), derated by " +
+    "the waste allowance: installed units × (1 + waste%) ÷ units per bag, rounded up. " +
+    "The data sheet states no cubic-foot yield per bag, so no volumetric bag figure is claimed. " +
     "Site-mix parts use the ASTM C270 batch yields per cubic foot of mortar: " +
     "Type N 0.17 ft³ cement, 0.17 ft³ lime, 1.0 ft³ sand; Type S 0.22 / 0.11 / 1.0; " +
     "Type M 0.33 / 0.08 / 1.0; Type O 0.11 / 0.22 / 1.0. " +
@@ -163,12 +156,13 @@ export const mortarConfig: CalculatorConfig = {
   ],
   workedExample:
     "A 10 × 8 ft modular brick wall (80 ft²) with ⅜ in joints and 15% waste: " +
-    "549 bricks need 5.09 ft³ of mortar — 9 bags of 80 lb pre-mixed mortar. " +
+    "549 bricks need 5.09 ft³ of mortar — 18 bags of 80 lb pre-mixed mortar " +
+    "(549 × 1.15 ÷ 37 at the QUIKRETE maximum of 37 bricks per bag). " +
     "Mixed on site as Type N (1:1:6), that is 0.87 ft³ of cement (1 sack), " +
     "0.87 ft³ of lime, and 5.09 ft³ of sand.",
   limitations: [
     "Mortar volume is the geometric joint volume. In practice, mortar also fills the cores of hollow block and the gaps behind irregular stone — block and stone walls can need more than this estimate.",
-    "Bag yields vary between manufacturers by 20% or more — the yield printed on your bag wins over the 0.6 ft³ default.",
+    "Bag counts come from the QUIKRETE maximum (up to 37 bricks or 13 blocks per 80 lb bag), derated by your waste allowance. A bag that states a different count on its label wins over the default — and the data sheet states no cubic-foot yield per bag, so this calculator claims none: divide the mortar volume above by your bag's stated yield if you want that check.",
     "Site-mix parts are the ASTM C270 batch yields per cubic foot of mortar. They are an ordering guide; dry volumes do not add up exactly to the mixed volume, and sand must be measured damp and loose.",
     "This calculator estimates materials only. Mortar type and strength are structural decisions — for load-bearing walls, foundations, or historic brick, follow the specification from a qualified professional.",
   ],
@@ -176,7 +170,7 @@ export const mortarConfig: CalculatorConfig = {
     {
       question: "How much mortar do I need for a brick wall?",
       answer:
-        "About 5.5 cubic feet per 100 square feet of modular brick wall with ⅜ inch joints, before waste — or about 8.1 cubic feet per 1,000 bricks (Brick Industry Association Technical Note 10). With 15% waste, an 80 sq ft wall needs about 5.1 ft³, or 9 bags of 80 lb pre-mixed mortar.",
+        "About 5.5 cubic feet per 100 square feet of modular brick wall with ⅜ inch joints, before waste — or about 8.1 cubic feet per 1,000 bricks (Brick Industry Association Technical Note 10). With 15% waste, an 80 sq ft wall needs about 5.1 ft³, or 18 bags of 80 lb pre-mixed mortar at the QUIKRETE maximum of up to 37 bricks per bag.",
     },
     {
       question: "What is the mix ratio for Type N mortar?",
@@ -186,7 +180,7 @@ export const mortarConfig: CalculatorConfig = {
     {
       question: "How many bricks does one bag of mortar lay?",
       answer:
-        "QUIKRETE rates an 80 lb bag of Mortar Mix at up to 37 standard bricks or 13 standard 8 × 8 × 16 blocks. That is a maximum — waste, joint width, and technique all reduce it, which is why this calculator works from the joint volume and a waste allowance instead.",
+        "QUIKRETE rates an 80 lb bag of Mortar Mix at up to 37 standard bricks or 13 standard 8 × 8 × 16 blocks. That is a maximum — waste, joint width, and technique all reduce it, which is why this calculator derates that maximum by your waste allowance instead of dividing the bare unit count.",
     },
     {
       question: "How is this different from the Brick Calculator?",
