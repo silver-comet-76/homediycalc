@@ -233,11 +233,6 @@ const guide = CATEGORY_GUIDES[category.slug as CategorySlug];
             <p class="font-semibold text-slate-900">{calc.name}</p>
           )}
           <p class="mt-1 text-sm text-slate-600">{calc.summary}</p>
-          <p class="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {shipped.has(calc.slug)
-              ? `${calc.priority} · Available now`
-              : `${calc.priority} · Arrives in Phase ${calc.phase}`}
-          </p>
         </li>
       ))
     }

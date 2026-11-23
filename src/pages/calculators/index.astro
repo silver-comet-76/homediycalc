@@ -6,7 +6,6 @@ import { SHIPPED_CALCULATOR_SLUGS } from "../../calculators/index";
 
 const shipped = new Set(SHIPPED_CALCULATOR_SLUGS);
 
-const query = Astro.url.searchParams.get("q")?.trim() ?? "";
 const crumbs = [{ name: "Home", path: "/" }, { name: "All Calculators" }];
 ---
 
@@ -30,13 +29,12 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "All Calculators" }];
       id="calculator-filter"
       name="q"
       type="search"
-      value={query}
       placeholder="Filter calculators…"
       class="input-field"
     />
     <button type="submit" class="btn-secondary">Filter</button>
   </form>
-  <p id="no-results" class="mt-4 hidden text-slate-600">
+  <p id="no-results" class="mt-4 text-slate-600" hidden>
     No calculators match that search. Try a different word, or browse the categories below.
   </p>
 
@@ -64,11 +62,6 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "All Calculators" }];
                   <p class="font-semibold text-slate-900">{calc.name}</p>
                 )}
                 <p class="mt-1 text-sm text-slate-600">{calc.summary}</p>
-                <p class="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  {shipped.has(calc.slug)
-                    ? `${calc.priority} · Available now`
-                    : `${calc.priority} · Arrives in Phase ${calc.phase}`}
-                </p>
               </li>
             ))}
           </ul>
@@ -100,6 +93,16 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "All Calculators" }];
         );
       }
       if (noResults) noResults.hidden = visible !== 0;
+    }
+
+    // Read the search query from the URL (client-side): the header search
+    // navigates here as /calculators/?q=..., and this static page is
+    // pre-rendered, so Astro.url.searchParams (build-time) cannot see it.
+    // URLSearchParams decodes percent-encoding (e.g. %20, +) for us, and
+    // applyFilter() lowercases the query, so mixed case works too.
+    const initialQuery = new URLSearchParams(window.location.search).get("q")?.trim() ?? "";
+    if (input && initialQuery !== "") {
+      input.value = initialQuery;
     }
 
     input?.addEventListener("input", applyFilter);
