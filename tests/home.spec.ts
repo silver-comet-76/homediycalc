@@ -55,6 +55,56 @@ test("home page loads, nav works, no console errors", async ({ page }) => {
   expect(consoleErrors).toEqual([]);
 });
 
+test("homepage CTAs navigate to the right pages", async ({ page }) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Less Guesswork. Better DIY Projects." }),
+  ).toBeVisible();
+
+  // Hero primary CTA.
+  await page.getByRole("link", { name: "Explore Calculators", exact: true }).click();
+  await expect(page).toHaveURL(/\/calculators\/?$/);
+  await expect(page.getByRole("heading", { name: "All Calculators", exact: true })).toBeVisible();
+
+  // Hero secondary CTA.
+  await page.goto("/");
+  await page.getByRole("link", { name: "Try Paint Calculator", exact: true }).click();
+  await expect(page).toHaveURL(/\/calculators\/paint-calculator\/?$/);
+  await expect(page.getByRole("heading", { name: "Paint Calculator" })).toBeVisible();
+
+  // Project-type tile (Painting) — scoped to the categories section so
+  // the header nav link to the same URL is not the one clicked.
+  await page.goto("/");
+  await page
+    .locator("section[aria-labelledby='categories-heading'] a[href='/categories/painting/']")
+    .click();
+  await expect(page).toHaveURL(/\/categories\/painting\/?$/);
+  await expect(page.getByRole("heading", { name: "Painting Calculators" })).toBeVisible();
+
+  // Featured calculator card (Paint) — scoped to the featured section.
+  await page.goto("/");
+  await page
+    .locator("section[aria-labelledby='featured-heading'] a[href='/calculators/paint-calculator/']")
+    .click();
+  await expect(page).toHaveURL(/\/calculators\/paint-calculator\/?$/);
+  await expect(page.getByRole("heading", { name: "Paint Calculator" })).toBeVisible();
+
+  // Demo CTA.
+  await page.goto("/");
+  await page
+    .locator("section[aria-labelledby='demo-heading'] a[href='/calculators/paint-calculator/']")
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/calculators\/paint-calculator\/?$/);
+  await expect(page.getByRole("heading", { name: "Paint Calculator" })).toBeVisible();
+
+  // Closing CTA.
+  await page.goto("/");
+  await page.getByRole("link", { name: "Explore Free Calculators", exact: true }).click();
+  await expect(page).toHaveURL(/\/calculators\/?$/);
+  await expect(page.getByRole("heading", { name: "All Calculators", exact: true })).toBeVisible();
+});
+
 test("sitemap and robots are served", async ({ request }) => {
   // The build under test decides the expected URLs (ADR-17): a
   // production or preview build with an origin uses absolute URLs
