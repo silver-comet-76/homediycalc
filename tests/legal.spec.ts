@@ -17,6 +17,19 @@ const CONTACT_EMAIL = "homediycalc@gmail.com";
  * to material the operator actually owns while preserving third-party
  * rights, and must not publish internal approval notes as live Terms.
  * The tests below guard the corrected wording.
+ *
+ * Privacy §6 production-status correction (PR #7, staging review
+ * 7091853733): the §6 deployment-status sentence must describe the
+ * public production site as live at the production origin, not as
+ * pending launch approval — the pending wording becomes stale the
+ * moment production goes live. The privacy test guards the live
+ * wording and forbids the stale wording.
+ *
+ * Terms §6 whitespace fix (PR #7, same staging review): the
+ * cross-reference was split across source lines ("See the" then the
+ * link) and Astro stripped the space, rendering "See thePrivacy
+ * Policy." — the fix keeps "See the" and the link on one source line,
+ * and the terms test guards the rendered "See the Privacy Policy."
  */
 test("contact page publishes the official email as a mailto link, no form", async ({ page }) => {
   const consoleErrors: string[] = [];
@@ -85,6 +98,11 @@ test("privacy policy distinguishes browser-local processing from hosting and ema
   // Hosting is live on Cloudflare Pages; the stale pre-deployment line is gone.
   await expect(page.getByText("Cloudflare Pages")).toBeVisible();
   await expect(page.getByText("not live yet")).toHaveCount(0);
+  // Privacy §6 production-status correction (PR #7): the public
+  // production site is described as live at the production origin, and
+  // the stale "pending launch approval" wording must not appear.
+  await expect(page.getByText("the public production site is live at")).toBeVisible();
+  await expect(page.getByText("pending the owner's launch approval")).toHaveCount(0);
   // No tracking or advertising.
   await expect(page.getByText("The site itself sets no cookies")).toBeVisible();
   await expect(page.getByText("No advertising scripts are loaded on this site.")).toBeVisible();
@@ -125,6 +143,12 @@ test("terms of use name the operator, the approved governing law, and the narrow
   // Review 6016380187: no categorical "no personal data" claim in §6.
   await expect(page.getByText("The site collects no personal data")).toHaveCount(0);
   await expect(page.getByText("does not ask for your personal information")).toBeVisible();
+  // Terms §6 whitespace fix (PR #7, staging review 7091853733): the
+  // cross-reference must render as "See the Privacy Policy." — the
+  // source previously split "See the" and the link across lines and
+  // Astro stripped the space, rendering "See thePrivacy Policy.".
+  await expect(page.getByText("See the Privacy Policy.")).toBeVisible();
+  await expect(page.getByText("See thePrivacy Policy")).toHaveCount(0);
   // No internal approval notes published as live Terms (the governing-law
   // and copyright choices are now owner-approved — Issue #5 comment
   // 7091231814 — so the pages state them plainly; the approval record
