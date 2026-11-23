@@ -3,6 +3,8 @@
 
 Reads the production build in dist/ and verifies, with no network access:
   - 40 built pages: 39 indexable pages + the custom 404 page
+    (the Google Search Console verification file is a static asset in
+    dist/, not a page, and is excluded from the page count)
   - sitemap.xml lists exactly the 39 indexable pages (404 excluded)
   - every page: unique <title> (<= 65 chars), unique meta description
     (<= 165 chars), self-referential canonical, exactly one <h1>,
@@ -230,7 +232,7 @@ def main() -> int:
     print(f"audit mode: {mode}" + (f", expected origin: {expected_origin}" if expected_origin else ""))
 
     html_files = sorted(dist.rglob("*.html"))
-    pages = [p for p in html_files if p.name != "404.html"]
+    pages = [p for p in html_files if p.name not in ("404.html", GSC_VERIFICATION_FILE)]
     check("built pages: 39 indexable + custom 404", len(pages) == 39 and (dist / "404.html").is_file(),
           f"{len(pages)} indexable, 404={'yes' if (dist / '404.html').is_file() else 'no'}")
 
