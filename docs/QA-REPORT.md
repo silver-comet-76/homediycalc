@@ -622,7 +622,7 @@ Scope (branch `phase-9-legal-contact`, from merged main `a4925bfe`): implement t
 
 - Test email sent 2026-11-23 12:30:32 JST from itgaminglim@gmail.com (the operator's connected Gmail) to homediycalc@gmail.com, subject "HomeDIYCalc contact email delivery test — 2026-11-23", code HDY-20261123-1229. Send confirmed (message in Sent).
 - Bounce check: no delivery-failure / bounce / undeliverable message in the sender's inbox as of ~12:50 JST (~20 minutes after send). Gmail rejects a non-existent @gmail.com address with a bounce within minutes, so no bounce is evidence the address exists and Gmail accepted the message.
-- Inbox receipt is NOT confirmed: homediycalc@gmail.com is not a connected mailbox, so receipt in that inbox can only be confirmed by the owner checking it. The handover asks the owner to confirm receipt (code HDY-20261123-1229) before public launch. No claim of inbox delivery is made here.
+- Inbox receipt CONFIRMED: the owner verified the test email (code HDY-20261123-1229) was received at homediycalc@gmail.com, recorded on Issue #5 comment 7091231814 (2026-11-23T04:03:03Z). This closes the previously pending inbound-delivery check; homediycalc@gmail.com is the official contact route. No claim beyond the owner's confirmation is made here.
 
 ### 17.3 No tracking, no ads, no external uploads (verified on the new build)
 
@@ -654,7 +654,35 @@ Playwright 80 → 92 (+12: the new `tests/legal.spec.ts`, 6 tests × chromium + 
 
 ### 17.6 Standing limitations carried forward
 
-- Governing law (Laws of Malaysia) and the All Rights Reserved wording are proposed/preferred, pending final owner confirmation before public launch — see `docs/DEPLOYMENT.md` §14.10.
-- Contact-email inbox receipt unconfirmed (owner to confirm in the homediycalc@gmail.com inbox).
+- Governing law (Laws of Malaysia) and the All Rights Reserved wording are now owner-approved (Issue #5 comment 7091231814) — see `docs/DEPLOYMENT.md` §14.10. The approvals do not authorize the PR merge, a staging redeploy, or public launch.
+- Contact-email inbox receipt CONFIRMED by the owner (test code HDY-20261123-1229 received at homediycalc@gmail.com).
 - Production NOT deployed; public launch still needs separate owner approval.
 - Real iOS/macOS Safari device check still pending (owner-side); WebKit smoke evidence is on the production-mode build, not a real device.
+
+### 17.7 Review response — PR #6 review 6016380187 + owner final confirmations (2026-11-23)
+
+ChatGPT independent review of PR #6 (id 6016380187, CHANGES_REQUESTED, 2026-11-23T03:55:31Z) accepted the contact mailto, the operator-as-individual phrasing in general, the staging/production distinction, and the 3-round QA evidence, and requested targeted wording corrections. All four findings were addressed on the same branch:
+
+1. **Categorical personal-data claims corrected.** Privacy Policy meta description, intro, §1, and §8, and Terms §6, no longer say "collects no personal data" / "no data collected" / "the only personal information we ever receive". The pages now distinguish three things separately: calculator inputs are processed in the browser and are not sent anywhere; the site does not ask for personal information; the operator receives only what a person chooses to send by email; and the hosting provider (Cloudflare) processes standard request data (IP addresses in server logs, security cookies) to serve and protect the site. The absolute claim "we do not receive or use that information" about Cloudflare logs was removed; §6 now says how Cloudflare handles that information is governed by Cloudflare's own privacy policy. The About meta description was corrected the same way. No absolute claim of Cloudflare log access or non-access is made.
+2. **Unsupported business-registration claim removed.** About no longer says "not run by a registered business". The owner confirmed the operator is an individual, not a company; whether the operator is registered as a sole proprietorship is a different, unconfirmed question, so the page asserts no registration status. "It is not a company" (owner-confirmed) stays.
+3. **Copyright wording narrowed.** Terms §8 no longer asserts all text/design/calculator pages are "the operator's copyrighted work". It now says the original text, design, and calculator pages are the operator's own work; third-party materials and open-source dependencies remain the property of their owners and are used under their respective licenses; the reservation of rights does not change those licenses. The source-code sentence (public GitHub repository, not open-source licensed, no permission to reuse granted here) is unchanged.
+4. **Internal approval notes removed from the live Terms.** The parentheticals "(The governing-law wording is the operator's proposed choice and is subject to final confirmation.)" and "(The All Rights Reserved wording is the operator's preferred option and is subject to final confirmation as the licensing decision.)" were removed from Terms §§7–8. The pages now state the wording plainly. The proposed/pending status was never a page concern after the owner's final confirmations (Issue #5 comment 7091231814, 2026-11-23T04:03:03Z): governing law Laws of Malaysia APPROVED (approval covers the choice, not a blanket legal-compliance certification); copyright All Rights Reserved for materials the operator owns, subject to third-party rights and licenses, APPROVED; contact-email receipt CONFIRMED. The approval record lives in the PR, the decision log (`docs/DEPLOYMENT.md` §14.10), and Issue #5 — not on the pages.
+
+Tests: `tests/legal.spec.ts` guards the corrected assertions — "registered business" absent on About; "collects no personal data", "The only personal information we ever receive", "no personal data from anyone", and "we do not receive or use that information" absent on Privacy; "The site collects no personal data", "subject to final confirmation", "proposed", and "operator's copyrighted work" absent on Terms; the new distinguishing and third-party wording present; both meta descriptions free of the categorical claims.
+
+[Gate results for this review response — PASSED 2026-11-23 13:08–13:17 JST]
+
+Three consecutive clean rounds on the final source (commit `3ad6fb7`). One failed round-1 attempt on the way: the new privacy-policy Playwright test used a `getByText` substring that matched three paragraphs, so Playwright refused it with a strict-mode violation — a test bug, not a site defect. Fixed by scoping the assertion with `.first()`, verified the legal spec 12/12 on a production-mode build, amended the commit, and restarted the count from zero per ADR-9.
+
+| Check | Round 1 (04:08:38Z) | Round 2 (04:11:28Z) | Round 3 (04:14:15Z) |
+|---|---|---|---|
+| Vitest | 328/328 | 328/328 | 328/328 |
+| Typecheck | 0/0/0 | 0/0/0 | 0/0/0 |
+| Lint (Prettier check) | pass | pass | pass |
+| Scripted audit checks (`scripts/gate-audit.py`) | ALL CHECKS PASSED × 6 | ALL CHECKS PASSED × 6 | ALL CHECKS PASSED × 6 |
+| Negative builds (ADR-17) | 5/5 + 1 positive | 5/5 + 1 | 5/5 + 1 |
+| Playwright e2e | 92/92 (1.1 m) | 92/92 (1.1 m) | 92/92 (1.1 m) |
+| Lighthouse Home (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+| Lighthouse Paint (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+
+Lighthouse Home LCP 0.2 s, CLS 0, TTI 0.2 s every round; Paint LCP 0.4 s, CLS 0.005, TTI 0.4 s every round. No failures, no issues found in any of the three counted rounds. Running tally: **3 consecutive clean rounds.** Per-round logs in `docs/gate-logs/2026-11-23-phase-9-review-response/` (`round-1.log` also contains the one failed attempt). Node v24.22.1, npm 10.9.4, Python 3.12.3.

@@ -5,8 +5,18 @@ const CONTACT_EMAIL = "homediycalc@gmail.com";
 /**
  * Phase 9 owner decisions (2026-11-23): contact email, operator identity
  * (individual based in Malaysia), governing law (Laws of Malaysia,
- * proposed), All Rights Reserved wording (preferred), and the corrected
- * deployment-status statements on the legal pages.
+ * APPROVED — Issue #5 comment 7091231814), All Rights Reserved wording
+ * for materials the operator owns, subject to third-party rights and
+ * licenses (APPROVED — same comment), and the corrected deployment-status
+ * statements on the legal pages.
+ *
+ * Review response (PR #6 review 6016380187, CHANGES_REQUESTED): the legal
+ * pages must not make categorical "no personal data" claims (hosting
+ * processing and voluntary email contact are real), must not assert an
+ * unverified business-registration status, must limit copyright claims
+ * to material the operator actually owns while preserving third-party
+ * rights, and must not publish internal approval notes as live Terms.
+ * The tests below guard the corrected wording.
  */
 test("contact page publishes the official email as a mailto link, no form", async ({ page }) => {
   const consoleErrors: string[] = [];
@@ -37,18 +47,27 @@ test("contact page publishes the official email as a mailto link, no form", asyn
   expect(consoleErrors).toEqual([]);
 });
 
-test("about page names the individual operator based in Malaysia", async ({ page }) => {
+test("about page names the individual operator based in Malaysia, no registration claim", async ({
+  page,
+}) => {
   await page.goto("/about/");
   await expect(page.getByRole("heading", { name: "About HomeDIYCalc" })).toBeVisible();
   await expect(
     page.getByText("operated independently by an individual based in Malaysia"),
   ).toBeVisible();
   await expect(page.getByText("It is not a company")).toBeVisible();
+  // Owner-confirmed: individual, not a company. Whether the operator is
+  // registered as a sole proprietorship is a different, unconfirmed
+  // question — the page must not assert a registration status either way.
+  await expect(page.getByText("registered business")).toHaveCount(0);
   await expect(page.getByText("Sdn")).toHaveCount(0);
+  // The meta description must not make a categorical "no data" claim.
+  const description = await page.locator('meta[name="description"]').getAttribute("content");
+  expect(description).not.toContain("no data collected");
   await expect(page.getByRole("link", { name: "Contact", exact: true }).first()).toBeVisible();
 });
 
-test("privacy policy states the contact email, LocalStorage, and live hosting — no stale 'not live yet'", async ({
+test("privacy policy distinguishes browser-local processing from hosting and email — no categorical 'no personal data'", async ({
   page,
 }) => {
   await page.goto("/privacy-policy/");
@@ -69,9 +88,28 @@ test("privacy policy states the contact email, LocalStorage, and live hosting �
   // No tracking or advertising.
   await expect(page.getByText("The site itself sets no cookies")).toBeVisible();
   await expect(page.getByText("No advertising scripts are loaded on this site.")).toBeVisible();
+
+  // Review 6016380187: no categorical "no personal data" claims. The
+  // site does not ask for personal information, calculator inputs stay
+  // in the browser, the operator receives only what a person chooses to
+  // email, and the hosting provider processes request data — all stated
+  // separately, none of them as "nothing is collected".
+  await expect(page.getByText("collects no personal data")).toHaveCount(0);
+  await expect(page.getByText("The only personal information we ever receive")).toHaveCount(0);
+  await expect(page.getByText("no personal data from anyone")).toHaveCount(0);
+  // No absolute claim about Cloudflare log access/non-access.
+  await expect(page.getByText("we do not receive or use that information")).toHaveCount(0);
+  await expect(
+    page.getByText("The only personal information the operator receives").first(),
+  ).toBeVisible();
+  await expect(page.getByText("may log standard web-server information")).toBeVisible();
+  await expect(page.getByText("governed by Cloudflare's own privacy policy")).toBeVisible();
+  // The meta description must not carry the categorical claim either.
+  const description = await page.locator('meta[name="description"]').getAttribute("content");
+  expect(description).not.toContain("collects no personal data");
 });
 
-test("terms of use name the operator, the proposed governing law, and the copyright wording", async ({
+test("terms of use name the operator, the approved governing law, and the narrowed copyright wording", async ({
   page,
 }) => {
   await page.goto("/terms-of-use/");
@@ -83,6 +121,23 @@ test("terms of use name the operator, the proposed governing law, and the copyri
   ).toBeVisible();
   await expect(page.getByText("governed by the laws of Malaysia")).toBeVisible();
   await expect(page.getByText("All rights reserved")).toBeVisible();
+
+  // Review 6016380187: no categorical "no personal data" claim in §6.
+  await expect(page.getByText("The site collects no personal data")).toHaveCount(0);
+  await expect(page.getByText("does not ask for your personal information")).toBeVisible();
+  // No internal approval notes published as live Terms (the governing-law
+  // and copyright choices are now owner-approved — Issue #5 comment
+  // 7091231814 — so the pages state them plainly; the approval record
+  // lives in the PR and the decision log, not on the page).
+  await expect(page.getByText("subject to final confirmation")).toHaveCount(0);
+  await expect(page.getByText("proposed")).toHaveCount(0);
+  // Copyright is narrowed to material the operator actually owns;
+  // third-party rights and licenses are preserved, not overridden.
+  await expect(page.getByText("operator's copyrighted work")).toHaveCount(0);
+  await expect(page.getByText("operator's own work")).toBeVisible();
+  await expect(page.getByText("Third-party materials")).toBeVisible();
+  await expect(page.getByText("remain the property of their owners")).toBeVisible();
+  await expect(page.getByText("does not change those licenses")).toBeVisible();
 
   const mailto = page.getByRole("link", { name: CONTACT_EMAIL });
   await expect(mailto).toBeVisible();
