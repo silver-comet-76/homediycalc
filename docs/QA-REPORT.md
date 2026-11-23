@@ -686,3 +686,33 @@ Three consecutive clean rounds on the final source (commit `3ad6fb7`). One faile
 | Lighthouse Paint (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
 
 Lighthouse Home LCP 0.2 s, CLS 0, TTI 0.2 s every round; Paint LCP 0.4 s, CLS 0.005, TTI 0.4 s every round. No failures, no issues found in any of the three counted rounds. Running tally: **3 consecutive clean rounds.** Per-round logs in `docs/gate-logs/2026-11-23-phase-9-review-response/` (`round-1.log` also contains the one failed attempt). Node v24.22.1, npm 10.9.4, Python 3.12.3.
+
+### 17.8 Privacy §6 production-status correction — PR #7 (2026-11-23)
+
+Narrow follow-up to the staging handover review (Issue #5 comment
+7091853733, staging CONDITIONALLY ACCEPTED, production NO-GO). One
+sentence in Privacy Policy §6 changed, nothing else:
+
+- Before: "The site is deployed on Cloudflare Pages: the public
+  production deployment is pending the owner's launch approval, and
+  the staging preview is access-restricted (sign-in required via
+  Cloudflare Access) and not public."
+- After: "The site is deployed on Cloudflare Pages: the public
+  production site is live at https://homediycalc.pages.dev, and the
+  staging preview is access-restricted (sign-in required via Cloudflare
+  Access) and not public."
+
+Rationale: the pending wording becomes false the moment the public
+production site goes live. The new sentence describes the production
+deployment's status, which is a fact about the live site and stays true
+when read on either build. Sequencing: this PR must NOT be merged
+before the production launch is approved — merging it early would make
+the staging preview prematurely claim production is live. It is merged
+as part of the launch, and the production artifact is built from the
+merged source.
+
+Tests: `tests/legal.spec.ts` (privacy test) now asserts the new
+wording is present ("the public production site is live at") and the
+stale wording is absent ("pending the owner's launch approval" count 0).
+
+[Gate results for this §6 correction to be recorded here after the three rounds run on the final source.]
