@@ -1,0 +1,122 @@
+# ADR-9 release gate + production-artifact build for HomeDIYCalc (PR #7).
+#
+# Test-only workflow. It runs the project's own gate script
+# (scripts/gate-round.sh) three times in a row on the pushed branch, then
+# builds the production artifact from the same source. No deploy step, no
+# secrets, no Cloudflare access, no Wrangler. Outputs are uploaded as run
+# artifacts (gate logs + production dist/), never published or deployed.
+#
+# Triggers: push to the PR #7 branch, and workflow_dispatch for manual
+# re-runs. Manual dispatch is preferred during initial validation, but a
+# workflow that only exists on a feature branch cannot be triggered from
+# the Actions tab (it lists default-branch workflows) and no dispatch tool
+# is available to this agent, so the push trigger guarantees the gate
+# runs on the exact pushed SHA. A failed run does not block uploading the
+# branch or opening the PR for review.
+#
+# Permissions: contents: read only. The jobs check out code, install
+# dependencies, run tests/builds, and upload artifacts. Nothing writes
+# to the repository and nothing deploys.
+#
+# Third-party actions are pinned to immutable commit SHAs, resolved from
+# their release tags via the GitHub API on 2026-11-23:
+#   actions/checkout@v4        11d5960a326750d5838078e36cf38b85af677262
+#   actions/setup-node@v4      49933ea5288caeca8642d1e84afbd3f7d6820020
+#   actions/setup-python@v5    a26af69be951a213d495a4c3e4e4022e16d87065
+#   actions/upload-artifact@v4 ea165f8d65b6e75b540449e92b4886f43607fa02
+#
+# The production artifact is built only from the reviewed source and is
+# kept separate from the gate's test-origin (example.com) and preview
+# builds: the gate job uploads logs only, never dist/.
+name: ADR-9 Gate (PR #7)
+
+on:
+  push:
+    branches: [phase-9-privacy-production-status]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: ADR-9 gate (3 clean rounds)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install dependencies (project lockfile)
+        run: npm ci --no-audit --no-fund
+      - name: Install Playwright Chromium (+ system deps)
+        run: npx playwright install --with-deps chromium
+      - name: ADR-9 gate — round 1
+        run: bash scripts/gate-round.sh 1 docs/gate-logs/2026-11-23-phase-9-privacy-s6/round-1.log
+      - name: ADR-9 gate — round 2
+        run: bash scripts/gate-round.sh 2 docs/gate-logs/2026-11-23-phase-9-privacy-s6/round-2.log
+      - name: ADR-9 gate — round 3
+        run: bash scripts/gate-round.sh 3 docs/gate-logs/2026-11-23-phase-9-privacy-s6/round-3.log
+      - name: Upload gate logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gate-logs
+          path: docs/gate-logs/2026-11-23-phase-9-privacy-s6/
+          retention-days: 30
+
+  production-artifact:
+    name: Production artifact (audited, not deployed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: gate
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install dependencies (project lockfile)
+        run: npm ci --no-audit --no-fund
+      - name: Production build (origin https://homediycalc.pages.dev)
+        run: npm run build
+        env:
+          PUBLIC_BUILD_MODE: production
+          PUBLIC_SITE_URL: https://homediycalc.pages.dev
+      - name: Audit production artifact
+        run: python3 scripts/gate-audit.py --mode production --origin https://homediycalc.pages.dev dist/
+      - name: Verify production origin and no noindex
+        run: |
+          set -euo pipefail
+          grep -q "https://homediycalc.pages.dev" dist/sitemap.xml
+          if grep -rIl "noindex" dist/ --include="*.html" | grep -q .; then
+            echo "FAIL: noindex found in production HTML" >&2
+            exit 1
+          fi
+          echo "OK: sitemap uses the production origin; no noindex in production HTML."
+      - name: Artifact digest (sha256 of sorted per-file sha256 list)
+        run: |
+          python3 - << 'PY'
+          import hashlib, pathlib
+          root = pathlib.Path('dist')
+          digests = []
+          for p in sorted(root.rglob('*')):
+              if p.is_file():
+                  digests.append(hashlib.sha256(p.read_bytes()).hexdigest())
+          print('files:', len(digests))
+          print('digest:', hashlib.sha256('\n'.join(digests).encode()).hexdigest())
+          PY
+      - name: Upload production artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: production-dist
+          path: dist/
+          retention-days: 30
