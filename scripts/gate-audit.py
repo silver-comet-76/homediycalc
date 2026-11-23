@@ -3,6 +3,8 @@
 
 Reads the production build in dist/ and verifies, with no network access:
   - 40 built pages: 39 indexable pages + the custom 404 page
+    (the Google Search Console verification file is a static asset in
+    dist/, not a page, and is excluded from the page count)
   - sitemap.xml lists exactly the 39 indexable pages (404 excluded)
   - every page: unique <title> (<= 65 chars), unique meta description
     (<= 165 chars), self-referential canonical, exactly one <h1>,
@@ -14,6 +16,8 @@ Reads the production build in dist/ and verifies, with no network access:
     Facebook Pixel, AdSense) in the built output
   - no fetch()/XMLHttpRequest/WebSocket in the built client JavaScript
   - src/lib/ads.ts is still a placeholder (no real ad code)
+  - Google Search Console verification file present in dist/ with the
+    exact issued content (Phase 13A)
 
 Build modes (Phase 8 review response, PR #4 review 6012776210, P0,
 ADR-15) — the URL and noindex rules depend on the build's mode, and
@@ -60,6 +64,14 @@ TRACKING_PATTERNS = [
 ]
 
 NETWORK_PATTERNS = ["fetch(", "XMLHttpRequest", "WebSocket"]
+
+# Google Search Console verification file (Phase 13A): a static asset in
+# public/ that Astro copies to the dist/ root at build time. The file must
+# exist with exactly the verification content Google issued; a wrong
+# filename or wrong content fails verification. The check strips the
+# trailing newline, which Google accepts.
+GSC_VERIFICATION_FILE = "googleaec765b8f8629de2.html"
+GSC_VERIFICATION_CONTENT = "google-site-verification: googleaec765b8f8629de2.html"
 
 
 def validate_origin(origin: str) -> str:
@@ -220,7 +232,7 @@ def main() -> int:
     print(f"audit mode: {mode}" + (f", expected origin: {expected_origin}" if expected_origin else ""))
 
     html_files = sorted(dist.rglob("*.html"))
-    pages = [p for p in html_files if p.name != "404.html"]
+    pages = [p for p in html_files if p.name not in ("404.html", GSC_VERIFICATION_FILE)]
     check("built pages: 39 indexable + custom 404", len(pages) == 39 and (dist / "404.html").is_file(),
           f"{len(pages)} indexable, 404={'yes' if (dist / '404.html').is_file() else 'no'}")
 
@@ -263,6 +275,22 @@ def main() -> int:
         robots_ok = len(sitemap_lines) == 1 and sitemap_lines[0].split(":", 1)[1].strip() == "/sitemap.xml"
         check("robots.txt Sitemap: is relative (no origin set)",
               robots_ok, sitemap_lines[0].strip() if sitemap_lines else "no Sitemap: line")
+
+    # Google Search Console verification file (Phase 13A): Astro copies
+    # public/ to the dist/ root in every build mode, so the file must be
+    # present with the exact issued content in production, preview, and
+    # local builds alike.
+    gsc_file = dist / GSC_VERIFICATION_FILE
+    if gsc_file.is_file():
+        gsc_text = gsc_file.read_text(encoding="utf-8").strip()
+        gsc_ok = gsc_text == GSC_VERIFICATION_CONTENT
+        gsc_detail = (f"{GSC_VERIFICATION_FILE} present, content matches"
+                      if gsc_ok else f"content mismatch: {gsc_text[:60]!r}")
+    else:
+        gsc_ok = False
+        gsc_detail = f"{GSC_VERIFICATION_FILE} missing from dist/"
+    check("Google Search Console verification file present with exact content",
+          gsc_ok, gsc_detail)
 
     parsed: dict[Path, PageParser] = {}
     for p in html_files:
