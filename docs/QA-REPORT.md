@@ -602,3 +602,87 @@ Ranges across these three rounds: Home 100/100/100/100 every round (LCP 0.2 s, C
 **Standing limitations carried forward (not gate failures):** no domain/production origin yet (the gate uses the RFC 2606 test origin `https://example.com`; the SEO 100 is measured on that test-origin production build and must be re-measured after a real origin is set); no public deployment; AdSense disabled; project license undecided (owner decision); security-headers live check pending (§14.6); real Safari device checks pending (§14.8). Nothing is merged, deployed, or closed.
 
 **Method note (same as §13.3):** all rounds run from a clean state (`rm -rf dist/`) with `bash scripts/gate-round.sh <round> <log-file>`; per-round logs in `docs/gate-logs/2026-11-23-phase-8-re-review/` (`round-1.log`, `round-2.log`, `round-3.log`); Lighthouse pinned to 12.8.2; the Chromium headless-shell binary is resolved dynamically (see the script header); the gate asserts the Lighthouse launch thresholds instead of only reporting the scores. Node v24.22.1, npm 10.9.4, Python 3.12.3.
+
+## 17. Phase 9 Owner Decisions — Contact and Legal Pages (2026-11-23)
+
+Scope (branch `phase-9-legal-contact`, from merged main `a4925bfe`): implement the owner decisions confirmed 2026-11-23 (Issue #5) — official contact email, operator identity (individual based in Malaysia), production origin, proposed governing law, preferred All Rights Reserved wording — on the Contact, About, Privacy Policy, Terms of Use, and Disclaimer pages, with tests and documentation. No new calculators, no architecture change, no backend, no form, no tracking, no ads.
+
+### 17.1 Changes
+
+- `src/lib/site.ts`: new `SITE_CONTACT_EMAIL = "homediycalc@gmail.com"` (owner-confirmed); the stale "No contact email exists yet" comment replaced. The Contact, Privacy Policy, and Terms of Use pages import the constant — the address is defined once, so a typo cannot publish a different address.
+- Contact page: mailto link to the official email; states plainly there is no contact form and no other contact address (no backend by design, ADR-3); operator is an individual based in Malaysia; emails are read by the operator personally; do not send sensitive personal information.
+- About page: new "Who runs HomeDIYCalc" section — operated independently by an individual based in Malaysia, not a company, not a registered business; free tool for US homeowners/DIY users; link to Contact.
+- Privacy Policy (last updated November 23, 2026): operator identity added; new §7 "Contacting us" — emailing the published address sends the operator your email address and message, used only to answer you, never sold/shared/added to a mailing list; §6 fixed the stale "(Cloudflare Pages, once the site is deployed — it is not live yet)" — the site is deployed on Cloudflare Pages, public production pending launch approval, staging preview access-restricted via Cloudflare Access (sign-in processes the visitor's email for authentication only); §4 clarified the site itself sets no cookies while Cloudflare may set security cookies.
+- Terms of Use (last updated November 23, 2026): §1 operator identity; §7 governing law — Laws of Malaysia (proposed wording, flagged for final owner confirmation); §8 copyright — "© 2026 HomeDIYCalc. All rights reserved." (preferred wording, flagged for final confirmation; the repository license is NOT changed — package.json still has no license field); §9 contact.
+- Disclaimer (last updated November 23, 2026): results are "not guaranteed purchase quantities, and not professional engineering advice"; operator is an individual, not a company.
+- Docs: `docs/DEPLOYMENT.md` §14.10 rewritten as the confirmed-decisions record (governing law and license marked proposed/preferred, pending final confirmation); README Phase 8 line corrected (merged 2026-11-23, staging verified, decisions confirmed).
+- Historical phase reports (`docs/QA-REPORT.md` §§10–12, `docs/PHASE-REPORT.md` Phase 5) still say "the site is not deployed anywhere" — those are historical snapshots of when those phases completed and are left as written; the current state is recorded here and in `docs/DEPLOYMENT.md` §14.10.
+
+### 17.2 Contact email delivery verification
+
+- Test email sent 2026-11-23 12:30:32 JST from itgaminglim@gmail.com (the operator's connected Gmail) to homediycalc@gmail.com, subject "HomeDIYCalc contact email delivery test — 2026-11-23", code HDY-20261123-1229. Send confirmed (message in Sent).
+- Bounce check: no delivery-failure / bounce / undeliverable message in the sender's inbox as of ~12:50 JST (~20 minutes after send). Gmail rejects a non-existent @gmail.com address with a bounce within minutes, so no bounce is evidence the address exists and Gmail accepted the message.
+- Inbox receipt CONFIRMED: the owner verified the test email (code HDY-20261123-1229) was received at homediycalc@gmail.com, recorded on Issue #5 comment 7091231814 (2026-11-23T04:03:03Z). This closes the previously pending inbound-delivery check; homediycalc@gmail.com is the official contact route. No claim beyond the owner's confirmation is made here.
+
+### 17.3 No tracking, no ads, no external uploads (verified on the new build)
+
+- Grep of `src/` + the production-mode `dist/`: zero `<script src="http…">`; the only AdSense-related code is `src/lib/ads.ts` with placeholder IDs and `ADS_ENABLED` false without env vars (AdSense disabled, ADR-8); no `fetch`/`XMLHttpRequest`/`sendBeacon`/`WebSocket` in `src/`; no file inputs on the legal/contact pages (asserted in `tests/legal.spec.ts`); the site itself sets no cookies (no cookie code in `src/`).
+- CSP in `dist/_headers` unchanged (`default-src 'self'`, no external loads).
+
+### 17.4 Tests added
+
+- Vitest: +3 in `src/lib/site.test.ts` — `SITE_CONTACT_EMAIL` equals `homediycalc@gmail.com`, is a well-formed gmail.com address, and never contains `homediycalc.com` (the unowned domain). Total: 328/328.
+- Playwright: new `tests/legal.spec.ts` (6 tests × chromium + Pixel 5 mobile = 12) — contact mailto + no non-search form + no POST form + no file inputs + no homediycalc.com address + no external scripts; About operator wording; Privacy Policy contact email + LocalStorage key + Cloudflare Pages + no "not live yet"; Terms operator + Laws of Malaysia + All rights reserved + mailto; Disclaimer estimates wording; footer links reach all five pages. 12/12 on the production-mode build (test origin).
+- The legal spec caught one real test bug during development: the first "no form" assertion failed because the Layout header carries a site-search form (`role="search"`, GET to `/calculators/`) on every page — the assertion was corrected to forbid only non-search forms and POST forms.
+
+### 17.5 ADR-9 gate (3 consecutive clean rounds) — PASSED 2026-11-23 12:37–12:46 JST
+
+Three consecutive clean rounds on the final source (commit `dcfe2a0`). Two earlier round-1 attempts failed and restarted the count: a Prettier formatting failure in `tests/legal.spec.ts` (fixed with `prettier --write`) and a scripted-audit failure — the new Privacy Policy meta description was 166 characters, one over the 165 limit (shortened to 137). Both fixes were committed before the counted rounds.
+
+| Check | Round 1 (03:37:50Z) | Round 2 (03:40:47Z) | Round 3 (03:43:34Z) |
+|---|---|---|---|
+| Vitest | 328/328 | 328/328 | 328/328 |
+| Typecheck | 0/0/0 | 0/0/0 | 0/0/0 |
+| Lint (Prettier check) | pass | pass | pass |
+| Scripted audit checks (`scripts/gate-audit.py`) | ALL CHECKS PASSED × 6 (production, preview, local, origin-only local, mistyped-flag local, positive-branch production) | ALL CHECKS PASSED × 6 | ALL CHECKS PASSED × 6 |
+| Negative builds (ADR-17) | 5/5 passed (origin-only, mistyped flag, preview branch, missing branch, conflict) + 1 positive branch check | 5/5 + 1 | 5/5 + 1 |
+| Playwright e2e | 92/92 (1.1 m) | 92/92 (1.0 m) | 92/92 (1.0 m) |
+| Lighthouse Home (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+| Lighthouse Paint (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+
+Playwright 80 → 92 (+12: the new `tests/legal.spec.ts`, 6 tests × chromium + Pixel 5 mobile). Lighthouse Home LCP 0.2 s, CLS 0, TTI 0.2 s every round; Paint LCP 0.4 s, CLS 0.005, TTI 0.4 s every round. No failures, no issues found in any of the three counted rounds. Running tally: **3 consecutive clean rounds.** Per-round logs in `docs/gate-logs/2026-11-23-phase-9-legal-contact/` (`round-1.log` also contains the two failed attempts, `round-2.log`, `round-3.log`); Lighthouse pinned to 12.8.2. Node v24.22.1, npm 10.9.4, Python 3.12.3.
+
+### 17.6 Standing limitations carried forward
+
+- Governing law (Laws of Malaysia) and the All Rights Reserved wording are now owner-approved (Issue #5 comment 7091231814) — see `docs/DEPLOYMENT.md` §14.10. The approvals do not authorize the PR merge, a staging redeploy, or public launch.
+- Contact-email inbox receipt CONFIRMED by the owner (test code HDY-20261123-1229 received at homediycalc@gmail.com).
+- Production NOT deployed; public launch still needs separate owner approval.
+- Real iOS/macOS Safari device check still pending (owner-side); WebKit smoke evidence is on the production-mode build, not a real device.
+
+### 17.7 Review response — PR #6 review 6016380187 + owner final confirmations (2026-11-23)
+
+ChatGPT independent review of PR #6 (id 6016380187, CHANGES_REQUESTED, 2026-11-23T03:55:31Z) accepted the contact mailto, the operator-as-individual phrasing in general, the staging/production distinction, and the 3-round QA evidence, and requested targeted wording corrections. All four findings were addressed on the same branch:
+
+1. **Categorical personal-data claims corrected.** Privacy Policy meta description, intro, §1, and §8, and Terms §6, no longer say "collects no personal data" / "no data collected" / "the only personal information we ever receive". The pages now distinguish three things separately: calculator inputs are processed in the browser and are not sent anywhere; the site does not ask for personal information; the operator receives only what a person chooses to send by email; and the hosting provider (Cloudflare) processes standard request data (IP addresses in server logs, security cookies) to serve and protect the site. The absolute claim "we do not receive or use that information" about Cloudflare logs was removed; §6 now says how Cloudflare handles that information is governed by Cloudflare's own privacy policy. The About meta description was corrected the same way. No absolute claim of Cloudflare log access or non-access is made.
+2. **Unsupported business-registration claim removed.** About no longer says "not run by a registered business". The owner confirmed the operator is an individual, not a company; whether the operator is registered as a sole proprietorship is a different, unconfirmed question, so the page asserts no registration status. "It is not a company" (owner-confirmed) stays.
+3. **Copyright wording narrowed.** Terms §8 no longer asserts all text/design/calculator pages are "the operator's copyrighted work". It now says the original text, design, and calculator pages are the operator's own work; third-party materials and open-source dependencies remain the property of their owners and are used under their respective licenses; the reservation of rights does not change those licenses. The source-code sentence (public GitHub repository, not open-source licensed, no permission to reuse granted here) is unchanged.
+4. **Internal approval notes removed from the live Terms.** The parentheticals "(The governing-law wording is the operator's proposed choice and is subject to final confirmation.)" and "(The All Rights Reserved wording is the operator's preferred option and is subject to final confirmation as the licensing decision.)" were removed from Terms §§7–8. The pages now state the wording plainly. The proposed/pending status was never a page concern after the owner's final confirmations (Issue #5 comment 7091231814, 2026-11-23T04:03:03Z): governing law Laws of Malaysia APPROVED (approval covers the choice, not a blanket legal-compliance certification); copyright All Rights Reserved for materials the operator owns, subject to third-party rights and licenses, APPROVED; contact-email receipt CONFIRMED. The approval record lives in the PR, the decision log (`docs/DEPLOYMENT.md` §14.10), and Issue #5 — not on the pages.
+
+Tests: `tests/legal.spec.ts` guards the corrected assertions — "registered business" absent on About; "collects no personal data", "The only personal information we ever receive", "no personal data from anyone", and "we do not receive or use that information" absent on Privacy; "The site collects no personal data", "subject to final confirmation", "proposed", and "operator's copyrighted work" absent on Terms; the new distinguishing and third-party wording present; both meta descriptions free of the categorical claims.
+
+[Gate results for this review response — PASSED 2026-11-23 13:08–13:17 JST]
+
+Three consecutive clean rounds on the final source (commit `3ad6fb7`). One failed round-1 attempt on the way: the new privacy-policy Playwright test used a `getByText` substring that matched three paragraphs, so Playwright refused it with a strict-mode violation — a test bug, not a site defect. Fixed by scoping the assertion with `.first()`, verified the legal spec 12/12 on a production-mode build, amended the commit, and restarted the count from zero per ADR-9.
+
+| Check | Round 1 (04:08:38Z) | Round 2 (04:11:28Z) | Round 3 (04:14:15Z) |
+|---|---|---|---|
+| Vitest | 328/328 | 328/328 | 328/328 |
+| Typecheck | 0/0/0 | 0/0/0 | 0/0/0 |
+| Lint (Prettier check) | pass | pass | pass |
+| Scripted audit checks (`scripts/gate-audit.py`) | ALL CHECKS PASSED × 6 | ALL CHECKS PASSED × 6 | ALL CHECKS PASSED × 6 |
+| Negative builds (ADR-17) | 5/5 + 1 positive | 5/5 + 1 | 5/5 + 1 |
+| Playwright e2e | 92/92 (1.1 m) | 92/92 (1.1 m) | 92/92 (1.1 m) |
+| Lighthouse Home (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+| Lighthouse Paint (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+
+Lighthouse Home LCP 0.2 s, CLS 0, TTI 0.2 s every round; Paint LCP 0.4 s, CLS 0.005, TTI 0.4 s every round. No failures, no issues found in any of the three counted rounds. Running tally: **3 consecutive clean rounds.** Per-round logs in `docs/gate-logs/2026-11-23-phase-9-review-response/` (`round-1.log` also contains the one failed attempt). Node v24.22.1, npm 10.9.4, Python 3.12.3.

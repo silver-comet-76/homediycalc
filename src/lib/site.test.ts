@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { absoluteUrl, resolveBuildConfig, resolveBuildMode } from "./site";
+import { absoluteUrl, resolveBuildConfig, resolveBuildMode, SITE_CONTACT_EMAIL } from "./site";
 import { validateProductionOrigin } from "./origin";
 
 /**
@@ -235,5 +235,25 @@ describe("resolveBuildMode / resolveBuildConfig (ADR-17)", () => {
         cfPagesBranch: "feature-x",
       }),
     ).toEqual({ mode: "preview", origin: "https://example.com" });
+  });
+});
+
+/**
+ * Phase 9 owner decisions (2026-11-23): the official contact email is
+ * owner-confirmed. Guard the exact address — notably NOT
+ * contact@homediycalc.com, a domain the owner does not own — so a typo
+ * or a "helpful" substitution cannot silently publish the wrong address.
+ */
+describe("SITE_CONTACT_EMAIL (Phase 9 owner decision)", () => {
+  it("is the owner-confirmed Gmail address", () => {
+    expect(SITE_CONTACT_EMAIL).toBe("homediycalc@gmail.com");
+  });
+
+  it("is a well-formed email address on gmail.com", () => {
+    expect(SITE_CONTACT_EMAIL).toMatch(/^[a-z0-9._%+-]+@gmail\.com$/);
+  });
+
+  it("is never a homediycalc.com address (domain not owned)", () => {
+    expect(SITE_CONTACT_EMAIL).not.toContain("homediycalc.com");
   });
 });
