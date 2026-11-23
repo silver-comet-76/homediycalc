@@ -1,0 +1,1672 @@
+=== ADR-9 gate round 1 — 2026-11-23T07:40:54Z ===
+repo: /home/hatch/workspace/homediycalc-prototype
+node: v24.22.1  npm: 10.9.4  python: Python 3.12.3
+--- production-mode build (PUBLIC_BUILD_MODE=production PUBLIC_SITE_URL=https://example.com) ---
+
+> homediycalc@0.1.0 build
+> astro build
+
+16:40:56 [types] Generated 122ms
+16:40:56 [build] output: "static"
+16:40:56 [build] mode: "static"
+16:40:56 [build] directory: /home/hatch/workspace/homediycalc-prototype/dist/
+16:40:56 [build] Collecting build info...
+16:40:56 [build] ✓ Completed in 402ms.
+16:40:56 [build] Building static entrypoints...
+16:40:57 [vite] ✓ built in 971ms
+16:40:58 [vite] ✓ built in 320ms
+16:40:58 [build] Rearranging server assets...
+
+ generating static routes 
+16:40:58   ├─ /404.html (+17ms) 
+16:40:58   ├─ /about/index.html (+5ms) 
+16:40:58   ├─ /calculators/concrete-calculator/index.html (+31ms) 
+16:40:58   ├─ /calculators/square-footage-calculator/index.html (+10ms) 
+16:40:58   ├─ /calculators/paint-calculator/index.html (+13ms) 
+16:40:58   ├─ /calculators/gravel-calculator/index.html (+9ms) 
+16:40:58   ├─ /calculators/mulch-calculator/index.html (+9ms) 
+16:40:58   ├─ /calculators/concrete-slab-calculator/index.html (+8ms) 
+16:40:58   ├─ /calculators/cubic-yard-calculator/index.html (+15ms) 
+16:40:58   ├─ /calculators/cubic-feet-calculator/index.html (+7ms) 
+16:40:58   ├─ /calculators/tile-calculator/index.html (+10ms) 
+16:40:58   ├─ /calculators/brick-calculator/index.html (+8ms) 
+16:40:58   ├─ /calculators/drywall-calculator/index.html (+8ms) 
+16:40:58   ├─ /calculators/concrete-bags-calculator/index.html (+5ms) 
+16:40:58   ├─ /calculators/flooring-calculator/index.html (+6ms) 
+16:40:58   ├─ /calculators/paver-calculator/index.html (+7ms) 
+16:40:58   ├─ /calculators/topsoil-calculator/index.html (+6ms) 
+16:40:58   ├─ /calculators/grout-calculator/index.html (+6ms) 
+16:40:58   ├─ /calculators/board-foot-calculator/index.html (+6ms) 
+16:40:58   ├─ /calculators/mortar-calculator/index.html (+6ms) 
+16:40:58   ├─ /calculators/ceiling-tile-calculator/index.html (+6ms) 
+16:40:58   ├─ /calculators/tile-adhesive-calculator/index.html (+7ms) 
+16:40:58   ├─ /calculators/primer-calculator/index.html (+7ms) 
+16:40:58   ├─ /calculators/wallpaper-calculator/index.html (+7ms) 
+16:40:58   ├─ /calculators/sealant-calculator/index.html (+8ms) 
+16:40:58   ├─ /calculators/waterproofing-calculator/index.html (+6ms) 
+16:40:58   ├─ /calculators/baseboard-calculator/index.html (+6ms) 
+16:40:58   ├─ /calculators/index.html (+7ms) 
+16:40:58   ├─ /categories/concrete-and-masonry/index.html (+4ms) 
+16:40:58   ├─ /categories/painting/index.html (+3ms) 
+16:40:58   ├─ /categories/flooring-and-tiles/index.html (+2ms) 
+16:40:58   ├─ /categories/landscaping/index.html (+2ms) 
+16:40:58   ├─ /categories/measurement/index.html (+4ms) 
+16:40:58   ├─ /categories/interior-and-maintenance/index.html (+3ms) 
+16:40:58   ├─ /contact/index.html (+4ms) 
+16:40:58   ├─ /disclaimer/index.html (+4ms) 
+16:40:58   ├─ /my-project/index.html (+5ms) 
+16:40:58   ├─ /privacy-policy/index.html (+4ms) 
+16:40:58   ├─ /robots.txt (+3ms) 
+16:40:58   ├─ /sitemap.xml (+3ms) 
+16:40:58   ├─ /terms-of-use/index.html (+4ms) 
+16:40:58   ├─ /index.html (+5ms) 
+16:40:58 ✓ Completed in 367ms.
+
+16:40:58 [build] ✓ Completed in 1.74s.
+16:40:58 [build] 40 page(s) built in 2.14s
+16:40:58 [build] Complete!
+--- Vitest ---
+
+> homediycalc@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.1 [39m[90m/home/hatch/workspace/homediycalc-prototype[39m
+
+ [32m✓[39m src/lib/project.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m src/calculators/paver-calculator/config.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m src/calculators/drywall-calculator/config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/calculators/mortar-calculator/config.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32m✓[39m src/calculators/ceiling-tile-calculator/config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m src/calculators/brick-calculator/config.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/project-storage.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/ceiling-tile.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete-bags.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/brick.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m src/components/react/CalculatorInputs.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 494[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/cubic-feet.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/tile-adhesive.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m src/lib/units.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m src/lib/registry.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m src/lib/site.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m src/lib/units-coverage.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/drywall.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/waterproofing.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/topsoil.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/paver.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/sealant.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/grout.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/mortar.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/gravel.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/mulch.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/baseboard.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/flooring.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete-slab.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/tile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/wallpaper.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/cubic-yard.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/square-footage.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/paint.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/board-foot.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/components/react/CalculatorConfig.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/primer.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/calculators/waterproofing-calculator/config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/lib/ads.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/calculators/concrete-calculator/config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m41 passed[39m[22m[90m (41)[39m
+[2m      Tests [22m [1m[32m328 passed[39m[22m[90m (328)[39m
+[2m   Start at [22m 16:40:59
+[2m   Duration [22m 14.01s[2m (environment 39%, transform 25%, import 20%, tests 11%, worker 4%)[22m
+
+[2m    Isolate [22m [33m41 workers spawned[39m[2m · ~743ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~9.41s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+--- typecheck ---
+
+> homediycalc@0.1.0 typecheck
+> astro check
+
+16:41:16 [types] Generated 95ms
+16:41:16 [check] Getting diagnostics for Astro files in /home/hatch/workspace/homediycalc-prototype...
+Result (129 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+--- lint (Prettier formatting check) ---
+
+> homediycalc@0.1.0 lint
+> prettier --check "src/**/*.{ts,tsx,css}" "tests/**/*.{ts,tsx}" "*.{json,mjs}"
+
+Checking formatting...
+All matched files use Prettier code style!
+--- scripted audit checks (production mode, exact origin) ---
+audit mode: production, expected origin: https://example.com
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+PASS  sitemap <loc> URLs use exactly the expected origin — 0 wrong-origin URLs
+PASS  robots.txt Sitemap: is absolute with exactly the expected origin — Sitemap: https://example.com/sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+PASS  canonical present, self-referential, and absolute with exactly the expected origin
+PASS  no page carries a robots noindex meta (production builds are indexable)
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+ALL CHECKS PASSED
+--- Playwright e2e (against the production-mode build) ---
+
+> homediycalc@0.1.0 test:e2e
+> playwright test
+
+
+Running 92 tests using 2 workers
+
+  ✓   1 [chromium] › tests/a11y.spec.ts:84:1 › a11y: keyboard-focused links show a 2px focus outline (1.8s)
+  ✓   3 [chromium] › tests/a11y.spec.ts:109:1 › a11y: pressed toggles show a check-mark marker (894ms)
+  ✓   2 [chromium] › tests/a11y.spec.ts:10:1 › a11y: keyboard can reach and operate the paint calculator (3.4s)
+  ✓   4 [chromium] › tests/a11y.spec.ts:141:1 › a11y: unknown URLs show the custom 404 page (581ms)
+  ✓   6 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓   5 [chromium] › tests/a11y.spec.ts:152:1 › a11y: every input on a calculator page has a label (1.6s)
+  ✓   7 [chromium] › tests/calculators.spec.ts:39:3 › Square Footage Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓   8 [chromium] › tests/calculators.spec.ts:39:3 › Paint Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓   9 [chromium] › tests/calculators.spec.ts:39:3 › Gravel Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  10 [chromium] › tests/calculators.spec.ts:39:3 › Mulch Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  11 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Slab Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  12 [chromium] › tests/calculators.spec.ts:39:3 › Cubic Yard Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  13 [chromium] › tests/calculators.spec.ts:39:3 › Cubic Feet Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  14 [chromium] › tests/calculators.spec.ts:39:3 › Tile Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  15 [chromium] › tests/calculators.spec.ts:39:3 › Brick Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  16 [chromium] › tests/calculators.spec.ts:39:3 › Drywall Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  17 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Bags Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  18 [chromium] › tests/calculators.spec.ts:39:3 › Flooring Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  19 [chromium] › tests/calculators.spec.ts:39:3 › Paver Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  20 [chromium] › tests/calculators.spec.ts:39:3 › Topsoil Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  21 [chromium] › tests/calculators.spec.ts:39:3 › Grout Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  22 [chromium] › tests/calculators.spec.ts:39:3 › Board Foot Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  24 [chromium] › tests/calculators.spec.ts:39:3 › Ceiling Tile Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  23 [chromium] › tests/calculators.spec.ts:39:3 › Mortar Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  25 [chromium] › tests/calculators.spec.ts:39:3 › Tile Adhesive Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  26 [chromium] › tests/calculators.spec.ts:39:3 › Primer Calculator: loads, default result renders, invalid input errors, reset works (1.6s)
+  ✓  28 [chromium] › tests/calculators.spec.ts:39:3 › Sealant Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  27 [chromium] › tests/calculators.spec.ts:39:3 › Wallpaper Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  29 [chromium] › tests/calculators.spec.ts:39:3 › Waterproofing Calculator: loads, default result renders, invalid input errors, reset works (1.0s)
+  ✓  30 [chromium] › tests/calculators.spec.ts:39:3 › Baseboard Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✘  31 [chromium] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped (104ms)
+  ✘  33 [chromium] › tests/home.spec.ts:58:1 › sitemap and robots are served (106ms)
+  ✘  32 [chromium] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors (5.4s)
+  ✓  35 [chromium] › tests/legal.spec.ts:21:1 › contact page publishes the official email as a mailto link, no form (522ms)
+  ✓  36 [chromium] › tests/legal.spec.ts:50:1 › about page names the individual operator based in Malaysia, no registration claim (280ms)
+  ✓  37 [chromium] › tests/legal.spec.ts:70:1 › privacy policy distinguishes browser-local processing from hosting and email — no categorical 'no personal data' (342ms)
+  ✓  38 [chromium] › tests/legal.spec.ts:112:1 › terms of use name the operator, the approved governing law, and the narrowed copyright wording (396ms)
+  ✘  34 [chromium] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) (5.3s)
+  ✓  39 [chromium] › tests/legal.spec.ts:147:1 › disclaimer states estimates are not guaranteed quantities or professional advice (415ms)
+  ✓  40 [chromium] › tests/project.spec.ts:20:1 › planner: add from two calculators, edit, export CSV, clear (3.4s)
+  ✓  41 [chromium] › tests/legal.spec.ts:159:1 › footer links reach every legal and contact page (3.3s)
+  ✓  42 [chromium] › tests/project.spec.ts:90:1 › planner: partial brick cost stays partial through save, reload, quantity, and CSV (2.9s)
+  ✓  43 [chromium] › tests/project.spec.ts:169:1 › planner: print button calls window.print (1.7s)
+  ✓  44 [chromium] › tests/project.spec.ts:193:1 › planner: corrupt stored data shows the empty state, not a crash (742ms)
+  ✓  45 [chromium] › tests/styles.spec.ts:12:1 › styles: the Tailwind stylesheet loads and applies (788ms)
+  ✓  46 [chromium] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height (1.1s)
+  ✓  48 [mobile] › tests/a11y.spec.ts:84:1 › a11y: keyboard-focused links show a 2px focus outline (1.2s)
+  ✓  49 [mobile] › tests/a11y.spec.ts:109:1 › a11y: pressed toggles show a check-mark marker (567ms)
+  ✓  50 [mobile] › tests/a11y.spec.ts:141:1 › a11y: unknown URLs show the custom 404 page (287ms)
+  ✓  47 [mobile] › tests/a11y.spec.ts:10:1 › a11y: keyboard can reach and operate the paint calculator (3.4s)
+  ✓  52 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  51 [mobile] › tests/a11y.spec.ts:152:1 › a11y: every input on a calculator page has a label (1.6s)
+  ✓  54 [mobile] › tests/calculators.spec.ts:39:3 › Paint Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  53 [mobile] › tests/calculators.spec.ts:39:3 › Square Footage Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  55 [mobile] › tests/calculators.spec.ts:39:3 › Gravel Calculator: loads, default result renders, invalid input errors, reset works (995ms)
+  ✓  56 [mobile] › tests/calculators.spec.ts:39:3 › Mulch Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  58 [mobile] › tests/calculators.spec.ts:39:3 › Cubic Yard Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  57 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Slab Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  60 [mobile] › tests/calculators.spec.ts:39:3 › Tile Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  59 [mobile] › tests/calculators.spec.ts:39:3 › Cubic Feet Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  61 [mobile] › tests/calculators.spec.ts:39:3 › Brick Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  62 [mobile] › tests/calculators.spec.ts:39:3 › Drywall Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  63 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Bags Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  64 [mobile] › tests/calculators.spec.ts:39:3 › Flooring Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  65 [mobile] › tests/calculators.spec.ts:39:3 › Paver Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  66 [mobile] › tests/calculators.spec.ts:39:3 › Topsoil Calculator: loads, default result renders, invalid input errors, reset works (1.6s)
+  ✓  67 [mobile] › tests/calculators.spec.ts:39:3 › Grout Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  68 [mobile] › tests/calculators.spec.ts:39:3 › Board Foot Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  69 [mobile] › tests/calculators.spec.ts:39:3 › Mortar Calculator: loads, default result renders, invalid input errors, reset works (1.6s)
+  ✓  70 [mobile] › tests/calculators.spec.ts:39:3 › Ceiling Tile Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  71 [mobile] › tests/calculators.spec.ts:39:3 › Tile Adhesive Calculator: loads, default result renders, invalid input errors, reset works (1.0s)
+  ✓  72 [mobile] › tests/calculators.spec.ts:39:3 › Primer Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  73 [mobile] › tests/calculators.spec.ts:39:3 › Wallpaper Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  74 [mobile] › tests/calculators.spec.ts:39:3 › Sealant Calculator: loads, default result renders, invalid input errors, reset works (829ms)
+  ✓  76 [mobile] › tests/calculators.spec.ts:39:3 › Baseboard Calculator: loads, default result renders, invalid input errors, reset works (1.0s)
+  ✓  75 [mobile] › tests/calculators.spec.ts:39:3 › Waterproofing Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✘  77 [mobile] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped (53ms)
+  ✘  79 [mobile] › tests/home.spec.ts:58:1 › sitemap and robots are served (66ms)
+  ✘  78 [mobile] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors (5.3s)
+  ✓  81 [mobile] › tests/legal.spec.ts:21:1 › contact page publishes the official email as a mailto link, no form (435ms)
+  ✓  82 [mobile] › tests/legal.spec.ts:50:1 › about page names the individual operator based in Malaysia, no registration claim (321ms)
+  ✓  83 [mobile] › tests/legal.spec.ts:70:1 › privacy policy distinguishes browser-local processing from hosting and email — no categorical 'no personal data' (325ms)
+  ✘  80 [mobile] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) (5.4s)
+  ✓  84 [mobile] › tests/legal.spec.ts:112:1 › terms of use name the operator, the approved governing law, and the narrowed copyright wording (440ms)
+  ✓  86 [mobile] › tests/legal.spec.ts:147:1 › disclaimer states estimates are not guaranteed quantities or professional advice (797ms)
+  ✓  85 [mobile] › tests/legal.spec.ts:159:1 › footer links reach every legal and contact page (2.8s)
+  ✓  87 [mobile] › tests/project.spec.ts:20:1 › planner: add from two calculators, edit, export CSV, clear (2.6s)
+  ✓  89 [mobile] › tests/project.spec.ts:169:1 › planner: print button calls window.print (1.0s)
+  ✓  88 [mobile] › tests/project.spec.ts:90:1 › planner: partial brick cost stays partial through save, reload, quantity, and CSV (3.8s)
+  ✓  90 [mobile] › tests/project.spec.ts:193:1 › planner: corrupt stored data shows the empty state, not a crash (502ms)
+  ✓  91 [mobile] › tests/styles.spec.ts:12:1 › styles: the Tailwind stylesheet loads and applies (863ms)
+  ✓  92 [mobile] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height (1.1s)
+
+
+  1) [chromium] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "<loc>https://example.com/calculators/concrete-calculator/</loc>"
+    Received string:    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">
+      <url><loc>/</loc></url>
+      <url><loc>/calculators/</loc></url>
+      <url><loc>/my-project/</loc></url>
+      <url><loc>/about/</loc></url>
+      <url><loc>/contact/</loc></url>
+      <url><loc>/privacy-policy/</loc></url>
+      <url><loc>/terms-of-use/</loc></url>
+      <url><loc>/disclaimer/</loc></url>
+      <url><loc>/categories/concrete-and-masonry/</loc></url>
+      <url><loc>/categories/painting/</loc></url>
+      <url><loc>/categories/flooring-and-tiles/</loc></url>
+      <url><loc>/categories/landscaping/</loc></url>
+      <url><loc>/categories/measurement/</loc></url>
+      <url><loc>/categories/interior-and-maintenance/</loc></url>
+      <url><loc>/calculators/concrete-calculator/</loc></url>
+      <url><loc>/calculators/square-footage-calculator/</loc></url>
+      <url><loc>/calculators/paint-calculator/</loc></url>
+      <url><loc>/calculators/gravel-calculator/</loc></url>
+      <url><loc>/calculators/mulch-calculator/</loc></url>
+      <url><loc>/calculators/concrete-slab-calculator/</loc></url>
+      <url><loc>/calculators/cubic-yard-calculator/</loc></url>
+      <url><loc>/calculators/cubic-feet-calculator/</loc></url>
+      <url><loc>/calculators/tile-calculator/</loc></url>
+      <url><loc>/calculators/brick-calculator/</loc></url>
+      <url><loc>/calculators/drywall-calculator/</loc></url>
+      <url><loc>/calculators/concrete-bags-calculator/</loc></url>
+      <url><loc>/calculators/flooring-calculator/</loc></url>
+      <url><loc>/calculators/paver-calculator/</loc></url>
+      <url><loc>/calculators/topsoil-calculator/</loc></url>
+      <url><loc>/calculators/grout-calculator/</loc></url>
+      <url><loc>/calculators/board-foot-calculator/</loc></url>
+      <url><loc>/calculators/mortar-calculator/</loc></url>
+      <url><loc>/calculators/ceiling-tile-calculator/</loc></url>
+      <url><loc>/calculators/tile-adhesive-calculator/</loc></url>
+      <url><loc>/calculators/primer-calculator/</loc></url>
+      <url><loc>/calculators/wallpaper-calculator/</loc></url>
+      <url><loc>/calculators/sealant-calculator/</loc></url>
+      <url><loc>/calculators/waterproofing-calculator/</loc></url>
+      <url><loc>/calculators/baseboard-calculator/</loc></url>
+    </urlset>"
+
+      89 |   const origin = process.env.PUBLIC_SITE_URL ?? "";
+      90 |   for (const { slug } of CALCULATORS) {
+    > 91 |     expect(text).toContain(`<loc>${origin}/calculators/${slug}/</loc>`);
+         |                  ^
+      92 |   }
+      93 |   expect(CALCULATORS).toHaveLength(25);
+      94 | });
+        at /home/hatch/workspace/homediycalc-prototype/tests/calculators.spec.ts:91:18
+
+    Error Context: test-results/calculators-calculator-pag-a0462--25-calculators-are-shipped-chromium/error-context.md
+
+  2) [chromium] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Less Guesswork. Better DIY Projects.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Less Guesswork. Better DIY Projects.' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Less Guesswork. Better DIY Projects.' })
+
+
+      15 |       name: "Less Guesswork. Better DIY Projects.",
+      16 |     }),
+    > 17 |   ).toBeVisible();
+         |     ^
+      18 |   await expect(page.getByRole("heading", { name: "What Are You Working On?" })).toBeVisible();
+      19 |   await expect(page.getByRole("heading", { name: "Your Next Project Starts Here" })).toBeVisible();
+      20 |   await expect(
+        at /home/hatch/workspace/homediycalc-prototype/tests/home.spec.ts:17:5
+
+    Error Context: test-results/home-home-page-loads-nav-works-no-console-errors-chromium/error-context.md
+
+  3) [chromium] › tests/home.spec.ts:58:1 › sitemap and robots are served ──────────────────────────
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "<loc>https://example.com/</loc>"
+    Received string:    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">
+      <url><loc>/</loc></url>
+      <url><loc>/calculators/</loc></url>
+      <url><loc>/my-project/</loc></url>
+      <url><loc>/about/</loc></url>
+      <url><loc>/contact/</loc></url>
+      <url><loc>/privacy-policy/</loc></url>
+      <url><loc>/terms-of-use/</loc></url>
+      <url><loc>/disclaimer/</loc></url>
+      <url><loc>/categories/concrete-and-masonry/</loc></url>
+      <url><loc>/categories/painting/</loc></url>
+      <url><loc>/categories/flooring-and-tiles/</loc></url>
+      <url><loc>/categories/landscaping/</loc></url>
+      <url><loc>/categories/measurement/</loc></url>
+      <url><loc>/categories/interior-and-maintenance/</loc></url>
+      <url><loc>/calculators/concrete-calculator/</loc></url>
+      <url><loc>/calculators/square-footage-calculator/</loc></url>
+      <url><loc>/calculators/paint-calculator/</loc></url>
+      <url><loc>/calculators/gravel-calculator/</loc></url>
+      <url><loc>/calculators/mulch-calculator/</loc></url>
+      <url><loc>/calculators/concrete-slab-calculator/</loc></url>
+      <url><loc>/calculators/cubic-yard-calculator/</loc></url>
+      <url><loc>/calculators/cubic-feet-calculator/</loc></url>
+      <url><loc>/calculators/tile-calculator/</loc></url>
+      <url><loc>/calculators/brick-calculator/</loc></url>
+      <url><loc>/calculators/drywall-calculator/</loc></url>
+      <url><loc>/calculators/concrete-bags-calculator/</loc></url>
+      <url><loc>/calculators/flooring-calculator/</loc></url>
+      <url><loc>/calculators/paver-calculator/</loc></url>
+      <url><loc>/calculators/topsoil-calculator/</loc></url>
+      <url><loc>/calculators/grout-calculator/</loc></url>
+      <url><loc>/calculators/board-foot-calculator/</loc></url>
+      <url><loc>/calculators/mortar-calculator/</loc></url>
+      <url><loc>/calculators/ceiling-tile-calculator/</loc></url>
+      <url><loc>/calculators/tile-adhesive-calculator/</loc></url>
+      <url><loc>/calculators/primer-calculator/</loc></url>
+      <url><loc>/calculators/wallpaper-calculator/</loc></url>
+      <url><loc>/calculators/sealant-calculator/</loc></url>
+      <url><loc>/calculators/waterproofing-calculator/</loc></url>
+      <url><loc>/calculators/baseboard-calculator/</loc></url>
+    </urlset>"
+
+      69 |   expect(sitemap.ok()).toBeTruthy();
+      70 |   const sitemapText = await sitemap.text();
+    > 71 |   expect(sitemapText).toContain(`<loc>${origin}/</loc>`);
+         |                       ^
+      72 |   expect(sitemapText).toContain(`<loc>${origin}/calculators/</loc>`);
+      73 |   expect(sitemapText).toContain(`<loc>${origin}/categories/painting/</loc>`);
+      74 |   // Shipped calculator pages are in the sitemap — all 25 from Phase 4.
+        at /home/hatch/workspace/homediycalc-prototype/tests/home.spec.ts:71:23
+
+    Error Context: test-results/home-sitemap-and-robots-are-served-chromium/error-context.md
+
+  4) [chromium] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('meta[name="robots"][content*="noindex"]')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('meta[name="robots"][content*="noindex"]') with timeout 5000ms
+      - waiting for locator('meta[name="robots"][content*="noindex"]')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      100 |   const canonical = page.locator('link[rel="canonical"]');
+      101 |   if (mode === "production") {
+    > 102 |     await expect(noindex).toHaveCount(0);
+          |                           ^
+      103 |     await expect(canonical).toHaveAttribute("href", `${origin}/`);
+      104 |   } else {
+      105 |     await expect(noindex).toHaveCount(1);
+        at /home/hatch/workspace/homediycalc-prototype/tests/home.spec.ts:102:27
+
+    Error Context: test-results/home-noindex-and-canonical-8862f--build-mode-Phase-8-ADR-17--chromium/error-context.md
+
+  5) [mobile] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "<loc>https://example.com/calculators/concrete-calculator/</loc>"
+    Received string:    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">
+      <url><loc>/</loc></url>
+      <url><loc>/calculators/</loc></url>
+      <url><loc>/my-project/</loc></url>
+      <url><loc>/about/</loc></url>
+      <url><loc>/contact/</loc></url>
+      <url><loc>/privacy-policy/</loc></url>
+      <url><loc>/terms-of-use/</loc></url>
+      <url><loc>/disclaimer/</loc></url>
+      <url><loc>/categories/concrete-and-masonry/</loc></url>
+      <url><loc>/categories/painting/</loc></url>
+      <url><loc>/categories/flooring-and-tiles/</loc></url>
+      <url><loc>/categories/landscaping/</loc></url>
+      <url><loc>/categories/measurement/</loc></url>
+      <url><loc>/categories/interior-and-maintenance/</loc></url>
+      <url><loc>/calculators/concrete-calculator/</loc></url>
+      <url><loc>/calculators/square-footage-calculator/</loc></url>
+      <url><loc>/calculators/paint-calculator/</loc></url>
+      <url><loc>/calculators/gravel-calculator/</loc></url>
+      <url><loc>/calculators/mulch-calculator/</loc></url>
+      <url><loc>/calculators/concrete-slab-calculator/</loc></url>
+      <url><loc>/calculators/cubic-yard-calculator/</loc></url>
+      <url><loc>/calculators/cubic-feet-calculator/</loc></url>
+      <url><loc>/calculators/tile-calculator/</loc></url>
+      <url><loc>/calculators/brick-calculator/</loc></url>
+      <url><loc>/calculators/drywall-calculator/</loc></url>
+      <url><loc>/calculators/concrete-bags-calculator/</loc></url>
+      <url><loc>/calculators/flooring-calculator/</loc></url>
+      <url><loc>/calculators/paver-calculator/</loc></url>
+      <url><loc>/calculators/topsoil-calculator/</loc></url>
+      <url><loc>/calculators/grout-calculator/</loc></url>
+      <url><loc>/calculators/board-foot-calculator/</loc></url>
+      <url><loc>/calculators/mortar-calculator/</loc></url>
+      <url><loc>/calculators/ceiling-tile-calculator/</loc></url>
+      <url><loc>/calculators/tile-adhesive-calculator/</loc></url>
+      <url><loc>/calculators/primer-calculator/</loc></url>
+      <url><loc>/calculators/wallpaper-calculator/</loc></url>
+      <url><loc>/calculators/sealant-calculator/</loc></url>
+      <url><loc>/calculators/waterproofing-calculator/</loc></url>
+      <url><loc>/calculators/baseboard-calculator/</loc></url>
+    </urlset>"
+
+      89 |   const origin = process.env.PUBLIC_SITE_URL ?? "";
+      90 |   for (const { slug } of CALCULATORS) {
+    > 91 |     expect(text).toContain(`<loc>${origin}/calculators/${slug}/</loc>`);
+         |                  ^
+      92 |   }
+      93 |   expect(CALCULATORS).toHaveLength(25);
+      94 | });
+        at /home/hatch/workspace/homediycalc-prototype/tests/calculators.spec.ts:91:18
+
+    Error Context: test-results/calculators-calculator-pag-a0462--25-calculators-are-shipped-mobile/error-context.md
+
+  6) [mobile] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors ─────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Less Guesswork. Better DIY Projects.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Less Guesswork. Better DIY Projects.' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Less Guesswork. Better DIY Projects.' })
+
+
+      15 |       name: "Less Guesswork. Better DIY Projects.",
+      16 |     }),
+    > 17 |   ).toBeVisible();
+         |     ^
+      18 |   await expect(page.getByRole("heading", { name: "What Are You Working On?" })).toBeVisible();
+      19 |   await expect(page.getByRole("heading", { name: "Your Next Project Starts Here" })).toBeVisible();
+      20 |   await expect(
+        at /home/hatch/workspace/homediycalc-prototype/tests/home.spec.ts:17:5
+
+    Error Context: test-results/home-home-page-loads-nav-works-no-console-errors-mobile/error-context.md
+
+  7) [mobile] › tests/home.spec.ts:58:1 › sitemap and robots are served ────────────────────────────
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "<loc>https://example.com/</loc>"
+    Received string:    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">
+      <url><loc>/</loc></url>
+      <url><loc>/calculators/</loc></url>
+      <url><loc>/my-project/</loc></url>
+      <url><loc>/about/</loc></url>
+      <url><loc>/contact/</loc></url>
+      <url><loc>/privacy-policy/</loc></url>
+      <url><loc>/terms-of-use/</loc></url>
+      <url><loc>/disclaimer/</loc></url>
+      <url><loc>/categories/concrete-and-masonry/</loc></url>
+      <url><loc>/categories/painting/</loc></url>
+      <url><loc>/categories/flooring-and-tiles/</loc></url>
+      <url><loc>/categories/landscaping/</loc></url>
+      <url><loc>/categories/measurement/</loc></url>
+      <url><loc>/categories/interior-and-maintenance/</loc></url>
+      <url><loc>/calculators/concrete-calculator/</loc></url>
+      <url><loc>/calculators/square-footage-calculator/</loc></url>
+      <url><loc>/calculators/paint-calculator/</loc></url>
+      <url><loc>/calculators/gravel-calculator/</loc></url>
+      <url><loc>/calculators/mulch-calculator/</loc></url>
+      <url><loc>/calculators/concrete-slab-calculator/</loc></url>
+      <url><loc>/calculators/cubic-yard-calculator/</loc></url>
+      <url><loc>/calculators/cubic-feet-calculator/</loc></url>
+      <url><loc>/calculators/tile-calculator/</loc></url>
+      <url><loc>/calculators/brick-calculator/</loc></url>
+      <url><loc>/calculators/drywall-calculator/</loc></url>
+      <url><loc>/calculators/concrete-bags-calculator/</loc></url>
+      <url><loc>/calculators/flooring-calculator/</loc></url>
+      <url><loc>/calculators/paver-calculator/</loc></url>
+      <url><loc>/calculators/topsoil-calculator/</loc></url>
+      <url><loc>/calculators/grout-calculator/</loc></url>
+      <url><loc>/calculators/board-foot-calculator/</loc></url>
+      <url><loc>/calculators/mortar-calculator/</loc></url>
+      <url><loc>/calculators/ceiling-tile-calculator/</loc></url>
+      <url><loc>/calculators/tile-adhesive-calculator/</loc></url>
+      <url><loc>/calculators/primer-calculator/</loc></url>
+      <url><loc>/calculators/wallpaper-calculator/</loc></url>
+      <url><loc>/calculators/sealant-calculator/</loc></url>
+      <url><loc>/calculators/waterproofing-calculator/</loc></url>
+      <url><loc>/calculators/baseboard-calculator/</loc></url>
+    </urlset>"
+
+      69 |   expect(sitemap.ok()).toBeTruthy();
+      70 |   const sitemapText = await sitemap.text();
+    > 71 |   expect(sitemapText).toContain(`<loc>${origin}/</loc>`);
+         |                       ^
+      72 |   expect(sitemapText).toContain(`<loc>${origin}/calculators/</loc>`);
+      73 |   expect(sitemapText).toContain(`<loc>${origin}/categories/painting/</loc>`);
+      74 |   // Shipped calculator pages are in the sitemap — all 25 from Phase 4.
+        at /home/hatch/workspace/homediycalc-prototype/tests/home.spec.ts:71:23
+
+    Error Context: test-results/home-sitemap-and-robots-are-served-mobile/error-context.md
+
+  8) [mobile] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('meta[name="robots"][content*="noindex"]')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('meta[name="robots"][content*="noindex"]') with timeout 5000ms
+      - waiting for locator('meta[name="robots"][content*="noindex"]')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      100 |   const canonical = page.locator('link[rel="canonical"]');
+      101 |   if (mode === "production") {
+    > 102 |     await expect(noindex).toHaveCount(0);
+          |                           ^
+      103 |     await expect(canonical).toHaveAttribute("href", `${origin}/`);
+      104 |   } else {
+      105 |     await expect(noindex).toHaveCount(1);
+        at /home/hatch/workspace/homediycalc-prototype/tests/home.spec.ts:102:27
+
+    Error Context: test-results/home-noindex-and-canonical-8862f--build-mode-Phase-8-ADR-17--mobile/error-context.md
+
+  8 failed
+    [chromium] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped 
+    [chromium] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors ────────────
+    [chromium] › tests/home.spec.ts:58:1 › sitemap and robots are served ───────────────────────────
+    [chromium] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) 
+    [mobile] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped 
+    [mobile] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors ──────────────
+    [mobile] › tests/home.spec.ts:58:1 › sitemap and robots are served ─────────────────────────────
+    [mobile] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) 
+  84 passed (1.3m)
+=== ADR-9 gate round 1 — 2026-11-23T07:43:21Z ===
+repo: /home/hatch/workspace/homediycalc-prototype
+node: v24.22.1  npm: 10.9.4  python: Python 3.12.3
+--- production-mode build (PUBLIC_BUILD_MODE=production PUBLIC_SITE_URL=https://example.com) ---
+
+> homediycalc@0.1.0 build
+> astro build
+
+16:43:25 [types] Generated 172ms
+16:43:25 [build] output: "static"
+16:43:25 [build] mode: "static"
+16:43:25 [build] directory: /home/hatch/workspace/homediycalc-prototype/dist/
+16:43:25 [build] Collecting build info...
+16:43:25 [build] ✓ Completed in 315ms.
+16:43:25 [build] Building static entrypoints...
+16:43:27 [vite] ✓ built in 1.19s
+16:43:27 [vite] ✓ built in 285ms
+16:43:27 [build] Rearranging server assets...
+
+ generating static routes 
+16:43:27   ├─ /404.html (+20ms) 
+16:43:27   ├─ /about/index.html (+6ms) 
+16:43:27   ├─ /calculators/concrete-calculator/index.html (+34ms) 
+16:43:27   ├─ /calculators/square-footage-calculator/index.html (+10ms) 
+16:43:27   ├─ /calculators/paint-calculator/index.html (+9ms) 
+16:43:27   ├─ /calculators/gravel-calculator/index.html (+9ms) 
+16:43:27   ├─ /calculators/mulch-calculator/index.html (+10ms) 
+16:43:27   ├─ /calculators/concrete-slab-calculator/index.html (+9ms) 
+16:43:27   ├─ /calculators/cubic-yard-calculator/index.html (+7ms) 
+16:43:27   ├─ /calculators/cubic-feet-calculator/index.html (+7ms) 
+16:43:27   ├─ /calculators/tile-calculator/index.html (+9ms) 
+16:43:27   ├─ /calculators/brick-calculator/index.html (+8ms) 
+16:43:27   ├─ /calculators/drywall-calculator/index.html (+8ms) 
+16:43:27   ├─ /calculators/concrete-bags-calculator/index.html (+6ms) 
+16:43:27   ├─ /calculators/flooring-calculator/index.html (+6ms) 
+16:43:27   ├─ /calculators/paver-calculator/index.html (+11ms) 
+16:43:27   ├─ /calculators/topsoil-calculator/index.html (+10ms) 
+16:43:27   ├─ /calculators/grout-calculator/index.html (+9ms) 
+16:43:27   ├─ /calculators/board-foot-calculator/index.html (+9ms) 
+16:43:27   ├─ /calculators/mortar-calculator/index.html (+6ms) 
+16:43:27   ├─ /calculators/ceiling-tile-calculator/index.html (+6ms) 
+16:43:27   ├─ /calculators/tile-adhesive-calculator/index.html (+6ms) 
+16:43:27   ├─ /calculators/primer-calculator/index.html (+8ms) 
+16:43:27   ├─ /calculators/wallpaper-calculator/index.html (+7ms) 
+16:43:27   ├─ /calculators/sealant-calculator/index.html (+8ms) 
+16:43:27   ├─ /calculators/waterproofing-calculator/index.html (+7ms) 
+16:43:27   ├─ /calculators/baseboard-calculator/index.html (+8ms) 
+16:43:27   ├─ /calculators/index.html (+6ms) 
+16:43:27   ├─ /categories/concrete-and-masonry/index.html (+4ms) 
+16:43:27   ├─ /categories/painting/index.html (+3ms) 
+16:43:27   ├─ /categories/flooring-and-tiles/index.html (+3ms) 
+16:43:27   ├─ /categories/landscaping/index.html (+4ms) 
+16:43:27   ├─ /categories/measurement/index.html (+3ms) 
+16:43:27   ├─ /categories/interior-and-maintenance/index.html (+3ms) 
+16:43:27   ├─ /contact/index.html (+3ms) 
+16:43:27   ├─ /disclaimer/index.html (+3ms) 
+16:43:27   ├─ /my-project/index.html (+7ms) 
+16:43:27   ├─ /privacy-policy/index.html (+4ms) 
+16:43:27   ├─ /robots.txt (+3ms) 
+16:43:27   ├─ /sitemap.xml (+3ms) 
+16:43:27   ├─ /terms-of-use/index.html (+5ms) 
+16:43:27   ├─ /index.html (+6ms) 
+16:43:27 ✓ Completed in 391ms.
+
+16:43:27 [build] ✓ Completed in 1.97s.
+16:43:27 [build] 40 page(s) built in 2.29s
+16:43:27 [build] Complete!
+--- Vitest ---
+
+> homediycalc@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.1 [39m[90m/home/hatch/workspace/homediycalc-prototype[39m
+
+ [32m✓[39m src/lib/registry.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+ [32m✓[39m src/calculators/mortar-calculator/config.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/lib/project.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m src/lib/units.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/brick.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/calculators/paver-calculator/config.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete-slab.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/tile-adhesive.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/waterproofing.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete-bags.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/calculators/drywall-calculator/config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+ [32m✓[39m src/lib/units-coverage.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/tile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m src/calculators/brick-calculator/config.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32m✓[39m src/components/react/CalculatorInputs.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 414[2mms[22m[39m
+ [32m✓[39m src/lib/site.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m src/calculators/ceiling-tile-calculator/config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m src/lib/project-storage.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/flooring.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/ceiling-tile.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/drywall.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 78[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/mortar.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/grout.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/gravel.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/paver.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/topsoil.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/square-footage.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/wallpaper.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/baseboard.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/paint.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/primer.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/board-foot.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/cubic-yard.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/sealant.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/cubic-feet.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/mulch.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/components/react/CalculatorConfig.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/ads.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/calculators/concrete-calculator/config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/calculators/waterproofing-calculator/config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m41 passed[39m[22m[90m (41)[39m
+[2m      Tests [22m [1m[32m328 passed[39m[22m[90m (328)[39m
+[2m   Start at [22m 16:43:28
+[2m   Duration [22m 14.27s[2m (environment 48%, import 23%, tests 12%, transform 11%, worker 5%)[22m
+
+[2m    Isolate [22m [33m41 workers spawned[39m[2m · ~814ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~10.31s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+--- typecheck ---
+
+> homediycalc@0.1.0 typecheck
+> astro check
+
+16:43:45 [types] Generated 122ms
+16:43:45 [check] Getting diagnostics for Astro files in /home/hatch/workspace/homediycalc-prototype...
+Result (129 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+--- lint (Prettier formatting check) ---
+
+> homediycalc@0.1.0 lint
+> prettier --check "src/**/*.{ts,tsx,css}" "tests/**/*.{ts,tsx}" "*.{json,mjs}"
+
+Checking formatting...
+All matched files use Prettier code style!
+--- scripted audit checks (production mode, exact origin) ---
+audit mode: production, expected origin: https://example.com
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+PASS  sitemap <loc> URLs use exactly the expected origin — 0 wrong-origin URLs
+PASS  robots.txt Sitemap: is absolute with exactly the expected origin — Sitemap: https://example.com/sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+PASS  canonical present, self-referential, and absolute with exactly the expected origin
+PASS  no page carries a robots noindex meta (production builds are indexable)
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+ALL CHECKS PASSED
+--- Playwright e2e (against the production-mode build) ---
+
+> homediycalc@0.1.0 test:e2e
+> playwright test
+
+
+Running 92 tests using 2 workers
+
+  ✓   2 [chromium] › tests/a11y.spec.ts:84:1 › a11y: keyboard-focused links show a 2px focus outline (1.5s)
+  ✓   3 [chromium] › tests/a11y.spec.ts:109:1 › a11y: pressed toggles show a check-mark marker (796ms)
+  ✓   1 [chromium] › tests/a11y.spec.ts:10:1 › a11y: keyboard can reach and operate the paint calculator (3.1s)
+  ✓   4 [chromium] › tests/a11y.spec.ts:141:1 › a11y: unknown URLs show the custom 404 page (501ms)
+  ✓   6 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓   5 [chromium] › tests/a11y.spec.ts:152:1 › a11y: every input on a calculator page has a label (1.7s)
+  ✓   7 [chromium] › tests/calculators.spec.ts:39:3 › Square Footage Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓   8 [chromium] › tests/calculators.spec.ts:39:3 › Paint Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓   9 [chromium] › tests/calculators.spec.ts:39:3 › Gravel Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  10 [chromium] › tests/calculators.spec.ts:39:3 › Mulch Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  11 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Slab Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  12 [chromium] › tests/calculators.spec.ts:39:3 › Cubic Yard Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  13 [chromium] › tests/calculators.spec.ts:39:3 › Cubic Feet Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  14 [chromium] › tests/calculators.spec.ts:39:3 › Tile Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  15 [chromium] › tests/calculators.spec.ts:39:3 › Brick Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  16 [chromium] › tests/calculators.spec.ts:39:3 › Drywall Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  17 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Bags Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  18 [chromium] › tests/calculators.spec.ts:39:3 › Flooring Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  19 [chromium] › tests/calculators.spec.ts:39:3 › Paver Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  20 [chromium] › tests/calculators.spec.ts:39:3 › Topsoil Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  22 [chromium] › tests/calculators.spec.ts:39:3 › Board Foot Calculator: loads, default result renders, invalid input errors, reset works (986ms)
+  ✓  21 [chromium] › tests/calculators.spec.ts:39:3 › Grout Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  24 [chromium] › tests/calculators.spec.ts:39:3 › Ceiling Tile Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  23 [chromium] › tests/calculators.spec.ts:39:3 › Mortar Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  25 [chromium] › tests/calculators.spec.ts:39:3 › Tile Adhesive Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  26 [chromium] › tests/calculators.spec.ts:39:3 › Primer Calculator: loads, default result renders, invalid input errors, reset works (1.6s)
+  ✓  27 [chromium] › tests/calculators.spec.ts:39:3 › Wallpaper Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  28 [chromium] › tests/calculators.spec.ts:39:3 › Sealant Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  29 [chromium] › tests/calculators.spec.ts:39:3 › Waterproofing Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  30 [chromium] › tests/calculators.spec.ts:39:3 › Baseboard Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  31 [chromium] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped (113ms)
+  ✓  33 [chromium] › tests/home.spec.ts:58:1 › sitemap and robots are served (65ms)
+  ✓  34 [chromium] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) (508ms)
+  ✓  35 [chromium] › tests/legal.spec.ts:21:1 › contact page publishes the official email as a mailto link, no form (681ms)
+  ✓  32 [chromium] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors (1.8s)
+  ✓  36 [chromium] › tests/legal.spec.ts:50:1 › about page names the individual operator based in Malaysia, no registration claim (645ms)
+  ✓  37 [chromium] › tests/legal.spec.ts:70:1 › privacy policy distinguishes browser-local processing from hosting and email — no categorical 'no personal data' (635ms)
+  ✓  38 [chromium] › tests/legal.spec.ts:112:1 › terms of use name the operator, the approved governing law, and the narrowed copyright wording (628ms)
+  ✓  39 [chromium] › tests/legal.spec.ts:147:1 › disclaimer states estimates are not guaranteed quantities or professional advice (529ms)
+  ✓  41 [chromium] › tests/project.spec.ts:20:1 › planner: add from two calculators, edit, export CSV, clear (2.5s)
+  ✓  40 [chromium] › tests/legal.spec.ts:159:1 › footer links reach every legal and contact page (2.8s)
+  ✓  43 [chromium] › tests/project.spec.ts:169:1 › planner: print button calls window.print (1.3s)
+  ✓  44 [chromium] › tests/project.spec.ts:193:1 › planner: corrupt stored data shows the empty state, not a crash (625ms)
+  ✓  42 [chromium] › tests/project.spec.ts:90:1 › planner: partial brick cost stays partial through save, reload, quantity, and CSV (2.6s)
+  ✓  45 [chromium] › tests/styles.spec.ts:12:1 › styles: the Tailwind stylesheet loads and applies (782ms)
+  ✘  46 [chromium] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height (582ms)
+  ✓  48 [mobile] › tests/a11y.spec.ts:84:1 › a11y: keyboard-focused links show a 2px focus outline (1.4s)
+  ✓  49 [mobile] › tests/a11y.spec.ts:109:1 › a11y: pressed toggles show a check-mark marker (949ms)
+  ✓  50 [mobile] › tests/a11y.spec.ts:141:1 › a11y: unknown URLs show the custom 404 page (238ms)
+  ✓  47 [mobile] › tests/a11y.spec.ts:10:1 › a11y: keyboard can reach and operate the paint calculator (3.7s)
+  ✓  51 [mobile] › tests/a11y.spec.ts:152:1 › a11y: every input on a calculator page has a label (1.6s)
+  ✓  52 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  53 [mobile] › tests/calculators.spec.ts:39:3 › Square Footage Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  54 [mobile] › tests/calculators.spec.ts:39:3 › Paint Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  55 [mobile] › tests/calculators.spec.ts:39:3 › Gravel Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  56 [mobile] › tests/calculators.spec.ts:39:3 › Mulch Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  57 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Slab Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  58 [mobile] › tests/calculators.spec.ts:39:3 › Cubic Yard Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  59 [mobile] › tests/calculators.spec.ts:39:3 › Cubic Feet Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  60 [mobile] › tests/calculators.spec.ts:39:3 › Tile Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  61 [mobile] › tests/calculators.spec.ts:39:3 › Brick Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  62 [mobile] › tests/calculators.spec.ts:39:3 › Drywall Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  63 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Bags Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  64 [mobile] › tests/calculators.spec.ts:39:3 › Flooring Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  65 [mobile] › tests/calculators.spec.ts:39:3 › Paver Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  66 [mobile] › tests/calculators.spec.ts:39:3 › Topsoil Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  67 [mobile] › tests/calculators.spec.ts:39:3 › Grout Calculator: loads, default result renders, invalid input errors, reset works (977ms)
+  ✓  68 [mobile] › tests/calculators.spec.ts:39:3 › Board Foot Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  69 [mobile] › tests/calculators.spec.ts:39:3 › Mortar Calculator: loads, default result renders, invalid input errors, reset works (988ms)
+  ✓  71 [mobile] › tests/calculators.spec.ts:39:3 › Tile Adhesive Calculator: loads, default result renders, invalid input errors, reset works (902ms)
+  ✓  70 [mobile] › tests/calculators.spec.ts:39:3 › Ceiling Tile Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  72 [mobile] › tests/calculators.spec.ts:39:3 › Primer Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  73 [mobile] › tests/calculators.spec.ts:39:3 › Wallpaper Calculator: loads, default result renders, invalid input errors, reset works (1.6s)
+  ✓  74 [mobile] › tests/calculators.spec.ts:39:3 › Sealant Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  75 [mobile] › tests/calculators.spec.ts:39:3 › Waterproofing Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  77 [mobile] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped (47ms)
+  ✓  76 [mobile] › tests/calculators.spec.ts:39:3 › Baseboard Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  79 [mobile] › tests/home.spec.ts:58:1 › sitemap and robots are served (102ms)
+  ✓  80 [mobile] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) (470ms)
+  ✓  81 [mobile] › tests/legal.spec.ts:21:1 › contact page publishes the official email as a mailto link, no form (665ms)
+  ✓  78 [mobile] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors (1.6s)
+  ✓  82 [mobile] › tests/legal.spec.ts:50:1 › about page names the individual operator based in Malaysia, no registration claim (652ms)
+  ✓  83 [mobile] › tests/legal.spec.ts:70:1 › privacy policy distinguishes browser-local processing from hosting and email — no categorical 'no personal data' (799ms)
+  ✓  84 [mobile] › tests/legal.spec.ts:112:1 › terms of use name the operator, the approved governing law, and the narrowed copyright wording (698ms)
+  ✓  85 [mobile] › tests/legal.spec.ts:147:1 › disclaimer states estimates are not guaranteed quantities or professional advice (577ms)
+  ✓  86 [mobile] › tests/legal.spec.ts:159:1 › footer links reach every legal and contact page (2.6s)
+  ✓  87 [mobile] › tests/project.spec.ts:20:1 › planner: add from two calculators, edit, export CSV, clear (2.7s)
+  ✓  89 [mobile] › tests/project.spec.ts:169:1 › planner: print button calls window.print (1.2s)
+  ✓  90 [mobile] › tests/project.spec.ts:193:1 › planner: corrupt stored data shows the empty state, not a crash (404ms)
+  ✓  91 [mobile] › tests/styles.spec.ts:12:1 › styles: the Tailwind stylesheet loads and applies (667ms)
+  ✘  92 [mobile] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height (389ms)
+  ✓  88 [mobile] › tests/project.spec.ts:90:1 › planner: partial brick cost stays partial through save, reload, quantity, and CSV (3.4s)
+
+
+  1) [chromium] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height 
+
+    Error: /: expected card links
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      68 |       return out;
+      69 |     });
+    > 70 |     expect(links.length, `${url}: expected card links`).toBeGreaterThan(0);
+         |                                                         ^
+      71 |     for (const link of links) {
+      72 |       expect(link.height, `${url}: ${link.href} is ${link.height}px tall`).toBeGreaterThanOrEqual(
+      73 |         24,
+        at /home/hatch/workspace/homediycalc-prototype/tests/styles.spec.ts:70:57
+
+    Error Context: test-results/styles-styles-card-title-l-eef66--24px-minimum-target-height-chromium/error-context.md
+
+  2) [mobile] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height 
+
+    Error: /: expected card links
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      68 |       return out;
+      69 |     });
+    > 70 |     expect(links.length, `${url}: expected card links`).toBeGreaterThan(0);
+         |                                                         ^
+      71 |     for (const link of links) {
+      72 |       expect(link.height, `${url}: ${link.href} is ${link.height}px tall`).toBeGreaterThanOrEqual(
+      73 |         24,
+        at /home/hatch/workspace/homediycalc-prototype/tests/styles.spec.ts:70:57
+
+    Error Context: test-results/styles-styles-card-title-l-eef66--24px-minimum-target-height-mobile/error-context.md
+
+  2 failed
+    [chromium] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height 
+    [mobile] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height 
+  90 passed (1.1m)
+=== ADR-9 gate round 1 — 2026-11-23T07:45:42Z ===
+repo: /home/hatch/workspace/homediycalc-prototype
+node: v24.22.1  npm: 10.9.4  python: Python 3.12.3
+--- production-mode build (PUBLIC_BUILD_MODE=production PUBLIC_SITE_URL=https://example.com) ---
+
+> homediycalc@0.1.0 build
+> astro build
+
+16:45:46 [types] Generated 196ms
+16:45:46 [build] output: "static"
+16:45:46 [build] mode: "static"
+16:45:46 [build] directory: /home/hatch/workspace/homediycalc-prototype/dist/
+16:45:46 [build] Collecting build info...
+16:45:46 [build] ✓ Completed in 294ms.
+16:45:46 [build] Building static entrypoints...
+16:45:47 [vite] ✓ built in 1.10s
+16:45:47 [vite] ✓ built in 307ms
+16:45:47 [build] Rearranging server assets...
+
+ generating static routes 
+16:45:47   ├─ /404.html (+18ms) 
+16:45:47   ├─ /about/index.html (+5ms) 
+16:45:47   ├─ /calculators/concrete-calculator/index.html (+32ms) 
+16:45:47   ├─ /calculators/square-footage-calculator/index.html (+7ms) 
+16:45:47   ├─ /calculators/paint-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/gravel-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/mulch-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/concrete-slab-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/cubic-yard-calculator/index.html (+6ms) 
+16:45:47   ├─ /calculators/cubic-feet-calculator/index.html (+7ms) 
+16:45:47   ├─ /calculators/tile-calculator/index.html (+7ms) 
+16:45:47   ├─ /calculators/brick-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/drywall-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/concrete-bags-calculator/index.html (+5ms) 
+16:45:47   ├─ /calculators/flooring-calculator/index.html (+6ms) 
+16:45:47   ├─ /calculators/paver-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/topsoil-calculator/index.html (+9ms) 
+16:45:47   ├─ /calculators/grout-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/board-foot-calculator/index.html (+6ms) 
+16:45:47   ├─ /calculators/mortar-calculator/index.html (+7ms) 
+16:45:47   ├─ /calculators/ceiling-tile-calculator/index.html (+7ms) 
+16:45:47   ├─ /calculators/tile-adhesive-calculator/index.html (+6ms) 
+16:45:47   ├─ /calculators/primer-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/wallpaper-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/sealant-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/waterproofing-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/baseboard-calculator/index.html (+8ms) 
+16:45:47   ├─ /calculators/index.html (+7ms) 
+16:45:48   ├─ /categories/concrete-and-masonry/index.html (+5ms) 
+16:45:48   ├─ /categories/painting/index.html (+4ms) 
+16:45:48   ├─ /categories/flooring-and-tiles/index.html (+3ms) 
+16:45:48   ├─ /categories/landscaping/index.html (+3ms) 
+16:45:48   ├─ /categories/measurement/index.html (+3ms) 
+16:45:48   ├─ /categories/interior-and-maintenance/index.html (+3ms) 
+16:45:48   ├─ /contact/index.html (+4ms) 
+16:45:48   ├─ /disclaimer/index.html (+4ms) 
+16:45:48   ├─ /my-project/index.html (+5ms) 
+16:45:48   ├─ /privacy-policy/index.html (+4ms) 
+16:45:48   ├─ /robots.txt (+3ms) 
+16:45:48   ├─ /sitemap.xml (+3ms) 
+16:45:48   ├─ /terms-of-use/index.html (+4ms) 
+16:45:48   ├─ /index.html (+7ms) 
+16:45:48 ✓ Completed in 378ms.
+
+16:45:48 [build] ✓ Completed in 1.88s.
+16:45:48 [build] 40 page(s) built in 2.18s
+16:45:48 [build] Complete!
+--- Vitest ---
+
+> homediycalc@0.1.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.1 [39m[90m/home/hatch/workspace/homediycalc-prototype[39m
+
+ [32m✓[39m src/calculators/paver-calculator/config.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/calculators/brick-calculator/config.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m src/lib/units.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/drywall.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m src/calculators/drywall-calculator/config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m src/lib/registry.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/primer.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/cubic-feet.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/brick.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/tile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/calculators/mortar-calculator/config.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m src/calculators/ceiling-tile-calculator/config.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+ [32m✓[39m src/lib/project.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 76[2mms[22m[39m
+ [32m✓[39m src/lib/site.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m src/components/react/CalculatorInputs.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 387[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/ceiling-tile.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/flooring.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/mortar.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+ [32m✓[39m src/lib/units-coverage.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/lib/project-storage.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/paver.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/tile-adhesive.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/waterproofing.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/sealant.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/square-footage.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/ads.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/topsoil.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/grout.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/calculators/concrete-calculator/config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/cubic-yard.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/paint.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/mulch.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/baseboard.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/wallpaper.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete-bags.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/concrete-slab.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/gravel.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/components/react/CalculatorConfig.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/lib/formulas/board-foot.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m src/calculators/waterproofing-calculator/config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m41 passed[39m[22m[90m (41)[39m
+[2m      Tests [22m [1m[32m328 passed[39m[22m[90m (328)[39m
+[2m   Start at [22m 16:45:49
+[2m   Duration [22m 14.21s[2m (environment 48%, import 22%, tests 13%, transform 12%, worker 5%)[22m
+
+[2m    Isolate [22m [33m41 workers spawned[39m[2m · ~810ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~10.26s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+--- typecheck ---
+
+> homediycalc@0.1.0 typecheck
+> astro check
+
+16:46:06 [types] Generated 109ms
+16:46:06 [check] Getting diagnostics for Astro files in /home/hatch/workspace/homediycalc-prototype...
+Result (129 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+--- lint (Prettier formatting check) ---
+
+> homediycalc@0.1.0 lint
+> prettier --check "src/**/*.{ts,tsx,css}" "tests/**/*.{ts,tsx}" "*.{json,mjs}"
+
+Checking formatting...
+All matched files use Prettier code style!
+--- scripted audit checks (production mode, exact origin) ---
+audit mode: production, expected origin: https://example.com
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+PASS  sitemap <loc> URLs use exactly the expected origin — 0 wrong-origin URLs
+PASS  robots.txt Sitemap: is absolute with exactly the expected origin — Sitemap: https://example.com/sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+PASS  canonical present, self-referential, and absolute with exactly the expected origin
+PASS  no page carries a robots noindex meta (production builds are indexable)
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+ALL CHECKS PASSED
+--- Playwright e2e (against the production-mode build) ---
+
+> homediycalc@0.1.0 test:e2e
+> playwright test
+
+
+Running 92 tests using 2 workers
+
+  ✓   1 [chromium] › tests/a11y.spec.ts:84:1 › a11y: keyboard-focused links show a 2px focus outline (1.8s)
+  ✓   3 [chromium] › tests/a11y.spec.ts:109:1 › a11y: pressed toggles show a check-mark marker (879ms)
+  ✓   4 [chromium] › tests/a11y.spec.ts:141:1 › a11y: unknown URLs show the custom 404 page (435ms)
+  ✓   2 [chromium] › tests/a11y.spec.ts:10:1 › a11y: keyboard can reach and operate the paint calculator (3.2s)
+  ✓   6 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓   5 [chromium] › tests/a11y.spec.ts:152:1 › a11y: every input on a calculator page has a label (1.9s)
+  ✓   7 [chromium] › tests/calculators.spec.ts:39:3 › Square Footage Calculator: loads, default result renders, invalid input errors, reset works (1.6s)
+  ✓   8 [chromium] › tests/calculators.spec.ts:39:3 › Paint Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓   9 [chromium] › tests/calculators.spec.ts:39:3 › Gravel Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  10 [chromium] › tests/calculators.spec.ts:39:3 › Mulch Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  11 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Slab Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  12 [chromium] › tests/calculators.spec.ts:39:3 › Cubic Yard Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  13 [chromium] › tests/calculators.spec.ts:39:3 › Cubic Feet Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  14 [chromium] › tests/calculators.spec.ts:39:3 › Tile Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  15 [chromium] › tests/calculators.spec.ts:39:3 › Brick Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  16 [chromium] › tests/calculators.spec.ts:39:3 › Drywall Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  17 [chromium] › tests/calculators.spec.ts:39:3 › Concrete Bags Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  18 [chromium] › tests/calculators.spec.ts:39:3 › Flooring Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  19 [chromium] › tests/calculators.spec.ts:39:3 › Paver Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  20 [chromium] › tests/calculators.spec.ts:39:3 › Topsoil Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  21 [chromium] › tests/calculators.spec.ts:39:3 › Grout Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  22 [chromium] › tests/calculators.spec.ts:39:3 › Board Foot Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  23 [chromium] › tests/calculators.spec.ts:39:3 › Mortar Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  24 [chromium] › tests/calculators.spec.ts:39:3 › Ceiling Tile Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  25 [chromium] › tests/calculators.spec.ts:39:3 › Tile Adhesive Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  26 [chromium] › tests/calculators.spec.ts:39:3 › Primer Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  27 [chromium] › tests/calculators.spec.ts:39:3 › Wallpaper Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  28 [chromium] › tests/calculators.spec.ts:39:3 › Sealant Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  29 [chromium] › tests/calculators.spec.ts:39:3 › Waterproofing Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  31 [chromium] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped (90ms)
+  ✓  30 [chromium] › tests/calculators.spec.ts:39:3 › Baseboard Calculator: loads, default result renders, invalid input errors, reset works (1.0s)
+  ✓  33 [chromium] › tests/home.spec.ts:58:1 › sitemap and robots are served (102ms)
+  ✓  34 [chromium] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) (514ms)
+  ✓  35 [chromium] › tests/legal.spec.ts:21:1 › contact page publishes the official email as a mailto link, no form (510ms)
+  ✓  32 [chromium] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors (1.6s)
+  ✓  36 [chromium] › tests/legal.spec.ts:50:1 › about page names the individual operator based in Malaysia, no registration claim (535ms)
+  ✓  37 [chromium] › tests/legal.spec.ts:70:1 › privacy policy distinguishes browser-local processing from hosting and email — no categorical 'no personal data' (710ms)
+  ✓  38 [chromium] › tests/legal.spec.ts:112:1 › terms of use name the operator, the approved governing law, and the narrowed copyright wording (528ms)
+  ✓  39 [chromium] › tests/legal.spec.ts:147:1 › disclaimer states estimates are not guaranteed quantities or professional advice (502ms)
+  ✓  41 [chromium] › tests/project.spec.ts:20:1 › planner: add from two calculators, edit, export CSV, clear (2.8s)
+  ✓  40 [chromium] › tests/legal.spec.ts:159:1 › footer links reach every legal and contact page (3.0s)
+  ✓  43 [chromium] › tests/project.spec.ts:169:1 › planner: print button calls window.print (1.4s)
+  ✓  44 [chromium] › tests/project.spec.ts:193:1 › planner: corrupt stored data shows the empty state, not a crash (606ms)
+  ✓  42 [chromium] › tests/project.spec.ts:90:1 › planner: partial brick cost stays partial through save, reload, quantity, and CSV (2.6s)
+  ✓  45 [chromium] › tests/styles.spec.ts:12:1 › styles: the Tailwind stylesheet loads and applies (888ms)
+  ✓  46 [chromium] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height (1.4s)
+  ✓  48 [mobile] › tests/a11y.spec.ts:84:1 › a11y: keyboard-focused links show a 2px focus outline (1.3s)
+  ✓  49 [mobile] › tests/a11y.spec.ts:109:1 › a11y: pressed toggles show a check-mark marker (1.1s)
+  ✓  50 [mobile] › tests/a11y.spec.ts:141:1 › a11y: unknown URLs show the custom 404 page (299ms)
+  ✓  47 [mobile] › tests/a11y.spec.ts:10:1 › a11y: keyboard can reach and operate the paint calculator (3.7s)
+  ✓  51 [mobile] › tests/a11y.spec.ts:152:1 › a11y: every input on a calculator page has a label (1.7s)
+  ✓  52 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  54 [mobile] › tests/calculators.spec.ts:39:3 › Paint Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  53 [mobile] › tests/calculators.spec.ts:39:3 › Square Footage Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  55 [mobile] › tests/calculators.spec.ts:39:3 › Gravel Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  56 [mobile] › tests/calculators.spec.ts:39:3 › Mulch Calculator: loads, default result renders, invalid input errors, reset works (1.5s)
+  ✓  57 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Slab Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  58 [mobile] › tests/calculators.spec.ts:39:3 › Cubic Yard Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  59 [mobile] › tests/calculators.spec.ts:39:3 › Cubic Feet Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  60 [mobile] › tests/calculators.spec.ts:39:3 › Tile Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  61 [mobile] › tests/calculators.spec.ts:39:3 › Brick Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  62 [mobile] › tests/calculators.spec.ts:39:3 › Drywall Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  63 [mobile] › tests/calculators.spec.ts:39:3 › Concrete Bags Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  64 [mobile] › tests/calculators.spec.ts:39:3 › Flooring Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  65 [mobile] › tests/calculators.spec.ts:39:3 › Paver Calculator: loads, default result renders, invalid input errors, reset works (1.3s)
+  ✓  66 [mobile] › tests/calculators.spec.ts:39:3 › Topsoil Calculator: loads, default result renders, invalid input errors, reset works (1.4s)
+  ✓  67 [mobile] › tests/calculators.spec.ts:39:3 › Grout Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  68 [mobile] › tests/calculators.spec.ts:39:3 › Board Foot Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  69 [mobile] › tests/calculators.spec.ts:39:3 › Mortar Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  70 [mobile] › tests/calculators.spec.ts:39:3 › Ceiling Tile Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  71 [mobile] › tests/calculators.spec.ts:39:3 › Tile Adhesive Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  72 [mobile] › tests/calculators.spec.ts:39:3 › Primer Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  73 [mobile] › tests/calculators.spec.ts:39:3 › Wallpaper Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  74 [mobile] › tests/calculators.spec.ts:39:3 › Sealant Calculator: loads, default result renders, invalid input errors, reset works (1.1s)
+  ✓  75 [mobile] › tests/calculators.spec.ts:39:3 › Waterproofing Calculator: loads, default result renders, invalid input errors, reset works (1.2s)
+  ✓  77 [mobile] › tests/calculators.spec.ts:81:1 › calculator pages appear in the sitemap; all 25 calculators are shipped (105ms)
+  ✓  76 [mobile] › tests/calculators.spec.ts:39:3 › Baseboard Calculator: loads, default result renders, invalid input errors, reset works (978ms)
+  ✓  79 [mobile] › tests/home.spec.ts:58:1 › sitemap and robots are served (115ms)
+  ✓  80 [mobile] › tests/home.spec.ts:85:1 › noindex and canonical follow the build mode (Phase 8, ADR-17) (412ms)
+  ✓  81 [mobile] › tests/legal.spec.ts:21:1 › contact page publishes the official email as a mailto link, no form (435ms)
+  ✓  78 [mobile] › tests/home.spec.ts:3:1 › home page loads, nav works, no console errors (1.6s)
+  ✓  82 [mobile] › tests/legal.spec.ts:50:1 › about page names the individual operator based in Malaysia, no registration claim (534ms)
+  ✓  83 [mobile] › tests/legal.spec.ts:70:1 › privacy policy distinguishes browser-local processing from hosting and email — no categorical 'no personal data' (608ms)
+  ✓  84 [mobile] › tests/legal.spec.ts:112:1 › terms of use name the operator, the approved governing law, and the narrowed copyright wording (500ms)
+  ✓  85 [mobile] › tests/legal.spec.ts:147:1 › disclaimer states estimates are not guaranteed quantities or professional advice (576ms)
+  ✓  86 [mobile] › tests/legal.spec.ts:159:1 › footer links reach every legal and contact page (2.8s)
+  ✓  87 [mobile] › tests/project.spec.ts:20:1 › planner: add from two calculators, edit, export CSV, clear (2.8s)
+  ✓  89 [mobile] › tests/project.spec.ts:169:1 › planner: print button calls window.print (940ms)
+  ✓  90 [mobile] › tests/project.spec.ts:193:1 › planner: corrupt stored data shows the empty state, not a crash (333ms)
+  ✓  91 [mobile] › tests/styles.spec.ts:12:1 › styles: the Tailwind stylesheet loads and applies (756ms)
+  ✓  92 [mobile] › tests/styles.spec.ts:49:1 › styles: card-title links meet the 24px minimum target height (964ms)
+  ✓  88 [mobile] › tests/project.spec.ts:90:1 › planner: partial brick cost stays partial through save, reload, quantity, and CSV (3.7s)
+
+  92 passed (1.1m)
+--- Lighthouse 12.8.2 (Home + Paint, desktop) ---
+chrome: /home/hatch/.cache/ms-playwright/chromium_headless_shell-1255/chrome-headless-shell-linux64/chrome-headless-shell
+Lighthouse home: Performance 100, Accessibility 100, Best Practices 100, SEO 100 (LCP 0.2 s, CLS 0, TTI 0.2 s)
+Lighthouse paint: Performance 100, Accessibility 100, Best Practices 100, SEO 100 (LCP 0.4 s, CLS 0.005, TTI 0.4 s)
+--- preview-mode build (PUBLIC_BUILD_MODE=preview PUBLIC_SITE_URL=https://example.com PUBLIC_PREVIEW=true) ---
+
+> homediycalc@0.1.0 build
+> astro build
+
+16:48:09 [types] Generated 126ms
+16:48:09 [build] output: "static"
+16:48:09 [build] mode: "static"
+16:48:09 [build] directory: /home/hatch/workspace/homediycalc-prototype/dist/
+16:48:09 [build] Collecting build info...
+16:48:09 [build] ✓ Completed in 263ms.
+16:48:09 [build] Building static entrypoints...
+16:48:10 [vite] ✓ built in 1.21s
+16:48:10 [vite] ✓ built in 293ms
+16:48:10 [build] Rearranging server assets...
+
+ generating static routes 
+16:48:10   ├─ /404.html (+18ms) 
+16:48:10   ├─ /about/index.html (+7ms) 
+16:48:10   ├─ /calculators/concrete-calculator/index.html (+34ms) 
+16:48:10   ├─ /calculators/square-footage-calculator/index.html (+14ms) 
+16:48:10   ├─ /calculators/paint-calculator/index.html (+16ms) 
+16:48:10   ├─ /calculators/gravel-calculator/index.html (+9ms) 
+16:48:10   ├─ /calculators/mulch-calculator/index.html (+14ms) 
+16:48:10   ├─ /calculators/concrete-slab-calculator/index.html (+10ms) 
+16:48:10   ├─ /calculators/cubic-yard-calculator/index.html (+7ms) 
+16:48:10   ├─ /calculators/cubic-feet-calculator/index.html (+9ms) 
+16:48:10   ├─ /calculators/tile-calculator/index.html (+9ms) 
+16:48:10   ├─ /calculators/brick-calculator/index.html (+9ms) 
+16:48:10   ├─ /calculators/drywall-calculator/index.html (+8ms) 
+16:48:10   ├─ /calculators/concrete-bags-calculator/index.html (+7ms) 
+16:48:10   ├─ /calculators/flooring-calculator/index.html (+7ms) 
+16:48:10   ├─ /calculators/paver-calculator/index.html (+11ms) 
+16:48:10   ├─ /calculators/topsoil-calculator/index.html (+7ms) 
+16:48:10   ├─ /calculators/grout-calculator/index.html (+6ms) 
+16:48:11   ├─ /calculators/board-foot-calculator/index.html (+6ms) 
+16:48:11   ├─ /calculators/mortar-calculator/index.html (+6ms) 
+16:48:11   ├─ /calculators/ceiling-tile-calculator/index.html (+5ms) 
+16:48:11   ├─ /calculators/tile-adhesive-calculator/index.html (+5ms) 
+16:48:11   ├─ /calculators/primer-calculator/index.html (+6ms) 
+16:48:11   ├─ /calculators/wallpaper-calculator/index.html (+6ms) 
+16:48:11   ├─ /calculators/sealant-calculator/index.html (+7ms) 
+16:48:11   ├─ /calculators/waterproofing-calculator/index.html (+6ms) 
+16:48:11   ├─ /calculators/baseboard-calculator/index.html (+6ms) 
+16:48:11   ├─ /calculators/index.html (+6ms) 
+16:48:11   ├─ /categories/concrete-and-masonry/index.html (+4ms) 
+16:48:11   ├─ /categories/painting/index.html (+3ms) 
+16:48:11   ├─ /categories/flooring-and-tiles/index.html (+2ms) 
+16:48:11   ├─ /categories/landscaping/index.html (+2ms) 
+16:48:11   ├─ /categories/measurement/index.html (+2ms) 
+16:48:11   ├─ /categories/interior-and-maintenance/index.html (+2ms) 
+16:48:11   ├─ /contact/index.html (+4ms) 
+16:48:11   ├─ /disclaimer/index.html (+4ms) 
+16:48:11   ├─ /my-project/index.html (+5ms) 
+16:48:11   ├─ /privacy-policy/index.html (+4ms) 
+16:48:11   ├─ /robots.txt (+3ms) 
+16:48:11   ├─ /sitemap.xml (+3ms) 
+16:48:11   ├─ /terms-of-use/index.html (+4ms) 
+16:48:11   ├─ /index.html (+6ms) 
+16:48:11 ✓ Completed in 382ms.
+
+16:48:11 [build] ✓ Completed in 1.99s.
+16:48:11 [build] 40 page(s) built in 2.25s
+16:48:11 [build] Complete!
+--- scripted audit checks (preview mode, exact origin + noindex on every page) ---
+audit mode: preview, expected origin: https://example.com
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+PASS  sitemap <loc> URLs use exactly the expected origin — 0 wrong-origin URLs
+PASS  robots.txt Sitemap: is absolute with exactly the expected origin — Sitemap: https://example.com/sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+PASS  canonical present, self-referential, and absolute with exactly the expected origin
+PASS  every indexable page and the 404 carry a robots noindex meta (local/preview builds are never indexable)
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+ALL CHECKS PASSED
+--- local build (no PUBLIC_* vars — the fail-closed default) ---
+
+> homediycalc@0.1.0 build
+> astro build
+
+16:48:13 [types] Generated 84ms
+16:48:13 [build] output: "static"
+16:48:13 [build] mode: "static"
+16:48:13 [build] directory: /home/hatch/workspace/homediycalc-prototype/dist/
+16:48:13 [build] Collecting build info...
+16:48:13 [build] ✓ Completed in 222ms.
+16:48:13 [build] Building static entrypoints...
+16:48:14 [vite] ✓ built in 1.06s
+16:48:14 [vite] ✓ built in 306ms
+16:48:14 [build] Rearranging server assets...
+
+ generating static routes 
+16:48:14   ├─ /404.html (+17ms) 
+16:48:14   ├─ /about/index.html (+5ms) 
+16:48:14   ├─ /calculators/concrete-calculator/index.html (+31ms) 
+16:48:14   ├─ /calculators/square-footage-calculator/index.html (+7ms) 
+16:48:14   ├─ /calculators/paint-calculator/index.html (+9ms) 
+16:48:14   ├─ /calculators/gravel-calculator/index.html (+8ms) 
+16:48:14   ├─ /calculators/mulch-calculator/index.html (+9ms) 
+16:48:14   ├─ /calculators/concrete-slab-calculator/index.html (+9ms) 
+16:48:14   ├─ /calculators/cubic-yard-calculator/index.html (+7ms) 
+16:48:14   ├─ /calculators/cubic-feet-calculator/index.html (+7ms) 
+16:48:14   ├─ /calculators/tile-calculator/index.html (+7ms) 
+16:48:14   ├─ /calculators/brick-calculator/index.html (+8ms) 
+16:48:14   ├─ /calculators/drywall-calculator/index.html (+8ms) 
+16:48:14   ├─ /calculators/concrete-bags-calculator/index.html (+5ms) 
+16:48:14   ├─ /calculators/flooring-calculator/index.html (+6ms) 
+16:48:14   ├─ /calculators/paver-calculator/index.html (+7ms) 
+16:48:14   ├─ /calculators/topsoil-calculator/index.html (+6ms) 
+16:48:14   ├─ /calculators/grout-calculator/index.html (+5ms) 
+16:48:14   ├─ /calculators/board-foot-calculator/index.html (+6ms) 
+16:48:14   ├─ /calculators/mortar-calculator/index.html (+6ms) 
+16:48:14   ├─ /calculators/ceiling-tile-calculator/index.html (+5ms) 
+16:48:14   ├─ /calculators/tile-adhesive-calculator/index.html (+5ms) 
+16:48:14   ├─ /calculators/primer-calculator/index.html (+7ms) 
+16:48:14   ├─ /calculators/wallpaper-calculator/index.html (+6ms) 
+16:48:14   ├─ /calculators/sealant-calculator/index.html (+8ms) 
+16:48:14   ├─ /calculators/waterproofing-calculator/index.html (+6ms) 
+16:48:14   ├─ /calculators/baseboard-calculator/index.html (+7ms) 
+16:48:14   ├─ /calculators/index.html (+7ms) 
+16:48:14   ├─ /categories/concrete-and-masonry/index.html (+4ms) 
+16:48:14   ├─ /categories/painting/index.html (+2ms) 
+16:48:14   ├─ /categories/flooring-and-tiles/index.html (+2ms) 
+16:48:14   ├─ /categories/landscaping/index.html (+2ms) 
+16:48:14   ├─ /categories/measurement/index.html (+2ms) 
+16:48:14   ├─ /categories/interior-and-maintenance/index.html (+2ms) 
+16:48:14   ├─ /contact/index.html (+4ms) 
+16:48:14   ├─ /disclaimer/index.html (+4ms) 
+16:48:14   ├─ /my-project/index.html (+5ms) 
+16:48:14   ├─ /privacy-policy/index.html (+4ms) 
+16:48:14   ├─ /robots.txt (+3ms) 
+16:48:14   ├─ /sitemap.xml (+2ms) 
+16:48:14   ├─ /terms-of-use/index.html (+3ms) 
+16:48:14   ├─ /index.html (+6ms) 
+16:48:14 ✓ Completed in 322ms.
+
+16:48:14 [build] ✓ Completed in 1.78s.
+16:48:14 [build] 40 page(s) built in 2.00s
+16:48:14 [build] Complete!
+--- scripted audit checks (local mode, relative URLs + noindex on every page) ---
+audit mode: local
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+PASS  sitemap <loc> URLs are relative (no origin set) — 0 absolute URLs
+PASS  robots.txt Sitemap: is relative (no origin set) — Sitemap: /sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+PASS  canonical present, self-referential, and relative (no origin set)
+PASS  every indexable page and the 404 carry a robots noindex meta (local/preview builds are never indexable)
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+ALL CHECKS PASSED
+--- negative builds (ADR-17 — these must NOT become production) ---
+--- negative 1: origin-only build (no mode) must be local ---
+
+> homediycalc@0.1.0 build
+> astro build
+
+16:48:16 [types] Generated 87ms
+16:48:16 [build] output: "static"
+16:48:16 [build] mode: "static"
+16:48:16 [build] directory: /home/hatch/workspace/homediycalc-prototype/dist/
+16:48:16 [build] Collecting build info...
+16:48:16 [build] ✓ Completed in 244ms.
+16:48:16 [build] Building static entrypoints...
+16:48:17 [vite] ✓ built in 938ms
+16:48:18 [vite] ✓ built in 268ms
+16:48:18 [build] Rearranging server assets...
+
+ generating static routes 
+16:48:18   ├─ /404.html (+20ms) 
+16:48:18   ├─ /about/index.html (+6ms) 
+16:48:18   ├─ /calculators/concrete-calculator/index.html (+35ms) 
+16:48:18   ├─ /calculators/square-footage-calculator/index.html (+8ms) 
+16:48:18   ├─ /calculators/paint-calculator/index.html (+10ms) 
+16:48:18   ├─ /calculators/gravel-calculator/index.html (+8ms) 
+16:48:18   ├─ /calculators/mulch-calculator/index.html (+8ms) 
+16:48:18   ├─ /calculators/concrete-slab-calculator/index.html (+9ms) 
+16:48:18   ├─ /calculators/cubic-yard-calculator/index.html (+7ms) 
+16:48:18   ├─ /calculators/cubic-feet-calculator/index.html (+8ms) 
+16:48:18   ├─ /calculators/tile-calculator/index.html (+8ms) 
+16:48:18   ├─ /calculators/brick-calculator/index.html (+9ms) 
+16:48:18   ├─ /calculators/drywall-calculator/index.html (+10ms) 
+16:48:18   ├─ /calculators/concrete-bags-calculator/index.html (+6ms) 
+16:48:18   ├─ /calculators/flooring-calculator/index.html (+7ms) 
+16:48:18   ├─ /calculators/paver-calculator/index.html (+11ms) 
+16:48:18   ├─ /calculators/topsoil-calculator/index.html (+11ms) 
+16:48:18   ├─ /calculators/grout-calculator/index.html (+7ms) 
+16:48:18   ├─ /calculators/board-foot-calculator/index.html (+10ms) 
+16:48:18   ├─ /calculators/mortar-calculator/index.html (+27ms) 
+16:48:18   ├─ /calculators/ceiling-tile-calculator/index.html (+7ms) 
+16:48:18   ├─ /calculators/tile-adhesive-calculator/index.html (+5ms) 
+16:48:18   ├─ /calculators/primer-calculator/index.html (+7ms) 
+16:48:18   ├─ /calculators/wallpaper-calculator/index.html (+5ms) 
+16:48:18   ├─ /calculators/sealant-calculator/index.html (+7ms) 
+16:48:18   ├─ /calculators/waterproofing-calculator/index.html (+5ms) 
+16:48:18   ├─ /calculators/baseboard-calculator/index.html (+6ms) 
+16:48:18   ├─ /calculators/index.html (+5ms) 
+16:48:18   ├─ /categories/concrete-and-masonry/index.html (+3ms) 
+16:48:18   ├─ /categories/painting/index.html (+2ms) 
+16:48:18   ├─ /categories/flooring-and-tiles/index.html (+2ms) 
+16:48:18   ├─ /categories/landscaping/index.html (+2ms) 
+16:48:18   ├─ /categories/measurement/index.html (+2ms) 
+16:48:18   ├─ /categories/interior-and-maintenance/index.html (+2ms) 
+16:48:18   ├─ /contact/index.html (+4ms) 
+16:48:18   ├─ /disclaimer/index.html (+3ms) 
+16:48:18   ├─ /my-project/index.html (+4ms) 
+16:48:18   ├─ /privacy-policy/index.html (+3ms) 
+16:48:18   ├─ /robots.txt (+2ms) 
+16:48:18   ├─ /sitemap.xml (+2ms) 
+16:48:18   ├─ /terms-of-use/index.html (+3ms) 
+16:48:18   ├─ /index.html (+4ms) 
+16:48:18 ✓ Completed in 376ms.
+
+16:48:18 [build] ✓ Completed in 1.67s.
+16:48:18 [build] 40 page(s) built in 1.92s
+16:48:18 [build] Complete!
+audit mode: local
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+PASS  sitemap <loc> URLs are relative (no origin set) — 0 absolute URLs
+PASS  robots.txt Sitemap: is relative (no origin set) — Sitemap: /sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+PASS  canonical present, self-referential, and relative (no origin set)
+PASS  every indexable page and the 404 carry a robots noindex meta (local/preview builds are never indexable)
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+ALL CHECKS PASSED
+audit mode: production, expected origin: https://example.com
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+FAIL  sitemap <loc> URLs use exactly the expected origin — 39 wrong-origin URLs: /
+FAIL  robots.txt Sitemap: is absolute with exactly the expected origin — Sitemap: /sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+FAIL  canonical present, self-referential, and absolute with exactly the expected origin — about/index.html; calculators/baseboard-calculator/index.html; calculators/board-foot-calculator/index.html
+FAIL  no page carries a robots noindex meta (production builds are indexable) — about/index.html; calculators/baseboard-calculator/index.html; calculators/board-foot-calculator/index.html
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+FAILURES: sitemap <loc> URLs use exactly the expected origin, robots.txt Sitemap: is absolute with exactly the expected origin, canonical present, self-referential, and absolute with exactly the expected origin, no page carries a robots noindex meta (production builds are indexable)
+negative check passed: origin-only build is local, not production
+--- negative 2: mistyped preview flag (PUBLIC_PREVIEW=True) must be local ---
+
+> homediycalc@0.1.0 build
+> astro build
+
+16:48:20 [types] Generated 93ms
+16:48:20 [build] output: "static"
+16:48:20 [build] mode: "static"
+16:48:20 [build] directory: /home/hatch/workspace/homediycalc-prototype/dist/
+16:48:20 [build] Collecting build info...
+16:48:20 [build] ✓ Completed in 199ms.
+16:48:20 [build] Building static entrypoints...
+16:48:22 [vite] ✓ built in 1.01s
+16:48:22 [vite] ✓ built in 329ms
+16:48:22 [build] Rearranging server assets...
+
+ generating static routes 
+16:48:22   ├─ /404.html (+18ms) 
+16:48:22   ├─ /about/index.html (+5ms) 
+16:48:22   ├─ /calculators/concrete-calculator/index.html (+34ms) 
+16:48:22   ├─ /calculators/square-footage-calculator/index.html (+7ms) 
+16:48:22   ├─ /calculators/paint-calculator/index.html (+9ms) 
+16:48:22   ├─ /calculators/gravel-calculator/index.html (+8ms) 
+16:48:22   ├─ /calculators/mulch-calculator/index.html (+8ms) 
+16:48:22   ├─ /calculators/concrete-slab-calculator/index.html (+9ms) 
+16:48:22   ├─ /calculators/cubic-yard-calculator/index.html (+7ms) 
+16:48:22   ├─ /calculators/cubic-feet-calculator/index.html (+7ms) 
+16:48:22   ├─ /calculators/tile-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/brick-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/drywall-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/concrete-bags-calculator/index.html (+5ms) 
+16:48:22   ├─ /calculators/flooring-calculator/index.html (+5ms) 
+16:48:22   ├─ /calculators/paver-calculator/index.html (+7ms) 
+16:48:22   ├─ /calculators/topsoil-calculator/index.html (+5ms) 
+16:48:22   ├─ /calculators/grout-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/board-foot-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/mortar-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/ceiling-tile-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/tile-adhesive-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/primer-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/wallpaper-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/sealant-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/waterproofing-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/baseboard-calculator/index.html (+6ms) 
+16:48:22   ├─ /calculators/index.html (+5ms) 
+16:48:22   ├─ /categories/concrete-and-masonry/index.html (+3ms) 
+16:48:22   ├─ /categories/painting/index.html (+3ms) 
+16:48:22   ├─ /categories/flooring-and-tiles/index.html (+3ms) 
+16:48:22   ├─ /categories/landscaping/index.html (+2ms) 
+16:48:22   ├─ /categories/measurement/index.html (+2ms) 
+16:48:22   ├─ /categories/interior-and-maintenance/index.html (+2ms) 
+16:48:22   ├─ /contact/index.html (+4ms) 
+16:48:22   ├─ /disclaimer/index.html (+3ms) 
+16:48:22   ├─ /my-project/index.html (+4ms) 
+16:48:22   ├─ /privacy-policy/index.html (+3ms) 
+16:48:22   ├─ /robots.txt (+3ms) 
+16:48:22   ├─ /sitemap.xml (+3ms) 
+16:48:22   ├─ /terms-of-use/index.html (+4ms) 
+16:48:22   ├─ /index.html (+7ms) 
+16:48:22 ✓ Completed in 326ms.
+
+16:48:22 [build] ✓ Completed in 1.76s.
+16:48:22 [build] 40 page(s) built in 1.96s
+16:48:22 [build] Complete!
+audit mode: local
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+PASS  sitemap <loc> URLs are relative (no origin set) — 0 absolute URLs
+PASS  robots.txt Sitemap: is relative (no origin set) — Sitemap: /sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+PASS  canonical present, self-referential, and relative (no origin set)
+PASS  every indexable page and the 404 carry a robots noindex meta (local/preview builds are never indexable)
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+ALL CHECKS PASSED
+audit mode: production, expected origin: https://example.com
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+FAIL  sitemap <loc> URLs use exactly the expected origin — 39 wrong-origin URLs: /
+FAIL  robots.txt Sitemap: is absolute with exactly the expected origin — Sitemap: /sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+FAIL  canonical present, self-referential, and absolute with exactly the expected origin — about/index.html; calculators/baseboard-calculator/index.html; calculators/board-foot-calculator/index.html
+FAIL  no page carries a robots noindex meta (production builds are indexable) — about/index.html; calculators/baseboard-calculator/index.html; calculators/board-foot-calculator/index.html
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+FAILURES: sitemap <loc> URLs use exactly the expected origin, robots.txt Sitemap: is absolute with exactly the expected origin, canonical present, self-referential, and absolute with exactly the expected origin, no page carries a robots noindex meta (production builds are indexable)
+negative check passed: mistyped preview flag build is local, not production
+--- negative 3: production build on a preview branch must fail ---
+negative check passed: production build on a preview branch refused
+--- negative 4: production build with missing branch context must fail ---
+negative check passed: production build with missing branch context refused
+--- negative 5: production mode + preview flag conflict must fail ---
+negative check passed: production+preview-flag conflict refused
+--- positive branch check: production build on the production branch must pass ---
+
+> homediycalc@0.1.0 build
+> astro build
+
+16:48:35 [types] Generated 84ms
+16:48:35 [build] output: "static"
+16:48:35 [build] mode: "static"
+16:48:35 [build] directory: /home/hatch/workspace/homediycalc-prototype/dist/
+16:48:35 [build] Collecting build info...
+16:48:35 [build] ✓ Completed in 247ms.
+16:48:35 [build] Building static entrypoints...
+16:48:36 [vite] ✓ built in 963ms
+16:48:36 [vite] ✓ built in 389ms
+16:48:36 [build] Rearranging server assets...
+
+ generating static routes 
+16:48:36   ├─ /404.html (+19ms) 
+16:48:36   ├─ /about/index.html (+5ms) 
+16:48:36   ├─ /calculators/concrete-calculator/index.html (+33ms) 
+16:48:36   ├─ /calculators/square-footage-calculator/index.html (+8ms) 
+16:48:36   ├─ /calculators/paint-calculator/index.html (+9ms) 
+16:48:36   ├─ /calculators/gravel-calculator/index.html (+8ms) 
+16:48:36   ├─ /calculators/mulch-calculator/index.html (+8ms) 
+16:48:36   ├─ /calculators/concrete-slab-calculator/index.html (+8ms) 
+16:48:36   ├─ /calculators/cubic-yard-calculator/index.html (+7ms) 
+16:48:36   ├─ /calculators/cubic-feet-calculator/index.html (+7ms) 
+16:48:36   ├─ /calculators/tile-calculator/index.html (+7ms) 
+16:48:36   ├─ /calculators/brick-calculator/index.html (+7ms) 
+16:48:36   ├─ /calculators/drywall-calculator/index.html (+7ms) 
+16:48:36   ├─ /calculators/concrete-bags-calculator/index.html (+5ms) 
+16:48:36   ├─ /calculators/flooring-calculator/index.html (+5ms) 
+16:48:36   ├─ /calculators/paver-calculator/index.html (+7ms) 
+16:48:36   ├─ /calculators/topsoil-calculator/index.html (+6ms) 
+16:48:36   ├─ /calculators/grout-calculator/index.html (+6ms) 
+16:48:36   ├─ /calculators/board-foot-calculator/index.html (+6ms) 
+16:48:36   ├─ /calculators/mortar-calculator/index.html (+6ms) 
+16:48:36   ├─ /calculators/ceiling-tile-calculator/index.html (+5ms) 
+16:48:36   ├─ /calculators/tile-adhesive-calculator/index.html (+5ms) 
+16:48:36   ├─ /calculators/primer-calculator/index.html (+6ms) 
+16:48:36   ├─ /calculators/wallpaper-calculator/index.html (+8ms) 
+16:48:36   ├─ /calculators/sealant-calculator/index.html (+10ms) 
+16:48:36   ├─ /calculators/waterproofing-calculator/index.html (+8ms) 
+16:48:36   ├─ /calculators/baseboard-calculator/index.html (+8ms) 
+16:48:36   ├─ /calculators/index.html (+9ms) 
+16:48:36   ├─ /categories/concrete-and-masonry/index.html (+4ms) 
+16:48:36   ├─ /categories/painting/index.html (+2ms) 
+16:48:36   ├─ /categories/flooring-and-tiles/index.html (+2ms) 
+16:48:36   ├─ /categories/landscaping/index.html (+2ms) 
+16:48:36   ├─ /categories/measurement/index.html (+2ms) 
+16:48:36   ├─ /categories/interior-and-maintenance/index.html (+2ms) 
+16:48:36   ├─ /contact/index.html (+4ms) 
+16:48:36   ├─ /disclaimer/index.html (+3ms) 
+16:48:36   ├─ /my-project/index.html (+4ms) 
+16:48:36   ├─ /privacy-policy/index.html (+4ms) 
+16:48:36   ├─ /robots.txt (+3ms) 
+16:48:36   ├─ /sitemap.xml (+3ms) 
+16:48:36   ├─ /terms-of-use/index.html (+4ms) 
+16:48:36   ├─ /index.html (+5ms) 
+16:48:36 ✓ Completed in 339ms.
+
+16:48:36 [build] ✓ Completed in 1.77s.
+16:48:36 [build] 40 page(s) built in 2.02s
+16:48:36 [build] Complete!
+audit mode: production, expected origin: https://example.com
+PASS  built pages: 39 indexable + custom 404 — 39 indexable, 404=yes
+PASS  sitemap lists exactly the 39 indexable pages (404 excluded) — 39 URLs
+PASS  sitemap <loc> URLs use exactly the expected origin — 0 wrong-origin URLs
+PASS  robots.txt Sitemap: is absolute with exactly the expected origin — Sitemap: https://example.com/sitemap.xml
+PASS  unique titles, none over 65 chars — 39/39 unique, longest 39 chars
+PASS  unique meta descriptions, none over 165 chars — 39/39 unique
+PASS  canonical present, self-referential, and absolute with exactly the expected origin
+PASS  no page carries a robots noindex meta (production builds are indexable)
+PASS  exactly one H1 per page
+PASS  Open Graph + Twitter card on every page
+PASS  every JSON-LD block parses
+PASS  zero dead internal links
+PASS  no external scripts or stylesheets
+PASS  no tracking/ad strings in built output
+PASS  no fetch/XHR/WebSocket in built client JavaScript
+PASS  ads.ts is still a placeholder (no real ad code)
+PASS  custom 404: single H1, links home + All Calculators, excluded from sitemap
+
+ALL CHECKS PASSED
+positive branch check passed: production build on branch main is production
+=== ADR-9 gate round 1 PASSED ===
