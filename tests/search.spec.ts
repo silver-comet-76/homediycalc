@@ -52,9 +52,7 @@ function visibleEntries(page: import("@playwright/test").Page) {
   return page.locator(".calculator-entry:visible");
 }
 
-test("header search 'tile' filters the calculator directory", async ({
-  page,
-}) => {
+test("header search 'tile' filters the calculator directory", async ({ page }) => {
   await page.goto("/");
   // Type in the header search and submit (navigates to /calculators/?q=tile).
   await page.getByLabel("Search calculators").fill("tile");
@@ -65,12 +63,8 @@ test("header search 'tile' filters the calculator directory", async ({
   await expect(page.locator("#calculator-filter")).toHaveValue("tile");
   // Matching calculators are shown (4): Tile, Grout, Tile Adhesive, Ceiling Tile.
   await expect(visibleEntries(page)).toHaveCount(4);
-  await expect(
-    page.getByRole("link", { name: "Tile Calculator", exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "Grout Calculator", exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Tile Calculator", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Grout Calculator", exact: true })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Tile Adhesive Calculator", exact: true }),
   ).toBeVisible();
@@ -78,12 +72,8 @@ test("header search 'tile' filters the calculator directory", async ({
     page.getByRole("link", { name: "Ceiling Tile Calculator", exact: true }),
   ).toBeVisible();
   // Non-matching calculators are hidden.
-  await expect(
-    page.getByRole("link", { name: "Paint Calculator", exact: true }),
-  ).toBeHidden();
-  await expect(
-    page.getByRole("link", { name: "Concrete Calculator", exact: true }),
-  ).toBeHidden();
+  await expect(page.getByRole("link", { name: "Paint Calculator", exact: true })).toBeHidden();
+  await expect(page.getByRole("link", { name: "Concrete Calculator", exact: true })).toBeHidden();
   // Category sections with no matches are hidden (only Flooring and
   // Tiles + Interior and Maintenance have a tile match).
   await expect(page.locator("[data-category-section]:visible")).toHaveCount(2);
@@ -116,9 +106,7 @@ test("unmatched search shows the no-results message", async ({ page }) => {
   await expect(visibleEntries(page)).toHaveCount(0);
   await expect(page.locator("[data-category-section]:visible")).toHaveCount(0);
   await expect(page.locator("#no-results")).toBeVisible();
-  await expect(page.locator("#no-results")).toContainText(
-    "No calculators match that search",
-  );
+  await expect(page.locator("#no-results")).toContainText("No calculators match that search");
 });
 
 test("empty and cleared queries show all 25 calculators", async ({ page }) => {
@@ -139,9 +127,7 @@ test("empty and cleared queries show all 25 calculators", async ({ page }) => {
   await expect(page.locator("#no-results")).toBeHidden();
 });
 
-test("no P0/P1/P2 or 'Arrives in Phase' labels on listing/category pages", async ({
-  page,
-}) => {
+test("no P0/P1/P2 or 'Arrives in Phase' labels on listing/category pages", async ({ page }) => {
   // Calculators directory.
   await page.goto("/calculators/");
   const dirText = await page.locator("main").innerText();
