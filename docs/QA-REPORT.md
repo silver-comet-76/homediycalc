@@ -715,4 +715,59 @@ Tests: `tests/legal.spec.ts` (privacy test) now asserts the new
 wording is present ("the public production site is live at") and the
 stale wording is absent ("pending the owner's launch approval" count 0).
 
-[Gate results for this §6 correction to be recorded here after the three rounds run on the final source.]
+Tests: `tests/legal.spec.ts` (privacy test) now asserts the new
+wording is present ("the public production site is live at") and the
+stale wording is absent ("pending the owner's launch approval" count 0).
+
+Terms §6 whitespace fix (same PR, staging review 7091853733): the
+cross-reference was split across source lines ("See the" then the
+link) and Astro stripped the space, rendering "See thePrivacy
+Policy." — the fix keeps "See the" and the link on one source line,
+and `tests/legal.spec.ts` (terms test) now asserts the rendered
+"See the Privacy Policy." is present and "See thePrivacy Policy"
+count is 0.
+
+Gate results (ADR-9, 3 consecutive clean rounds) — GitHub Actions run
+45126785615, workflow "ADR-9 Gate (PR #7)", branch
+`phase-9-privacy-production-status`, head
+`aa8ad7bcfc86925f5cbdbea15ee73407cbb0f32a`, 2026-11-23 15:49:53–15:54:55
+JST (total 5m 2s), GitHub-hosted ubuntu-latest runner, Node 24,
+Python 3.12. The run was triggered by the push of the final source
+(the §6 correction, the Terms §6 fix, the test guards, and the CI
+workflow). Note: the gate job log itself does not print the source
+SHA; the run is pinned to aa8ad7bc by GitHub run metadata.
+
+| Check | Round 1 | Round 2 | Round 3 |
+|---|---|---|---|
+| Vitest | 328/328 (41 files) | 328/328 (41 files) | 328/328 (41 files) |
+| Typecheck (129 files) | 0 errors | 0 errors | 0 errors |
+| Prettier | clean | clean | clean |
+| Audit (production, example.com) | ALL CHECKS PASSED | ALL CHECKS PASSED | ALL CHECKS PASSED |
+| Playwright | 92/92 | 92/92 | 92/92 |
+| Lighthouse Home (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+| Lighthouse Paint (desktop) | 100/100/100/100 | 100/100/100/100 | 100/100/100/100 |
+| Negative builds (ADR-17) | 5/5 + positive check | 5/5 + positive check | 5/5 + positive check |
+
+Round 1: 2026-11-23T06:50:23Z, 1m 27s. Round 2: 06:51:50Z, 1m 16s.
+Round 3: 06:53:06Z, 1m 16s. Lighthouse Home LCP 0.2 s, CLS 0,
+TTI 0.2 s every round; Paint LCP 0.4 s, CLS 0 (round 1) / 0.005
+(rounds 2–3), TTI 0.4 s. No failures, no issues found in any of the
+three counted rounds. Running tally: **3 consecutive clean rounds.**
+The "FAIL" lines inside each round are the expected failures of the
+negative builds' production-mode audit (local builds correctly fail a
+production audit), each followed by "negative check passed" (15 total,
+5 per round).
+
+Production artifact (same run, job "Production artifact (audited, not
+deployed)", 26 s, origin https://homediycalc.pages.dev): audit ALL
+CHECKS PASSED (production mode); "Verify production origin and no
+noindex" passed ("OK: sitemap uses the production origin; no noindex
+in production HTML."). Digest (sha256 of sorted per-file sha256 list):
+51 files, `3362ea14111133a93c703b1484b9921ca7744f3917686350b0c0bd08f267ca42`.
+NOT deployed. Artifacts on the run page (30-day retention):
+`gate-logs` (20 KB, contains round-1/2/3.log) and `production-dist`
+(367 KB). The full round logs live in the `gate-logs` artifact; they
+are not committed as files under `docs/gate-logs/` in this push
+because the GitHub connector's file-write API is blocked (HTTP 403)
+and the browser upload cannot extract the artifact zip — the
+QA-REPORT record above and the artifact are the inspectable evidence.
