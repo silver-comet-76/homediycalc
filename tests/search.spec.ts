@@ -52,7 +52,9 @@ function visibleEntries(page: import("@playwright/test").Page) {
   return page.locator(".calculator-entry:visible");
 }
 
-test("header search 'tile' filters the calculator directory", async ({ page }) => {
+test("header search 'tile' filters the calculator directory", async ({
+  page,
+}) => {
   await page.goto("/");
   // Type in the header search and submit (navigates to /calculators/?q=tile).
   await page.getByLabel("Search calculators").fill("tile");
@@ -114,7 +116,9 @@ test("unmatched search shows the no-results message", async ({ page }) => {
   await expect(visibleEntries(page)).toHaveCount(0);
   await expect(page.locator("[data-category-section]:visible")).toHaveCount(0);
   await expect(page.locator("#no-results")).toBeVisible();
-  await expect(page.locator("#no-results")).toContainText("No calculators match that search");
+  await expect(page.locator("#no-results")).toContainText(
+    "No calculators match that search",
+  );
 });
 
 test("empty and cleared queries show all 25 calculators", async ({ page }) => {
