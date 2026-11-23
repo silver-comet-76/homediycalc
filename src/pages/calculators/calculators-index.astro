@@ -1,0 +1,111 @@
+---
+import Layout from "../../components/Layout.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { CATEGORIES, getCalculatorsByCategory } from "../../lib/registry";
+import { SHIPPED_CALCULATOR_SLUGS } from "../../calculators/index";
+
+const shipped = new Set(SHIPPED_CALCULATOR_SLUGS);
+
+const crumbs = [{ name: "Home", path: "/" }, { name: "All Calculators" }];
+---
+
+<Layout
+  title="All Calculators"
+  description="Browse all 25 free HomeDIYCalc calculators by category: concrete, paint, flooring, landscaping, measurement, and interior projects."
+  canonical="/calculators/"
+  breadcrumbs={crumbs}
+>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+    All Calculators
+  </h1>
+  <p class="mt-3 max-w-3xl text-lg text-slate-600">
+    25 free calculators across 6 categories. All 25 calculators are built, tested, and available now.
+  </p>
+
+  <form id="calculator-search" role="search" class="mt-6 flex max-w-md gap-2">
+    <label for="calculator-filter" class="sr-only">Filter calculators by name</label>
+    <input
+      id="calculator-filter"
+      name="q"
+      type="search"
+      placeholder="Filter calculators…"
+      class="input-field"
+    />
+    <button type="submit" class="btn-secondary">Filter</button>
+  </form>
+  <p id="no-results" class="mt-4 hidden text-slate-600">
+    No calculators match that search. Try a different word, or browse the categories below.
+  </p>
+
+  {
+    CATEGORIES.map((category) => {
+      const calculators = getCalculatorsByCategory(category.slug);
+      return (
+        <section aria-labelledby={`cat-${category.slug}`} class="mt-10" data-category-section>
+          <h2 id={`cat-${category.slug}`} class="text-2xl font-bold text-slate-900">
+            {category.name}
+          </h2>
+          <p class="mt-1 text-slate-600">{category.description}</p>
+          <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {calculators.map((calc) => (
+              <li
+                class="card calculator-entry"
+                data-name={calc.name.toLowerCase()}
+                data-summary={calc.summary.toLowerCase()}
+              >
+                {shipped.has(calc.slug) ? (
+                  <a href={calc.url} class="inline-block py-0.5 leading-6 font-semibold text-slate-900">
+                    {calc.name}
+                  </a>
+                ) : (
+                  <p class="font-semibold text-slate-900">{calc.name}</p>
+                )}
+                <p class="mt-1 text-sm text-slate-600">{calc.summary}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    })
+  }
+
+  <script>
+    const input = document.getElementById("calculator-filter") as HTMLInputElement | null;
+    const noResults = document.getElementById("no-results");
+    const entries = Array.from(document.querySelectorAll<HTMLElement>(".calculator-entry"));
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-category-section]"));
+
+    function applyFilter() {
+      const q = (input?.value ?? "").trim().toLowerCase();
+      let visible = 0;
+      for (const entry of entries) {
+        const match =
+          q === "" ||
+          (entry.dataset.name ?? "").includes(q) ||
+          (entry.dataset.summary ?? "").includes(q);
+        entry.hidden = !match;
+        if (match) visible += 1;
+      }
+      for (const section of sections) {
+        section.hidden = !Array.from(section.querySelectorAll(".calculator-entry")).some(
+          (entry) => !(entry as HTMLElement).hidden,
+        );
+      }
+      if (noResults) noResults.hidden = visible !== 0;
+    }
+
+    // Read the search query from the URL (client-side): the header search
+    // navigates here as /calculators/?q=..., and this static page is
+    // pre-rendered, so Astro.url.searchParams (build-time) cannot see it.
+    // URLSearchParams decodes percent-encoding (e.g. %20, +) for us, and
+    // applyFilter() lowercases the query, so mixed case works too.
+    const initialQuery = new URLSearchParams(window.location.search).get("q")?.trim() ?? "";
+    if (input && initialQuery !== "") {
+      input.value = initialQuery;
+    }
+
+    input?.addEventListener("input", applyFilter);
+    applyFilter();
+  </script>
+</Layout>
