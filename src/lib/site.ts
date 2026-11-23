@@ -47,9 +47,13 @@ export const SITE_NAME = "HomeDIYCalc";
 export const SITE_TAGLINE = "Calculate Materials. Estimate Costs. Build Your Shopping List.";
 export const SITE_DESCRIPTION =
   "Free home improvement calculators: work out how much concrete, paint, gravel, tile, and more you need, with a shopping list to take to the store. No signup, no cost.";
-// No contact email exists yet and there is no form backend (ADR-3), so no
-// email address is published here. The Contact page says so honestly
-// instead of listing an address that does not exist. Do not invent one.
+// Official contact email (owner-confirmed 2026-11-23, Phase 9). There is
+// still no form backend (ADR-3): the Contact page links to this address
+// with a mailto link only. Do not invent or substitute another address —
+// notably not contact@homediycalc.com, a domain the owner does not own.
+// Inbound delivery test sent 2026-11-23; see docs/DEPLOYMENT.md §14.10
+// for the verification status.
+export const SITE_CONTACT_EMAIL = "homediycalc@gmail.com";
 
 /** The three build modes. See the header comment. */
 export type BuildMode = "local" | "preview" | "production";

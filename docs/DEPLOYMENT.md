@@ -349,16 +349,19 @@ Full steps are in §8 (all three verification methods + sitemap submission + the
 - **Rollback:** as §9 (Pages rollback to the previous deployment, or revert the commit and push). If the bad deploy is a content/calculator error, fix the source, re-run the full gate, then deploy the fix. Do not hot-edit `dist/`.
 - **Duplicate-content guard:** production is the only build with `PUBLIC_BUILD_MODE=production` + a validated origin + (on Cloudflare) a matching production branch, and the only build without a noindex tag. Every other build is noindex by construction — a preview has mode `preview`, and any build with a missing, mistyped, or origin-only config is a local-mode build, which is noindex too — so no second host can present itself as the canonical site, even if its env vars are missing, mistyped, or inherited from production.
 
-### 14.10 Owner decisions still pending (no action taken unilaterally)
+### 14.10 Owner decisions (confirmed 2026-11-23; see Issue #5 handover)
 
-| Decision | Status | What the owner must do |
+Owner decisions confirmed on 2026-11-23 (Phase 9 owner-decisions change, branch `phase-9-legal-contact`). The contact email, operator identity, and production origin below are confirmed; governing law and the license wording are the owner's proposed/preferred choices and are flagged for final confirmation before public launch.
+
+| Decision | Status | Record |
 |---|---|---|
-| Production origin / domain | Open | Create the Cloudflare account + Pages project (§14.2) or supply an existing domain; the `PUBLIC_SITE_URL` value comes from that project. No domain purchased, no host invented. |
-| Project license | Open | Choose: keep the project unlicensed / all rights reserved (current state — `package.json` has no license field), or pick a license (e.g. MIT). Note: `"private": true` in `package.json` only blocks an accidental `npm publish` — it does **not** make the GitHub repository private. The repo is public and the code is visible to anyone; "keep the project private" is not an available option without changing the repository's visibility. The choice is recorded as a new ADR; nothing is chosen here. |
-| Contact route | Open | The Contact page honestly says there is no contact form or email yet and that a route will be set up before launch. Supply an email or a form endpoint, or approve revised wording. No address is invented. |
-| Governing law (Terms of Use) | Open | The Terms name no jurisdiction. The owner (or their counsel) picks one; none is asserted here. |
-| Operator identity | Open | The legal pages speak as "HomeDIYCalc" with no personal or company name — no identity is invented. If the owner wants a named operator (person or company), supply it and the pages will be updated. |
-| Public deployment | Open | Separate approval required (§13). Nothing is deployed in Phase 8. |
+| Production origin / domain | **Confirmed** | `https://homediycalc.pages.dev` (Cloudflare Pages Free, assigned pages.dev hostname). No custom domain. Do not purchase homediycalc.com or homediycalc.net, and do not configure paid services. |
+| Project license | **Preferred, not formally confirmed** | All Rights Reserved is the owner's preferred option. The Terms of Use §8 states it as the proposed wording; the repository license is NOT changed (package.json still has no license field, `"private": true`; the public GitHub repo remains unlicensed by default). Final confirmation required before launch. |
+| Contact route | **Confirmed** | Official contact email `homediycalc@gmail.com` (owner-confirmed registered). The Contact page links it via mailto only; there is no form backend (ADR-3). Do NOT use contact@homediycalc.com (domain not owned). Inbound delivery test sent 2026-11-23 from itgaminglim@gmail.com (code HDY-20261123-1229); no bounce observed as of the Phase 9 owner-decisions handover, but inbox receipt is confirmed only when the owner checks the homediycalc@gmail.com inbox. |
+| Governing law (Terms of Use) | **Proposed, pending final confirmation** | Laws of Malaysia, as stated in Terms of Use §7. The wording is the operator's proposed choice; final owner confirmation required before launch. |
+| Operator identity | **Confirmed** | An individual based in Malaysia, not a Sdn. Bhd. or incorporated company. No legal name, company, registration number, or physical address is published (none supplied). About, Privacy Policy, Terms of Use, and Disclaimer state the individual-operator wording. |
+| Public deployment | Open | Separate approval required (§13). Staging is verified; production is NOT deployed. |
 | AdSense / analytics | Disabled (ADR-8) | Stays disabled. Enabling needs the owner decision + the full §12 checklist. No indexing requests, no AdSense applications. |
-| Merge of the Phase 8 PR | Open | Requires ChatGPT review + owner approval. Phase 8 opens a PR; it does not merge it. |
-| Issue #1 / Issue #3 closure | Open | Neither issue closes in Phase 8. Issue #1 closes only after reviewer sign-off + owner approval; Issue #3 closes only after the launch it tracks is complete. |
+| Merge of the Phase 8 PR | **Done** | PR #4 merged 2026-11-23 (merge commit `a4925bfe`). |
+| Issue #1 / Issue #3 closure | Open | Neither issue closes in Phase 9. Issue #1 closes only after reviewer sign-off + owner approval; Issue #3 closes only after the launch it tracks is complete. |
+| Merge of the Phase 9 owner-decisions PR | Open | Requires ChatGPT review + owner approval. The PR does not merge itself. |

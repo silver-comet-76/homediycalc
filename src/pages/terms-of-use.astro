@@ -1,19 +1,20 @@
 ---
 import Layout from "../components/Layout.astro";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
+import { SITE_CONTACT_EMAIL } from "../lib/site";
 
 const crumbs = [{ name: "Home", path: "/" }, { name: "Terms of Use" }];
 ---
 
 <Layout
   title="Terms of Use"
-  description="HomeDIYCalc terms of use: the calculators are free estimates for planning purposes, provided without warranty."
+  description="HomeDIYCalc terms of use: the calculators are free estimates for planning purposes, provided without warranty, by an individual operator based in Malaysia."
   canonical="/terms-of-use/"
   breadcrumbs={crumbs}
 >
   <Breadcrumbs items={crumbs} />
   <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Terms of Use</h1>
-  <p class="mt-2 text-sm text-slate-500">Last updated: November 20, 2026.</p>
+  <p class="mt-2 text-sm text-slate-500">Last updated: November 23, 2026.</p>
   <div class="mt-6 max-w-3xl space-y-4 text-slate-700">
     <p>
       By using HomeDIYCalc, you agree to these terms. If you do not agree, please do not
@@ -23,6 +24,8 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "Terms of Use" }];
     <p>
       HomeDIYCalc provides free online calculators for home improvement material
       estimates. The service is provided free of charge, with no account or registration.
+      The site is operated independently by an individual based in Malaysia; it is not
+      operated by a company.
     </p>
     <h2 class="pt-2 text-xl font-bold text-slate-900">2. Estimates, not advice</h2>
     <p>
@@ -54,9 +57,32 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "Terms of Use" }];
     <h2 class="pt-2 text-xl font-bold text-slate-900">6. Your data</h2>
     <p>
       The site collects no personal data. Anything you save with My Project is stored
-      only in your own browser. See the <a href="/privacy-policy/">Privacy Policy</a>.
+      only in your own browser. If you email us, we receive your email address and message
+      and use them only to answer you. See the <a href="/privacy-policy/">Privacy Policy</a>.
     </p>
-    <h2 class="pt-2 text-xl font-bold text-slate-900">7. Changes</h2>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">7. Operator and governing law</h2>
+    <p>
+      HomeDIYCalc is operated by an individual based in Malaysia. These terms are
+      governed by the laws of Malaysia. (The governing-law wording is the operator's
+      proposed choice and is subject to final confirmation.)
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">8. Copyright</h2>
+    <p>
+      © 2026 HomeDIYCalc. All rights reserved. The text, design, and calculator pages
+      of this website are the operator's copyrighted work; you may use the site for
+      your own project planning, but you may not copy or republish its content as your
+      own. The website's source code is published in a public GitHub repository and is
+      not licensed under an open-source license; no permission to reuse the code is
+      granted here. (The All Rights Reserved wording is the operator's preferred
+      option and is subject to final confirmation as the licensing decision.)
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">9. Contact</h2>
+    <p>
+      You can reach the operator by email at{" "}
+      <a href={`mailto:${SITE_CONTACT_EMAIL}`} class="underline">{SITE_CONTACT_EMAIL}</a>.
+      See the <a href="/contact/">Contact</a> page.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">10. Changes</h2>
     <p>
       These terms may be updated from time to time. Continued use of the site after an
       update constitutes acceptance of the updated terms.
