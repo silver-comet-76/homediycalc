@@ -144,3 +144,97 @@ No other files changed. No deployment was performed. Staging and
 production are untouched. This branch is based on main and does not
 touch the PR #7 release branch (`phase-9-privacy-production-status`);
 the two PRs are independent.
+
+---
+
+# V2 — addressing the independent PR #8 review (2026-11-23)
+
+The V1 copy, calculations, functional scope, and QA were accepted. The
+review's main issue was visual: the homepage still relied too heavily
+on text cards, small icons, and repetitive explanatory sections. V2
+addresses that directly.
+
+## Why V2 is visually stronger than V1
+
+- **The hero now has a real visual.** V1's only hero visual was
+  another text card (the Paint result). V2's hero leads with a custom,
+  locally bundled, flat-style SVG illustration of recognizable DIY
+  materials and tools — a wall with a freshly painted orange band and
+  a paint roller, a spirit level, an open paint can, an unrolled
+  measuring tape, a trowel, and a tile grid
+  (`src/components/HeroIllustration.astro`). It is inline SVG: no
+  external image, no CDN, no paid asset, no runtime fetch, no extra
+  HTTP request. It is decorative (`aria-hidden`); the Paint example
+  is kept as a compact result strip below the illustration, and the
+  same numbers appear as accessible text in the demo section.
+- **Categories are recognizable by color and icon, not only by text.**
+  V1's six category cards were identical white cards with a small
+  line icon and a description paragraph. V2 gives each category a
+  distinct soft tint and a large (48 px) icon — orange for Painting,
+  stone for Concrete & Masonry, amber for Flooring & Tiles, green for
+  Landscaping, sky for Measurement, teal for Interior & Maintenance —
+  and drops the description paragraph, so the type reads at a glance.
+  The same tints carry into the featured cards' icon chips, tying
+  each featured calculator to its category.
+- **Less card repetition, less explanatory text.** The "How it works"
+  steps and the benefits are no longer card grids: the steps are a
+  plain numbered flow with shorter descriptions, and the benefits are
+  a single compact strip (icon + label only, no repeated
+  descriptions). The demo's inputs and results are plain columns in
+  the warm panel instead of nested white cards. The category
+  descriptions are gone. The page has fewer boxes and fewer words
+  doing the same job.
+- **Tighter vertical rhythm and mobile scannability.** Section
+  spacing is reduced (especially on mobile), the hero is more
+  compact, and the category tiles use a 2-column grid at 390 px so
+  each tile is large enough to scan by color and icon.
+
+## What V2 keeps
+
+- The approved V1 headline, subtitle, CTAs, and trust points, word
+  for word. The verified Paint example (381 ft², 2.18 gal, 2.39 gal
+  with waste, buy 3 gal / 11.36 L), labelled illustrative. The same
+  FAQ, structured data, SEO, and accessibility behavior. The same
+  Astro architecture, no new dependency, no backend, no AI token.
+
+## V2 verification — ADR-9 gate
+
+The local VM's filesystem intermittently refuses the writes the
+Astro build needs (EPERM on the generated-types write — the same
+transient fault seen earlier on 2026-11-23). The local gate ran 3
+clean rounds on the V2 source before a one-line contrast fix
+(demo worked line `text-slate-500` → `text-slate-600`, which raised
+Lighthouse Home Accessibility from 96 back to 100), and round 1
+re-ran clean after the fix. The final 3-round gate runs on GitHub
+Actions instead (`.github/workflows/gate-v2.yml`, the same test-only
+pattern as PR #7's `gate.yml`): the workflow runs
+`scripts/gate-round.sh` three times on the pushed branch and uploads
+the logs as the `gate-logs-v2` artifact (30-day retention). The V2
+screenshots are produced by the same workflow (desktop 1280×800 +
+mobile 390×844, full-page) and uploaded as the
+`homepage-v2-screenshots` artifact. The full round logs live in that
+artifact, not as files in this branch (the same arrangement as PR #7).
+
+A new CTA click-through test was added (`tests/home.spec.ts`):
+hero "Explore Calculators" and "Try Paint Calculator", the Painting
+category tile, the featured Paint Calculator card, the demo CTA, and
+the closing "Explore Free Calculators" — each is clicked and its
+destination URL asserted. Playwright is now 94/94 (was 92/92).
+
+## V2 files changed (in addition to V1)
+
+- `src/components/HeroIllustration.astro` — the hero DIY illustration
+  (new, homepage-only).
+- `src/pages/index.astro` — V2 redesign (hero illustration + compact
+  result strip, color-coded category tiles, de-carded steps/benefits/
+  demo, tighter spacing).
+- `tests/home.spec.ts` — CTA click-through coverage (new test).
+- `scripts/screenshot-home.mjs` — dev screenshot utility (new; not
+  shipped to the site).
+- `.github/workflows/gate-v2.yml` — test-only CI for the gate +
+  screenshots (new; no deploy, no secrets).
+- `docs/prototype/homepage-modern-diy/` — this V2 note (screenshots
+  are added from the Actions artifact once the workflow runs).
+
+No deployment was performed. Staging and production are untouched.
+PR #7 is untouched. Do NOT merge PR #8.
