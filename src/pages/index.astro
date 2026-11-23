@@ -1,10 +1,113 @@
 ---
 import Layout from "../components/Layout.astro";
 import Faq from "../components/Faq.astro";
-import { CATEGORIES, CALCULATORS, getCalculatorsByCategory } from "../lib/registry";
+import HeroIllustration from "../components/HeroIllustration.astro";
+import {
+  CATEGORIES,
+  getCalculator,
+  getCalculatorsByCategory,
+  type CalculatorMeta,
+  type CategorySlug,
+} from "../lib/registry";
 import { SITE_TAGLINE } from "../lib/site";
 
-const popular = CALCULATORS.filter((calc) => calc.priority === "P0");
+/**
+ * Homepage visual prototype — Direction A: Modern DIY, V2.
+ * Homepage-only redesign. The navigation, footer, calculator pages,
+ * legal pages, formulas, and My Project behavior are unchanged.
+ * All calculator names, URLs, and counts come from the registry;
+ * the four featured calculators are resolved by slug (no hard-coded
+ * URLs or popularity claims — there is no usage data to rank by).
+ *
+ * V2 changes (addressing the independent PR #8 review): the hero's
+ * main visual is a custom inline SVG DIY scene (HeroIllustration),
+ * not another text card; the six project-type tiles are visually
+ * distinct by color and large icon, with no description paragraph;
+ * repetitive card layouts are reduced (steps and benefits have no
+ * card chrome; the demo's inputs/results are plain columns); and
+ * section spacing is tighter, especially on mobile.
+ */
+
+const featuredSlugs = [
+  "paint-calculator",
+  "concrete-calculator",
+  "tile-calculator",
+  "gravel-calculator",
+];
+// Short, plain-language purpose lines for the featured cards, kept
+// accurate to each calculator's registry summary.
+const featuredCopy: Record<string, { purpose: string; youGet: string }> = {
+  "paint-calculator": {
+    purpose: "How many gallons your room needs, by area and coats.",
+    youGet: "Gallons to buy + shopping list",
+  },
+  "concrete-calculator": {
+    purpose: "How much concrete you need, in cubic yards, feet, and bags.",
+    youGet: "Cubic yards, cubic feet, and bags",
+  },
+  "tile-calculator": {
+    purpose: "Tile and box counts for a floor or wall.",
+    youGet: "Tiles and boxes, waste included",
+  },
+  "gravel-calculator": {
+    purpose: "Gravel volume and weight for a driveway or path.",
+    youGet: "Cubic yards and tons",
+  },
+};
+// Pair each featured calculator (resolved from the registry) with its
+// copy up front, so the template never indexes by a bare slug string.
+const featured = featuredSlugs
+  .map((slug) => {
+    const calc = getCalculator(slug);
+    const copy = featuredCopy[slug];
+    return calc && copy ? { calc, copy } : undefined;
+  })
+  .filter(
+    (entry): entry is { calc: CalculatorMeta; copy: { purpose: string; youGet: string } } =>
+      entry !== undefined,
+  );
+
+// Visual identity per category: a distinct soft tint for the tile (and
+// the featured icon chip) plus a matching saturated icon color, so a
+// project type is recognizable by color and icon, not only by its name.
+const CATEGORY_STYLE: Record<
+  CategorySlug,
+  { tile: string; chip: string; icon: string }
+> = {
+  "concrete-and-masonry": {
+    tile: "bg-stone-200",
+    chip: "bg-stone-200",
+    icon: "text-stone-700",
+  },
+  painting: { tile: "bg-orange-100", chip: "bg-orange-100", icon: "text-orange-700" },
+  "flooring-and-tiles": {
+    tile: "bg-amber-100",
+    chip: "bg-amber-100",
+    icon: "text-amber-700",
+  },
+  landscaping: { tile: "bg-green-100", chip: "bg-green-100", icon: "text-green-700" },
+  measurement: { tile: "bg-sky-100", chip: "bg-sky-100", icon: "text-sky-700" },
+  "interior-and-maintenance": {
+    tile: "bg-teal-100",
+    chip: "bg-teal-100",
+    icon: "text-teal-700",
+  },
+};
+
+// Inline SVG icons (decorative, aria-hidden). One per category; the
+// featured cards reuse the icon of their calculator's category.
+// Larger and bolder than V1 so the icon, not the copy, carries the
+// category at a glance.
+const iconAttrs = `aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12" viewBox="0 0 24 24"`;
+const CATEGORY_ICONS: Record<CategorySlug, string> = {
+  "concrete-and-masonry": `<svg ${iconAttrs}><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="10" width="8" height="5" rx="1"/><rect x="13" y="10" width="8" height="5" rx="1"/><rect x="3" y="16" width="18" height="5" rx="1"/></svg>`,
+  painting: `<svg ${iconAttrs}><rect x="2" y="4" width="13" height="5" rx="1"/><path d="M15 6.5h4v6a2 2 0 0 1-2 2h-1"/><path d="M16 14.5V20"/><path d="M8 10.5v2M12 10.5v2"/></svg>`,
+  "flooring-and-tiles": `<svg ${iconAttrs}><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>`,
+  landscaping: `<svg ${iconAttrs}><path d="M12 21v-8"/><path d="M12 13c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 11c0-3 2-5 6-5 0 3-2 5-6 5z"/></svg>`,
+  measurement: `<svg ${iconAttrs}><rect x="2" y="9" width="20" height="6" rx="1"/><path d="M7 9v3M11 9v3M15 9v3M19 9v3"/></svg>`,
+  "interior-and-maintenance": `<svg ${iconAttrs}><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>`,
+};
+
 const faqs = [
   {
     question: "Are the HomeDIYCalc calculators really free?",
@@ -23,8 +126,7 @@ const faqs = [
   },
   {
     question: "Are all the calculators available?",
-    answer:
-      "Yes — all 25 calculators are built, tested, and available now.",
+    answer: "Yes — all 25 calculators are built, tested, and available now.",
   },
   {
     question: "Is my project data sent anywhere?",
@@ -40,36 +142,135 @@ const faqs = [
   canonical="/"
   faqs={faqs}
 >
-  <section class="rounded-2xl bg-slate-900 px-6 py-12 text-center text-white sm:px-12">
-    <h1 class="text-3xl font-extrabold tracking-tight sm:text-5xl">
-      Calculate Materials. Estimate Costs. Build Your Shopping List.
-    </h1>
-    <p class="mx-auto mt-4 max-w-2xl text-lg text-slate-300">
-      Free calculators for home improvement projects — concrete, paint, gravel, tile,
-      flooring, and more. No signup, no cost, no guesswork.
-    </p>
-    <p class="mt-6">
-      <a href="/calculators/" class="btn-primary">Browse all calculators</a>
-    </p>
-    <p class="mt-4 text-sm text-slate-400">
-      All 25 calculators are available now. See the full list below.
-    </p>
+  {/* Hero — bright, warm, two-column on desktop. The right column is
+      the DIY illustration (decorative, aria-hidden); the compact
+      result strip below it keeps the Paint example, and the same
+      numbers appear as accessible text in the demo section. */}
+  <section
+    aria-labelledby="hero-heading"
+    class="rounded-3xl border border-orange-100 bg-orange-50 px-6 py-8 sm:px-10 lg:py-12"
+  >
+    <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
+      <div>
+        <p class="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-3 py-1 text-sm font-semibold text-brand-700">
+          Free DIY calculators
+        </p>
+        <h1
+          id="hero-heading"
+          class="mt-4 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl"
+        >
+          Less Guesswork.<br />Better DIY Projects.
+        </h1>
+        <p class="mt-4 max-w-xl text-lg text-slate-600">
+          Know how much paint, concrete, tile, gravel, and more you need before
+          you head to the store.
+        </p>
+        <p class="mt-6 flex flex-wrap gap-3">
+          <a href="/calculators/" class="btn-primary">Explore Calculators</a>
+          <a href="/calculators/paint-calculator/" class="btn-secondary">Try Paint Calculator</a>
+        </p>
+        <ul class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-slate-700">
+          <li class="flex items-center gap-1.5">
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-4 w-4 text-brand-600"
+              viewBox="0 0 24 24"
+            >
+              <path d="M5 12l5 5 9-10"></path>
+            </svg>
+            100% Free
+          </li>
+          <li class="flex items-center gap-1.5">
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-4 w-4 text-brand-600"
+              viewBox="0 0 24 24"
+            >
+              <path d="M5 12l5 5 9-10"></path>
+            </svg>
+            No Signup
+          </li>
+          <li class="flex items-center gap-1.5">
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-4 w-4 text-brand-600"
+              viewBox="0 0 24 24"
+            >
+              <path d="M5 12l5 5 9-10"></path>
+            </svg>
+            25 Calculators
+          </li>
+        </ul>
+      </div>
+      <div>
+        <HeroIllustration />
+        <div class="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <p class="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+            Paint Calculator — example result
+          </p>
+          <dl class="mt-2 flex items-baseline justify-between gap-3">
+            <div>
+              <dt class="text-xs text-slate-500">Paintable area</dt>
+              <dd class="text-lg font-bold text-slate-900">381 ft²</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-slate-500">Paint needed</dt>
+              <dd class="text-lg font-bold text-slate-900">2.18 gal</dd>
+            </div>
+            <div class="text-right">
+              <dt class="text-xs text-slate-500">Gallons to buy</dt>
+              <dd class="text-xl font-extrabold text-brand-600">3 gal</dd>
+            </div>
+          </dl>
+          <p class="mt-2 text-xs text-slate-500">
+            Example result — your room will differ.{" "}
+            <a href="/calculators/paint-calculator/" class="font-semibold">Try the Paint Calculator →</a>
+          </p>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section aria-labelledby="categories-heading" class="mt-12">
-    <h2 id="categories-heading" class="text-2xl font-bold text-slate-900">
-      Browse by category
+  {/* Project types — color-coded tiles with a large icon and the name;
+      no description paragraph, so the type reads at a glance. */}
+  <section aria-labelledby="categories-heading" class="mt-10 sm:mt-12">
+    <h2 id="categories-heading" class="text-2xl font-bold text-slate-900 sm:text-3xl">
+      What Are You Working On?
     </h2>
-    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <p class="mt-2 max-w-2xl text-slate-600">
+      From fresh paint to backyard projects, find the right calculator for the job.
+    </p>
+    <div class="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
       {
         CATEGORIES.map((category) => {
           const count = getCalculatorsByCategory(category.slug).length;
+          const style = CATEGORY_STYLE[category.slug];
           return (
-            <a href={category.url} class="card no-underline hover:border-brand-600 hover:no-underline">
-              <h3 class="text-lg font-bold text-slate-900">{category.name}</h3>
-              <p class="mt-1 text-sm text-slate-600">{category.description}</p>
-              <p class="mt-2 text-sm font-semibold text-brand-700">
-                {count} calculator{count === 1 ? "" : "s"}
+            <a
+              href={category.url}
+              class={`group rounded-2xl p-4 no-underline shadow-sm transition-shadow hover:shadow-md hover:no-underline sm:p-5 ${style.tile}`}
+            >
+              <span class={style.icon}>
+                <span set:html={CATEGORY_ICONS[category.slug]} />
+              </span>
+              <h3 class="mt-2 text-base font-bold text-slate-900 sm:text-lg">{category.name}</h3>
+              <p class="mt-1 text-sm font-semibold text-slate-700">
+                {count} calculator{count === 1 ? "" : "s"} →
               </p>
             </a>
           );
@@ -78,62 +279,231 @@ const faqs = [
     </div>
   </section>
 
-  <section aria-labelledby="popular-heading" class="mt-12">
-    <h2 id="popular-heading" class="text-2xl font-bold text-slate-900">
-      Most popular calculators
+  {/* Featured calculators — a smaller, product-like set (no popularity
+      ranking; there is no usage data). */}
+  <section aria-labelledby="featured-heading" class="mt-10 sm:mt-12">
+    <h2 id="featured-heading" class="text-2xl font-bold text-slate-900 sm:text-3xl">
+      Your Next Project Starts Here
     </h2>
-    <p class="mt-2 text-slate-600">
-      The 10 calculators built first — all available now.
+    <p class="mt-2 max-w-2xl text-slate-600">
+      Pick a calculator, enter your measurements, and get a practical material
+      estimate.
     </p>
-    <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul class="mt-5 grid gap-4 sm:grid-cols-2">
       {
-        popular.map((calc) => (
-          <li class="card">
-            <a href={calc.url} class="inline-block py-0.5 leading-6 font-semibold text-slate-900">
-              {calc.name}
-            </a>
-            <p class="mt-1 text-sm text-slate-600">{calc.summary}</p>
-          </li>
-        ))
+        featured.map(({ calc, copy }) => {
+          const style = CATEGORY_STYLE[calc.category];
+          return (
+            <li class="card rounded-2xl transition-shadow hover:shadow-md">
+              <div class="flex items-start gap-4">
+                <span class={`inline-flex shrink-0 rounded-xl p-2.5 ${style.chip} ${style.icon}`}>
+                  <span set:html={CATEGORY_ICONS[calc.category]} />
+                </span>
+                <div>
+                  <a
+                    href={calc.url}
+                    class="inline-block py-0.5 text-lg leading-6 font-bold text-slate-900"
+                  >
+                    {calc.name}
+                  </a>
+                  <p class="mt-1 text-sm text-slate-600">{copy.purpose}</p>
+                  <p class="mt-2 text-sm font-semibold text-brand-700">
+                    You get: {copy.youGet}
+                  </p>
+                </div>
+              </div>
+            </li>
+          );
+        })
       }
     </ul>
-    <p class="mt-4">
-      <a href="/calculators/" class="inline-block py-0.5 leading-6 font-semibold">See all 25 calculators →</a>
+    <p class="mt-5">
+      <a href="/calculators/" class="inline-block py-0.5 leading-6 font-semibold">
+        See all 25 calculators →
+      </a>
     </p>
   </section>
 
-  <section aria-labelledby="how-heading" class="mt-12">
-    <h2 id="how-heading" class="text-2xl font-bold text-slate-900">How it works</h2>
-    <ol class="mt-4 grid gap-4 sm:grid-cols-3">
-      <li class="card">
-        <p class="text-2xl font-extrabold text-brand-600">1</p>
-        <h3 class="mt-2 font-semibold text-slate-900">Measure your project</h3>
+  {/* How it works — a plain numbered flow, no card chrome. */}
+  <section aria-labelledby="how-heading" class="mt-10 sm:mt-12">
+    <h2 id="how-heading" class="text-2xl font-bold text-slate-900 sm:text-3xl">
+      From Measurements to Materials in 3 Easy Steps
+    </h2>
+    <ol class="mt-6 grid gap-6 sm:grid-cols-3">
+      <li>
+        <p class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-lg font-extrabold text-white">
+          1
+        </p>
+        <h3 class="mt-3 font-bold text-slate-900">Measure Your Space</h3>
         <p class="mt-1 text-sm text-slate-600">
-          Measure length, width, and depth (or area). Each calculator page explains exactly what to measure.
+          Measure the length, width, and height — the calculator page shows what to measure.
         </p>
       </li>
-      <li class="card">
-        <p class="text-2xl font-extrabold text-brand-600">2</p>
-        <h3 class="mt-2 font-semibold text-slate-900">Enter your numbers</h3>
+      <li>
+        <p class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-lg font-extrabold text-white">
+          2
+        </p>
+        <h3 class="mt-3 font-bold text-slate-900">Get Your Estimate</h3>
         <p class="mt-1 text-sm text-slate-600">
-          Type in your measurements in imperial or metric units, set a waste allowance, and add prices if you want a cost estimate.
+          Enter your numbers, add a waste allowance, and see the estimate.
         </p>
       </li>
-      <li class="card">
-        <p class="text-2xl font-extrabold text-brand-600">3</p>
-        <h3 class="mt-2 font-semibold text-slate-900">Take the list to the store</h3>
+      <li>
+        <p class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-lg font-extrabold text-white">
+          3
+        </p>
+        <h3 class="mt-3 font-bold text-slate-900">Build Your Shopping List</h3>
         <p class="mt-1 text-sm text-slate-600">
-          Copy the shopping list — quantities rounded up so you never buy too little — and save it to My Project if you want to keep it.
+          Copy the list, rounded up to whole packages, or save it to My Project.
         </p>
       </li>
     </ol>
   </section>
 
-  <section aria-labelledby="faq-heading" class="mt-12">
+  {/* Benefits — a compact strip, no card chrome and no repeated
+      descriptions; the same points are already covered by the hero
+      trust points and the FAQ. */}
+  <section aria-labelledby="why-heading" class="mt-10 sm:mt-12">
+    <h2 id="why-heading" class="text-2xl font-bold text-slate-900 sm:text-3xl">
+      Practical Tools. No Extra Hassle.
+    </h2>
+    <ul class="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl bg-slate-50 px-5 py-4 sm:grid-cols-4">
+      <li class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-brand-600" viewBox="0 0 24 24">
+          <path d="M5 12l5 5 9-10"></path>
+        </svg>
+        Free, no signup
+      </li>
+      <li class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-brand-600" viewBox="0 0 24 24">
+          <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+        </svg>
+        Private by design
+      </li>
+      <li class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-brand-600" viewBox="0 0 24 24">
+          <path d="M4 7h13l-3-3"></path>
+          <path d="M20 17H7l3 3"></path>
+        </svg>
+        Imperial + metric
+      </li>
+      <li class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+        <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-brand-600" viewBox="0 0 24 24">
+          <rect x="5" y="4" width="14" height="17" rx="2"></rect>
+          <path d="M9 4a2 2 0 0 1 6 0"></path>
+          <path d="M9 11h6M9 15h4"></path>
+        </svg>
+        Store-ready results
+      </li>
+    </ul>
+  </section>
+
+  {/* Featured demo — the Paint Calculator's own default example, shown
+      as an illustrative example only. Numbers verified against the
+      calculator: 12 × 15 ft room, 8 ft ceilings, 1 door, 2 windows →
+      381 ft² net area; 2 coats at 350 ft²/gal, 10% waste → 2.18 gal
+      exact (2.39 gal with waste) → buy 3 gal (11.36 L). Inputs and
+      results are plain columns in the warm panel, not nested cards. */}
+  <section
+    aria-labelledby="demo-heading"
+    class="mt-10 rounded-3xl border border-orange-100 bg-orange-50 px-6 py-8 sm:mt-12 sm:px-10"
+  >
+    <h2 id="demo-heading" class="text-2xl font-bold text-slate-900 sm:text-3xl">
+      Painting a Room?
+    </h2>
+    <p class="mt-2 max-w-2xl text-slate-600">
+      Here is an example of what the Paint Calculator does. It is an
+      illustrative example — your room will differ.
+    </p>
+    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+      <div>
+        <h3 class="font-bold text-slate-900">The room</h3>
+        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+          <li class="flex justify-between gap-4">
+            <span>Room size</span><span class="font-semibold text-slate-900">12 × 15 ft</span>
+          </li>
+          <li class="flex justify-between gap-4">
+            <span>Ceiling height</span><span class="font-semibold text-slate-900">8 ft</span>
+          </li>
+          <li class="flex justify-between gap-4">
+            <span>Doors / windows</span><span class="font-semibold text-slate-900">1 door, 2 windows</span>
+          </li>
+          <li class="flex justify-between gap-4">
+            <span>Coats</span><span class="font-semibold text-slate-900">2</span>
+          </li>
+          <li class="flex justify-between gap-4">
+            <span>Coverage</span><span class="font-semibold text-slate-900">350 ft²/gal</span>
+          </li>
+          <li class="flex justify-between gap-4">
+            <span>Waste allowance</span><span class="font-semibold text-slate-900">10%</span>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900">The result</h3>
+        <dl class="mt-3 space-y-3">
+          <div class="flex items-baseline justify-between gap-4 border-b border-orange-200/60 pb-3">
+            <dt class="text-sm text-slate-600">Paintable area</dt>
+            <dd class="text-lg font-bold text-slate-900">381 ft²</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-4 border-b border-orange-200/60 pb-3">
+            <dt class="text-sm text-slate-600">Paint needed</dt>
+            <dd class="text-lg font-bold text-slate-900">2.18 gal</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-4 border-b border-orange-200/60 pb-3">
+            <dt class="text-sm text-slate-600">With 10% waste</dt>
+            <dd class="text-lg font-bold text-slate-900">2.39 gal</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-2">
+            <dt class="shrink-0 text-sm font-semibold text-slate-800">Gallons to buy</dt>
+            <dd class="text-right text-xl font-extrabold text-brand-600 sm:text-2xl">3 gal (11.36 L)</dd>
+          </div>
+        </dl>
+        <p class="mt-4 text-xs text-slate-600">
+          381 ft² × 2 coats ÷ 350 ft²/gal = 2.18 gal; with 10% waste = 2.39 gal → buy 3 gal.
+        </p>
+      </div>
+    </div>
+    <p class="mt-6">
+      <a href="/calculators/paint-calculator/" class="btn-primary">Try the Paint Calculator</a>
+    </p>
+  </section>
+
+  {/* FAQ — same accurate questions and answers, same structured data
+      (faqs are passed to Layout for JSON-LD). */}
+  <section aria-labelledby="faq-heading" class="mt-10 sm:mt-12">
     <Faq faqs={faqs} />
   </section>
 
-  <p class="mt-12 text-sm text-slate-500">
+  {/* Closing CTA. */}
+  <section
+    aria-labelledby="closing-heading"
+    class="mt-10 rounded-3xl border border-orange-200 bg-brand-600 px-6 py-10 text-center text-white sm:mt-12 sm:px-10"
+  >
+    <h2 id="closing-heading" class="text-2xl font-bold sm:text-3xl">
+      Ready to Get Your Project Started?
+    </h2>
+    <p class="mx-auto mt-3 max-w-xl text-orange-100">
+      A little planning now can save you an extra trip to the store.
+    </p>
+    <p class="mt-6 flex flex-wrap items-center justify-center gap-3">
+      <a
+        href="/calculators/"
+        class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2.5 font-semibold text-brand-700 no-underline transition-colors hover:bg-orange-50 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      >
+        Explore Free Calculators
+      </a>
+      <a
+        href="/my-project/"
+        class="inline-flex items-center justify-center rounded-lg border border-white/60 px-5 py-2.5 font-semibold text-white no-underline transition-colors hover:bg-white/10 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      >
+        Open My Project
+      </a>
+    </p>
+  </section>
+
+  <p class="mt-10 text-sm text-slate-500">
     {SITE_TAGLINE} HomeDIYCalc is a free, static website: every calculation runs in your browser, and nothing you enter is sent anywhere.
   </p>
 </Layout>
