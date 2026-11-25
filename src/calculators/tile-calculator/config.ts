@@ -50,6 +50,17 @@ function tileOutput(areaFt2: number, v: Record<string, number>, present: Set<str
 
 export const tileConfig: CalculatorConfig = {
   slug: "tile-calculator",
+  lookupTable: {
+    note: "Assumes 12 × 12 in tiles, a ⅛ in grout joint, 10% waste, and 10 tiles per box.",
+    headers: ["Room size", "Area to tile", "Tiles needed", "Boxes needed"],
+    rows: [
+      ["5 × 8 ft room", "40 ft²", "44 tiles", "5 boxes"],
+      ["10 × 10 ft room", "100 ft²", "108 tiles", "11 boxes"],
+      ["12 × 12 ft room", "144 ft²", "156 tiles", "16 boxes"],
+      ["12 × 15 ft room", "180 ft²", "194 tiles", "20 boxes"],
+      ["15 × 20 ft room", "300 ft²", "324 tiles", "33 boxes"],
+    ],
+  },
   diagram: "area",
   defaultMode: "dimensions",
   formula:
