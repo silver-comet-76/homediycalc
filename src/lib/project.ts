@@ -255,6 +255,50 @@ export function itemHasWarnings(item: ProjectItem): boolean {
   return (item.warnings?.length ?? 0) > 0;
 }
 
+// ---------------------------------------------------------------------------
+// QA-16A-04 — legacy Stair records (non-blocking compatibility follow-up).
+// ---------------------------------------------------------------------------
+
+/**
+ * Phase 16A production deployment timestamp (epoch milliseconds).
+ *
+ * RELEASE-TIME ACTION — MUST be set to the actual Phase 16A production
+ * deployment timestamp when Phase 16A is released. Until then it is 0
+ * (placeholder), and `itemNeedsStairRecheck` flags nothing: the only
+ * discriminator between a legacy Stair record (saved before warnings
+ * existed, so a missing warning proves nothing) and a current
+ * within-limit record (saved after, genuinely warning-free) is
+ * `savedAt`, and no real record — `savedAt` is always a positive
+ * epoch-ms value set at save time — falls before 0. No destructive
+ * migration, no schema-version bump, no historical warnings are
+ * fabricated: the helper only reports that a re-check is warranted.
+ */
+export const PHASE_16A_RELEASED_AT_MS = 0;
+
+/**
+ * True when a saved Stair item predates the Phase 16A safety warnings
+ * and therefore carries no warning only because warnings were never
+ * persisted before Phase 16A — it may be over the 151 in limit without
+ * saying so. False for Stair items with warnings, for Stair items saved
+ * at or after the Phase 16A release, for non-Stair items, and for every
+ * item while the release timestamp is still unset (0). The record
+ * itself is never modified; the caller only shows a re-check note.
+ *
+ * The optional second parameter exists so unit tests can exercise the
+ * before/after-threshold logic without depending on the release
+ * timestamp; production callers pass only the item.
+ */
+export function itemNeedsStairRecheck(
+  item: ProjectItem,
+  releasedAtMs: number = PHASE_16A_RELEASED_AT_MS,
+): boolean {
+  return (
+    item.calculatorSlug === "stair-calculator" &&
+    !itemHasWarnings(item) &&
+    item.savedAt < releasedAtMs
+  );
+}
+
 /** Format a project as a plain-text shopping list for copy/export.
  * A partial item cost is shown with its partial label and detail, and
  * a project containing any partial cost totals as a "Partial total
@@ -303,12 +347,45 @@ export function formatProjectAsText(project: ProjectData): string {
   return sections.join("\n").trimEnd();
 }
 
-/** Escape one CSV cell per RFC 4180. */
+/** Escape one CSV cell per RFC 4180, with a spreadsheet formula-injection guard.
+ *
+ * QA-16A-03 policy (minimal, dependency-free):
+ * - RFC 4180 quoting: any cell containing `,`, `"`, LF (`\n`) or CR (`\r`)
+ *   is double-quoted, with `"` doubled. A CR alone (old-Mac line ending
+ *   or part of a CRLF pair inside user text) is therefore preserved
+ *   inside the quoted cell instead of splitting the row.
+ * - Formula guard: if the cell, after stripping leading whitespace and
+ *   control characters, starts with one of `=`, `+`, `-`, `@`, or the
+ *   cell itself starts with a tab (`\t`) or CR (`\r`), the cell is
+ *   prefixed with a single quote `'` (the standard spreadsheet
+ *   text-marker) BEFORE quoting. The guard applies to every cell, but
+ *   the generated numeric columns (Quantity, Unit cost, Line total)
+ *   contain only digits, `.`, or empty, so they pass through
+ *   unaffected; only user-controlled text (label, room, lines/details,
+ *   cost note, warning) can trigger it.
+ *
+ * Limitations (what this does NOT guarantee):
+ * - Not universal compatibility with every spreadsheet application:
+ *   the leading-quote marker is honoured by Excel, LibreOffice, and
+ *   Google Sheets, but behaviour varies by application and version.
+ * - A user who strips the leading quote, or pastes the value instead
+ *   of opening the CSV, can still trigger a formula.
+ * - It does not protect against other injection vectors (e.g. a
+ *   formula embedded mid-cell, or DDE / macro payloads opened by
+ *   other means) — it only neutralises a formula at the start of a
+ *   cell. Treat exported CSVs as untrusted input, as with any file
+ *   opened in a spreadsheet.
+ */
 export function escapeCsvCell(value: string): string {
-  if (/[",\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
+  let cell = value;
+  const stripped = value.replace(/^[\s\u0000-\u001f\u007f]+/, "");
+  if (/^[=+\-@]/.test(stripped) || value.startsWith("\t") || value.startsWith("\r")) {
+    cell = `'${value}`;
   }
-  return value;
+  if (/[",\n\r]/.test(cell)) {
+    return `"${cell.replace(/"/g, '""')}"`;
+  }
+  return cell;
 }
 
 /**
