@@ -43,6 +43,7 @@ export const stairConfig: CalculatorConfig = {
     "14 risers at 7.5 in each; 13 treads × 10.5 in = 136.5 in of run (11 ft 4.5 in); " +
     "the stringer is √(105² + 136.5²) = 172.2 in (about 14 ft 4 in), at a 37.6° angle.",
   limitations: [
+    "This calculator gives preliminary planning estimates under the 2021 IRC assumptions stated here. It does not guarantee compliance with your local building code, which may adopt a different code edition or amend these limits — check with your local authority having jurisdiction before building.",
     "Straight stairs only. It does not cover winders, landings, or stairs that turn.",
     "Riser heights must stay within ⅜ in of each other under the IRC — this calculator makes them all equal, so that rule is met by construction.",
     "Local building codes vary and may amend the IRC limits, and the 2024 IRC renumbers the stair section to R318.7. Check your local code before building.",
@@ -60,7 +61,7 @@ export const stairConfig: CalculatorConfig = {
     {
       question: "What is the maximum riser height?",
       answer:
-        "7.75 in (7-¾ in) under the 2021 International Residential Code, section R311.7.5.1. Local codes may set a lower limit, so check yours before building. Risers must also stay within ⅜ in of each other — the tallest riser cannot exceed the shortest by more than ⅜ in.",
+        "7.75 in (7-¾ in) under the 2021 International Residential Code, section R311.7.5.1. Local codes may amend the limit, so check yours before building. Risers must also stay within ⅜ in of each other — the tallest riser cannot exceed the shortest by more than ⅜ in.",
     },
     {
       question: "How do I calculate stringer length?",
@@ -70,7 +71,7 @@ export const stairConfig: CalculatorConfig = {
     {
       question: "How deep should stair treads be?",
       answer:
-        "At least 10 in under the 2021 IRC (R311.7.5.2); 10.5–11 in is comfortable for most feet. Treads under 11 in deep also need a nosing — a projection of ¾ in to 1-¼ in past the riser below — so the usable tread depth is the tread plus the nosing.",
+        "At least 10 in under the 2021 IRC (R311.7.5.2); 10.5–11 in is comfortable for most feet. Tread depth is measured horizontally between the vertical planes of the foremost projection of adjacent treads — the nosing tip is the foremost projection, so the nosing is included in the 10 in, not added on top of it. On stairs with solid risers and treads under 11 in deep, the IRC requires a nosing projecting ¾ in to 1-¼ in past the riser below (R311.7.5.3); no nosing is required once the tread is 11 in or deeper.",
     },
   ],
   modes: [
@@ -100,6 +101,7 @@ export const stairConfig: CalculatorConfig = {
           metUnit: "cm",
           defaultImp: "10.5",
           defaultMet: "26.7",
+          min: 10,
           hint: "10 in is the IRC minimum (R311.7.5.2); 10.5–11 in is comfortable.",
         },
         {
@@ -111,8 +113,9 @@ export const stairConfig: CalculatorConfig = {
           impUnit: "in",
           metUnit: "cm",
           defaultImp: "7.75",
-          defaultMet: "19.7",
-          hint: "7.75 in is the IRC maximum (R311.7.5.1). Lower it if your local code requires it.",
+          defaultMet: "19.685",
+          max: 7.75,
+          hint: "7.75 in is the IRC maximum (R311.7.5.1) and the highest value this calculator accepts. Lower it if your local code requires it.",
         },
       ],
       compute: (v) => {
@@ -122,6 +125,13 @@ export const stairConfig: CalculatorConfig = {
           maxRiserIn: req(v, "maxRiser"),
         });
         return {
+          ...(r.exceedsSingleFlightLimit
+            ? {
+                warnings: [
+                  "This rise exceeds the 2021 IRC single-flight limit of 12 ft 7 in (151 in) — a landing is required between floors (R311.7.3). The numbers below are a straight-flight planning estimate only, not a compliant single-flight design.",
+                ],
+              }
+            : {}),
           rows: [
             {
               label: "Risers",
