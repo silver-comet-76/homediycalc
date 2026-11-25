@@ -121,7 +121,7 @@ test("sitemap and robots are served", async ({ request }) => {
   expect(sitemapText).toContain(`<loc>${origin}/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/calculators/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/categories/painting/</loc>`);
-  // Shipped calculator pages are in the sitemap — all 25 from Phase 4.
+  // Shipped calculator pages are in the sitemap — all 26 from Phase 15.
   expect(sitemapText).toContain(`<loc>${origin}/calculators/concrete-calculator/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/calculators/drywall-calculator/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/calculators/ceiling-tile-calculator/</loc>`);

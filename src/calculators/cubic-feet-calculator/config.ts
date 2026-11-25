@@ -19,6 +19,49 @@ const DIMENSION_UNITS = ["ft", "in", "yd", "m", "cm", "mm"];
 
 export const cubicFeetConfig: CalculatorConfig = {
   slug: "cubic-feet-calculator",
+  lookupTable: {
+    note: "Rectangular boxes only — volume is length × width × height.",
+    headers: [
+      "Box (L × W × H)",
+      "Cubic feet",
+      "Cubic yards",
+      "Cubic meters",
+      "Cubic inches",
+      "Liters",
+      "US gallons",
+    ],
+    rows: [
+      ["2 × 2 × 2 ft box", "8 ft³", "0.3 yd³", "0.23 m³", "13,824 in³", "227 L", "59.84 gal"],
+      ["5 × 4 × 2 ft box", "40 ft³", "1.48 yd³", "1.13 m³", "69,120 in³", "1,133 L", "299.22 gal"],
+      [
+        "10 × 10 × 1 ft box",
+        "100 ft³",
+        "3.7 yd³",
+        "2.83 m³",
+        "172,800 in³",
+        "2,832 L",
+        "748.05 gal",
+      ],
+      [
+        "10 × 10 × 2 ft box",
+        "200 ft³",
+        "7.41 yd³",
+        "5.66 m³",
+        "345,600 in³",
+        "5,663 L",
+        "1,496.1 gal",
+      ],
+      [
+        "20 × 10 × 2 ft box",
+        "400 ft³",
+        "14.81 yd³",
+        "11.33 m³",
+        "691,200 in³",
+        "11,327 L",
+        "2,992.21 gal",
+      ],
+    ],
+  },
   diagram: "volume",
   defaultMode: "dimensions",
   formula:

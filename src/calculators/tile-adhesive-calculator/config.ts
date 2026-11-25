@@ -103,6 +103,17 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const tileAdhesiveConfig: CalculatorConfig = {
   slug: "tile-adhesive-calculator",
+  lookupTable: {
+    note: "Assumes a ¼ × ¼ in square-notch trowel (90 ft² per 50 lb bag), no back-buttering, and 10% waste.",
+    headers: ["Room size", "Adhesive needed", "Coverage per bag", "Bags to buy"],
+    rows: [
+      ["5 × 8 ft room", "24.4 lb", "90 ft²/bag", "1 bags"],
+      ["10 × 10 ft room", "61.1 lb", "90 ft²/bag", "2 bags"],
+      ["10 × 12 ft room", "73.3 lb", "90 ft²/bag", "2 bags"],
+      ["12 × 15 ft room", "110 lb", "90 ft²/bag", "3 bags"],
+      ["15 × 20 ft room", "183.3 lb", "90 ft²/bag", "4 bags"],
+    ],
+  },
   diagram: "area",
   defaultMode: "dimensions",
   formula:
@@ -141,6 +152,11 @@ export const tileAdhesiveConfig: CalculatorConfig = {
       question: "Do I need to back-butter my tile?",
       answer:
         "Yes for tile over 15 inches on any side, and for all wet areas (showers, exteriors) where TCNA wants 95% mortar contact. Back-buttering adds about 35% to the adhesive used, which this calculator applies when you select it.",
+    },
+    {
+      question: "Is this the same as a thinset calculator?",
+      answer:
+        "Yes — in the US, tile adhesive is usually called thinset mortar. This calculator works out how many bags you need for your tile area and trowel size.",
     },
   ],
   modes: [

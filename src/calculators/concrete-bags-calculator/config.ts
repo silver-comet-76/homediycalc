@@ -109,6 +109,17 @@ const COMMON_FIELDS = [
 
 export const concreteBagsConfig: CalculatorConfig = {
   slug: "concrete-bags-calculator",
+  lookupTable: {
+    note: "Assumes 10% waste.",
+    headers: ["Volume", "Volume needed", "40 lb bags", "60 lb bags", "80 lb bags"],
+    rows: [
+      ["0.5 yd³ (13.5 ft³)", "0.55 yd³", "50 bags", "33 bags", "25 bags"],
+      ["1 yd³ (27 ft³)", "1.1 yd³", "99 bags", "66 bags", "50 bags"],
+      ["2 yd³ (54 ft³)", "2.2 yd³", "198 bags", "132 bags", "99 bags"],
+      ["3 yd³ (81 ft³)", "3.3 yd³", "297 bags", "198 bags", "149 bags"],
+      ["5 yd³ (135 ft³)", "5.5 yd³", "495 bags", "330 bags", "248 bags"],
+    ],
+  },
   diagram: "volume",
   defaultMode: "volume",
   formula:

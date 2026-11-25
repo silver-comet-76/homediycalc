@@ -9,7 +9,7 @@ import { expect, test } from "@playwright/test";
  * mobile header search.
  */
 
-// The 25 calculator slugs (must match src/lib/registry.ts).
+// The 26 calculator slugs (must match src/lib/registry.ts).
 const CALCULATOR_SLUGS = [
   "concrete-calculator",
   "square-footage-calculator",
@@ -36,6 +36,7 @@ const CALCULATOR_SLUGS = [
   "sealant-calculator",
   "waterproofing-calculator",
   "baseboard-calculator",
+  "stair-calculator",
 ] as const;
 
 const CATEGORY_SLUGS = [
@@ -109,21 +110,21 @@ test("unmatched search shows the no-results message", async ({ page }) => {
   await expect(page.locator("#no-results")).toContainText("No calculators match that search");
 });
 
-test("empty and cleared queries show all 25 calculators", async ({ page }) => {
-  // No query: all 25 shown.
+test("empty and cleared queries show all 26 calculators", async ({ page }) => {
+  // No query: all 26 shown.
   await page.goto("/calculators/");
-  await expect(visibleEntries(page)).toHaveCount(25);
+  await expect(visibleEntries(page)).toHaveCount(26);
   await expect(page.locator("#no-results")).toBeHidden();
 
-  // Empty query param: all 25 shown.
+  // Empty query param: all 26 shown.
   await page.goto("/calculators/?q=");
-  await expect(visibleEntries(page)).toHaveCount(25);
+  await expect(visibleEntries(page)).toHaveCount(26);
 
-  // Filtered, then cleared via the input: all 25 restored.
+  // Filtered, then cleared via the input: all 26 restored.
   await page.goto("/calculators/?q=tile");
   await expect(visibleEntries(page)).toHaveCount(4);
   await page.locator("#calculator-filter").fill("");
-  await expect(visibleEntries(page)).toHaveCount(25);
+  await expect(visibleEntries(page)).toHaveCount(26);
   await expect(page.locator("#no-results")).toBeHidden();
 });
 
@@ -144,10 +145,10 @@ test("no P0/P1/P2 or 'Arrives in Phase' labels on listing/category pages", async
   }
 });
 
-test("all 25 calculator URLs still work", async ({ request }) => {
+test("all 26 calculator URLs still work", async ({ request }) => {
   for (const slug of CALCULATOR_SLUGS) {
     const res = await request.get(`/calculators/${slug}/`);
     expect(res.ok()).toBeTruthy();
   }
-  expect(CALCULATOR_SLUGS).toHaveLength(25);
+  expect(CALCULATOR_SLUGS).toHaveLength(26);
 });

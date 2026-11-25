@@ -1,8 +1,8 @@
 ---
 /**
  * Registry-driven calculator pages (one dynamic route, per
- * ARCHITECTURE.md §13 — not 25 static files). getStaticPaths emits
- * every slug with a config — all 25 calculators from Phase 4.
+ * ARCHITECTURE.md §13 — not 26 static files). getStaticPaths emits
+ * every slug with a config — all 26 calculators (25 from Phase 4, plus Stair in Phase 15).
  */
 import CalculatorShell from "../../components/CalculatorShell.astro";
 import MeasurementDiagram from "../../components/MeasurementDiagram.astro";
@@ -50,6 +50,46 @@ if (!calculator || !config) {
     </h2>
     <p class="mt-3 max-w-3xl text-slate-700">{config.workedExample}</p>
   </section>
+
+  {
+    config.lookupTable && (
+      <section slot="content" aria-labelledby="common-sizes" class="mt-10">
+        <h2 id="common-sizes" class="text-2xl font-bold text-slate-900">
+          Common sizes
+        </h2>
+        <p class="mt-3 max-w-3xl text-slate-700">
+          Typical values worked out with this calculator — find the size closest to yours.
+        </p>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full max-w-3xl border-collapse border border-slate-200 text-sm">
+            <thead>
+              <tr>
+                {config.lookupTable.headers.map((header) => (
+                  <th class="border border-slate-200 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-900">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {config.lookupTable.rows.map((row) => (
+                <tr>
+                  {row.map((cell, index) => (
+                    <td class="border border-slate-200 px-3 py-2 text-slate-700">
+                      {index === 0 ? <strong class="font-semibold text-slate-900">{cell}</strong> : cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {config.lookupTable.note && (
+          <p class="mt-3 max-w-3xl text-sm text-slate-600">{config.lookupTable.note}</p>
+        )}
+      </section>
+    )
+  }
 
   <section slot="content" aria-labelledby="limitations" class="mt-10">
     <h2 id="limitations" class="text-2xl font-bold text-slate-900">

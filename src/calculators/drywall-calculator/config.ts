@@ -153,6 +153,24 @@ const COMMON_FIELDS = [
 
 export const drywallConfig: CalculatorConfig = {
   slug: "drywall-calculator",
+  lookupTable: {
+    note: "Assumes 8 ft walls, 1 door and 2 windows, ceiling included, 4 × 8 ft sheets, 10% waste, joint compound at 100 ft²/gal in 4.5 gal pails, and standard screw counts for 4 × 8 ft sheets (28 per wall sheet, 35 per ceiling sheet).",
+    headers: [
+      "Room size",
+      "Area to cover",
+      "Drywall sheets",
+      "Joint compound",
+      "Paper tape",
+      "Drywall screws",
+    ],
+    rows: [
+      ["10 × 10 ft room", "370 ft²", "13 sheets", "3.7 gal", "136.9 ft", "392 screws"],
+      ["12 × 12 ft room", "478 ft²", "17 sheets", "4.78 gal", "176.86 ft", "483 screws"],
+      ["12 × 15 ft room", "562 ft²", "20 sheets", "5.62 gal", "207.94 ft", "546 screws"],
+      ["15 × 20 ft room", "810 ft²", "28 sheets", "8.1 gal", "299.7 ft", "798 screws"],
+      ["20 × 20 ft room", "990 ft²", "35 sheets", "9.9 gal", "366.3 ft", "987 screws"],
+    ],
+  },
   diagram: "wall",
   defaultMode: "room",
   formula:
@@ -202,6 +220,11 @@ export const drywallConfig: CalculatorConfig = {
       question: "Should I use 4 × 8 or 4 × 12 sheets?",
       answer:
         "4 × 12 ft sheets mean fewer butt joints to tape and mud, which saves finishing time, but they are heavy and awkward — you need two people and a clear path to get them in. For most DIY rooms, 4 × 8 ft sheets are the practical choice.",
+    },
+    {
+      question: "Is this the same as a sheetrock or plasterboard calculator?",
+      answer:
+        "Yes — drywall is called sheetrock in the US and plasterboard in the UK and Australia. This calculator works out how many sheets you need for a wall or ceiling.",
     },
   ],
   modes: [

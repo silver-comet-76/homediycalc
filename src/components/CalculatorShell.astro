@@ -32,6 +32,9 @@ const crumbs = [
   <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
     {calculator.name}
   </h1>
+  <p class="mt-2 text-sm text-slate-500">
+    Methodology: <a href="/how-we-calculate/">How we calculate</a>
+  </p>
   <p class="mt-3 max-w-3xl text-lg text-slate-600">{calculator.summary}</p>
 
   <section aria-label="Calculator" class="mt-8">
@@ -45,6 +48,10 @@ const crumbs = [
           How this is calculated
         </h2>
         <p class="mt-3 max-w-3xl text-slate-700">{formula}</p>
+        <p class="mt-3 max-w-3xl text-slate-700">
+          <a href="/how-we-calculate/">How we calculate</a> — the formulas, sources, and
+          limits behind every calculator on this site.
+        </p>
       </section>
     )
   }

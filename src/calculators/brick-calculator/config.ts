@@ -12,6 +12,23 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const brickConfig: CalculatorConfig = {
   slug: "brick-calculator",
+  lookupTable: {
+    note: "Assumes a solid wall with no openings, standard modular brick (7⅝ × 2¼ × 3⅝ in), a ⅜ in mortar joint, 5% brick waste, 15% mortar waste, and 37 bricks per 80 lb mortar bag.",
+    headers: [
+      "Wall (L × H)",
+      "Net wall area",
+      "Bricks needed",
+      "Mortar volume",
+      "Mortar bags (80 lb)",
+    ],
+    rows: [
+      ["10 × 8 ft wall", "80 ft²", "576 bricks", "5.09 ft³", "18 bags"],
+      ["12 × 8 ft wall", "96 ft²", "692 bricks", "6.11 ft³", "21 bags"],
+      ["20 × 8 ft wall", "160 ft²", "1152 bricks", "10.18 ft³", "35 bags"],
+      ["20 × 10 ft wall", "200 ft²", "1440 bricks", "12.72 ft³", "43 bags"],
+      ["30 × 8 ft wall", "240 ft²", "1728 bricks", "15.26 ft³", "52 bags"],
+    ],
+  },
   diagram: "wall",
   defaultMode: "wall",
   formula:

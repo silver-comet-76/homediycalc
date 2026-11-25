@@ -113,6 +113,17 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const wallpaperConfig: CalculatorConfig = {
   slug: "wallpaper-calculator",
+  lookupTable: {
+    note: "Assumes 8 ft walls, US double rolls (20.5 in × 33 ft), an 18 in pattern repeat, and 10% waste.",
+    headers: ["Room size", "Strips needed", "Strip length", "Strips per roll", "Rolls to buy"],
+    rows: [
+      ["10 × 10 ft room (40 ft of wall)", "24 strips", "9.83 ft", "3 strips", "9 rolls"],
+      ["12 × 12 ft room (48 ft of wall)", "29 strips", "9.83 ft", "3 strips", "11 rolls"],
+      ["12 × 15 ft room (54 ft of wall)", "32 strips", "9.83 ft", "3 strips", "12 rolls"],
+      ["15 × 20 ft room (70 ft of wall)", "41 strips", "9.83 ft", "3 strips", "16 rolls"],
+      ["20 × 20 ft room (80 ft of wall)", "47 strips", "9.83 ft", "3 strips", "18 rolls"],
+    ],
+  },
   diagram: "wall",
   defaultMode: "room",
   formula:

@@ -32,6 +32,17 @@ function areaOutput(shape: SquareFootageShape, v: Record<string, number>) {
 
 export const squareFootageConfig: CalculatorConfig = {
   slug: "square-footage-calculator",
+  lookupTable: {
+    note: "Rectangular rooms only — area is length × width.",
+    headers: ["Rectangle (L × W)", "Area", "Square yards", "Acres"],
+    rows: [
+      ["10 × 10 ft", "100 ft²", "11.11 yd²", "0.0023 acres"],
+      ["12 × 12 ft", "144 ft²", "16 yd²", "0.0033 acres"],
+      ["12 × 15 ft", "180 ft²", "20 yd²", "0.0041 acres"],
+      ["15 × 20 ft", "300 ft²", "33.33 yd²", "0.0069 acres"],
+      ["20 × 30 ft", "600 ft²", "66.67 yd²", "0.0138 acres"],
+    ],
+  },
   diagram: "area",
   defaultMode: "rectangle",
   formula:

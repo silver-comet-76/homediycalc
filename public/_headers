@@ -7,9 +7,21 @@
 # third-party analytics or advertising script on the site.
 #
 # See docs/DEPLOYMENT.md §11.
+#
+# /404 (Phase 13): Cloudflare Pages serves the custom 404.html file at
+# the /404 path and returns HTTP 200 for it (its "pretty URL" behaviour:
+# every .html file is served at its extensionless path). There is no
+# Pages setting to change the status code, and a nonexistent URL still
+# correctly returns 404. The /404 path is not in the sitemap and is not
+# internally linked, so the risk is low — but this noindex header makes
+# sure the page can never be indexed even if a crawler discovers it.
+# See docs/DEPLOYMENT.md §15.
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
+
+/404
+  X-Robots-Tag: noindex

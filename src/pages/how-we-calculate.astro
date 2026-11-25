@@ -1,0 +1,101 @@
+---
+import Layout from "../components/Layout.astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+
+const crumbs = [{ name: "Home", path: "/" }, { name: "How We Calculate" }];
+---
+
+<Layout
+  title="How We Calculate"
+  description="How HomeDIYCalc works out material quantities — the formulas, sources, and limits behind every calculator. No ads, no tracking, no account."
+  canonical="/how-we-calculate/"
+  breadcrumbs={crumbs}
+>
+  <Breadcrumbs items={crumbs} />
+  <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">How We Calculate</h1>
+  <div class="mt-6 max-w-3xl space-y-4 text-slate-700">
+    <p>
+      Every HomeDIYCalc calculator runs entirely in your browser, in plain
+      TypeScript. There is no backend, no database, and no server involved
+      in a calculation: you type in your measurements, the formula runs on
+      your device, and the result appears immediately. Nothing you enter is
+      sent anywhere, and nothing is stored unless you choose to save a
+      result to My Project — which also lives only in your own browser.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">The formulas</h2>
+    <p>
+      Each calculator page shows its own formula in the “How this is
+      calculated” section, with a worked example using real numbers, so you
+      can check the result yourself. The formulas are plain arithmetic —
+      area, volume, and unit conversion — plus the coverage and yield rates
+      printed by the product manufacturers. Package quantities — bags,
+      boxes, gallons, sheets — always round up, so you are never told to
+      buy less than you need.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">Where the numbers come from</h2>
+    <p>
+      Coverage and yield rates start from the manufacturers’ own
+      published data. A few figures are stated planning factors — for
+      example, the standard waste allowance on a material page — and
+      real-world coverage varies by product, surface condition, and
+      geometry:
+    </p>
+    <ul class="list-disc space-y-2 pl-6">
+      <li>
+        <strong class="text-slate-900">Concrete, concrete slab, concrete bags, mortar, brick:</strong>
+        QUIKRETE Concrete Mix No. 1101 and Mortar Mix No. 1102 yield figures.
+      </li>
+      <li>
+        <strong class="text-slate-900">Paint:</strong> Sherwin-Williams interior latex
+        coverage data sheets (350 ft² per gallon default).
+      </li>
+      <li>
+        <strong class="text-slate-900">Primer:</strong> Sherwin-Williams ProBlock primers,
+        which print 400 ft² per gallon.
+      </li>
+      <li>
+        <strong class="text-slate-900">Tile adhesive:</strong> CUSTOM VersaBond coverage
+        chart (TDS-119) per 50 lb bag, and TCNA mortar-contact requirements.
+      </li>
+      <li>
+        <strong class="text-slate-900">Waterproofing:</strong> RedGard technical data sheet
+        (TDS-104) and KERDI roll coverage.
+      </li>
+      <li>
+        <strong class="text-slate-900">Drywall:</strong> USG joint-compound guidance.
+      </li>
+      <li>
+        <strong class="text-slate-900">Stairs:</strong> the International Residential Code
+        (IRC) limits for a straight staircase — a maximum riser height of
+        7.75 in and a minimum tread depth of 10 in.
+      </li>
+    </ul>
+    <p>
+      Where a manufacturer gives a range rather than a single figure, the
+      calculator uses a stated default in the middle of that range and lets
+      you change it to match the product you are actually buying.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">No ads. No tracking. No account.</h2>
+    <p>
+      The site carries no advertising, no analytics, and no tracking of
+      any kind, and there is no account or login. The site does not load
+      third-party scripts: its Content-Security-Policy allows no external
+      script, font, image, or frame source. Cost estimates appear only when
+      you enter your own local prices — if you enter no price, no cost is
+      shown, because we do not invent prices.
+    </p>
+    <h2 class="pt-2 text-xl font-bold text-slate-900">Limitations</h2>
+    <p>
+      Calculators are estimates, not guarantees. They work out the
+      quantities for the measurements you enter; they do not account for
+      every site condition — slope, compaction, spillage, damaged material,
+      or local building codes. Always buy a little extra for cuts and
+      mistakes, confirm quantities with your supplier, and check your local
+      building code before you build — the Stair Calculator gives
+      preliminary planning estimates under the 2021 IRC limits stated on
+      its page; it does not guarantee code compliance, and local codes can
+      amend those limits. For structural work, consult a qualified
+      professional. See the <a href="/disclaimer/">Disclaimer</a>.
+    </p>
+  </div>
+</Layout>
