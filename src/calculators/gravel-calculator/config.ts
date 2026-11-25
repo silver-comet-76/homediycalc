@@ -12,6 +12,17 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const gravelConfig: CalculatorConfig = {
   slug: "gravel-calculator",
+  lookupTable: {
+    note: "Assumes a 5% compaction allowance and gravel at 2,800 lb per cubic yard.",
+    headers: ["Area (L × W × depth)", "Volume", "Cubic yards to order", "Weight"],
+    rows: [
+      ["10 × 10 × 2 in bed", "0.62 yd³", "1 yd³", "0.91 tons"],
+      ["10 × 10 × 3 in bed", "0.93 yd³", "1 yd³", "1.36 tons"],
+      ["10 × 20 × 3 in bed", "1.85 yd³", "2 yd³", "2.72 tons"],
+      ["20 × 20 × 3 in bed", "3.7 yd³", "4 yd³", "5.44 tons"],
+      ["12 × 12 × 4 in bed", "1.78 yd³", "2 yd³", "2.61 tons"],
+    ],
+  },
   diagram: "volume",
   defaultMode: "area",
   formula:
