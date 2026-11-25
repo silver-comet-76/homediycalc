@@ -133,6 +133,48 @@ function modeDefaults(mode: ModeSpec, system: UnitSystem) {
   return { values, units };
 }
 
+/**
+ * Collapse binary floating-point conversion noise out of a canonical
+ * value. 383.54 cm is exactly 151 in, but convertLength returns
+ * 151.00000000000003 in — one ulp above the 151 in single-flight limit,
+ * which would wrongly warn on the exact metric equivalent of the limit.
+ * Twelve significant digits keeps every genuine user-entered difference
+ * (the tests use differences down to 1e-5) while collapsing conversion
+ * noise (~1e-13 relative, cf. the ceilUp tolerance in ADR-11). This
+ * runs only when a canonical value is derived from a display string;
+ * a retained canonical value is never re-derived or re-rounded on a
+ * unit switch, so it is preserved exactly across switches.
+ */
+function cleanCanonical(value: number): number {
+  if (!Number.isFinite(value)) return value;
+  return Number(value.toPrecision(12));
+}
+
+/**
+ * Canonical value for a displayed string in its current unit, or
+ * undefined when the display is empty or non-numeric. Select fields
+ * store their value as a number, so they pass through unchanged.
+ */
+function canonicalFromDisplay(raw: string, unit: string, field: FieldSpec): number | undefined {
+  const parsed = parseNumber(raw);
+  if (parsed === undefined) return undefined;
+  return cleanCanonical(toCanonical(parsed, unit, field));
+}
+
+/** Canonical defaults for a mode in a unit system (the physical input behind the display defaults). */
+function modeCanonical(mode: ModeSpec, system: UnitSystem): Record<string, number> {
+  const canon: Record<string, number> = {};
+  for (const field of mode.fields) {
+    const value = canonicalFromDisplay(
+      defaultValue(field, system),
+      defaultUnit(field, system),
+      field,
+    );
+    if (value !== undefined) canon[field.id] = value;
+  }
+  return canon;
+}
+
 export interface GenericCalculatorProps {
   /** Calculator slug. The full config is resolved client-side from
    * CALCULATOR_CONFIGS: Astro serializes island props to JSON, so a
@@ -159,6 +201,18 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
   const [fieldUnits, setFieldUnits] = useState<Record<string, string>>(
     () => modeDefaults(mode, "imperial").units,
   );
+  // Full-precision canonical values (feet / square feet / cubic feet /
+  // US gallons / ft² per gallon, or the field's canonicalUnit override)
+  // are the source of truth for computation. Display strings are
+  // rounded to 4 decimals on a unit switch, so re-deriving canonical
+  // values from them would drift the physical input — e.g. 151.00001 in
+  // → 383.54 cm → back to 151 in, silently dropping the over-limit
+  // excess. Canonical values are therefore retained exactly across
+  // switches and only re-derived on an actual user edit, mode switch,
+  // or Reset. See switchSystem / handleFieldChange below.
+  const [canonicalValues, setCanonicalValues] = useState<Record<string, number>>(() =>
+    modeCanonical(mode, "imperial"),
+  );
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -176,6 +230,7 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
     const defaults = modeDefaults(next, system);
     setValues(defaults.values);
     setFieldUnits(defaults.units);
+    setCanonicalValues(modeCanonical(next, system));
     setCopied(false);
     setSaved(false);
   }
@@ -187,7 +242,17 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
     for (const field of mode.fields) {
       const oldUnit = fieldUnits[field.id] ?? "";
       const newUnit = defaultUnit(field, next);
-      nextValues[field.id] = convertValue(values[field.id] ?? "", oldUnit, newUnit, field.unitKind);
+      // Derive the new display string from the retained canonical
+      // value, never from the old (rounded) display string, so the
+      // display can never drift from the physical input. The canonical
+      // value itself is left untouched. Fields with no retained
+      // canonical value (empty or invalid input) fall back to
+      // converting the display string, as before.
+      const retained = canonicalValues[field.id];
+      nextValues[field.id] =
+        field.unitKind && retained !== undefined
+          ? String(fromCanonical(retained, newUnit, field))
+          : convertValue(values[field.id] ?? "", oldUnit, newUnit, field.unitKind);
       nextUnits[field.id] = newUnit;
     }
     setValues(nextValues);
@@ -197,22 +262,47 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
 
   function changeFieldUnit(field: FieldSpec, nextUnit: string) {
     const oldUnit = fieldUnits[field.id] ?? "";
+    const retained = canonicalValues[field.id];
+    const nextValue =
+      field.unitKind && retained !== undefined
+        ? String(fromCanonical(retained, nextUnit, field))
+        : convertValue(values[field.id] ?? "", oldUnit, nextUnit, field.unitKind);
     setValues((prev) => ({
       ...prev,
-      [field.id]: convertValue(prev[field.id] ?? "", oldUnit, nextUnit, field.unitKind),
+      [field.id]: nextValue,
     }));
     setFieldUnits((prev) => ({ ...prev, [field.id]: nextUnit }));
+  }
+
+  /** A user edit makes the new display value authoritative: its canonical value is re-derived from what was typed, in the field's current unit. An empty or invalid entry drops the field's canonical value so no stale value is used. */
+  function handleFieldChange(field: FieldSpec, value: string) {
+    setValues((prev) => ({ ...prev, [field.id]: value }));
+    const nextCanonical = canonicalFromDisplay(value, fieldUnits[field.id] ?? "", field);
+    setCanonicalValues((prev) => {
+      const next = { ...prev };
+      if (nextCanonical === undefined) {
+        delete next[field.id];
+      } else {
+        next[field.id] = nextCanonical;
+      }
+      return next;
+    });
   }
 
   function reset() {
     const defaults = modeDefaults(mode, system);
     setValues(defaults.values);
     setFieldUnits(defaults.units);
+    setCanonicalValues(modeCanonical(mode, system));
     setCopied(false);
     setSaved(false);
   }
 
-  // Validate every field; build canonical values for the ones that pass.
+  // Validate every field against its display bounds; build canonical
+  // values for the ones that pass. Display validation is unchanged
+  // (bounds converted to the display unit via fromCanonical), but
+  // computation uses the retained canonical values, not a re-conversion
+  // of the rounded display strings — see the canonicalValues state.
   const { errors, canonical, present } = useMemo(() => {
     const errs: Record<string, string> = {};
     const canon: Record<string, number> = {};
@@ -245,11 +335,21 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
         errs[field.id] = result.error;
       } else if (result.present && result.value !== undefined) {
         pres.add(field.id);
-        canon[field.id] = toCanonical(result.value, fieldUnits[field.id] ?? "", field);
+        // The retained canonical value is the physical input; fall
+        // back to converting the display value only when no canonical
+        // value is retained (defensive — edits and switches keep the
+        // two in sync).
+        const retained = canonicalValues[field.id];
+        if (retained !== undefined) {
+          canon[field.id] = retained;
+        } else {
+          const derived = canonicalFromDisplay(raw, fieldUnits[field.id] ?? "", field);
+          if (derived !== undefined) canon[field.id] = derived;
+        }
       }
     }
     return { errors: errs, canonical: canon, present: pres };
-  }, [mode, values, fieldUnits]);
+  }, [mode, values, fieldUnits, canonicalValues]);
 
   const hasErrors = Object.keys(errors).length > 0;
   // The active unit system is passed through so a mode that formats
@@ -349,9 +449,7 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
               <select
                 id={`${config.slug}-${mode.id}-${field.id}`}
                 value={values[field.id] ?? ""}
-                onChange={(event) =>
-                  setValues((prev) => ({ ...prev, [field.id]: event.target.value }))
-                }
+                onChange={(event) => handleFieldChange(field, event.target.value)}
                 aria-invalid={errors[field.id] ? true : undefined}
                 aria-describedby={
                   errors[field.id]
@@ -391,7 +489,7 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
                 id={`${config.slug}-${mode.id}-${field.id}`}
                 label={field.label}
                 value={values[field.id] ?? ""}
-                onChange={(value) => setValues((prev) => ({ ...prev, [field.id]: value }))}
+                onChange={(value) => handleFieldChange(field, value)}
                 unit={field.unitKind ? fieldUnits[field.id] : undefined}
                 error={errors[field.id]}
                 hint={field.hint}
