@@ -12,6 +12,49 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const concreteConfig: CalculatorConfig = {
   slug: "concrete-calculator",
+  lookupTable: {
+    note: "Assumes 10% waste and ready-mix rounded up to the next quarter cubic yard (0.25 yd³).",
+    headers: [
+      "Pour (L × W × depth)",
+      "Volume",
+      "With 10% waste",
+      "Ready-mix to order",
+      "80 lb bags",
+      "60 lb bags",
+      "40 lb bags",
+    ],
+    rows: [
+      ["10 × 10 × 4 in pour", "1.23 yd³", "1.36 yd³", "1.5 yd³", "62 bags", "82 bags", "123 bags"],
+      [
+        "10 × 20 × 4 in pour",
+        "2.47 yd³",
+        "2.72 yd³",
+        "2.75 yd³",
+        "123 bags",
+        "163 bags",
+        "245 bags",
+      ],
+      ["12 × 12 × 4 in pour", "1.78 yd³", "1.96 yd³", "2 yd³", "88 bags", "118 bags", "176 bags"],
+      [
+        "20 × 20 × 4 in pour",
+        "4.94 yd³",
+        "5.43 yd³",
+        "5.5 yd³",
+        "245 bags",
+        "326 bags",
+        "489 bags",
+      ],
+      [
+        "10 × 10 × 6 in pour",
+        "1.85 yd³",
+        "2.04 yd³",
+        "2.25 yd³",
+        "92 bags",
+        "123 bags",
+        "184 bags",
+      ],
+    ],
+  },
   diagram: "volume",
   defaultMode: "pour",
   formula:
