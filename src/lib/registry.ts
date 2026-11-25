@@ -458,7 +458,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     phase: 15,
     seoTitle: "Stair Calculator — Rise, Run & Stringer Length | HomeDIYCalc",
     seoDescription:
-      "Free stair calculator. Work out riser height, tread count, total run, and stringer length for a straight staircase, to US building code limits.",
+      "Free stair calculator. Work out riser height, tread count, total run, and stringer length — a preliminary planning estimate under 2021 IRC limits.",
     related: ["square-footage-calculator", "board-foot-calculator", "concrete-calculator"],
     summary:
       "Work out riser height, tread count, total run, and stringer length for a straight staircase.",
