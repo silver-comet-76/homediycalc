@@ -126,7 +126,7 @@ const faqs = [
   },
   {
     question: "Are all the calculators available?",
-    answer: "Yes — all 25 calculators are built, tested, and available now.",
+    answer: "Yes — all 26 calculators are built, tested, and available now.",
   },
   {
     question: "Is my project data sent anywhere?",
@@ -137,7 +137,7 @@ const faqs = [
 ---
 
 <Layout
-  title="HomeDIYCalc"
+  title="Free DIY Calculators — Concrete, Paint & Tile"
   description="Free home improvement calculators: work out how much concrete, paint, gravel, tile, and more you need, with a shopping list to take to the store. No signup, no cost."
   canonical="/"
   faqs={faqs}
@@ -213,7 +213,7 @@ const faqs = [
             >
               <path d="M5 12l5 5 9-10"></path>
             </svg>
-            25 Calculators
+            26 Calculators
           </li>
         </ul>
       </div>
@@ -319,8 +319,30 @@ const faqs = [
     </ul>
     <p class="mt-5">
       <a href="/calculators/" class="inline-block py-0.5 leading-6 font-semibold">
-        See all 25 calculators →
+        See all 26 calculators →
       </a>
+    </p>
+  </section>
+
+  {/* My Project — the shopping list planner, promoted on the homepage
+      (Phase 14). It is the one feature no other calculator site in the
+      ranking set offers as a headline: save results from any calculator,
+      combine them into one list, and take it to the store. */}
+  <section
+    aria-labelledby="my-project-heading"
+    class="mt-10 rounded-3xl border border-orange-100 bg-orange-50 px-6 py-8 sm:mt-12 sm:px-10"
+  >
+    <h2 id="my-project-heading" class="text-2xl font-bold text-slate-900 sm:text-3xl">
+      Save every result in one shopping list
+    </h2>
+    <p class="mt-2 max-w-2xl text-slate-600">
+      My Project is the shopping list planner: save results from any calculator here,
+      combine them into one list, edit quantities and prices, organise items by room,
+      and export the list to take to the store. No account — your saved items live
+      only in your own browser, and nothing is sent to a server.
+    </p>
+    <p class="mt-6">
+      <a href="/my-project/" class="btn-primary">Open My Project</a>
     </p>
   </section>
 

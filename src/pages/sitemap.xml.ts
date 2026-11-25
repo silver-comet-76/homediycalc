@@ -23,13 +23,14 @@ const STATIC_PAGES = [
   "/privacy-policy/",
   "/terms-of-use/",
   "/disclaimer/",
+  "/how-we-calculate/",
 ];
 
 export const GET: APIRoute = () => {
   const urls = [
     ...STATIC_PAGES,
     ...CATEGORIES.map((category) => category.url),
-    // Only shipped calculator pages are listed (P0 in Phase 2, P1 in Phase 3, P2 in Phase 4).
+    // Only shipped calculator pages are listed (P0 in Phase 2, P1 in Phase 3, P2 in Phase 4, Stair in Phase 15).
     ...SHIPPED_CALCULATOR_SLUGS.map((slug) => `/calculators/${slug}/`),
   ];
   const body = [
