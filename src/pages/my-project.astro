@@ -97,6 +97,7 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "My Project" }];
       isItemCostPartial,
       itemCostLabel,
       loadProject,
+      prefixWarning,
       projectHasPartialCost,
       removeProjectItem,
       saveProject,
@@ -159,6 +160,24 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "My Project" }];
             render();
           });
           card.appendChild(labelInput);
+
+          // Safety warnings (Phase 16A, e.g. the Stair 151 in limit)
+          // render prominently above the item's lines, in the same
+          // amber styling as the calculator page — a saved over-limit
+          // result is never shown as if compliant.
+          if (item.warnings && item.warnings.length > 0) {
+            const warnBox = document.createElement("div");
+            warnBox.className = "mb-2 space-y-2";
+            for (const warning of item.warnings) {
+              const warningEl = document.createElement("p");
+              warningEl.setAttribute("role", "alert");
+              warningEl.className =
+                "rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900";
+              warningEl.textContent = prefixWarning(warning);
+              warnBox.appendChild(warningEl);
+            }
+            card.appendChild(warnBox);
+          }
 
           const list = document.createElement("ul");
           list.className = "mt-2 list-disc space-y-1 pl-6 text-sm";
