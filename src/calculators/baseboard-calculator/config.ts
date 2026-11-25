@@ -84,6 +84,23 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const baseboardConfig: CalculatorConfig = {
   slug: "baseboard-calculator",
+  lookupTable: {
+    note: "Assumes 1 door (3 ft wide), 8 ft stock pieces, and 10% waste.",
+    headers: [
+      "Room size",
+      "Net wall length",
+      "Length with waste",
+      "Pieces to buy",
+      "Length purchased",
+    ],
+    rows: [
+      ["10 × 10 ft room", "37 ft", "40.7 ft", "6 pieces", "48 ft"],
+      ["12 × 12 ft room", "45 ft", "49.5 ft", "7 pieces", "56 ft"],
+      ["12 × 15 ft room", "51 ft", "56.1 ft", "8 pieces", "64 ft"],
+      ["15 × 20 ft room", "67 ft", "73.7 ft", "10 pieces", "80 ft"],
+      ["20 × 20 ft room", "77 ft", "84.7 ft", "11 pieces", "88 ft"],
+    ],
+  },
   diagram: "linear",
   defaultMode: "room",
   formula:
@@ -126,6 +143,11 @@ export const baseboardConfig: CalculatorConfig = {
       question: "Do I subtract doors when measuring for baseboard?",
       answer:
         "Yes. Baseboard does not run across a doorway threshold, so subtract each door's width — about 3 ft for a standard interior door. Closet openings count too if the baseboard stops at them.",
+    },
+    {
+      question: "Is this the same as a skirting board calculator?",
+      answer:
+        "Yes — baseboard is called skirting board in the UK. This calculator works out the total length of baseboard you need for a room.",
     },
   ],
   modes: [
