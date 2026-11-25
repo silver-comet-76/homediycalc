@@ -12,6 +12,17 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const sealantConfig: CalculatorConfig = {
   slug: "sealant-calculator",
+  lookupTable: {
+    note: "Assumes a ¼ × ¼ in bead, standard 10.1 fl oz tubes, and 10% waste.",
+    headers: ["Joint length", "Sealant needed", "Coverage per tube", "Tubes to buy"],
+    rows: [
+      ["50 ft of joint", "22.9 fl oz", "24.3 ft/tube", "3 tubes"],
+      ["100 ft of joint", "45.7 fl oz", "24.3 ft/tube", "5 tubes"],
+      ["150 ft of joint", "68.6 fl oz", "24.3 ft/tube", "7 tubes"],
+      ["200 ft of joint", "91.4 fl oz", "24.3 ft/tube", "10 tubes"],
+      ["300 ft of joint", "137.1 fl oz", "24.3 ft/tube", "14 tubes"],
+    ],
+  },
   diagram: "joint",
   defaultMode: "joints",
   formula:
@@ -54,6 +65,11 @@ export const sealantConfig: CalculatorConfig = {
       question: "How deep should a bead of sealant be?",
       answer:
         "About half as deep as it is wide for a joint that moves — a 1/2 in wide joint wants 1/4 in of sealant — with a practical minimum around 1/4 in for bond and a maximum near 1/2 in. Deeper beads cure poorly and waste material the joint never uses. Pack deep joints with backer rod first.",
+    },
+    {
+      question: "Is this the same as a caulk calculator?",
+      answer:
+        "Yes — in the US, sealant for gaps and joints is usually called caulk. This calculator works out how many tubes of caulk or sealant you need for a bead of a given length and size.",
     },
   ],
   modes: [
