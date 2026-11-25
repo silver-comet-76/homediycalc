@@ -10,11 +10,11 @@ import {
 } from "./registry";
 
 describe("registry completeness", () => {
-  it("registers exactly 25 calculators", () => {
-    expect(CALCULATORS).toHaveLength(25);
+  it("registers exactly 26 calculators", () => {
+    expect(CALCULATORS).toHaveLength(26);
   });
-  it("has 10 P0, 8 P1, and 7 P2 calculators", () => {
-    expect(getCalculatorsByPriority("P0")).toHaveLength(10);
+  it("has 11 P0, 8 P1, and 7 P2 calculators", () => {
+    expect(getCalculatorsByPriority("P0")).toHaveLength(11);
     expect(getCalculatorsByPriority("P1")).toHaveLength(8);
     expect(getCalculatorsByPriority("P2")).toHaveLength(7);
   });
@@ -61,9 +61,17 @@ describe("registry completeness", () => {
     expect(p2).toContain("baseboard-calculator");
     expect(p2).toContain("waterproofing-calculator");
   });
-  it("places P0 calculators in Phase 2, P1 in Phase 3, and P2 in Phase 4", () => {
+  it("places P0 calculators in Phase 2, P1 in Phase 3, and P2 in Phase 4 — except the Phase 15 Stair Calculator, a P0 added later", () => {
     for (const calc of CALCULATORS) {
-      expect(calc.phase).toBe(calc.priority === "P0" ? 2 : calc.priority === "P1" ? 3 : 4);
+      const expected =
+        calc.slug === "stair-calculator"
+          ? 15
+          : calc.priority === "P0"
+            ? 2
+            : calc.priority === "P1"
+              ? 3
+              : 4;
+      expect(calc.phase).toBe(expected);
     }
   });
   it("resolves every related slug to a registered calculator", () => {

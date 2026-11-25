@@ -1,5 +1,5 @@
 /**
- * Centralized calculator registry — the single source of truth for the 25
+ * Centralized calculator registry — the single source of truth for the 26
  * calculators on HomeDIYCalc.
  *
  * Every calculator is registered exactly once here. Home, All Calculators,
@@ -8,9 +8,9 @@
  * page. Adding a calculator = registry entry + formula module + tests +
  * React island + Astro page (see AGENTS.md).
  *
- * Priority: P0 ships in Phase 2, P1 in Phase 3, P2 in Phase 4. All 25
+ * Priority: P0 ships in Phase 2, P1 in Phase 3, P2 in Phase 4. All 26
  * calculators are shipped; the registry records their live URLs and
- * SEO metadata.
+ * SEO metadata. The Stair Calculator (P0) shipped in Phase 15.
  */
 
 export type Priority = "P0" | "P1" | "P2";
@@ -40,7 +40,7 @@ export interface CalculatorMeta {
   /** Live URL: /calculators/<slug>/ — P0 from Phase 2, P1 from Phase 3, P2 from Phase 4. */
   url: string;
   /** Phase in which this calculator ships. */
-  phase: 2 | 3 | 4;
+  phase: 2 | 3 | 4 | 15;
   seoTitle: string;
   seoDescription: string;
   /** Slugs of related calculators, used for cross-linking. */
@@ -56,7 +56,7 @@ export const CATEGORIES: CategoryMeta[] = [
     url: "/categories/concrete-and-masonry/",
     description:
       "Concrete, slabs, bricks, bags, and mortar — work out the volume you need and how many bags or bricks to buy.",
-    seoTitle: "Concrete and Masonry Calculators | HomeDIYCalc",
+    seoTitle: "Free Concrete and Masonry Calculators | HomeDIYCalc",
     seoDescription:
       "Free concrete, slab, brick, concrete bag, and mortar calculators. Work out volumes and bag counts before you buy.",
   },
@@ -66,7 +66,7 @@ export const CATEGORIES: CategoryMeta[] = [
     url: "/categories/painting/",
     description:
       "Paint and primer — work out how many gallons you need for walls, ceilings, and rooms, coats included.",
-    seoTitle: "Painting Calculators | HomeDIYCalc",
+    seoTitle: "Free Painting Calculators | HomeDIYCalc",
     seoDescription:
       "Free paint and primer calculators. Work out how many gallons you need for any room, including coats and waste.",
   },
@@ -76,7 +76,7 @@ export const CATEGORIES: CategoryMeta[] = [
     url: "/categories/flooring-and-tiles/",
     description:
       "Tile, flooring, grout, and adhesive — work out coverage, boxes, and bags so you order enough the first time.",
-    seoTitle: "Flooring and Tile Calculators | HomeDIYCalc",
+    seoTitle: "Free Flooring and Tile Calculators | HomeDIYCalc",
     seoDescription:
       "Free tile, flooring, grout, and tile adhesive calculators. Work out boxes, coverage, and waste before you order.",
   },
@@ -86,7 +86,7 @@ export const CATEGORIES: CategoryMeta[] = [
     url: "/categories/landscaping/",
     description:
       "Gravel, mulch, pavers, and topsoil — work out cubic yards and weight for driveways, beds, and patios.",
-    seoTitle: "Landscaping Calculators | HomeDIYCalc",
+    seoTitle: "Free Landscaping Calculators | HomeDIYCalc",
     seoDescription:
       "Free gravel, mulch, paver, and topsoil calculators. Work out cubic yards and tons for your yard project.",
   },
@@ -96,7 +96,7 @@ export const CATEGORIES: CategoryMeta[] = [
     url: "/categories/measurement/",
     description:
       "Square footage, cubic yards, cubic feet, and board feet — the basic measurements every other calculator builds on.",
-    seoTitle: "Measurement Calculators | HomeDIYCalc",
+    seoTitle: "Free Measurement Calculators | HomeDIYCalc",
     seoDescription:
       "Free square footage, cubic yard, cubic feet, and board foot calculators. Measure any space or volume accurately.",
   },
@@ -106,7 +106,7 @@ export const CATEGORIES: CategoryMeta[] = [
     url: "/categories/interior-and-maintenance/",
     description:
       "Drywall, ceiling tiles, wallpaper, sealant, waterproofing, and baseboards — the finishing and upkeep jobs.",
-    seoTitle: "Interior and Maintenance Calculators | HomeDIYCalc",
+    seoTitle: "Free Interior and Maintenance Calculators | HomeDIYCalc",
     seoDescription:
       "Free drywall, ceiling tile, wallpaper, sealant, waterproofing, and baseboard calculators for interior projects.",
   },
@@ -121,7 +121,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/concrete-calculator/",
     phase: 2,
-    seoTitle: "Concrete Calculator | HomeDIYCalc",
+    seoTitle: "Concrete Calculator — Yards, Feet & Bags | HomeDIYCalc",
     seoDescription:
       "Calculate how much concrete you need in cubic yards, cubic feet, and bags. Enter length, width, and depth — get an exact order amount.",
     related: ["concrete-slab-calculator", "concrete-bags-calculator", "cubic-yard-calculator"],
@@ -135,7 +135,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/square-footage-calculator/",
     phase: 2,
-    seoTitle: "Square Footage Calculator | HomeDIYCalc",
+    seoTitle: "Square Footage Calculator — Room & Floor Area | HomeDIYCalc",
     seoDescription:
       "Calculate the square footage of any room or area. Rectangle, circle, and triangle shapes, in square feet and square meters.",
     related: ["cubic-feet-calculator", "flooring-calculator", "tile-calculator"],
@@ -148,7 +148,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/paint-calculator/",
     phase: 2,
-    seoTitle: "Paint Calculator | HomeDIYCalc",
+    seoTitle: "Paint Calculator — Gallons for Walls & Rooms | HomeDIYCalc",
     seoDescription:
       "Calculate how much paint you need in gallons. Enter wall area and coats — get gallons, quarts, and a shopping list.",
     related: ["primer-calculator", "square-footage-calculator", "wallpaper-calculator"],
@@ -162,7 +162,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/gravel-calculator/",
     phase: 2,
-    seoTitle: "Gravel Calculator | HomeDIYCalc",
+    seoTitle: "Gravel Calculator — Cubic Yards & Tons | HomeDIYCalc",
     seoDescription:
       "Calculate how much gravel you need in cubic yards and tons. Enter area and depth — get an order amount for driveways and paths.",
     related: ["topsoil-calculator", "mulch-calculator", "cubic-yard-calculator"],
@@ -175,7 +175,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/mulch-calculator/",
     phase: 2,
-    seoTitle: "Mulch Calculator | HomeDIYCalc",
+    seoTitle: "Mulch Calculator — Cubic Yards & Bags | HomeDIYCalc",
     seoDescription:
       "Calculate how much mulch you need in cubic yards and bags. Enter bed area and depth — get an exact amount for your garden.",
     related: ["gravel-calculator", "topsoil-calculator", "square-footage-calculator"],
@@ -188,7 +188,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/concrete-slab-calculator/",
     phase: 2,
-    seoTitle: "Concrete Slab Calculator | HomeDIYCalc",
+    seoTitle: "Concrete Slab Calculator — Pad Volume & Bags | HomeDIYCalc",
     seoDescription:
       "Calculate concrete for a slab, patio, or driveway. Enter dimensions and thickness — get cubic yards and bag counts.",
     related: ["concrete-calculator", "concrete-bags-calculator", "gravel-calculator"],
@@ -201,7 +201,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/cubic-yard-calculator/",
     phase: 2,
-    seoTitle: "Cubic Yard Calculator | HomeDIYCalc",
+    seoTitle: "Cubic Yard Calculator — Feet to Yards | HomeDIYCalc",
     seoDescription:
       "Convert cubic feet to cubic yards and back, or calculate volume from dimensions. Free, instant, and exact.",
     related: ["cubic-feet-calculator", "concrete-calculator", "gravel-calculator"],
@@ -215,7 +215,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/cubic-feet-calculator/",
     phase: 2,
-    seoTitle: "Cubic Feet Calculator | HomeDIYCalc",
+    seoTitle: "Cubic Feet Calculator — Yards to Feet | HomeDIYCalc",
     seoDescription:
       "Calculate volume in cubic feet from length, width, and height. Convert to cubic yards and cubic meters too.",
     related: ["cubic-yard-calculator", "square-footage-calculator", "board-foot-calculator"],
@@ -229,7 +229,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/tile-calculator/",
     phase: 2,
-    seoTitle: "Tile Calculator | HomeDIYCalc",
+    seoTitle: "Tile Calculator — Floor & Wall Tiles, Boxes | HomeDIYCalc",
     seoDescription:
       "Calculate how many tiles and boxes you need for a floor or wall. Enter area and tile size — get counts with waste included.",
     related: ["flooring-calculator", "grout-calculator", "tile-adhesive-calculator"],
@@ -243,7 +243,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P0",
     url: "/calculators/brick-calculator/",
     phase: 2,
-    seoTitle: "Brick Calculator | HomeDIYCalc",
+    seoTitle: "Brick Calculator — Wall Bricks & Mortar | HomeDIYCalc",
     seoDescription:
       "Calculate how many bricks you need for a wall. Enter wall area and brick size — get a count with mortar joints included.",
     related: ["mortar-calculator", "concrete-calculator", "square-footage-calculator"],
@@ -258,9 +258,9 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P1",
     url: "/calculators/drywall-calculator/",
     phase: 3,
-    seoTitle: "Drywall Calculator | HomeDIYCalc",
+    seoTitle: "Drywall Calculator — Sheets, Screws & Mud | HomeDIYCalc",
     seoDescription:
-      "Calculate how many drywall sheets you need for walls and ceilings. Enter area — get sheet counts and joint compound estimates.",
+      "Calculate how many drywall (sheetrock / plasterboard) sheets you need for walls and ceilings. Enter area — get sheet counts and joint compound estimates.",
     related: ["square-footage-calculator", "ceiling-tile-calculator", "paint-calculator"],
     summary:
       "Works out drywall sheet counts for walls and ceilings, plus joint compound and tape estimates.",
@@ -272,7 +272,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P1",
     url: "/calculators/concrete-bags-calculator/",
     phase: 3,
-    seoTitle: "Concrete Bags Calculator | HomeDIYCalc",
+    seoTitle: "Concrete Bags Calculator — 40, 60 & 80 lb Bags | HomeDIYCalc",
     seoDescription:
       "Calculate how many bags of concrete you need. Enter volume — get bag counts for 40, 60, and 80 lb bags.",
     related: ["concrete-calculator", "concrete-slab-calculator", "mortar-calculator"],
@@ -285,7 +285,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P1",
     url: "/calculators/flooring-calculator/",
     phase: 3,
-    seoTitle: "Flooring Calculator | HomeDIYCalc",
+    seoTitle: "Flooring Calculator — Sq Ft, Boxes & Waste | HomeDIYCalc",
     seoDescription:
       "Calculate how many boxes of flooring you need. Enter room area and box coverage — get boxes and planks with waste included.",
     related: ["tile-calculator", "square-footage-calculator", "baseboard-calculator"],
@@ -298,7 +298,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P1",
     url: "/calculators/paver-calculator/",
     phase: 3,
-    seoTitle: "Paver Calculator | HomeDIYCalc",
+    seoTitle: "Paver Calculator — Patio & Driveway Pavers | HomeDIYCalc",
     seoDescription:
       "Calculate how many pavers you need for a patio or walkway. Enter area and paver size — get counts with waste included.",
     related: ["tile-calculator", "gravel-calculator", "topsoil-calculator"],
@@ -311,7 +311,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P1",
     url: "/calculators/topsoil-calculator/",
     phase: 3,
-    seoTitle: "Topsoil Calculator | HomeDIYCalc",
+    seoTitle: "Topsoil Calculator — Cubic Yards & Tons | HomeDIYCalc",
     seoDescription:
       "Calculate how much topsoil you need in cubic yards and tons. Enter area and depth — get an order amount for lawns and beds.",
     related: ["gravel-calculator", "mulch-calculator", "cubic-yard-calculator"],
@@ -324,7 +324,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P1",
     url: "/calculators/grout-calculator/",
     phase: 3,
-    seoTitle: "Grout Calculator | HomeDIYCalc",
+    seoTitle: "Grout Calculator — Tile Grout Coverage | HomeDIYCalc",
     seoDescription:
       "Calculate how much grout you need. Enter tile area, tile size, and joint width — get grout weight and bag counts.",
     related: ["tile-calculator", "tile-adhesive-calculator", "flooring-calculator"],
@@ -337,7 +337,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P1",
     url: "/calculators/board-foot-calculator/",
     phase: 3,
-    seoTitle: "Board Foot Calculator | HomeDIYCalc",
+    seoTitle: "Board Foot Calculator — Lumber Volume | HomeDIYCalc",
     seoDescription:
       "Calculate board feet for lumber. Enter thickness, width, and length — get board feet and an optional cost estimate.",
     related: ["cubic-feet-calculator", "square-footage-calculator", "flooring-calculator"],
@@ -350,7 +350,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P1",
     url: "/calculators/mortar-calculator/",
     phase: 3,
-    seoTitle: "Mortar Calculator | HomeDIYCalc",
+    seoTitle: "Mortar Calculator — Brick & Block Mortar | HomeDIYCalc",
     seoDescription:
       "Calculate how much mortar you need for brick or block walls. Enter wall area — get mortar volume and bag counts.",
     related: ["brick-calculator", "concrete-bags-calculator", "concrete-calculator"],
@@ -364,7 +364,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P2",
     url: "/calculators/ceiling-tile-calculator/",
     phase: 4,
-    seoTitle: "Ceiling Tile Calculator | HomeDIYCalc",
+    seoTitle: "Ceiling Tile Calculator — Grid & Tiles | HomeDIYCalc",
     seoDescription:
       "Calculate how many ceiling tiles you need. Enter ceiling area and tile size — get tile and grid counts with waste included.",
     related: ["drywall-calculator", "tile-calculator", "square-footage-calculator"],
@@ -377,9 +377,9 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P2",
     url: "/calculators/tile-adhesive-calculator/",
     phase: 4,
-    seoTitle: "Tile Adhesive Calculator | HomeDIYCalc",
+    seoTitle: "Tile Adhesive Calculator — Thinset Coverage | HomeDIYCalc",
     seoDescription:
-      "Calculate how many bags of tile adhesive you need. Enter area and coverage per bag — get bag counts.",
+      "Calculate how many bags of tile adhesive (thinset) you need. Enter area and coverage per bag — get bag counts.",
     related: ["tile-calculator", "grout-calculator", "flooring-calculator"],
     summary: "Works out tile adhesive bag counts from area and coverage per bag.",
   },
@@ -390,7 +390,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P2",
     url: "/calculators/primer-calculator/",
     phase: 4,
-    seoTitle: "Primer Calculator | HomeDIYCalc",
+    seoTitle: "Primer Calculator — Gallons for Walls | HomeDIYCalc",
     seoDescription:
       "Calculate how much primer you need in gallons. Enter area and coats — get gallons with coverage you can adjust.",
     related: ["paint-calculator", "square-footage-calculator", "drywall-calculator"],
@@ -403,7 +403,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P2",
     url: "/calculators/wallpaper-calculator/",
     phase: 4,
-    seoTitle: "Wallpaper Calculator | HomeDIYCalc",
+    seoTitle: "Wallpaper Calculator — Rolls for Any Room | HomeDIYCalc",
     seoDescription:
       "Calculate how many rolls of wallpaper you need. Enter wall area and roll coverage — get roll counts with pattern repeat.",
     related: ["paint-calculator", "square-footage-calculator", "primer-calculator"],
@@ -416,7 +416,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P2",
     url: "/calculators/sealant-calculator/",
     phase: 4,
-    seoTitle: "Sealant Calculator | HomeDIYCalc",
+    seoTitle: "Sealant Calculator — Caulk Tubes & Coverage | HomeDIYCalc",
     seoDescription:
       "Calculate how many tubes of sealant you need. Enter joint length and bead size — get tube counts for caulk and sealant.",
     related: ["waterproofing-calculator", "tile-calculator", "baseboard-calculator"],
@@ -429,7 +429,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P2",
     url: "/calculators/waterproofing-calculator/",
     phase: 4,
-    seoTitle: "Waterproofing Calculator | HomeDIYCalc",
+    seoTitle: "Waterproofing Calculator — Membrane & Coating | HomeDIYCalc",
     seoDescription:
       "Calculate how much waterproofing membrane you need. Enter area and coats — get gallons or liters with coverage you can adjust.",
     related: ["sealant-calculator", "paint-calculator", "tile-calculator"],
@@ -442,11 +442,26 @@ export const CALCULATORS: CalculatorMeta[] = [
     priority: "P2",
     url: "/calculators/baseboard-calculator/",
     phase: 4,
-    seoTitle: "Baseboard Calculator | HomeDIYCalc",
+    seoTitle: "Baseboard Calculator — Skirting Board Length | HomeDIYCalc",
     seoDescription:
-      "Calculate how much baseboard you need. Enter wall length minus openings — get linear feet and piece counts with waste.",
+      "Calculate how much baseboard (skirting board) you need. Enter wall length minus openings — get linear feet and piece counts with waste.",
     related: ["flooring-calculator", "drywall-calculator", "sealant-calculator"],
     summary: "Works out baseboard linear feet and piece counts from wall length and openings.",
+  },
+  // ---- P0 (Phase 15) ----
+  {
+    slug: "stair-calculator",
+    name: "Stair Calculator",
+    category: "measurement",
+    priority: "P0",
+    url: "/calculators/stair-calculator/",
+    phase: 15,
+    seoTitle: "Stair Calculator — Rise, Run & Stringer Length | HomeDIYCalc",
+    seoDescription:
+      "Free stair calculator. Work out riser height, tread count, total run, and stringer length for a straight staircase, to US building code limits.",
+    related: ["square-footage-calculator", "board-foot-calculator", "concrete-calculator"],
+    summary:
+      "Work out riser height, tread count, total run, and stringer length for a straight staircase.",
   },
 ];
 
