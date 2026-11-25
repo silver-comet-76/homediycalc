@@ -33,6 +33,7 @@ const CALCULATORS = [
   { slug: "sealant-calculator", name: "Sealant Calculator" },
   { slug: "waterproofing-calculator", name: "Waterproofing Calculator" },
   { slug: "baseboard-calculator", name: "Baseboard Calculator" },
+  { slug: "stair-calculator", name: "Stair Calculator" },
 ] as const;
 
 for (const { slug, name } of CALCULATORS) {
@@ -78,7 +79,7 @@ for (const { slug, name } of CALCULATORS) {
   });
 }
 
-test("calculator pages appear in the sitemap; all 25 calculators are shipped", async ({
+test("calculator pages appear in the sitemap; all 26 calculators are shipped", async ({
   request,
 }) => {
   const sitemap = await request.get("/sitemap.xml");
@@ -90,5 +91,5 @@ test("calculator pages appear in the sitemap; all 25 calculators are shipped", a
   for (const { slug } of CALCULATORS) {
     expect(text).toContain(`<loc>${origin}/calculators/${slug}/</loc>`);
   }
-  expect(CALCULATORS).toHaveLength(25);
+  expect(CALCULATORS).toHaveLength(26);
 });
