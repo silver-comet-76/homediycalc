@@ -12,6 +12,17 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const mulchConfig: CalculatorConfig = {
   slug: "mulch-calculator",
+  lookupTable: {
+    note: "Assumes a 5% settling allowance and 2 ft³ bags.",
+    headers: ["Bed (L × W × depth)", "Volume", "Bulk yards to order", "Bags to buy"],
+    rows: [
+      ["10 × 10 × 2 in bed", "0.62 yd³", "1 yd³", "9 bags"],
+      ["10 × 10 × 3 in bed", "0.93 yd³", "1 yd³", "14 bags"],
+      ["12 × 12 × 3 in bed", "1.33 yd³", "2 yd³", "19 bags"],
+      ["10 × 20 × 3 in bed", "1.85 yd³", "2 yd³", "27 bags"],
+      ["20 × 20 × 3 in bed", "3.7 yd³", "4 yd³", "53 bags"],
+    ],
+  },
   diagram: "volume",
   defaultMode: "bed",
   formula:
