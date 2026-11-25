@@ -163,6 +163,23 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const mortarConfig: CalculatorConfig = {
   slug: "mortar-calculator",
+  lookupTable: {
+    note: "Assumes modular brick (7⅝ × 2¼ × 3⅝ in), a ⅜ in joint, 15% mortar waste, and Type N site mix (1:1:6).",
+    headers: [
+      "Wall (L × H)",
+      "Wall area (bricks)",
+      "Mortar volume",
+      "Pre-mixed mortar",
+      "Site mix — Type N (1:1:6)",
+    ],
+    rows: [
+      ["10 × 8 ft wall", "80 ft²", "5.09 ft³", "18 bags", "0.87 ft³ cement"],
+      ["12 × 8 ft wall", "96 ft²", "6.11 ft³", "21 bags", "1.04 ft³ cement"],
+      ["20 × 8 ft wall", "160 ft²", "10.18 ft³", "35 bags", "1.73 ft³ cement"],
+      ["20 × 10 ft wall", "200 ft²", "12.72 ft³", "43 bags", "2.16 ft³ cement"],
+      ["30 × 8 ft wall", "240 ft²", "15.26 ft³", "52 bags", "2.59 ft³ cement"],
+    ],
+  },
   diagram: "wall",
   defaultMode: "dimensions",
   formula:
