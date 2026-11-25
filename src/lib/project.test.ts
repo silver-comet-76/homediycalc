@@ -9,7 +9,9 @@ import {
   isItemCostPartial,
   itemCostLabel,
   itemCostNote,
+  itemHasWarnings,
   parseProject,
+  prefixWarning,
   projectHasPartialCost,
   serializeProject,
   totalProjectCost,
@@ -53,6 +55,29 @@ const BRICK_PARTIAL_ITEM = {
   costDetail: "Excludes mortar — no bag count for this brick size or joint",
   room: "General",
   savedAt: 1_700_000_000_002,
+};
+
+/** Stair item over the 151 in single-flight limit (Phase 16A): the
+ * 160 in rise warning travels with the result through save, reload,
+ * and export. The stored text is the raw warning — the "Warning: "
+ * prefix is added at format and render time. */
+const STAIR_WARNING_TEXT =
+  "This rise exceeds the 2021 IRC single-flight limit of 12 ft 7 in (151 in) — a landing is required between floors (R311.7.3). The numbers below are a straight-flight planning estimate only, not a compliant single-flight design.";
+
+const STAIR_WARNING_ITEM = {
+  id: "item-stair-1",
+  calculatorSlug: "stair-calculator",
+  label: "Stair Calculator — Straight staircase",
+  lines: [
+    "Risers: 21 at 7.62 in each",
+    "Treads: 20 at 10.5 in deep",
+    "Total run: 210 in (17.5 ft)",
+    "Stringer length: 264.01 in (22 ft)",
+  ],
+  quantity: 1,
+  warnings: [STAIR_WARNING_TEXT],
+  room: "General",
+  savedAt: 1_700_000_000_003,
 };
 
 describe("project storage (LocalStorage key and schema)", () => {
@@ -180,7 +205,7 @@ describe("project text and CSV export", () => {
     const csv = formatProjectAsCsv(project);
     const lines = csv.split("\n");
     expect(lines[0]).toBe(
-      "Room,Calculator,Item,Details,Quantity,Unit cost (USD),Line total (USD),Cost note",
+      "Room,Calculator,Item,Details,Quantity,Unit cost (USD),Line total (USD),Cost note,Warning",
     );
     expect(lines[1]).toContain("Living room,paint-calculator,Paint — Living room walls");
     expect(lines[1]).toContain("1,48.50,48.50,");
@@ -284,6 +309,136 @@ describe("partial cost preservation (Phase 8 review response, ADR-16)", () => {
     expect(projectHasPartialCost(project)).toBe(true);
     expect(formatProjectAsText(project)).toContain("Partial cost (bricks only): $482.00");
     expect(formatProjectAsText(project)).toContain("Partial total (incomplete estimate): $482.00");
+  });
+});
+
+describe("safety warning preservation (Phase 16A)", () => {
+  it("round-trips warnings through serialize/parse", () => {
+    const project = emptyProject();
+    project.items.push({ ...STAIR_WARNING_ITEM });
+    const parsed = parseProject(serializeProject(project));
+    expect(parsed.items[0]).toEqual(STAIR_WARNING_ITEM);
+    expect(itemHasWarnings(parsed.items[0]!)).toBe(true);
+  });
+
+  it("treats items saved before the warnings field existed as warning-free", () => {
+    const raw = JSON.stringify({
+      version: 2,
+      name: "My Project",
+      items: [{ ...PAINT_ITEM }],
+    });
+    const parsed = parseProject(raw);
+    expect(parsed.items[0]?.warnings).toBeUndefined();
+    expect(itemHasWarnings(parsed.items[0]!)).toBe(false);
+    expect(formatProjectAsText(parsed)).not.toContain("Warning:");
+    expect(formatProjectAsCsv(parsed)).not.toContain("Warning: ");
+  });
+
+  it("drops malformed warnings instead of crashing or keeping junk", () => {
+    const raw = JSON.stringify({
+      version: 2,
+      name: "My Project",
+      items: [
+        { ...STAIR_WARNING_ITEM, warnings: "not an array" },
+        { ...STAIR_WARNING_ITEM, id: "x2", warnings: [STAIR_WARNING_TEXT, "", 42, null] },
+        { ...STAIR_WARNING_ITEM, id: "x3", warnings: [] },
+      ],
+    });
+    const parsed = parseProject(raw);
+    expect(parsed.items).toHaveLength(3);
+    expect(parsed.items[0]?.warnings).toBeUndefined();
+    expect(parsed.items[1]?.warnings).toEqual([STAIR_WARNING_TEXT]);
+    expect(parsed.items[2]?.warnings).toBeUndefined();
+  });
+
+  it("prefixes a warning once, and only once", () => {
+    expect(prefixWarning(STAIR_WARNING_TEXT)).toBe(`Warning: ${STAIR_WARNING_TEXT}`);
+    expect(prefixWarning(`Warning: ${STAIR_WARNING_TEXT}`)).toBe(`Warning: ${STAIR_WARNING_TEXT}`);
+  });
+
+  it("includes the warning under the item in the text export", () => {
+    const project = emptyProject();
+    project.items.push({ ...STAIR_WARNING_ITEM });
+    const text = formatProjectAsText(project);
+    expect(text).toContain(`Warning: ${STAIR_WARNING_TEXT}`);
+    // The warning sits under the item's lines, before any total.
+    const warningAt = text.indexOf("Warning:");
+    const linesAt = text.indexOf("- Risers: 21");
+    expect(warningAt).toBeGreaterThan(linesAt);
+    expect(text).not.toContain("Estimated total:");
+  });
+
+  it("adds no warning to the text export for a warning-free item", () => {
+    const project = emptyProject();
+    project.items.push({ ...PAINT_ITEM });
+    expect(formatProjectAsText(project)).not.toContain("Warning:");
+  });
+
+  it("carries the warning in the CSV Warning column", () => {
+    const project = emptyProject();
+    project.items.push({ ...STAIR_WARNING_ITEM }, { ...PAINT_ITEM });
+    const csv = formatProjectAsCsv(project);
+    const lines = csv.split("\n");
+    expect(lines[0]).toContain("Cost note,Warning");
+    expect(lines[1]).toContain(`Warning: ${STAIR_WARNING_TEXT}`);
+    // The warning-free item has empty Cost note and Warning cells.
+    expect(lines[2]?.split(",").slice(-2)).toEqual(["", ""]);
+  });
+
+  it("addItemToProject stores warnings and reload keeps them", () => {
+    const store = new Map<string, string>();
+    (globalThis as unknown as { localStorage: unknown }).localStorage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value);
+      },
+      removeItem: (key: string) => {
+        store.delete(key);
+      },
+      clear: () => store.clear(),
+      key: (index: number) => [...store.keys()][index] ?? null,
+      get length() {
+        return store.size;
+      },
+    };
+    try {
+      const { id: _id, quantity: _quantity, room: _room, ...saved } = STAIR_WARNING_ITEM;
+      const project = addItemToProject(saved);
+      expect(project.items[0]?.warnings).toEqual([STAIR_WARNING_TEXT]);
+      const reloaded = parseProject(store.get(PROJECT_STORAGE_KEY)!);
+      expect(reloaded.items[0]?.warnings).toEqual([STAIR_WARNING_TEXT]);
+      expect(formatProjectAsText(reloaded)).toContain(`Warning: ${STAIR_WARNING_TEXT}`);
+    } finally {
+      delete (globalThis as unknown as { localStorage?: unknown }).localStorage;
+    }
+  });
+
+  it("editing quantity, label, or room leaves warnings untouched", () => {
+    const store = new Map<string, string>();
+    (globalThis as unknown as { localStorage: unknown }).localStorage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value);
+      },
+      removeItem: (key: string) => {
+        store.delete(key);
+      },
+      clear: () => store.clear(),
+      key: (index: number) => [...store.keys()][index] ?? null,
+      get length() {
+        return store.size;
+      },
+    };
+    try {
+      const { id: _id, quantity: _quantity, room: _room, ...saved } = STAIR_WARNING_ITEM;
+      const project = addItemToProject(saved);
+      const item = project.items[0]!;
+      const updated = updateProjectItem(item.id, { quantity: 2, room: "Hallway" });
+      expect(updated.items[0]?.warnings).toEqual([STAIR_WARNING_TEXT]);
+      expect(formatProjectAsText(updated)).toContain(`Warning: ${STAIR_WARNING_TEXT}`);
+    } finally {
+      delete (globalThis as unknown as { localStorage?: unknown }).localStorage;
+    }
   });
 });
 
