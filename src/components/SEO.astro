@@ -30,6 +30,13 @@ const {
 // of shipping wrong URLs.
 const canonicalUrl = canonical ? absoluteUrl(canonical, SITE_URL) : undefined;
 const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
+// Social preview image (Phase 15): a 1200×630 PNG. Social crawlers need
+// an absolute URL, so it goes through absoluteUrl like the canonical;
+// in a local build (no origin) it stays a relative path, as before.
+// The SVG version stays in public/ as a site asset; only the SEO
+// references point at the PNG, because SVG does not render as a
+// preview image on Facebook, X, or LinkedIn.
+const ogImageUrl = absoluteUrl("/og-image.png", SITE_URL);
 const breadcrumbJsonLd =
   breadcrumbs && breadcrumbs.length > 0
     ? {
@@ -68,11 +75,12 @@ const faqJsonLd =
 <meta property="og:description" content={description} />
 <meta property="og:type" content={ogType} />
 {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
-<meta property="og:image" content="/og-image.svg" />
+<meta property="og:image" content={ogImageUrl} />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
-<meta name="twitter:image" content="/og-image.svg" />
+<meta name="twitter:image" content={ogImageUrl} />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 {breadcrumbJsonLd && (
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
 )}
