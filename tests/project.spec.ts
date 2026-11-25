@@ -190,6 +190,80 @@ test("planner: print button calls window.print", async ({ page }) => {
   expect(printed).toBe(true);
 });
 
+test("planner: legacy Stair item shows a recheck note, current Stair item does not", async ({
+  page,
+}) => {
+  const consoleErrors: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error") consoleErrors.push(msg.text());
+  });
+  page.on("pageerror", (err) => consoleErrors.push(err.message));
+
+  const recheckNote =
+    "Saved before the current Stair Calculator safety warnings were added — re-check this estimate with the current calculator if the rise may exceed 12 ft 7 in (151 in).";
+
+  await page.goto("/my-project/");
+  await page.evaluate(() => {
+    // QA-16A-04: the legacy item predates the Phase 16A warnings and
+    // carries none; the current item was saved after, also with none.
+    // NOTE on the legacy savedAt: PHASE_16A_RELEASED_AT_MS is still
+    // the unset placeholder (0) until the Phase 16A release timestamp
+    // is set, so the only savedAt below it is a negative one. -1 is
+    // used here solely to exercise the render path; once the release
+    // timestamp is set, replace it with a realistic pre-release
+    // timestamp (and the current item's with a post-release one).
+    const project = {
+      version: 2,
+      name: "My Project",
+      items: [
+        {
+          id: "item-stair-legacy",
+          calculatorSlug: "stair-calculator",
+          label: "Stair Calculator — Old straight staircase",
+          lines: ["Risers: 21 at 7.62 in each", "Total run: 210 in (17.5 ft)"],
+          quantity: 1,
+          room: "General",
+          savedAt: -1,
+        },
+        {
+          id: "item-stair-current",
+          calculatorSlug: "stair-calculator",
+          label: "Stair Calculator — New straight staircase",
+          lines: ["Risers: 14 at 7.75 in each", "Total run: 136.5 in (11.375 ft)"],
+          quantity: 1,
+          room: "General",
+          savedAt: Date.now(),
+        },
+      ],
+    };
+    localStorage.setItem("homediycalc:project:v1", JSON.stringify(project));
+  });
+  await page.reload();
+
+  await expect(page.getByRole("heading", { name: "My Project", exact: true })).toBeVisible();
+  await expect(page.locator("input[aria-label='Item name']").nth(0)).toHaveValue(
+    "Stair Calculator — Old straight staircase",
+  );
+  await expect(page.locator("input[aria-label='Item name']").nth(1)).toHaveValue(
+    "Stair Calculator — New straight staircase",
+  );
+  // Exactly one recheck note: on the legacy item only, in neutral
+  // wording — no amber warning box, no over-limit claim.
+  await expect(page.getByText(recheckNote)).toHaveCount(1);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  // Neither item's record was modified by rendering the note.
+  const stored = await page.evaluate(() => localStorage.getItem("homediycalc:project:v1"));
+  const parsed = JSON.parse(stored as string) as {
+    items: { id: string; warnings?: string[]; savedAt: number }[];
+  };
+  expect(parsed.items).toHaveLength(2);
+  expect(parsed.items[0]?.warnings).toBeUndefined();
+  expect(parsed.items[0]?.savedAt).toBe(-1);
+  expect(parsed.items[1]?.warnings).toBeUndefined();
+
+  expect(consoleErrors).toEqual([]);
+});
+
 test("planner: corrupt stored data shows the empty state, not a crash", async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on("console", (msg) => {
