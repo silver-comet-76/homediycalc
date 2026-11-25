@@ -96,6 +96,7 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "My Project" }];
       formatProjectAsText,
       isItemCostPartial,
       itemCostLabel,
+      itemNeedsStairRecheck,
       loadProject,
       prefixWarning,
       projectHasPartialCost,
@@ -177,6 +178,20 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "My Project" }];
               warnBox.appendChild(warningEl);
             }
             card.appendChild(warnBox);
+          }
+
+          // Legacy Stair record (QA-16A-04): saved before the current
+          // Stair Calculator safety warnings existed, so the absence
+          // of a warning proves nothing. A neutral slate note — not a
+          // warning box — invites a re-check; it does not claim the
+          // record is over-limit and never modifies the record.
+          if (itemNeedsStairRecheck(item)) {
+            const recheckNote = document.createElement("p");
+            recheckNote.className =
+              "mb-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700";
+            recheckNote.textContent =
+              "Saved before the current Stair Calculator safety warnings were added — re-check this estimate with the current calculator if the rise may exceed 12 ft 7 in (151 in).";
+            card.appendChild(recheckNote);
           }
 
           const list = document.createElement("ul");
