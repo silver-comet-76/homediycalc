@@ -81,6 +81,19 @@ export interface ProjectItem {
    * added at format and render time (see prefixWarning).
    */
   warnings?: string[];
+  /**
+   * Safety-review version marker (QA-16A-06, replaces the removed
+   * PHASE_16A_RELEASED_AT_MS timestamp discriminator). Present and
+   * equal to STAIR_SAFETY_VERSION only on Stair items saved by a
+   * calculator build that persists the current Stair safety warnings
+   * (set in GenericCalculator.addToProject for Stair items only).
+   * Stair items saved before the marker existed — and any item whose
+   * marker is unknown or malformed — have it undefined after
+   * normalization, so they are treated as unreviewed and My Project
+   * shows the neutral re-check note. The marker is never fabricated
+   * for historical records and never modifies them.
+   */
+  stairSafetyVersion?: number;
   /** Project/room grouping, e.g. "Kitchen" (default "General"). */
   room: string;
   /** Epoch milliseconds when the item was saved. */
@@ -156,6 +169,14 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
   const warnings = Array.isArray(raw.warnings)
     ? raw.warnings.filter((w): w is string => typeof w === "string" && w !== "")
     : [];
+  // Stair safety-review marker (QA-16A-06) survives a save/reload
+  // round-trip only when it is exactly the current version. Any
+  // other value — unknown future version, wrong type, malformed —
+  // normalizes to undefined, so it can never falsely identify a
+  // record as currently reviewed. Items saved before the marker
+  // existed normalize to undefined and keep the legacy re-check note.
+  const stairSafetyVersion =
+    raw.stairSafetyVersion === STAIR_SAFETY_VERSION ? STAIR_SAFETY_VERSION : undefined;
   return {
     id: typeof raw.id === "string" && raw.id !== "" ? raw.id : newItemId(),
     calculatorSlug: raw.calculatorSlug,
@@ -167,6 +188,7 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
     costLabel,
     costDetail,
     warnings: warnings.length > 0 ? warnings : undefined,
+    stairSafetyVersion,
     room: typeof raw.room === "string" && raw.room !== "" ? raw.room : DEFAULT_ROOM,
     savedAt: raw.savedAt,
   };
@@ -256,46 +278,46 @@ export function itemHasWarnings(item: ProjectItem): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// QA-16A-04 — legacy Stair records (non-blocking compatibility follow-up).
+// QA-16A-06 — legacy Stair records (replaces QA-16A-04 timestamp cutoff).
 // ---------------------------------------------------------------------------
 
 /**
- * Phase 16A production deployment timestamp (epoch milliseconds).
+ * Current Stair safety-review version. A Stair item saved by a build
+ * that persists the current Stair safety warnings carries
+ * `stairSafetyVersion` equal to this value (set in
+ * GenericCalculator.addToProject for Stair items only). The marker —
+ * not `savedAt` — is the discriminator between a legacy Stair record
+ * (saved before warnings existed, so a missing warning proves
+ * nothing) and a current within-limit record (genuinely
+ * warning-free): a timestamp cutoff cannot work, because the exact
+ * future production deployment timestamp cannot be embedded into an
+ * already reviewed source tree. The previous zero placeholder
+ * (PHASE_16A_RELEASED_AT_MS) and its release-time mutation
+ * requirement are removed entirely.
  *
- * RELEASE-TIME ACTION — MUST be set to the actual Phase 16A production
- * deployment timestamp when Phase 16A is released. Until then it is 0
- * (placeholder), and `itemNeedsStairRecheck` flags nothing: the only
- * discriminator between a legacy Stair record (saved before warnings
- * existed, so a missing warning proves nothing) and a current
- * within-limit record (saved after, genuinely warning-free) is
- * `savedAt`, and no real record — `savedAt` is always a positive
- * epoch-ms value set at save time — falls before 0. No destructive
- * migration, no schema-version bump, no historical warnings are
- * fabricated: the helper only reports that a re-check is warranted.
+ * Bump this only when the Stair safety warnings themselves change in
+ * a way that makes previously saved warning-free records untrusted;
+ * previously saved records then show the neutral re-check note until
+ * re-saved, which is the safe direction.
  */
-export const PHASE_16A_RELEASED_AT_MS = 0;
+export const STAIR_SAFETY_VERSION = 1;
 
 /**
- * True when a saved Stair item predates the Phase 16A safety warnings
- * and therefore carries no warning only because warnings were never
- * persisted before Phase 16A — it may be over the 151 in limit without
- * saying so. False for Stair items with warnings, for Stair items saved
- * at or after the Phase 16A release, for non-Stair items, and for every
- * item while the release timestamp is still unset (0). The record
- * itself is never modified; the caller only shows a re-check note.
- *
- * The optional second parameter exists so unit tests can exercise the
- * before/after-threshold logic without depending on the release
- * timestamp; production callers pass only the item.
+ * True when a saved Stair item predates the current Stair safety
+ * warnings and therefore carries no warning only because warnings
+ * were never persisted for it — it may be over the 151 in limit
+ * without saying so. False for Stair items with warnings, for Stair
+ * items carrying the current safety-review marker, and for non-Stair
+ * items. An unknown or malformed marker is not the current version
+ * (strict equality), so it never falsely identifies a record as
+ * currently reviewed. The record itself is never modified; the
+ * caller only shows a re-check note.
  */
-export function itemNeedsStairRecheck(
-  item: ProjectItem,
-  releasedAtMs: number = PHASE_16A_RELEASED_AT_MS,
-): boolean {
+export function itemNeedsStairRecheck(item: ProjectItem): boolean {
   return (
     item.calculatorSlug === "stair-calculator" &&
     !itemHasWarnings(item) &&
-    item.savedAt < releasedAtMs
+    item.stairSafetyVersion !== STAIR_SAFETY_VERSION
   );
 }
 
