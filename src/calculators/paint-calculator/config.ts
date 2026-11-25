@@ -53,6 +53,17 @@ function paintOutput(netAreaFt2: number, v: Record<string, number>, present: Set
 
 export const paintConfig: CalculatorConfig = {
   slug: "paint-calculator",
+  lookupTable: {
+    note: "Assumes 8 ft ceilings, 2 coats, 350 ft²/gal coverage, 10% waste, 1 door (21 ft²) and 2 windows (15 ft² each).",
+    headers: ["Room size", "Paintable area", "Paint needed", "Gallons to buy"],
+    rows: [
+      ["10 × 10 ft room", "269 ft²", "1.54 gal", "2 gal"],
+      ["12 × 12 ft room", "333 ft²", "1.9 gal", "3 gal"],
+      ["12 × 15 ft room", "381 ft²", "2.18 gal", "3 gal"],
+      ["15 × 20 ft room", "509 ft²", "2.91 gal", "4 gal"],
+      ["20 × 20 ft room", "589 ft²", "3.37 gal", "4 gal"],
+    ],
+  },
   diagram: "wall",
   defaultMode: "room",
   formula:
