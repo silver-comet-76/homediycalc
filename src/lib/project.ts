@@ -72,6 +72,15 @@ export interface ProjectItem {
    * Only meaningful when costPartial is true.
    */
   costDetail?: string;
+  /**
+   * Safety warnings that travel with the result — e.g. the Stair
+   * Calculator's 151 in single-flight warning (Phase 16A). Optional
+   * and backward-compatible (ADR-16 pattern): items saved before
+   * this field existed have it undefined and render with no warning.
+   * The stored text is the raw warning; the "Warning: " prefix is
+   * added at format and render time (see prefixWarning).
+   */
+  warnings?: string[];
   /** Project/room grouping, e.g. "Kitchen" (default "General"). */
   room: string;
   /** Epoch milliseconds when the item was saved. */
@@ -140,6 +149,13 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
     costPartial && typeof raw.costDetail === "string" && raw.costDetail !== ""
       ? raw.costDetail
       : undefined;
+  // Safety warnings (Phase 16A) survive a save/reload round-trip.
+  // Only non-empty strings are kept; items saved before the field
+  // existed (or with a malformed value) normalize to undefined and
+  // render with no warning — old records are never dropped.
+  const warnings = Array.isArray(raw.warnings)
+    ? raw.warnings.filter((w): w is string => typeof w === "string" && w !== "")
+    : [];
   return {
     id: typeof raw.id === "string" && raw.id !== "" ? raw.id : newItemId(),
     calculatorSlug: raw.calculatorSlug,
@@ -150,6 +166,7 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
     costPartial: costPartial ? true : undefined,
     costLabel,
     costDetail,
+    warnings: warnings.length > 0 ? warnings : undefined,
     room: typeof raw.room === "string" && raw.room !== "" ? raw.room : DEFAULT_ROOM,
     savedAt: raw.savedAt,
   };
@@ -222,10 +239,29 @@ export function itemLineCost(item: ProjectItem): number {
   return (item.costUsd ?? 0) * item.quantity;
 }
 
+/**
+ * Prefix a warning with "Warning: " unless it already starts with it.
+ * Plain-text copies and exports have no amber styling, so the prefix
+ * carries the signal. The stored text keeps the raw warning (Phase
+ * 16A: the Stair 151 in warning) — the prefix is added at format and
+ * render time, never stored twice.
+ */
+export function prefixWarning(warning: string): string {
+  return warning.startsWith("Warning:") ? warning : `Warning: ${warning}`;
+}
+
+/** True when an item carries at least one safety warning. */
+export function itemHasWarnings(item: ProjectItem): boolean {
+  return (item.warnings?.length ?? 0) > 0;
+}
+
 /** Format a project as a plain-text shopping list for copy/export.
  * A partial item cost is shown with its partial label and detail, and
  * a project containing any partial cost totals as a "Partial total
- * (incomplete estimate)" — never as an "Estimated total". */
+ * (incomplete estimate)" — never as an "Estimated total". A safety
+ * warning (Phase 16A, e.g. the Stair 151 in limit) is emitted under
+ * its item, prefixed "Warning: ", so a copied list never presents an
+ * over-limit result as a compliant design. */
 export function formatProjectAsText(project: ProjectData): string {
   if (project.items.length === 0) return "";
   const rooms: string[] = [];
@@ -242,6 +278,9 @@ export function formatProjectAsText(project: ProjectData): string {
     for (const item of project.items.filter((i) => i.room === room)) {
       sections.push(`${item.label}:`);
       for (const line of item.lines) sections.push(`  - ${line}`);
+      for (const warning of item.warnings ?? []) {
+        sections.push(`  ${prefixWarning(warning)}`);
+      }
       if (item.quantity > 1) sections.push(`  Quantity: ${item.quantity}`);
       if (item.costUsd !== undefined) {
         const costLine = `  ${itemCostLabel(item)}: $${itemLineCost(item).toFixed(2)}`;
@@ -275,10 +314,13 @@ export function escapeCsvCell(value: string): string {
 /**
  * Format a project as CSV for export. One row per item, plus a total
  * row when any item has a cost. Columns: Room, Calculator, Item,
- * Details, Quantity, Unit cost (USD), Line total (USD), Cost note.
- * The Cost note column carries a partial item's label and detail, and
- * a project containing any partial cost totals as a "Partial total
- * (incomplete estimate)" row — never as a plain "Total".
+ * Details, Quantity, Unit cost (USD), Line total (USD), Cost note,
+ * Warning. The Cost note column carries a partial item's label and
+ * detail, and a project containing any partial cost totals as a
+ * "Partial total (incomplete estimate)" row — never as a plain
+ * "Total". The Warning column (Phase 16A) carries an item's safety
+ * warnings joined by "; " — an over-limit Stair result keeps its
+ * warning in the export instead of looking compliant.
  */
 export function formatProjectAsCsv(project: ProjectData): string {
   const header = [
@@ -290,6 +332,7 @@ export function formatProjectAsCsv(project: ProjectData): string {
     "Unit cost (USD)",
     "Line total (USD)",
     "Cost note",
+    "Warning",
   ];
   const rows: string[][] = [header];
   for (const item of project.items) {
@@ -302,6 +345,7 @@ export function formatProjectAsCsv(project: ProjectData): string {
       item.costUsd !== undefined ? item.costUsd.toFixed(2) : "",
       item.costUsd !== undefined ? itemLineCost(item).toFixed(2) : "",
       itemCostNote(item),
+      (item.warnings ?? []).map(prefixWarning).join("; "),
     ]);
   }
   if (projectHasCost(project)) {
@@ -313,6 +357,7 @@ export function formatProjectAsCsv(project: ProjectData): string {
       "",
       "",
       totalProjectCost(project).toFixed(2),
+      "",
       "",
     ]);
   }
