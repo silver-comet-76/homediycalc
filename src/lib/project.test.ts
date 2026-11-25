@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-  PHASE_16A_RELEASED_AT_MS,
   PROJECT_SCHEMA_VERSION,
   PROJECT_STORAGE_KEY,
+  STAIR_SAFETY_VERSION,
   addItemToProject,
   emptyProject,
   escapeCsvCell,
@@ -657,50 +657,144 @@ describe("CSV hardening (QA-16A-03)", () => {
   });
 });
 
-describe("legacy Stair records (QA-16A-04)", () => {
-  // Test-only threshold: the production constant is still the unset
-  // placeholder (0) until the Phase 16A release timestamp is set.
-  const TEST_THRESHOLD = 1_800_000_000_000;
+describe("legacy Stair records (QA-16A-06, marker-based)", () => {
+  // Realistic positive epoch timestamps throughout: a legacy record
+  // saved 2023-11-14 (long before Phase 16A) and a current record
+  // saved 2026-11-25. The discriminator is the safety-review marker,
+  // not savedAt — the old timestamp cutoff (and its zero placeholder)
+  // is gone.
+  const LEGACY_SAVED_AT = 1_700_000_000_000;
+  const CURRENT_SAVED_AT = 1_795_000_000_000;
 
   const legacyStair = {
     ...STAIR_WARNING_ITEM,
     warnings: undefined,
-    savedAt: TEST_THRESHOLD - 1,
+    savedAt: LEGACY_SAVED_AT,
   };
   const currentStair = {
     ...STAIR_WARNING_ITEM,
     warnings: undefined,
-    savedAt: TEST_THRESHOLD + 1,
+    stairSafetyVersion: STAIR_SAFETY_VERSION,
+    savedAt: CURRENT_SAVED_AT,
   };
 
-  it("flags a Stair item without warnings saved before the threshold", () => {
-    expect(itemNeedsStairRecheck(legacyStair, TEST_THRESHOLD)).toBe(true);
+  it("defines the current safety-review version as 1", () => {
+    expect(STAIR_SAFETY_VERSION).toBe(1);
   });
 
-  it("does not flag a Stair item without warnings saved after the threshold", () => {
-    expect(itemNeedsStairRecheck(currentStair, TEST_THRESHOLD)).toBe(false);
+  it("flags a Stair item without warnings and without the marker", () => {
+    expect(itemNeedsStairRecheck(legacyStair)).toBe(true);
   });
 
-  it("does not flag a Stair item WITH warnings, regardless of date", () => {
-    expect(
-      itemNeedsStairRecheck({ ...STAIR_WARNING_ITEM, savedAt: TEST_THRESHOLD - 1 }, TEST_THRESHOLD),
-    ).toBe(false);
-    expect(
-      itemNeedsStairRecheck({ ...STAIR_WARNING_ITEM, savedAt: TEST_THRESHOLD + 1 }, TEST_THRESHOLD),
-    ).toBe(false);
-  });
-
-  it("does not flag a non-Stair item without warnings saved before the threshold", () => {
-    expect(
-      itemNeedsStairRecheck({ ...PAINT_ITEM, savedAt: TEST_THRESHOLD - 1 }, TEST_THRESHOLD),
-    ).toBe(false);
-  });
-
-  it("flags nothing while the release threshold is unset (0)", () => {
-    expect(PHASE_16A_RELEASED_AT_MS).toBe(0);
-    // Realistic savedAt values (positive epoch ms) are never before 0.
-    expect(itemNeedsStairRecheck(legacyStair)).toBe(false);
+  it("does not flag a Stair item without warnings carrying the current marker", () => {
     expect(itemNeedsStairRecheck(currentStair)).toBe(false);
-    expect(itemNeedsStairRecheck({ ...PAINT_ITEM, savedAt: 1_700_000_000_000 })).toBe(false);
+  });
+
+  it("does not flag a Stair item WITH warnings, with or without the marker", () => {
+    expect(itemNeedsStairRecheck({ ...STAIR_WARNING_ITEM, savedAt: LEGACY_SAVED_AT })).toBe(false);
+    expect(
+      itemNeedsStairRecheck({
+        ...STAIR_WARNING_ITEM,
+        stairSafetyVersion: STAIR_SAFETY_VERSION,
+        savedAt: CURRENT_SAVED_AT,
+      }),
+    ).toBe(false);
+  });
+
+  it("does not flag a non-Stair item without warnings or marker", () => {
+    expect(itemNeedsStairRecheck({ ...PAINT_ITEM, savedAt: LEGACY_SAVED_AT })).toBe(false);
+  });
+
+  it("does not flag a current Stair item regardless of savedAt", () => {
+    // The marker, not the date, decides: a current record saved at
+    // the legacy timestamp is still current.
+    expect(itemNeedsStairRecheck({ ...currentStair, savedAt: LEGACY_SAVED_AT })).toBe(false);
+    // And a marker-less record saved "now" is still legacy.
+    expect(itemNeedsStairRecheck({ ...legacyStair, savedAt: CURRENT_SAVED_AT })).toBe(true);
+  });
+
+  it("does not treat an unknown marker version as currently reviewed", () => {
+    expect(itemNeedsStairRecheck({ ...legacyStair, stairSafetyVersion: 2 })).toBe(true);
+    expect(itemNeedsStairRecheck({ ...legacyStair, stairSafetyVersion: 99 })).toBe(true);
+    expect(itemNeedsStairRecheck({ ...legacyStair, stairSafetyVersion: 0 })).toBe(true);
+  });
+
+  it("preserves the current marker through a parse/serialize round-trip", () => {
+    const project = emptyProject();
+    project.items.push({ ...currentStair });
+    const parsed = parseProject(serializeProject(project));
+    expect(parsed.items).toHaveLength(1);
+    expect(parsed.items[0]?.stairSafetyVersion).toBe(STAIR_SAFETY_VERSION);
+    expect(itemNeedsStairRecheck(parsed.items[0]!)).toBe(false);
+  });
+
+  it("drops unknown or malformed markers on parse so they never read as reviewed", () => {
+    // Malformed markers are fed as raw stored JSON: they are not
+    // valid ProjectItem values, so they cannot go through the typed
+    // serialize helper.
+    const raw = JSON.stringify({
+      version: 2,
+      name: "My Project",
+      items: [
+        { ...legacyStair, stairSafetyVersion: 2 },
+        { ...legacyStair, stairSafetyVersion: "1" },
+        { ...legacyStair, stairSafetyVersion: true },
+        { ...legacyStair, stairSafetyVersion: null },
+      ],
+    });
+    const parsed = parseProject(raw);
+    expect(parsed.items).toHaveLength(4);
+    for (const item of parsed.items) {
+      expect(item.stairSafetyVersion).toBeUndefined();
+      expect(itemNeedsStairRecheck(item)).toBe(true);
+    }
+  });
+
+  it("keeps a legacy record loadable and unmodified apart from normalization", () => {
+    const project = emptyProject();
+    project.items.push({ ...legacyStair });
+    const parsed = parseProject(serializeProject(project));
+    expect(parsed.items).toHaveLength(1);
+    expect(parsed.items[0]?.savedAt).toBe(LEGACY_SAVED_AT);
+    expect(parsed.items[0]?.warnings).toBeUndefined();
+    expect(parsed.items[0]?.stairSafetyVersion).toBeUndefined();
+    expect(itemNeedsStairRecheck(parsed.items[0]!)).toBe(true);
+  });
+
+  it("preserves the marker through save, reload, and supported edits", () => {
+    // Vitest runs in node, where localStorage is undefined; stub a
+    // minimal in-memory store, as the other LocalStorage tests do.
+    const store = new Map<string, string>();
+    (globalThis as unknown as { localStorage: unknown }).localStorage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value);
+      },
+      removeItem: (key: string) => {
+        store.delete(key);
+      },
+      clear: () => store.clear(),
+      key: (index: number) => [...store.keys()][index] ?? null,
+      get length() {
+        return store.size;
+      },
+    };
+    try {
+      const { id: _id, quantity: _quantity, room: _room, ...saved } = currentStair;
+      const project = addItemToProject(saved);
+      const item = project.items[0]!;
+      expect(item.stairSafetyVersion).toBe(STAIR_SAFETY_VERSION);
+      const reloaded = parseProject(store.get(PROJECT_STORAGE_KEY)!);
+      expect(reloaded.items[0]?.stairSafetyVersion).toBe(STAIR_SAFETY_VERSION);
+      expect(itemNeedsStairRecheck(reloaded.items[0]!)).toBe(false);
+      // A supported edit (label/quantity/room) keeps the marker: an
+      // edit does not make a legacy record current, and must not
+      // strip a current record's marker either.
+      const updated = updateProjectItem(item.id, { quantity: 2, room: "Hallway" });
+      expect(updated.items[0]?.stairSafetyVersion).toBe(STAIR_SAFETY_VERSION);
+      expect(itemNeedsStairRecheck(updated.items[0]!)).toBe(false);
+    } finally {
+      delete (globalThis as unknown as { localStorage?: unknown }).localStorage;
+    }
   });
 });
