@@ -13,7 +13,7 @@
  * conversion or validation.
  */
 
-import type { ResultRow } from "./CalculatorInputs";
+import type { ResultRow, UnitSystem } from "./CalculatorInputs";
 
 export type FieldKind =
   "length" | "area" | "volume" | "number" | "count" | "percent" | "price" | "select";
@@ -123,8 +123,18 @@ export interface ModeSpec {
    * gallon, or raw numbers for number/count/percent/price fields);
    * `present` lists the field ids the user actually filled in, so
    * optional fields can be told apart from fields left empty.
+   * `system` is the active unit system (Phase 16A): a mode that
+   * formats lengths in its results (e.g. the Stair Calculator) uses
+   * it to present results in the selected system, converting once
+   * from canonical values. Modes that ignore it keep their existing
+   * output; the argument is optional so existing compute functions
+   * (and their tests) keep working unchanged.
    */
-  compute: (values: Record<string, number>, present: Set<string>) => CalcOutput;
+  compute: (
+    values: Record<string, number>,
+    present: Set<string>,
+    system?: UnitSystem,
+  ) => CalcOutput;
 }
 
 export interface FaqItem {
