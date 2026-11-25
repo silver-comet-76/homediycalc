@@ -1700,4 +1700,21 @@ describe("lookup tables", () => {
       });
     }
   });
+
+  it("stair table 105 in row matches the hand-verified values exactly", () => {
+    // Hand-verified (not recomputed): 105 in / 7.75 in = 13.55, so 14 risers
+    // at 7.5 in each; 13 treads x 10.5 in = 136.5 in of run; stringer
+    // sqrt(105^2 + 136.5^2) = 172.21 in; angle atan(105 / 136.5) = 37.6 deg.
+    const table = CALCULATOR_CONFIGS["stair-calculator"]?.lookupTable;
+    expect(table).toBeDefined();
+    const row = table?.rows.find((r) => r[0] === "105 in (8.75 ft)");
+    expect(row).toEqual([
+      "105 in (8.75 ft)",
+      "14 risers",
+      "13 treads",
+      "136.5 in",
+      "172.21 in",
+      "37.6°",
+    ]);
+  });
 });
