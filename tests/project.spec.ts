@@ -204,14 +204,12 @@ test("planner: legacy Stair item shows a recheck note, current Stair item does n
 
   await page.goto("/my-project/");
   await page.evaluate(() => {
-    // QA-16A-04: the legacy item predates the Phase 16A warnings and
-    // carries none; the current item was saved after, also with none.
-    // NOTE on the legacy savedAt: PHASE_16A_RELEASED_AT_MS is still
-    // the unset placeholder (0) until the Phase 16A release timestamp
-    // is set, so the only savedAt below it is a negative one. -1 is
-    // used here solely to exercise the render path; once the release
-    // timestamp is set, replace it with a realistic pre-release
-    // timestamp (and the current item's with a post-release one).
+    // QA-16A-06: the legacy item predates the Phase 16A warnings and
+    // carries no safety-review marker; the current item was saved by
+    // the current calculator and carries marker version 1. Both use
+    // realistic positive epoch timestamps — the marker, not savedAt,
+    // is the discriminator (the old savedAt: -1 fixture is gone with
+    // the removed PHASE_16A_RELEASED_AT_MS placeholder).
     const project = {
       version: 2,
       name: "My Project",
@@ -223,7 +221,7 @@ test("planner: legacy Stair item shows a recheck note, current Stair item does n
           lines: ["Risers: 21 at 7.62 in each", "Total run: 210 in (17.5 ft)"],
           quantity: 1,
           room: "General",
-          savedAt: -1,
+          savedAt: 1700000000000,
         },
         {
           id: "item-stair-current",
@@ -232,6 +230,7 @@ test("planner: legacy Stair item shows a recheck note, current Stair item does n
           lines: ["Risers: 14 at 7.75 in each", "Total run: 136.5 in (11.375 ft)"],
           quantity: 1,
           room: "General",
+          stairSafetyVersion: 1,
           savedAt: Date.now(),
         },
       ],
@@ -251,14 +250,88 @@ test("planner: legacy Stair item shows a recheck note, current Stair item does n
   // wording — no amber warning box, no over-limit claim.
   await expect(page.getByText(recheckNote)).toHaveCount(1);
   await expect(page.getByRole("alert")).toHaveCount(0);
-  // Neither item's record was modified by rendering the note.
+  // Neither item's record was modified by rendering the note, and
+  // the current item keeps its safety-review marker.
   const stored = await page.evaluate(() => localStorage.getItem("homediycalc:project:v1"));
   const parsed = JSON.parse(stored as string) as {
-    items: { id: string; warnings?: string[]; savedAt: number }[];
+    items: { id: string; warnings?: string[]; savedAt: number; stairSafetyVersion?: number }[];
   };
   expect(parsed.items).toHaveLength(2);
   expect(parsed.items[0]?.warnings).toBeUndefined();
-  expect(parsed.items[0]?.savedAt).toBe(-1);
+  expect(parsed.items[0]?.stairSafetyVersion).toBeUndefined();
+  expect(parsed.items[0]?.savedAt).toBe(1700000000000);
+  expect(parsed.items[1]?.warnings).toBeUndefined();
+  expect(parsed.items[1]?.stairSafetyVersion).toBe(1);
+
+  expect(consoleErrors).toEqual([]);
+});
+
+test("planner: fresh Stair item saved through the UI carries the safety marker, legacy item still shows the recheck note", async ({
+  page,
+}) => {
+  const consoleErrors: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error") consoleErrors.push(msg.text());
+  });
+  page.on("pageerror", (err) => consoleErrors.push(err.message));
+
+  const recheckNote =
+    "Saved before the current Stair Calculator safety warnings were added — re-check this estimate with the current calculator if the rise may exceed 12 ft 7 in (151 in).";
+
+  // Seed one legacy Stair record (no marker, realistic old timestamp).
+  await page.goto("/my-project/");
+  await page.evaluate(() => {
+    const project = {
+      version: 2,
+      name: "My Project",
+      items: [
+        {
+          id: "item-stair-legacy",
+          calculatorSlug: "stair-calculator",
+          label: "Stair Calculator — Old straight staircase",
+          lines: ["Risers: 21 at 7.62 in each", "Total run: 210 in (17.5 ft)"],
+          quantity: 1,
+          room: "General",
+          savedAt: 1700000000000,
+        },
+      ],
+    };
+    localStorage.setItem("homediycalc:project:v1", JSON.stringify(project));
+  });
+
+  // Save a fresh Stair item through the actual calculator UI (default
+  // 105 in rise: within the 151 in limit, so no warning).
+  await page.goto("/calculators/stair-calculator/");
+  await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Results" })).toBeVisible();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await page.getByRole("button", { name: "Add to Project" }).click();
+  await expect(page.getByText("Saved to")).toBeVisible();
+
+  await page.goto("/my-project/");
+  await expect(page.getByRole("heading", { name: "My Project", exact: true })).toBeVisible();
+  await expect(page.locator("input[aria-label='Item name']").nth(0)).toHaveValue(
+    "Stair Calculator — Old straight staircase",
+  );
+  await expect(page.locator("input[aria-label='Item name']").nth(1)).toHaveValue(
+    "Stair Calculator — Straight staircase",
+  );
+  // Exactly one recheck note: on the legacy item only. The fresh
+  // item shows no note and no warning.
+  await expect(page.getByText(recheckNote)).toHaveCount(1);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+
+  // Reload: the stored marker survives and the note behavior is stable.
+  await page.reload();
+  await expect(page.getByText(recheckNote)).toHaveCount(1);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  const stored = await page.evaluate(() => localStorage.getItem("homediycalc:project:v1"));
+  const parsed = JSON.parse(stored as string) as {
+    items: { id: string; stairSafetyVersion?: number; warnings?: string[] }[];
+  };
+  expect(parsed.items).toHaveLength(2);
+  expect(parsed.items[0]?.stairSafetyVersion).toBeUndefined();
+  expect(parsed.items[1]?.stairSafetyVersion).toBe(1);
   expect(parsed.items[1]?.warnings).toBeUndefined();
 
   expect(consoleErrors).toEqual([]);
