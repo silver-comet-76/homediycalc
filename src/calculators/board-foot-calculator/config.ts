@@ -14,6 +14,17 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const boardFootConfig: CalculatorConfig = {
   slug: "board-foot-calculator",
+  lookupTable: {
+    note: "Assumes 10 pieces and a 5% cutting waste allowance.",
+    headers: ["Boards", "Board feet per piece", "Total board feet", "Volume"],
+    rows: [
+      ["1 × 6 in × 8 ft × 10 pieces", "4 bf", "42 bf", "3.5 ft³"],
+      ["2 × 4 in × 8 ft × 10 pieces", "5.33 bf", "56 bf", "4.67 ft³"],
+      ["2 × 6 in × 8 ft × 10 pieces", "8 bf", "84 bf", "7 ft³"],
+      ["2 × 8 in × 12 ft × 10 pieces", "16 bf", "168 bf", "14 ft³"],
+      ["4 × 4 in × 8 ft × 10 pieces", "10.67 bf", "112 bf", "9.33 ft³"],
+    ],
+  },
   diagram: "board",
   defaultMode: "single",
   formula:
