@@ -88,6 +88,41 @@ function toCanonical(value: number, unit: string, field: FieldSpec): number {
   return convertVolume(value, unit as VolumeUnit, (field.canonicalUnit ?? "ft3") as VolumeUnit);
 }
 
+/**
+ * Convert a canonical-unit bound (field.min / field.max) to the display
+ * unit, so validation compares against the value the user actually sees.
+ * Mirrors toCanonical in reverse. Rounded to 4 decimals (matching
+ * convertValue) so the bound is exact in the display unit — e.g. the
+ * 7.75 in riser cap converts to exactly 19.685 cm, not
+ * 19.685000000078738.
+ */
+function fromCanonical(value: number, unit: string, field: FieldSpec): number {
+  if (!field.unitKind || !unit) return value;
+  let converted: number;
+  if (field.unitKind === "length") {
+    converted = convertLength(
+      value,
+      (field.canonicalUnit ?? "ft") as LengthUnit,
+      unit as LengthUnit,
+    );
+  } else if (field.unitKind === "area") {
+    converted = convertArea(value, (field.canonicalUnit ?? "ft2") as AreaUnit, unit as AreaUnit);
+  } else if (field.unitKind === "coverage") {
+    converted = convertCoverage(
+      value,
+      (field.canonicalUnit ?? "ft2/gal") as CoverageUnit,
+      unit as CoverageUnit,
+    );
+  } else {
+    converted = convertVolume(
+      value,
+      (field.canonicalUnit ?? "ft3") as VolumeUnit,
+      unit as VolumeUnit,
+    );
+  }
+  return Math.round(converted * 10000) / 10000;
+}
+
 function modeDefaults(mode: ModeSpec, system: UnitSystem) {
   const values: Record<string, string> = {};
   const units: Record<string, string> = {};
@@ -186,12 +221,24 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
       const raw = values[field.id] ?? "";
       const isPercent = field.kind === "percent";
       const isPrice = field.kind === "price";
+      // Explicit bounds are stored in the canonical unit; convert them to
+      // the display unit before validating, so a metric entry is judged
+      // against a metric bound (e.g. the 7.75 in riser cap is 19.685 cm).
+      // Fields without an explicit bound keep the existing defaults.
+      const displayMin =
+        field.min !== undefined && field.unitKind
+          ? fromCanonical(field.min, fieldUnits[field.id] ?? "", field)
+          : (field.min ?? 0);
+      const displayMax =
+        field.max !== undefined && field.unitKind
+          ? fromCanonical(field.max, fieldUnits[field.id] ?? "", field)
+          : (field.max ?? MAX_DEFAULTS[field.kind] ?? 1000000);
       const result = validateField(raw, {
         label: field.label,
         optional: field.optional,
-        min: field.min ?? 0,
+        min: displayMin,
         exclusiveMin: field.min === undefined && !(isPercent || isPrice || field.kind === "select"),
-        max: field.max ?? MAX_DEFAULTS[field.kind] ?? 1000000,
+        max: displayMax,
         integer: field.kind === "count",
       });
       if (result.error) {
@@ -361,6 +408,19 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
 
       {result ? (
         <div className="mt-6">
+          {result.warnings && result.warnings.length > 0 ? (
+            <div className="mb-4 space-y-2">
+              {result.warnings.map((warning) => (
+                <p
+                  key={warning}
+                  role="alert"
+                  className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900"
+                >
+                  {warning}
+                </p>
+              ))}
+            </div>
+          ) : null}
           <ResultPanel
             title="Results"
             rows={

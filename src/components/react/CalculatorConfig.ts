@@ -88,6 +88,14 @@ export interface CalcOutput {
   workedLine?: string;
   /** Extra note shown under the results. */
   note?: string;
+  /**
+   * Prominent noncompliance warnings shown above the results, e.g. the
+   * Stair Calculator's 151 in single-flight limit (2021 IRC R311.7.3).
+   * The results still render below the warning: the numbers are a
+   * planning estimate, and the warning makes clear they are not a
+   * compliant design.
+   */
+  warnings?: string[];
 }
 
 /**
