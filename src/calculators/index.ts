@@ -1,8 +1,8 @@
 /**
  * Per-calculator configs, keyed by slug. The dynamic calculator route
  * (src/pages/calculators/[slug].astro) renders the config for the
- * requested slug; P2 configs do not exist yet, so those URLs 404
- * until a later phase — no unshipped page is ever linked or listed.
+ * requested slug; all 26 configs ship, so every registered calculator
+ * URL renders — no unshipped page is ever linked or listed.
  */
 
 import type { CalculatorConfig } from "../components/react/CalculatorConfig";
@@ -31,6 +31,7 @@ import { wallpaperConfig } from "./wallpaper-calculator/config";
 import { sealantConfig } from "./sealant-calculator/config";
 import { waterproofingConfig } from "./waterproofing-calculator/config";
 import { baseboardConfig } from "./baseboard-calculator/config";
+import { stairConfig } from "./stair-calculator/config";
 
 export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
   "concrete-calculator": concreteConfig,
@@ -58,6 +59,7 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
   "sealant-calculator": sealantConfig,
   "waterproofing-calculator": waterproofingConfig,
   "baseboard-calculator": baseboardConfig,
+  "stair-calculator": stairConfig,
 };
 
 /** Slugs of the calculators shipped in Phases 2 (P0), 3 (P1), and 4 (P2). */
