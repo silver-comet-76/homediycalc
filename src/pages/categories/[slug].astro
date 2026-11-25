@@ -206,7 +206,7 @@ const guide = CATEGORY_GUIDES[category.slug as CategorySlug];
 ---
 
 <Layout
-  title={category.name}
+  title={category.seoTitle.replace(" | HomeDIYCalc", "")}
   description={category.seoDescription}
   canonical={category.url}
   breadcrumbs={crumbs}
@@ -218,7 +218,7 @@ const guide = CATEGORY_GUIDES[category.slug as CategorySlug];
   <p class="mt-3 max-w-3xl text-lg text-slate-600">{category.description}</p>
   <p class="mt-2 max-w-3xl text-slate-600">
     {calculators.length} calculator{calculators.length === 1 ? "" : "s"} in this category.
-    All 25 calculators are built, tested, and available now.
+    All 26 calculators are built, tested, and available now.
   </p>
 
   <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
