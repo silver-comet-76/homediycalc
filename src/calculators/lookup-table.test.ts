@@ -1602,7 +1602,7 @@ const LOOKUP_INPUTS: Record<string, LookupInputs> = {
         display: { totalRise: 96, treadDepth: 10.5, maxRiser: 7.75 },
       },
       {
-        label: "105 in (8.8 ft)",
+        label: "105 in (8.75 ft)",
         display: { totalRise: 105, treadDepth: 10.5, maxRiser: 7.75 },
       },
       {
