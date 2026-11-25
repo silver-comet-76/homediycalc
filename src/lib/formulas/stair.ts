@@ -7,7 +7,15 @@
  * maximum riser height 7-3/4 in (R311.7.5.1) and minimum tread depth
  * 10 in (R311.7.5.2). The 2024 IRC keeps the same numbers but renumbers
  * the stair section to R318.7. Local jurisdictions may amend these
- * limits — the page says so, and the maximum riser height is editable.
+ * limits — the page says so, and the maximum riser height is editable
+ * only downward: a value above the IRC maximum is rejected.
+ *
+ * A single flight may not exceed 12 ft 7 in (151 in) of vertical rise
+ * between floors or landings (R311.7.3). The formula does NOT throw for
+ * a taller rise — a flight with an intermediate landing is a legitimate
+ * planning case — it reports `exceedsSingleFlightLimit` so the UI can
+ * warn that the numbers are a straight-flight planning estimate, not a
+ * compliant single-flight design.
  */
 
 import { ceilUp } from "../units";
@@ -16,6 +24,8 @@ import { ceilUp } from "../units";
 export const MAX_RISER_IN = 7.75;
 /** Minimum tread depth, in inches — 2021 IRC R311.7.5.2. */
 export const MIN_TREAD_IN = 10;
+/** Maximum vertical rise of a single flight, in inches (12 ft 7 in) — 2021 IRC R311.7.3. */
+export const MAX_SINGLE_FLIGHT_RISE_IN = 151;
 
 export interface StairInput {
   /** Total floor-to-floor height, in inches. */
@@ -39,6 +49,13 @@ export interface StairResult {
   stringerLengthIn: number;
   /** Stair angle from horizontal, in degrees. */
   stairAngleDeg: number;
+  /**
+   * True when the total rise exceeds the 2021 IRC single-flight limit of
+   * 12 ft 7 in (151 in, R311.7.3). The formula reports this; it does not
+   * throw — a taller rise needs an intermediate landing, and the numbers
+   * remain a valid straight-flight planning estimate.
+   */
+  exceedsSingleFlightLimit: boolean;
 }
 
 export function calculateStair(input: StairInput): StairResult {
@@ -54,6 +71,9 @@ export function calculateStair(input: StairInput): StairResult {
   if (!(maxRiserIn > 0)) {
     throw new Error("Maximum riser height must be greater than 0.");
   }
+  if (maxRiserIn > MAX_RISER_IN) {
+    throw new Error(`Maximum riser height cannot exceed ${MAX_RISER_IN} in (2021 IRC R311.7.5.1).`);
+  }
   const riserCount = ceilUp(totalRiseIn / maxRiserIn);
   const riserHeightIn = totalRiseIn / riserCount;
   const treadCount = riserCount - 1;
@@ -67,5 +87,6 @@ export function calculateStair(input: StairInput): StairResult {
     totalRunIn,
     stringerLengthIn,
     stairAngleDeg,
+    exceedsSingleFlightLimit: totalRiseIn > MAX_SINGLE_FLIGHT_RISE_IN,
   };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateStair, MAX_RISER_IN, MIN_TREAD_IN } from "./stair";
+import { calculateStair, MAX_RISER_IN, MAX_SINGLE_FLIGHT_RISE_IN, MIN_TREAD_IN } from "./stair";
 
 describe("calculateStair", () => {
   it("calculates a standard staircase (105 in rise, 10.5 in tread)", () => {
@@ -62,6 +62,42 @@ describe("calculateStair", () => {
     expect(r.totalRunIn).toBeCloseTo(130, 2);
   });
 
+  it("rejects a maximum riser height above the 7.75 in IRC maximum (8 in)", () => {
+    expect(() => calculateStair({ totalRiseIn: 105, maxRiserIn: 8 })).toThrow();
+    expect(() => calculateStair({ totalRiseIn: 105, maxRiserIn: 8 })).toThrow(/7.75/);
+  });
+
+  it("rejects a maximum riser height above the 7.75 in IRC maximum (10 in)", () => {
+    expect(() => calculateStair({ totalRiseIn: 105, maxRiserIn: 10 })).toThrow();
+    expect(() => calculateStair({ totalRiseIn: 105, maxRiserIn: 10 })).toThrow(/7.75/);
+  });
+
+  it("accepts a stricter maximum riser height below the IRC maximum (7 in)", () => {
+    const r = calculateStair({ totalRiseIn: 105, maxRiserIn: 7 });
+    // 105 / 7 = 15 exactly, so 15 risers at the full 7 in each.
+    expect(r.riserCount).toBe(15);
+    expect(r.riserHeightIn).toBeCloseTo(7, 2);
+  });
+
+  it("accepts a maximum riser height of exactly 7.75 in", () => {
+    const r = calculateStair({ totalRiseIn: 105, maxRiserIn: 7.75 });
+    expect(r.riserCount).toBe(14);
+    expect(r.riserHeightIn).toBeCloseTo(7.5, 2);
+  });
+
+  it("reports the 151 in single-flight limit without throwing", () => {
+    // 151 in is the limit itself (12 ft 7 in, IRC R311.7.3) — allowed.
+    expect(calculateStair({ totalRiseIn: 151 }).exceedsSingleFlightLimit).toBe(false);
+    // 152 in exceeds it, but the numbers are still returned as a
+    // straight-flight planning estimate.
+    const over = calculateStair({ totalRiseIn: 152 });
+    expect(over.exceedsSingleFlightLimit).toBe(true);
+    expect(over.riserCount).toBe(20);
+    const tall = calculateStair({ totalRiseIn: 160 });
+    expect(tall.exceedsSingleFlightLimit).toBe(true);
+    expect(tall.riserCount).toBe(21);
+  });
+
   it("rejects a total rise of zero or less", () => {
     expect(() => calculateStair({ totalRiseIn: 0 })).toThrow();
     expect(() => calculateStair({ totalRiseIn: -48 })).toThrow();
@@ -70,5 +106,6 @@ describe("calculateStair", () => {
   it("exports the IRC limits", () => {
     expect(MAX_RISER_IN).toBe(7.75);
     expect(MIN_TREAD_IN).toBe(10);
+    expect(MAX_SINGLE_FLIGHT_RISE_IN).toBe(151);
   });
 });
