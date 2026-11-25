@@ -25,7 +25,7 @@ import {
   type VolumeUnit,
 } from "../../lib/units";
 import { parseNumber, validateField } from "../../lib/validation";
-import { addItemToProject } from "../../lib/project";
+import { addItemToProject, prefixWarning } from "../../lib/project";
 import { CALCULATOR_CONFIGS } from "../../calculators/index";
 
 const MAX_DEFAULTS: Record<string, number> = {
@@ -252,12 +252,21 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
   }, [mode, values, fieldUnits]);
 
   const hasErrors = Object.keys(errors).length > 0;
-  const result: CalcOutput | null = hasErrors ? null : mode.compute(canonical, present);
+  // The active unit system is passed through so a mode that formats
+  // lengths in its results (e.g. the Stair Calculator, Phase 16A) can
+  // present them in the selected system. The calculation itself stays
+  // canonical — only the presentation converts.
+  const result: CalcOutput | null = hasErrors ? null : mode.compute(canonical, present, system);
 
   const costLine = result ? costShoppingListLine(result) : undefined;
+  // Safety warnings (e.g. the Stair 151 in limit, Phase 16A) travel
+  // with the result: the plain-text copy has no amber styling, so
+  // each warning is prefixed "Warning: " and placed directly under
+  // the header, before the result lines, so it cannot be missed.
   const shoppingList = result
     ? [
         `${calculatorName} — ${mode.label}`,
+        ...(result.warnings ?? []).map(prefixWarning),
         ...result.lines,
         ...(costLine !== undefined ? [costLine] : []),
       ].join("\n")
@@ -288,6 +297,10 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
       costPartial: result.costPartial,
       costLabel: result.costLabel,
       costDetail: result.costDetail,
+      // A safety warning (Phase 16A, e.g. the Stair 151 in limit)
+      // travels with the item so My Project, reload, and export keep
+      // it — an over-limit result is never saved as if compliant.
+      warnings: result.warnings,
       savedAt: Date.now(),
     });
     setSaved(true);
