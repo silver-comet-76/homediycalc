@@ -118,4 +118,22 @@ describe("stair config: 151 in limit in both systems", () => {
     expect(metric.rows[0]?.value).toBe("21 risers");
     expect(metric.rows[2]?.value).toBe("533.4 cm");
   });
+
+  it("shows no warning for the exact metric boundary 383.54 cm, in either system (QA-16A-01)", () => {
+    // 383.54 cm converts to 151.00000000000003 in — conversion noise,
+    // not a real excess over the 151 in limit.
+    const totalRise = convertLength(383.54, "cm", "in");
+    expect(compute({ ...DEFAULTS, totalRise }, "imperial").warnings).toBeUndefined();
+    expect(compute({ ...DEFAULTS, totalRise }, "metric").warnings).toBeUndefined();
+  });
+
+  it("shows the warning for 383.5401 cm, in either system (QA-16A-01)", () => {
+    // 383.5401 cm converts to 151.00004 in — genuinely above the limit.
+    const totalRise = convertLength(383.5401, "cm", "in");
+    const imperial = compute({ ...DEFAULTS, totalRise }, "imperial");
+    const metric = compute({ ...DEFAULTS, totalRise }, "metric");
+    expect(imperial.warnings).toHaveLength(1);
+    expect(metric.warnings).toEqual(imperial.warnings);
+    expect(imperial.warnings?.[0]).toContain("151 in");
+  });
 });
