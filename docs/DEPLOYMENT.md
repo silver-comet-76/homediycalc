@@ -365,3 +365,26 @@ Owner decisions confirmed on 2026-11-23 (Phase 9 owner-decisions change, branch 
 | Merge of the Phase 8 PR | **Done** | PR #4 merged 2026-11-23 (merge commit `a4925bfe`). |
 | Issue #1 / Issue #3 closure | Open | Neither issue closes in Phase 9. Issue #1 closes only after reviewer sign-off + owner approval; Issue #3 closes only after the launch it tracks is complete. |
 | Merge of the Phase 9 owner-decisions PR | Open | Requires ChatGPT review + owner approval. The PR does not merge itself. |
+
+## 15. Known platform quirks — /404 soft-404 (Phase 13)
+
+**Observed behaviour (Phase 12 audit, confirmed 2026-11-23):** the
+`/404` path returns **HTTP 200** while serving the custom "Page not
+found" content, and `/404.html` returns **308** redirecting to `/404`.
+This is Cloudflare Pages platform behaviour: Pages serves every `.html`
+file at its extensionless path ("pretty URLs"), and there is no Pages
+setting that changes the status code for the `/404` path. A genuinely
+nonexistent URL (e.g. `/no-such-page/`) still correctly returns 404.
+
+**Risk assessment:** low. The `/404` path is **not** listed in
+`sitemap.xml` and is **not** internally linked anywhere on the site,
+so a search engine has no ordinary way to discover it. A soft-404
+could in principle be indexed if some external link pointed at it, but
+no such link is known.
+
+**Mitigation (Phase 13):** `public/_headers` now sends
+`X-Robots-Tag: noindex` for the `/404` path, so even if a crawler
+discovers the URL it is told not to index it. No gate-audit change was
+needed for this: the audit does not check the `/404` status code and
+its noindex check only covers indexable pages. The header is verified
+by `curl -I` against the deployed site after each release.
