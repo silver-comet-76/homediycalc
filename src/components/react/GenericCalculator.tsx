@@ -25,7 +25,7 @@ import {
   type VolumeUnit,
 } from "../../lib/units";
 import { parseNumber, validateField } from "../../lib/validation";
-import { addItemToProject, prefixWarning } from "../../lib/project";
+import { addItemToProject, prefixWarning, STAIR_SAFETY_VERSION } from "../../lib/project";
 import { CALCULATOR_CONFIGS } from "../../calculators/index";
 
 const MAX_DEFAULTS: Record<string, number> = {
@@ -89,6 +89,30 @@ function toCanonical(value: number, unit: string, field: FieldSpec): number {
 }
 
 /**
+ * Convert a canonical-unit value to the display unit, with full
+ * precision (no rounding). The unrounded form is what the QA-16A-05
+ * canonical validation error reports, so the precise physical value
+ * is visible even when the rounded display hides the excess.
+ */
+function canonicalToDisplay(value: number, unit: string, field: FieldSpec): number {
+  if (!field.unitKind || !unit) return value;
+  if (field.unitKind === "length") {
+    return convertLength(value, (field.canonicalUnit ?? "ft") as LengthUnit, unit as LengthUnit);
+  }
+  if (field.unitKind === "area") {
+    return convertArea(value, (field.canonicalUnit ?? "ft2") as AreaUnit, unit as AreaUnit);
+  }
+  if (field.unitKind === "coverage") {
+    return convertCoverage(
+      value,
+      (field.canonicalUnit ?? "ft2/gal") as CoverageUnit,
+      unit as CoverageUnit,
+    );
+  }
+  return convertVolume(value, (field.canonicalUnit ?? "ft3") as VolumeUnit, unit as VolumeUnit);
+}
+
+/**
  * Convert a canonical-unit bound (field.min / field.max) to the display
  * unit, so validation compares against the value the user actually sees.
  * Mirrors toCanonical in reverse. Rounded to 4 decimals (matching
@@ -97,30 +121,13 @@ function toCanonical(value: number, unit: string, field: FieldSpec): number {
  * 19.685000000078738.
  */
 function fromCanonical(value: number, unit: string, field: FieldSpec): number {
-  if (!field.unitKind || !unit) return value;
-  let converted: number;
-  if (field.unitKind === "length") {
-    converted = convertLength(
-      value,
-      (field.canonicalUnit ?? "ft") as LengthUnit,
-      unit as LengthUnit,
-    );
-  } else if (field.unitKind === "area") {
-    converted = convertArea(value, (field.canonicalUnit ?? "ft2") as AreaUnit, unit as AreaUnit);
-  } else if (field.unitKind === "coverage") {
-    converted = convertCoverage(
-      value,
-      (field.canonicalUnit ?? "ft2/gal") as CoverageUnit,
-      unit as CoverageUnit,
-    );
-  } else {
-    converted = convertVolume(
-      value,
-      (field.canonicalUnit ?? "ft3") as VolumeUnit,
-      unit as VolumeUnit,
-    );
-  }
-  return Math.round(converted * 10000) / 10000;
+  return Math.round(canonicalToDisplay(value, unit, field) * 10000) / 10000;
+}
+
+/** Format a number with up to 10 decimal places, trimming trailing zeros. */
+function formatPrecise(value: number): string {
+  if (!Number.isFinite(value)) return String(value);
+  return value.toFixed(10).replace(/0+$/, "").replace(/\.$/, "");
 }
 
 function modeDefaults(mode: ModeSpec, system: UnitSystem) {
@@ -298,11 +305,20 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
     setSaved(false);
   }
 
-  // Validate every field against its display bounds; build canonical
-  // values for the ones that pass. Display validation is unchanged
-  // (bounds converted to the display unit via fromCanonical), but
-  // computation uses the retained canonical values, not a re-conversion
-  // of the rounded display strings — see the canonicalValues state.
+  // Validate every field against its display bounds AND, for fields
+  // with an explicit bound in a convertible unit, against the
+  // retained canonical value (QA-16A-05). The display string is
+  // rounded to 4 decimals on a unit switch, so it can pass while the
+  // retained canonical — the value computation actually uses —
+  // violates the bound (e.g. max riser 7.75001 in displays as
+  // 19.685 cm, the cap, after switching to metric). The canonical
+  // check is therefore authoritative: when it fails the field is
+  // invalid, no computation runs, and the error states the precise
+  // physical value in the current display unit so the excess (or
+  // shortfall) is visible. Display validation is unchanged (bounds
+  // converted to the display unit via fromCanonical); computation
+  // uses the retained canonical values, not a re-conversion of the
+  // rounded display strings — see the canonicalValues state.
   const { errors, canonical, present } = useMemo(() => {
     const errs: Record<string, string> = {};
     const canon: Record<string, number> = {};
@@ -334,18 +350,39 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
       if (result.error) {
         errs[field.id] = result.error;
       } else if (result.present && result.value !== undefined) {
-        pres.add(field.id);
         // The retained canonical value is the physical input; fall
         // back to converting the display value only when no canonical
         // value is retained (defensive — edits and switches keep the
         // two in sync).
         const retained = canonicalValues[field.id];
-        if (retained !== undefined) {
-          canon[field.id] = retained;
-        } else {
-          const derived = canonicalFromDisplay(raw, fieldUnits[field.id] ?? "", field);
-          if (derived !== undefined) canon[field.id] = derived;
+        const physical =
+          retained !== undefined
+            ? retained
+            : canonicalFromDisplay(raw, fieldUnits[field.id] ?? "", field);
+        // QA-16A-05: validate the physical (canonical) value against
+        // the canonical bounds. A rounded display can conceal a
+        // violation; the canonical value is what is computed from,
+        // so it must pass too. Only explicit bounds on convertible
+        // fields are checked here — for every other field the
+        // display value and the canonical value are the same number,
+        // so the display check above is already exact.
+        if (field.unitKind && physical !== undefined) {
+          const unit = fieldUnits[field.id] ?? "";
+          if (field.min !== undefined && physical < field.min) {
+            errs[field.id] =
+              `${field.label} must be at least ${formatPrecise(displayMin)}${unit ? ` ${unit}` : ""}` +
+              ` — the value entered is ${formatPrecise(canonicalToDisplay(physical, unit, field))}${unit ? ` ${unit}` : ""}.`;
+            continue;
+          }
+          if (field.max !== undefined && physical > field.max) {
+            errs[field.id] =
+              `${field.label} must be ${formatPrecise(displayMax)}${unit ? ` ${unit}` : ""} or less` +
+              ` — the value entered is ${formatPrecise(canonicalToDisplay(physical, unit, field))}${unit ? ` ${unit}` : ""}.`;
+            continue;
+          }
         }
+        pres.add(field.id);
+        if (physical !== undefined) canon[field.id] = physical;
       }
     }
     return { errors: errs, canonical: canon, present: pres };
@@ -401,6 +438,11 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
       // travels with the item so My Project, reload, and export keep
       // it — an over-limit result is never saved as if compliant.
       warnings: result.warnings,
+      // QA-16A-06: a Stair item saved now carries the current
+      // safety-review marker, so My Project can tell it apart from a
+      // legacy Stair record saved before warnings existed. Non-Stair
+      // items are unaffected.
+      ...(slug === "stair-calculator" ? { stairSafetyVersion: STAIR_SAFETY_VERSION } : {}),
       savedAt: Date.now(),
     });
     setSaved(true);
