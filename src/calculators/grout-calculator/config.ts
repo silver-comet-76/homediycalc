@@ -140,6 +140,17 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const groutConfig: CalculatorConfig = {
   slug: "grout-calculator",
+  lookupTable: {
+    note: "Assumes 12 × 12 in tiles, a ⅛ in wide by ⅜ in deep joint, grout at 98.5 lb/ft³, 10 lb bags, and 10% waste.",
+    headers: ["Room size", "Grout per square foot", "Grout needed", "Bags needed"],
+    rows: [
+      ["5 × 8 ft room", "0.064 lb/ft²", "2.8 lb", "1 bags"],
+      ["10 × 10 ft room", "0.064 lb/ft²", "7.1 lb", "1 bags"],
+      ["10 × 12 ft room", "0.064 lb/ft²", "8.5 lb", "1 bags"],
+      ["12 × 15 ft room", "0.064 lb/ft²", "12.7 lb", "2 bags"],
+      ["15 × 20 ft room", "0.064 lb/ft²", "21.2 lb", "3 bags"],
+    ],
+  },
   diagram: "area",
   defaultMode: "dimensions",
   formula:
