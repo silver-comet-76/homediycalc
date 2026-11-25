@@ -386,5 +386,7 @@ no such link is known.
 `X-Robots-Tag: noindex` for the `/404` path, so even if a crawler
 discovers the URL it is told not to index it. No gate-audit change was
 needed for this: the audit does not check the `/404` status code and
-its noindex check only covers indexable pages. The header is verified
+its noindex check only covers indexable pages. The header is a request
+to crawlers, not a guarantee — its effect must be confirmed by `curl -I`
+against the deployed site after each release. The header is verified
 by `curl -I` against the deployed site after each release.
