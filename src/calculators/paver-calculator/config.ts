@@ -209,6 +209,17 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const paverConfig: CalculatorConfig = {
   slug: "paver-calculator",
+  lookupTable: {
+    note: "Assumes 12 × 12 in pavers, 2⅜ in thick, a ⅛ in joint, 10% waste, a 4 in compacted gravel base at 2,800 lb/yd³, 1 in of bedding sand, and joint sand at 100 lb/ft³ in 50 lb bags.",
+    headers: ["Patio size", "Pavers needed", "Base gravel to order", "Bedding sand", "Joint sand"],
+    rows: [
+      ["10 × 10 ft patio", "108 pavers", "1.87 yd³", "0.37 yd³", "1 bags"],
+      ["12 × 12 ft patio", "156 pavers", "2.61 yd³", "0.52 yd³", "2 bags"],
+      ["16 × 12 ft patio", "207 pavers", "3.41 yd³", "0.68 yd³", "2 bags"],
+      ["10 × 20 ft patio", "216 pavers", "3.56 yd³", "0.71 yd³", "2 bags"],
+      ["20 × 20 ft patio", "431 pavers", "6.81 yd³", "1.36 yd³", "4 bags"],
+    ],
+  },
   diagram: "area",
   defaultMode: "dimensions",
   formula:
