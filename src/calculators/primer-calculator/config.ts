@@ -110,6 +110,17 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const primerConfig: CalculatorConfig = {
   slug: "primer-calculator",
+  lookupTable: {
+    note: "Assumes 8 ft ceilings, 1 coat, 300 ft²/gal coverage, new drywall or bare plaster (×1.20), 10% waste, 1 door (21 ft²) and 2 windows (15 ft² each).",
+    headers: ["Room size", "Wall area to prime", "Primer needed", "Gallons to buy"],
+    rows: [
+      ["10 × 10 ft room", "269 ft²", "1.18 gal", "2 gal"],
+      ["12 × 12 ft room", "333 ft²", "1.47 gal", "2 gal"],
+      ["12 × 15 ft room", "381 ft²", "1.68 gal", "2 gal"],
+      ["15 × 20 ft room", "509 ft²", "2.24 gal", "3 gal"],
+      ["20 × 20 ft room", "589 ft²", "2.59 gal", "3 gal"],
+    ],
+  },
   diagram: "wall",
   defaultMode: "room",
   formula:
