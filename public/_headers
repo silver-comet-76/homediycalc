@@ -13,8 +13,10 @@
 # every .html file is served at its extensionless path). There is no
 # Pages setting to change the status code, and a nonexistent URL still
 # correctly returns 404. The /404 path is not in the sitemap and is not
-# internally linked, so the risk is low — but this noindex header makes
-# sure the page can never be indexed even if a crawler discovers it.
+# internally linked, so the risk is low — but this X-Robots-Tag header
+# asks compliant crawlers not to index the page if one discovers it.
+# It is an indexing directive, not an absolute guarantee, and it stays
+# scoped to /404: it must never apply to normal indexable pages.
 # See docs/DEPLOYMENT.md §15.
 /*
   X-Content-Type-Options: nosniff
