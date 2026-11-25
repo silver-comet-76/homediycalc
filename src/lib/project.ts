@@ -72,6 +72,28 @@ export interface ProjectItem {
    * Only meaningful when costPartial is true.
    */
   costDetail?: string;
+  /**
+   * Safety warnings that travel with the result — e.g. the Stair
+   * Calculator's 151 in single-flight warning (Phase 16A). Optional
+   * and backward-compatible (ADR-16 pattern): items saved before
+   * this field existed have it undefined and render with no warning.
+   * The stored text is the raw warning; the "Warning: " prefix is
+   * added at format and render time (see prefixWarning).
+   */
+  warnings?: string[];
+  /**
+   * Safety-review version marker (QA-16A-06, replaces the removed
+   * PHASE_16A_RELEASED_AT_MS timestamp discriminator). Present and
+   * equal to STAIR_SAFETY_VERSION only on Stair items saved by a
+   * calculator build that persists the current Stair safety warnings
+   * (set in GenericCalculator.addToProject for Stair items only).
+   * Stair items saved before the marker existed — and any item whose
+   * marker is unknown or malformed — have it undefined after
+   * normalization, so they are treated as unreviewed and My Project
+   * shows the neutral re-check note. The marker is never fabricated
+   * for historical records and never modifies them.
+   */
+  stairSafetyVersion?: number;
   /** Project/room grouping, e.g. "Kitchen" (default "General"). */
   room: string;
   /** Epoch milliseconds when the item was saved. */
@@ -140,6 +162,21 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
     costPartial && typeof raw.costDetail === "string" && raw.costDetail !== ""
       ? raw.costDetail
       : undefined;
+  // Safety warnings (Phase 16A) survive a save/reload round-trip.
+  // Only non-empty strings are kept; items saved before the field
+  // existed (or with a malformed value) normalize to undefined and
+  // render with no warning — old records are never dropped.
+  const warnings = Array.isArray(raw.warnings)
+    ? raw.warnings.filter((w): w is string => typeof w === "string" && w !== "")
+    : [];
+  // Stair safety-review marker (QA-16A-06) survives a save/reload
+  // round-trip only when it is exactly the current version. Any
+  // other value — unknown future version, wrong type, malformed —
+  // normalizes to undefined, so it can never falsely identify a
+  // record as currently reviewed. Items saved before the marker
+  // existed normalize to undefined and keep the legacy re-check note.
+  const stairSafetyVersion =
+    raw.stairSafetyVersion === STAIR_SAFETY_VERSION ? STAIR_SAFETY_VERSION : undefined;
   return {
     id: typeof raw.id === "string" && raw.id !== "" ? raw.id : newItemId(),
     calculatorSlug: raw.calculatorSlug,
@@ -150,6 +187,8 @@ function normalizeItem(raw: unknown): ProjectItem | undefined {
     costPartial: costPartial ? true : undefined,
     costLabel,
     costDetail,
+    warnings: warnings.length > 0 ? warnings : undefined,
+    stairSafetyVersion,
     room: typeof raw.room === "string" && raw.room !== "" ? raw.room : DEFAULT_ROOM,
     savedAt: raw.savedAt,
   };
@@ -222,10 +261,73 @@ export function itemLineCost(item: ProjectItem): number {
   return (item.costUsd ?? 0) * item.quantity;
 }
 
+/**
+ * Prefix a warning with "Warning: " unless it already starts with it.
+ * Plain-text copies and exports have no amber styling, so the prefix
+ * carries the signal. The stored text keeps the raw warning (Phase
+ * 16A: the Stair 151 in warning) — the prefix is added at format and
+ * render time, never stored twice.
+ */
+export function prefixWarning(warning: string): string {
+  return warning.startsWith("Warning:") ? warning : `Warning: ${warning}`;
+}
+
+/** True when an item carries at least one safety warning. */
+export function itemHasWarnings(item: ProjectItem): boolean {
+  return (item.warnings?.length ?? 0) > 0;
+}
+
+// ---------------------------------------------------------------------------
+// QA-16A-06 — legacy Stair records (replaces QA-16A-04 timestamp cutoff).
+// ---------------------------------------------------------------------------
+
+/**
+ * Current Stair safety-review version. A Stair item saved by a build
+ * that persists the current Stair safety warnings carries
+ * `stairSafetyVersion` equal to this value (set in
+ * GenericCalculator.addToProject for Stair items only). The marker —
+ * not `savedAt` — is the discriminator between a legacy Stair record
+ * (saved before warnings existed, so a missing warning proves
+ * nothing) and a current within-limit record (genuinely
+ * warning-free): a timestamp cutoff cannot work, because the exact
+ * future production deployment timestamp cannot be embedded into an
+ * already reviewed source tree. The previous zero placeholder
+ * (PHASE_16A_RELEASED_AT_MS) and its release-time mutation
+ * requirement are removed entirely.
+ *
+ * Bump this only when the Stair safety warnings themselves change in
+ * a way that makes previously saved warning-free records untrusted;
+ * previously saved records then show the neutral re-check note until
+ * re-saved, which is the safe direction.
+ */
+export const STAIR_SAFETY_VERSION = 1;
+
+/**
+ * True when a saved Stair item predates the current Stair safety
+ * warnings and therefore carries no warning only because warnings
+ * were never persisted for it — it may be over the 151 in limit
+ * without saying so. False for Stair items with warnings, for Stair
+ * items carrying the current safety-review marker, and for non-Stair
+ * items. An unknown or malformed marker is not the current version
+ * (strict equality), so it never falsely identifies a record as
+ * currently reviewed. The record itself is never modified; the
+ * caller only shows a re-check note.
+ */
+export function itemNeedsStairRecheck(item: ProjectItem): boolean {
+  return (
+    item.calculatorSlug === "stair-calculator" &&
+    !itemHasWarnings(item) &&
+    item.stairSafetyVersion !== STAIR_SAFETY_VERSION
+  );
+}
+
 /** Format a project as a plain-text shopping list for copy/export.
  * A partial item cost is shown with its partial label and detail, and
  * a project containing any partial cost totals as a "Partial total
- * (incomplete estimate)" — never as an "Estimated total". */
+ * (incomplete estimate)" — never as an "Estimated total". A safety
+ * warning (Phase 16A, e.g. the Stair 151 in limit) is emitted under
+ * its item, prefixed "Warning: ", so a copied list never presents an
+ * over-limit result as a compliant design. */
 export function formatProjectAsText(project: ProjectData): string {
   if (project.items.length === 0) return "";
   const rooms: string[] = [];
@@ -242,6 +344,9 @@ export function formatProjectAsText(project: ProjectData): string {
     for (const item of project.items.filter((i) => i.room === room)) {
       sections.push(`${item.label}:`);
       for (const line of item.lines) sections.push(`  - ${line}`);
+      for (const warning of item.warnings ?? []) {
+        sections.push(`  ${prefixWarning(warning)}`);
+      }
       if (item.quantity > 1) sections.push(`  Quantity: ${item.quantity}`);
       if (item.costUsd !== undefined) {
         const costLine = `  ${itemCostLabel(item)}: $${itemLineCost(item).toFixed(2)}`;
@@ -264,21 +369,57 @@ export function formatProjectAsText(project: ProjectData): string {
   return sections.join("\n").trimEnd();
 }
 
-/** Escape one CSV cell per RFC 4180. */
+/** Escape one CSV cell per RFC 4180, with a spreadsheet formula-injection guard.
+ *
+ * QA-16A-03 policy (minimal, dependency-free):
+ * - RFC 4180 quoting: any cell containing `,`, `"`, LF (`\n`) or CR (`\r`)
+ *   is double-quoted, with `"` doubled. A CR alone (old-Mac line ending
+ *   or part of a CRLF pair inside user text) is therefore preserved
+ *   inside the quoted cell instead of splitting the row.
+ * - Formula guard: if the cell, after stripping leading whitespace and
+ *   control characters, starts with one of `=`, `+`, `-`, `@`, or the
+ *   cell itself starts with a tab (`\t`) or CR (`\r`), the cell is
+ *   prefixed with a single quote `'` (the standard spreadsheet
+ *   text-marker) BEFORE quoting. The guard applies to every cell, but
+ *   the generated numeric columns (Quantity, Unit cost, Line total)
+ *   contain only digits, `.`, or empty, so they pass through
+ *   unaffected; only user-controlled text (label, room, lines/details,
+ *   cost note, warning) can trigger it.
+ *
+ * Limitations (what this does NOT guarantee):
+ * - Not universal compatibility with every spreadsheet application:
+ *   the leading-quote marker is honoured by Excel, LibreOffice, and
+ *   Google Sheets, but behaviour varies by application and version.
+ * - A user who strips the leading quote, or pastes the value instead
+ *   of opening the CSV, can still trigger a formula.
+ * - It does not protect against other injection vectors (e.g. a
+ *   formula embedded mid-cell, or DDE / macro payloads opened by
+ *   other means) — it only neutralises a formula at the start of a
+ *   cell. Treat exported CSVs as untrusted input, as with any file
+ *   opened in a spreadsheet.
+ */
 export function escapeCsvCell(value: string): string {
-  if (/[",\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
+  let cell = value;
+  const stripped = value.replace(/^[\s\u0000-\u001f\u007f]+/, "");
+  if (/^[=+\-@]/.test(stripped) || value.startsWith("\t") || value.startsWith("\r")) {
+    cell = `'${value}`;
   }
-  return value;
+  if (/[",\n\r]/.test(cell)) {
+    return `"${cell.replace(/"/g, '""')}"`;
+  }
+  return cell;
 }
 
 /**
  * Format a project as CSV for export. One row per item, plus a total
  * row when any item has a cost. Columns: Room, Calculator, Item,
- * Details, Quantity, Unit cost (USD), Line total (USD), Cost note.
- * The Cost note column carries a partial item's label and detail, and
- * a project containing any partial cost totals as a "Partial total
- * (incomplete estimate)" row — never as a plain "Total".
+ * Details, Quantity, Unit cost (USD), Line total (USD), Cost note,
+ * Warning. The Cost note column carries a partial item's label and
+ * detail, and a project containing any partial cost totals as a
+ * "Partial total (incomplete estimate)" row — never as a plain
+ * "Total". The Warning column (Phase 16A) carries an item's safety
+ * warnings joined by "; " — an over-limit Stair result keeps its
+ * warning in the export instead of looking compliant.
  */
 export function formatProjectAsCsv(project: ProjectData): string {
   const header = [
@@ -290,6 +431,7 @@ export function formatProjectAsCsv(project: ProjectData): string {
     "Unit cost (USD)",
     "Line total (USD)",
     "Cost note",
+    "Warning",
   ];
   const rows: string[][] = [header];
   for (const item of project.items) {
@@ -302,6 +444,7 @@ export function formatProjectAsCsv(project: ProjectData): string {
       item.costUsd !== undefined ? item.costUsd.toFixed(2) : "",
       item.costUsd !== undefined ? itemLineCost(item).toFixed(2) : "",
       itemCostNote(item),
+      (item.warnings ?? []).map(prefixWarning).join("; "),
     ]);
   }
   if (projectHasCost(project)) {
@@ -313,6 +456,7 @@ export function formatProjectAsCsv(project: ProjectData): string {
       "",
       "",
       totalProjectCost(project).toFixed(2),
+      "",
       "",
     ]);
   }

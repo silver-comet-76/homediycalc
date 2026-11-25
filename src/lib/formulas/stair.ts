@@ -80,6 +80,15 @@ export function calculateStair(input: StairInput): StairResult {
   const totalRunIn = treadCount * treadDepthIn;
   const stringerLengthIn = Math.sqrt(totalRiseIn ** 2 + totalRunIn ** 2);
   const stairAngleDeg = (Math.atan2(totalRiseIn, totalRunIn) * 180) / Math.PI;
+  // Floating-point noise guard (same 1e-12 relative epsilon as ceilUp,
+  // ADR-11): converting the exact metric boundary 383.54 cm through the
+  // unit engine (cm -> ft via 1/30.48, ft -> in via x12) yields
+  // 151.00000000000003 in — 2.84e-14 above the 151 in limit — so the
+  // strict comparison would warn at the exact boundary. The tolerance
+  // is max(1e-12, 151 * 1e-12) = 1.51e-10 in, far below the smallest
+  // genuine excess the tests cover (383.54001 cm -> 151.0000039 in,
+  // 3.9e-6 above the limit), so a real over-limit rise still warns.
+  const singleFlightTolerance = Math.max(1e-12, MAX_SINGLE_FLIGHT_RISE_IN * 1e-12);
   return {
     riserCount,
     riserHeightIn,
@@ -87,6 +96,6 @@ export function calculateStair(input: StairInput): StairResult {
     totalRunIn,
     stringerLengthIn,
     stairAngleDeg,
-    exceedsSingleFlightLimit: totalRiseIn > MAX_SINGLE_FLIGHT_RISE_IN,
+    exceedsSingleFlightLimit: totalRiseIn > MAX_SINGLE_FLIGHT_RISE_IN + singleFlightTolerance,
   };
 }

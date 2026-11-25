@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calculateStair, MAX_RISER_IN, MAX_SINGLE_FLIGHT_RISE_IN, MIN_TREAD_IN } from "./stair";
+import { convertLength } from "../../lib/units";
 
 describe("calculateStair", () => {
   it("calculates a standard staircase (105 in rise, 10.5 in tread)", () => {
@@ -107,5 +108,82 @@ describe("calculateStair", () => {
     expect(MAX_RISER_IN).toBe(7.75);
     expect(MIN_TREAD_IN).toBe(10);
     expect(MAX_SINGLE_FLIGHT_RISE_IN).toBe(151);
+  });
+
+  describe("single-flight limit boundary (QA-16A-01)", () => {
+    it("does not warn just below the 151 in limit (150.9999 in)", () => {
+      expect(calculateStair({ totalRiseIn: 150.9999 }).exceedsSingleFlightLimit).toBe(false);
+    });
+
+    it("does not warn at exactly the 151 in limit", () => {
+      expect(calculateStair({ totalRiseIn: 151 }).exceedsSingleFlightLimit).toBe(false);
+    });
+
+    it("warns just above the 151 in limit (151.0001 in)", () => {
+      expect(calculateStair({ totalRiseIn: 151.0001 }).exceedsSingleFlightLimit).toBe(true);
+    });
+
+    it("does not warn for 383.5399 cm (150.99996 in, below the limit)", () => {
+      const inches = convertLength(383.5399, "cm", "in");
+      expect(inches).toBeCloseTo(150.99996, 5);
+      expect(calculateStair({ totalRiseIn: inches }).exceedsSingleFlightLimit).toBe(false);
+    });
+
+    it("does not warn for the exact metric boundary 383.54 cm (= 151 in)", () => {
+      // convertLength(383.54, "cm", "in") is 151.00000000000003 in binary
+      // floating point — 2.84e-14 of conversion noise above 151 — so the
+      // strict comparison used to warn here. The 1e-12 relative guard
+      // treats it as at the limit.
+      const inches = convertLength(383.54, "cm", "in");
+      expect(inches).toBeGreaterThan(151);
+      expect(calculateStair({ totalRiseIn: inches }).exceedsSingleFlightLimit).toBe(false);
+    });
+
+    it("warns for 383.5401 cm (151.00004 in, genuinely above the limit)", () => {
+      const inches = convertLength(383.5401, "cm", "in");
+      expect(inches).toBeCloseTo(151.00004, 5);
+      expect(calculateStair({ totalRiseIn: inches }).exceedsSingleFlightLimit).toBe(true);
+    });
+
+    it("warns for 383.54001 cm (151.0000039 in — only 3.9e-6 above the limit)", () => {
+      // The smallest genuine excess in this suite: 3.9e-6 above 151,
+      // ~4 orders of magnitude above the 1.51e-10 tolerance, so it
+      // must still warn.
+      const inches = convertLength(383.54001, "cm", "in");
+      expect(inches - 151).toBeCloseTo(0.0000039, 7);
+      expect(calculateStair({ totalRiseIn: inches }).exceedsSingleFlightLimit).toBe(true);
+    });
+  });
+
+  describe("exact metric equivalents of the tread and riser bounds (QA-16A-01)", () => {
+    it("accepts a tread depth of exactly 25.4 cm (= 10 in minimum)", () => {
+      const treadDepthIn = convertLength(25.4, "cm", "in");
+      expect(treadDepthIn).toBe(10);
+      const r = calculateStair({ totalRiseIn: 105, treadDepthIn });
+      expect(r.treadCount).toBe(13);
+      expect(r.totalRunIn).toBeCloseTo(130, 2);
+    });
+
+    it("rejects a tread depth of 25.39 cm (9.996 in, below the 10 in minimum)", () => {
+      const treadDepthIn = convertLength(25.39, "cm", "in");
+      expect(treadDepthIn).toBeLessThan(10);
+      expect(() => calculateStair({ totalRiseIn: 105, treadDepthIn })).toThrow(/at least 10 in/);
+    });
+
+    it("accepts a maximum riser height of exactly 19.685 cm (= 7.75 in maximum)", () => {
+      // convertLength(19.685, "cm", "in") is 7.749999999999999 in —
+      // 8.9e-16 of conversion noise below 7.75 — so it stays accepted.
+      const maxRiserIn = convertLength(19.685, "cm", "in");
+      expect(maxRiserIn).toBeCloseTo(7.75, 10);
+      const r = calculateStair({ totalRiseIn: 105, maxRiserIn });
+      expect(r.riserCount).toBe(14);
+      expect(r.riserHeightIn).toBeCloseTo(7.5, 2);
+    });
+
+    it("rejects a maximum riser height of 19.686 cm (7.7504 in, above the 7.75 in maximum)", () => {
+      const maxRiserIn = convertLength(19.686, "cm", "in");
+      expect(maxRiserIn).toBeGreaterThan(7.75);
+      expect(() => calculateStair({ totalRiseIn: 105, maxRiserIn })).toThrow(/7.75/);
+    });
   });
 });

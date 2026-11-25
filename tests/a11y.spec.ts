@@ -138,6 +138,27 @@ test("a11y: pressed toggles show a check-mark marker", async ({ page }) => {
   );
 });
 
+test("a11y: inline methodology links are underlined, not color-only", async ({ page }) => {
+  // Phase 16A Task C: Lighthouse flagged link-in-text-block on the
+  // Paint Calculator — the "How we calculate" link in the formula
+  // section relied on color alone (brand-700 on slate-700, 1.41:1
+  // contrast, below the 3:1 minimum) with an underline only on hover.
+  // The link must carry a permanent underline so it is distinguishable
+  // without color (WCAG 1.4.1).
+  await page.goto("/calculators/paint-calculator/");
+  await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+
+  const link = page.locator('section[aria-labelledby="how-calculated"] a', {
+    hasText: "How we calculate",
+  });
+  await expect(link).toBeVisible();
+  const decoration = await link.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return cs.textDecorationLine;
+  });
+  expect(decoration).toContain("underline");
+});
+
 test("a11y: unknown URLs show the custom 404 page", async ({ page }) => {
   // Phase 7, F6: a bad URL renders src/pages/404.astro with a single H1
   // and links back home and to All Calculators.

@@ -6,6 +6,7 @@
 import type { CalculatorConfig } from "../../components/react/CalculatorConfig";
 import { req } from "../../components/react/CalculatorConfig";
 import { calculateStair } from "../../lib/formulas/stair";
+import { convertLength } from "../../lib/units";
 import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
@@ -100,7 +101,10 @@ export const stairConfig: CalculatorConfig = {
           impUnit: "in",
           metUnit: "cm",
           defaultImp: "10.5",
-          defaultMet: "26.7",
+          // Exactly 10.5 in (10.5 × 2.54 = 26.67 cm) so the metric
+          // defaults are the same physical staircase as the imperial
+          // ones — Reset in either system gives identical results.
+          defaultMet: "26.67",
           min: 10,
           hint: "10 in is the IRC minimum (R311.7.5.2); 10.5–11 in is comfortable.",
         },
@@ -118,12 +122,32 @@ export const stairConfig: CalculatorConfig = {
           hint: "7.75 in is the IRC maximum (R311.7.5.1) and the highest value this calculator accepts. Lower it if your local code requires it.",
         },
       ],
-      compute: (v) => {
+      compute: (v, _present, system) => {
         const r = calculateStair({
           totalRiseIn: req(v, "totalRise"),
           treadDepthIn: req(v, "treadDepth"),
           maxRiserIn: req(v, "maxRiser"),
         });
+        // Phase 16A: results respect the selected unit system. The
+        // calculation stays canonical inches; only the presentation
+        // converts, once, through the unit engine — never from an
+        // already-converted display value. Imperial output is
+        // unchanged from before. In metric, lengths show in cm with
+        // the larger measure in m as the detail. The lookup table
+        // stays in inches (a static reference table, out of scope).
+        const metric = system === "metric";
+        /** A canonical-inch length as displayed in the active system. */
+        const len = (inches: number) =>
+          metric ? `${fmt(convertLength(inches, "in", "cm"))} cm` : `${fmt(inches)} in`;
+        /** The larger-scale detail for a length (ft in imperial, m in metric). */
+        const lenDetail = (inches: number) =>
+          metric ? `${fmt(convertLength(inches, "in", "m"))} m` : `${fmt(inches / 12)} ft`;
+        // The max-riser cap is exactly 19.685 cm; fmt to 2 decimals
+        // would show 19.68 (binary floating point), misstating the
+        // cap, so the worked line shows it to 3 decimals.
+        const cap = metric
+          ? `${fmt(convertLength(req(v, "maxRiser"), "in", "cm"), 3)} cm`
+          : `${fmt(req(v, "maxRiser"))} in`;
         return {
           ...(r.exceedsSingleFlightLimit
             ? {
@@ -136,22 +160,22 @@ export const stairConfig: CalculatorConfig = {
             {
               label: "Risers",
               value: `${r.riserCount} risers`,
-              detail: `${fmt(r.riserHeightIn)} in each`,
+              detail: `${len(r.riserHeightIn)} each`,
             },
             {
               label: "Treads",
               value: `${r.treadCount} treads`,
-              detail: `${fmt(req(v, "treadDepth"))} in deep`,
+              detail: `${len(req(v, "treadDepth"))} deep`,
             },
             {
               label: "Total run",
-              value: `${fmt(r.totalRunIn)} in`,
-              detail: `${fmt(r.totalRunIn / 12)} ft`,
+              value: len(r.totalRunIn),
+              detail: lenDetail(r.totalRunIn),
             },
             {
               label: "Stringer length",
-              value: `${fmt(r.stringerLengthIn)} in`,
-              detail: `${fmt(r.stringerLengthIn / 12)} ft`,
+              value: len(r.stringerLengthIn),
+              detail: lenDetail(r.stringerLengthIn),
             },
             {
               label: "Stair angle",
@@ -160,12 +184,12 @@ export const stairConfig: CalculatorConfig = {
             },
           ],
           lines: [
-            `Risers: ${r.riserCount} at ${fmt(r.riserHeightIn)} in each`,
-            `Treads: ${r.treadCount} at ${fmt(req(v, "treadDepth"))} in deep`,
-            `Total run: ${fmt(r.totalRunIn)} in (${fmt(r.totalRunIn / 12)} ft)`,
-            `Stringer length: ${fmt(r.stringerLengthIn)} in (${fmt(r.stringerLengthIn / 12)} ft)`,
+            `Risers: ${r.riserCount} at ${len(r.riserHeightIn)} each`,
+            `Treads: ${r.treadCount} at ${len(req(v, "treadDepth"))} deep`,
+            `Total run: ${len(r.totalRunIn)} (${lenDetail(r.totalRunIn)})`,
+            `Stringer length: ${len(r.stringerLengthIn)} (${lenDetail(r.stringerLengthIn)})`,
           ],
-          workedLine: `${fmt(req(v, "totalRise"))} in ÷ ${fmt(req(v, "maxRiser"))} in max riser = ${r.riserCount} risers at ${fmt(r.riserHeightIn)} in; ${r.treadCount} treads × ${fmt(req(v, "treadDepth"))} in = ${fmt(r.totalRunIn)} in run.`,
+          workedLine: `${len(req(v, "totalRise"))} ÷ ${cap} max riser = ${r.riserCount} risers at ${len(r.riserHeightIn)}; ${r.treadCount} treads × ${len(req(v, "treadDepth"))} = ${len(r.totalRunIn)} run.`,
         };
       },
     },
