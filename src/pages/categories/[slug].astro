@@ -1,9 +1,11 @@
 ---
 import Layout from "../../components/Layout.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import LinkedText from "../../components/LinkedText.astro";
 import { CATEGORIES, getCalculatorsByCategory } from "../../lib/registry";
 import { SHIPPED_CALCULATOR_SLUGS } from "../../calculators/index";
 import type { CategorySlug } from "../../lib/registry";
+import type { LinkedText as LinkedTextType } from "../../lib/linked-text";
 
 const shipped = new Set(SHIPPED_CALCULATOR_SLUGS);
 
@@ -31,17 +33,31 @@ const crumbs = [
  * product claims.
  */
 interface CategoryGuide {
-  about: string[];
-  choosing: string;
-  tips: string[];
-  faq: { q: string; a: string }[];
+  about: (string | LinkedTextType)[];
+  choosing: string | LinkedTextType;
+  tips: (string | LinkedTextType)[];
+  faq: { q: string; a: string | LinkedTextType }[];
 }
 
 const CATEGORY_GUIDES: Record<CategorySlug, CategoryGuide> = {
   painting: {
     about: [
-      "Painting a room starts with two numbers: how much wall you have, and how much paint covers it. The Paint Calculator works from the net wall area — the gross wall area minus the doors and windows you enter — multiplied by the number of coats, divided by the coverage of the paint you buy. Its reference coverage is 350 square feet per gallon, the low end of the 350–400 range on Sherwin-Williams interior latex data sheets, and the field is editable so you can match the can you actually buy.",
-      "The Primer Calculator handles the coat that goes on before the paint. Primer is a separate coat with its own coverage: the calculator defaults to 300 square feet per gallon, between the 400 printed on Sherwin-Williams ProBlock primers and the 250–300 typical of PVA drywall primer on new drywall. It also applies a surface factor, because a bare surface drinks primer faster than a previously painted wall.",
+      [
+        {
+          text: "Painting a room starts with two numbers: how much wall you have, and how much paint covers it. The ",
+        },
+        { text: "Paint Calculator", calc: "paint-calculator" },
+        {
+          text: " works from the net wall area — the gross wall area minus the doors and windows you enter — multiplied by the number of coats, divided by the coverage of the paint you buy. Its reference coverage is 350 square feet per gallon, the low end of the 350–400 range on Sherwin-Williams interior latex data sheets, and the field is editable so you can match the can you actually buy.",
+        },
+      ],
+      [
+        { text: "The " },
+        { text: "Primer Calculator", calc: "primer-calculator" },
+        {
+          text: " handles the coat that goes on before the paint. Primer is a separate coat with its own coverage: the calculator defaults to 300 square feet per gallon, between the 400 printed on Sherwin-Williams ProBlock primers and the 250–300 typical of PVA drywall primer on new drywall. It also applies a surface factor, because a bare surface drinks primer faster than a previously painted wall.",
+        },
+      ],
     ],
     choosing:
       "If the wall is already painted, sound, and staying a similar color, use the Paint Calculator on its own — primer is usually unnecessary there. If the surface is new drywall, bare plaster, bare wood, stained or patched, or you are going from a dark color to a light one, run the Primer Calculator first and then the Paint Calculator. The primer coat is not included in the paint result, and skipping it is the usual reason a first coat looks patchy.",
@@ -67,8 +83,34 @@ const CATEGORY_GUIDES: Record<CategorySlug, CategoryGuide> = {
   },
   "concrete-and-masonry": {
     about: [
-      "Concrete is ordered by volume, and the volume comes from three measurements: length, width, and depth. The Concrete Calculator multiplies them and converts to cubic yards — one cubic yard is 27 cubic feet — while the Concrete Slab Calculator does the same for slabs, patios, and driveways, where the thickness is the depth. Ready-mix is usually sold in quarter-yard increments, so both calculators round the order up to the next quarter yard by default.",
-      "Smaller jobs use bags instead of a truck. The Concrete Bags Calculator gives counts for 40, 60, and 80 lb bags of QUIKRETE Concrete Mix No. 1101, which yield 0.30, 0.45, and 0.60 cubic feet per bag — 45 bags of 80 lb per cubic yard. For walls, the Brick Calculator counts modular bricks (7⅝ by 2¼ by 3⅝ inches with a ⅜ inch mortar joint, 675 per 100 square feet) and the Mortar Calculator works out the mortar volume and bag count, about 8.1 cubic feet of mortar per 1,000 bricks.",
+      [
+        {
+          text: "Concrete is ordered by volume, and the volume comes from three measurements: length, width, and depth. The ",
+        },
+        { text: "Concrete Calculator", calc: "concrete-calculator" },
+        {
+          text: " multiplies them and converts to cubic yards — one cubic yard is 27 cubic feet — while the ",
+        },
+        { text: "Concrete Slab Calculator", calc: "concrete-slab-calculator" },
+        {
+          text: " does the same for slabs, patios, and driveways, where the thickness is the depth. Ready-mix is usually sold in quarter-yard increments, so both calculators round the order up to the next quarter yard by default.",
+        },
+      ],
+      [
+        { text: "Smaller jobs use bags instead of a truck. The " },
+        { text: "Concrete Bags Calculator", calc: "concrete-bags-calculator" },
+        {
+          text: " gives counts for 40, 60, and 80 lb bags of QUIKRETE Concrete Mix No. 1101, which yield 0.30, 0.45, and 0.60 cubic feet per bag — 45 bags of 80 lb per cubic yard. For walls, the ",
+        },
+        { text: "Brick Calculator", calc: "brick-calculator" },
+        {
+          text: " counts modular bricks (7⅝ by 2¼ by 3⅝ inches with a ⅜ inch mortar joint, 675 per 100 square feet) and the ",
+        },
+        { text: "Mortar Calculator", calc: "mortar-calculator" },
+        {
+          text: " works out the mortar volume and bag count, about 8.1 cubic feet of mortar per 1,000 bricks.",
+        },
+      ],
     ],
     choosing:
       "Start with the job, not the product. A slab, patio, or driveway goes to the Concrete Slab Calculator; any other rectangular pour goes to the Concrete Calculator. If the volume is about one or two cubic yards or less, check the Concrete Bags Calculator too — bagged concrete is practical up to about 1–2 cubic yards, and above that ready-mix is usually cheaper. A brick wall needs two calculators in order: the Brick Calculator for the brick count, then the Mortar Calculator for the mortar, because the brick count does not include mortar volume.",
@@ -94,8 +136,32 @@ const CATEGORY_GUIDES: Record<CategorySlug, CategoryGuide> = {
   },
   "flooring-and-tiles": {
     about: [
-      "A floor or wall covering is a counting problem: how much area, how big each piece is, and how much extra for cuts. The Tile Calculator divides the floor area by the area of one tile and adds the waste allowance, then rounds up to whole boxes. The Flooring Calculator does the same for plank flooring sold by the box — laminate runs about 18–24 square feet per box, vinyl plank about 18–30, hardwood about 20–25 — with a default of 20 square feet per box that you can change to match the box you buy.",
-      "Tiles need two more materials, and each has its own calculator. The Grout Calculator works out grout weight from the tile size, joint width, and joint depth — a 10 lb bag covers 156 square feet of 12 by 12 inch tile with ⅛ inch joints — and the Tile Adhesive Calculator works out bags from the trowel notch: a 50 lb bag of CUSTOM VersaBond covers 90–100 square feet with a ¼ by ¼ inch square-notch trowel, and less as the notch gets bigger.",
+      [
+        {
+          text: "A floor or wall covering is a counting problem: how much area, how big each piece is, and how much extra for cuts. The ",
+        },
+        { text: "Tile Calculator", calc: "tile-calculator" },
+        {
+          text: " divides the floor area by the area of one tile and adds the waste allowance, then rounds up to whole boxes. The ",
+        },
+        { text: "Flooring Calculator", calc: "flooring-calculator" },
+        {
+          text: " does the same for plank flooring sold by the box — laminate runs about 18–24 square feet per box, vinyl plank about 18–30, hardwood about 20–25 — with a default of 20 square feet per box that you can change to match the box you buy.",
+        },
+      ],
+      [
+        {
+          text: "Tiles need two more materials, and each has its own calculator. The ",
+        },
+        { text: "Grout Calculator", calc: "grout-calculator" },
+        {
+          text: " works out grout weight from the tile size, joint width, and joint depth — a 10 lb bag covers 156 square feet of 12 by 12 inch tile with ⅛ inch joints — and the ",
+        },
+        { text: "Tile Adhesive Calculator", calc: "tile-adhesive-calculator" },
+        {
+          text: " works out bags from the trowel notch: a 50 lb bag of CUSTOM VersaBond covers 90–100 square feet with a ¼ by ¼ inch square-notch trowel, and less as the notch gets bigger.",
+        },
+      ],
     ],
     choosing:
       "Tiling a floor or wall starts with the Tile Calculator for the tile and box counts, then the Grout Calculator and the Tile Adhesive Calculator for the two materials the tile count does not include. Plank flooring — laminate, vinyl plank, or engineered hardwood — goes to the Flooring Calculator instead, which also estimates underlayment rolls at about 100 square feet per roll. Carpet and sheet vinyl are measured differently and are not covered by these calculators.",
@@ -121,11 +187,36 @@ const CATEGORY_GUIDES: Record<CategorySlug, CategoryGuide> = {
   },
   landscaping: {
     about: [
-      "Landscape materials are sold by volume, and the volume is always the same multiplication: length times width times depth, divided by 27 to get cubic yards. The Gravel Calculator and the Topsoil Calculator both work that way, then convert to weight — gravel at a reference density of 2,800 lb per cubic yard (about 1.4 US tons), topsoil at a default of 2,000 lb per cubic yard for loose, dry screened topsoil. The Mulch Calculator works by volume and bags instead: a standard bag is 2 cubic feet, so one cubic yard is 13.5 bags, and it assumes no density at all, because dry wood mulch runs roughly 400–800 lb per cubic yard depending on type and moisture.",
-      "The Paver Calculator covers the whole patio or walkway job, not just the pavers. It counts the pavers from the area and paver size, then the base gravel, the bedding sand, and the joint sand. The base follows ICPI guidance — 4 inches compacted for a patio or walkway, 8 inches for a residential driveway, plus 2 inches in frost or on clay — with exactly 1 inch of bedding sand under the pavers.",
+      [
+        {
+          text: "Landscape materials are sold by volume, and the volume is always the same multiplication: length times width times depth, divided by 27 to get cubic yards. The ",
+        },
+        { text: "Gravel Calculator", calc: "gravel-calculator" },
+        { text: " and the " },
+        { text: "Topsoil Calculator", calc: "topsoil-calculator" },
+        {
+          text: " both work that way, then convert to weight — gravel at a reference density of 2,800 lb per cubic yard (about 1.4 US tons), topsoil at a default of 2,000 lb per cubic yard for loose, dry screened topsoil. The ",
+        },
+        { text: "Mulch Calculator", calc: "mulch-calculator" },
+        {
+          text: " works by volume and bags instead: a standard bag is 2 cubic feet, so one cubic yard is 13.5 bags, and it assumes no density at all, because dry wood mulch runs roughly 400–800 lb per cubic yard depending on type and moisture.",
+        },
+      ],
+      [
+        { text: "The " },
+        { text: "Paver Calculator", calc: "paver-calculator" },
+        {
+          text: " covers the whole patio or walkway job, not just the pavers. It counts the pavers from the area and paver size, then the base gravel, the bedding sand, and the joint sand. The base follows ICPI guidance — 4 inches compacted for a patio or walkway, 8 inches for a residential driveway, plus 2 inches in frost or on clay — with exactly 1 inch of bedding sand under the pavers.",
+        },
+      ],
     ],
-    choosing:
-      "A driveway or path goes to the Gravel Calculator; a planting bed goes to the Mulch Calculator if you are topping it up, or the Topsoil Calculator if you are raising the level or building a lawn. A patio or walkway goes to the Paver Calculator, which is the only one of the four that also works out the base and the sand — the other three assume the ground underneath is already prepared. If you only need to convert a volume you already know, the Cubic Yard Calculator does that without any material assumptions.",
+    choosing: [
+      {
+        text: "A driveway or path goes to the Gravel Calculator; a planting bed goes to the Mulch Calculator if you are topping it up, or the Topsoil Calculator if you are raising the level or building a lawn. A patio or walkway goes to the Paver Calculator, which is the only one of the four that also works out the base and the sand — the other three assume the ground underneath is already prepared. If you only need to convert a volume you already know, the ",
+      },
+      { text: "Cubic Yard Calculator", calc: "cubic-yard-calculator" },
+      { text: " does that without any material assumptions." },
+    ],
     tips: [
       "Do not measure mulch depth in the pile. Depth should be measured after spreading, not in the heap — a pile settles, and the depth on the bed is what the volume formula needs.",
       "Do not skip the base under pavers. A patio needs 4 inches of compacted base and a driveway needs 8, and crushed base loses about 20% of its volume to compaction, so order 1.25 times the compacted volume. Pavers laid on bare soil sink and shift.",
@@ -148,8 +239,28 @@ const CATEGORY_GUIDES: Record<CategorySlug, CategoryGuide> = {
   },
   measurement: {
     about: [
-      "Every other calculator on this site starts with a measurement, and these four do the measuring. The Square Footage Calculator works out the area of a room or space — rectangle, circle, or triangle — in square feet and square meters. The Cubic Feet Calculator and the Cubic Yard Calculator work out volume from length, width, and depth, and convert between cubic feet, cubic yards, and cubic meters: one cubic yard is exactly 27 cubic feet.",
-      "The Board Foot Calculator measures lumber the way lumber is sold. One board foot is 1 foot by 1 foot by 1 inch — 144 cubic inches, or 1/12 of a cubic foot — and board feet equal thickness in inches times width in inches times length in feet, divided by 12. For planed softwood, the formula uses the nominal dimensions: a “2×4” counts as 2 inches by 4 inches, not its smaller dressed size. For rough hardwood, use the actual thickness.",
+      [
+        {
+          text: "Every other calculator on this site starts with a measurement, and these four do the measuring. The ",
+        },
+        { text: "Square Footage Calculator", calc: "square-footage-calculator" },
+        {
+          text: " works out the area of a room or space — rectangle, circle, or triangle — in square feet and square meters. The ",
+        },
+        { text: "Cubic Feet Calculator", calc: "cubic-feet-calculator" },
+        { text: " and the " },
+        { text: "Cubic Yard Calculator", calc: "cubic-yard-calculator" },
+        {
+          text: " work out volume from length, width, and depth, and convert between cubic feet, cubic yards, and cubic meters: one cubic yard is exactly 27 cubic feet.",
+        },
+      ],
+      [
+        { text: "The " },
+        { text: "Board Foot Calculator", calc: "board-foot-calculator" },
+        {
+          text: " measures lumber the way lumber is sold. One board foot is 1 foot by 1 foot by 1 inch — 144 cubic inches, or 1/12 of a cubic foot — and board feet equal thickness in inches times width in inches times length in feet, divided by 12. For planed softwood, the formula uses the nominal dimensions: a “2×4” counts as 2 inches by 4 inches, not its smaller dressed size. For rough hardwood, use the actual thickness.",
+        },
+      ],
     ],
     choosing:
       "Measuring a floor or a wall goes to the Square Footage Calculator; measuring a volume — a hole to fill, a bin, a truck bed — goes to the Cubic Feet Calculator or the Cubic Yard Calculator, depending on which unit you want the answer in. Lumber goes to the Board Foot Calculator. The results feed straight into the material calculators: the square footage into paint, tile, and flooring, the cubic yards into concrete, gravel, mulch, and topsoil.",
@@ -175,11 +286,48 @@ const CATEGORY_GUIDES: Record<CategorySlug, CategoryGuide> = {
   },
   "interior-and-maintenance": {
     about: [
-      "This category covers the finishing jobs: the walls, the ceiling, and the trim that make a room look done, plus the sealing and waterproofing that keep it that way. The Drywall Calculator counts sheets for walls and ceilings — a standard sheet is 4 by 8 feet, 32 square feet — and estimates the joint compound (about 100 square feet per gallon for a Level 4 three-coat finish), the tape (about 370 linear feet per 1,000 square feet), and the screws (about 28 per sheet on walls, 35 on ceilings). The Ceiling Tile Calculator counts 2 by 2 or 2 by 4 foot drop-ceiling tiles and cartons, plus the grid: main beams on 4 foot centers, cross tees 2 feet apart, hanger wires 4 feet apart.",
-      "The Wallpaper Calculator counts strips and rolls — a US double roll is 20.5 inches by 33 feet, 56.4 square feet — from the wall length, the wall height, and the pattern repeat. The Sealant Calculator counts tubes from the joint length and bead size: a standard 10.1 fluid ounce cartridge covers 24.3 linear feet at a ¼ by ¼ inch bead. The Waterproofing Calculator covers liquid membrane at 110 square feet per gallon per coat for RedGard, with two coats as the minimum, or sheet membrane by the roll. The Baseboard Calculator counts linear feet and pieces from the wall length minus the doors, in the 8, 12, and 16 foot stock lengths most home centers carry.",
+      [
+        {
+          text: "This category covers the finishing jobs: the walls, the ceiling, and the trim that make a room look done, plus the sealing and waterproofing that keep it that way. The ",
+        },
+        { text: "Drywall Calculator", calc: "drywall-calculator" },
+        {
+          text: " counts sheets for walls and ceilings — a standard sheet is 4 by 8 feet, 32 square feet — and estimates the joint compound (about 100 square feet per gallon for a Level 4 three-coat finish), the tape (about 370 linear feet per 1,000 square feet), and the screws (about 28 per sheet on walls, 35 on ceilings). The ",
+        },
+        { text: "Ceiling Tile Calculator", calc: "ceiling-tile-calculator" },
+        {
+          text: " counts 2 by 2 or 2 by 4 foot drop-ceiling tiles and cartons, plus the grid: main beams on 4 foot centers, cross tees 2 feet apart, hanger wires 4 feet apart.",
+        },
+      ],
+      [
+        { text: "The " },
+        { text: "Wallpaper Calculator", calc: "wallpaper-calculator" },
+        {
+          text: " counts strips and rolls — a US double roll is 20.5 inches by 33 feet, 56.4 square feet — from the wall length, the wall height, and the pattern repeat. The ",
+        },
+        { text: "Sealant Calculator", calc: "sealant-calculator" },
+        {
+          text: " counts tubes from the joint length and bead size: a standard 10.1 fluid ounce cartridge covers 24.3 linear feet at a ¼ by ¼ inch bead. The ",
+        },
+        { text: "Waterproofing Calculator", calc: "waterproofing-calculator" },
+        {
+          text: " covers liquid membrane at 110 square feet per gallon per coat for RedGard, with two coats as the minimum, or sheet membrane by the roll. The ",
+        },
+        { text: "Baseboard Calculator", calc: "baseboard-calculator" },
+        {
+          text: " counts linear feet and pieces from the wall length minus the doors, in the 8, 12, and 16 foot stock lengths most home centers carry.",
+        },
+      ],
     ],
-    choosing:
-      "New walls or ceilings go to the Drywall Calculator; a suspended ceiling goes to the Ceiling Tile Calculator instead. Papered walls go to the Wallpaper Calculator — or to the Paint Calculator in the Painting category if you are painting instead. Joints and gaps go to the Sealant Calculator, showers and other wet areas go to the Waterproofing Calculator, and the trim that finishes a new floor goes to the Baseboard Calculator, which pairs with the Flooring Calculator in the Flooring and Tiles category.",
+    choosing: [
+      {
+        text: "New walls or ceilings go to the Drywall Calculator; a suspended ceiling goes to the Ceiling Tile Calculator instead. Papered walls go to the Wallpaper Calculator — or to the ",
+      },
+      { text: "Paint Calculator", calc: "paint-calculator" },
+      {
+        text: " in the Painting category if you are painting instead. Joints and gaps go to the Sealant Calculator, showers and other wet areas go to the Waterproofing Calculator, and the trim that finishes a new floor goes to the Baseboard Calculator, which pairs with the Flooring Calculator in the Flooring and Tiles category.",
+      },
+    ],
     tips: [
       "Do not deduct doors and windows from wallpaper. A strip crossing an opening is still cut full length, and the pattern-repeat waste is already built into the strip length — deducting the openings understates the rolls. Area division would have said 9 rolls for the worked example room; the strip method says 12.",
       "Do not stop waterproofing at one coat. Two coats is the minimum for a liquid membrane: one coat, however thick, does not reach the rated dry-film thickness, and the second coat is what makes the film continuous.",
@@ -244,7 +392,9 @@ const guide = CATEGORY_GUIDES[category.slug as CategorySlug];
     </h2>
     {
       guide.about.map((para) => (
-        <p class="mt-3 max-w-3xl text-slate-600">{para}</p>
+        <p class="mt-3 max-w-3xl text-slate-600">
+          {typeof para === "string" ? para : <LinkedText text={para} />}
+        </p>
       ))
     }
   </section>
@@ -253,7 +403,9 @@ const guide = CATEGORY_GUIDES[category.slug as CategorySlug];
     <h2 id="choosing-calculator" class="text-2xl font-bold text-slate-900">
       Which calculator do you need?
     </h2>
-    <p class="mt-3 max-w-3xl text-slate-600">{guide.choosing}</p>
+    <p class="mt-3 max-w-3xl text-slate-600">
+      {typeof guide.choosing === "string" ? guide.choosing : <LinkedText text={guide.choosing} />}
+    </p>
   </section>
 
   <section aria-labelledby="common-mistakes" class="mt-10">
@@ -262,7 +414,7 @@ const guide = CATEGORY_GUIDES[category.slug as CategorySlug];
     </h2>
     <ul class="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-slate-600">
       {guide.tips.map((tip) => (
-        <li>{tip}</li>
+        <li>{typeof tip === "string" ? tip : <LinkedText text={tip} />}</li>
       ))}
     </ul>
   </section>
@@ -275,7 +427,9 @@ const guide = CATEGORY_GUIDES[category.slug as CategorySlug];
       guide.faq.map((item) => (
         <div class="mt-4 max-w-3xl">
           <h3 class="font-semibold text-slate-900">{item.q}</h3>
-          <p class="mt-1 text-slate-600">{item.a}</p>
+          <p class="mt-1 text-slate-600">
+            {typeof item.a === "string" ? item.a : <LinkedText text={item.a} />}
+          </p>
         </div>
       ))
     }
