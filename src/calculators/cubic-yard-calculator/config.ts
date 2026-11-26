@@ -31,6 +31,8 @@ function resultRows(r: ReturnType<typeof calculateCubicYardFromDimensions>) {
 
 export const cubicYardConfig: CalculatorConfig = {
   slug: "cubic-yard-calculator",
+  designCplus: true,
+  heroResultLabel: "Cubic yards",
   lookupTable: {
     note: "Volumes are entered in cubic feet and converted, with 1 yd³ equal to 27 ft³.",
     headers: ["Volume", "Cubic yards", "Cubic feet", "Cubic meters", "Liters", "US gallons"],
