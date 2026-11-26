@@ -108,7 +108,7 @@ export const concreteConfig: CalculatorConfig = {
       id: "waste-allowance",
       heading: "What the waste allowance is actually paying for",
       takeaway:
-        "The waste allowance pays for real concrete lost to spillage, over-excavation, forms spreading, and 1–2% shrinkage as it hardens — not for bad arithmetic. NRMCA CIP 31 advises ordering about 4% to 10% more than the plan volume; this calculator defaults to 10%, the top of that range. Use 5% for a large, simple slab on checked level ground and 15% for irregular excavation. Note which volume you are reading: “Volume” is the theoretical hole, “With waste” is what to buy — for a 10×10 slab, 1.23 yd³ vs 1.36 yd³, and 45 vs 50 bags of 80 lb mix per yard.",
+        "The waste allowance pays for real concrete lost to spillage, over-excavation, forms spreading, and 1–2% shrinkage as it hardens — not for bad arithmetic. NRMCA CIP 31 advises ordering about 4% to 10% more than the plan volume; this calculator defaults to 10%, the top of that range. Use 5% for a large, simple slab on checked level ground and 15% for irregular excavation. Note which volume you are reading: “Volume” is the theoretical hole, “With waste” is the calculated requirement — for a 10×10 ft slab, 4 in thick, at 10% waste, that is 1.23 yd³ before waste and 1.36 yd³ after. The 1.36 yd³ is what the slab needs; the 1.5 yd³ ready-mix order is that figure rounded up to the supplier’s quarter-yard increment. Same split for bags: 45 vs 50 bags of 80 lb mix per yard.",
       blocks: [
         {
           type: "paragraph",
