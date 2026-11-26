@@ -91,8 +91,15 @@ export const cubicFeetConfig: CalculatorConfig = {
     },
     {
       question: "What is the difference between this and the Cubic Yard Calculator?",
-      answer:
-        "This calculator is for working out a volume from dimensions, with each dimension in its own unit, and its main answer is cubic feet. The Cubic Yard Calculator is for converting a volume you already know between units, and its main answer is cubic yards.",
+      answer: [
+        {
+          text: "This calculator is for working out a volume from dimensions, with each dimension in its own unit, and its main answer is cubic feet. The ",
+        },
+        { text: "Cubic Yard Calculator", calc: "cubic-yard-calculator" },
+        {
+          text: " is for converting a volume you already know between units, and its main answer is cubic yards.",
+        },
+      ],
     },
   ],
   modes: [
