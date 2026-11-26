@@ -136,6 +136,8 @@ const COMMON_FIELDS = [
 
 export const flooringConfig: CalculatorConfig = {
   slug: "flooring-calculator",
+  designCplus: true,
+  heroResultLabel: "Boxes needed",
   lookupTable: {
     note: "Assumes 20 ft² per box, underlayment included at 100 ft² per roll, and 10% waste.",
     headers: ["Room size", "Floor area", "Boxes needed", "Underlayment rolls"],
