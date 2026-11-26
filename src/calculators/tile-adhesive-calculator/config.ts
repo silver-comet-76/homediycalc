@@ -122,7 +122,11 @@ export const tileAdhesiveConfig: CalculatorConfig = {
     "60–67 ft² with a 1/4 × 3/8 in notch, and 42–47 ft² with a 1/2 × 1/2 in notch (TDS-119). The calculator uses the low end of each range, " +
     "scales it by the bag weight you buy, and adds about 35% when you back-butter.",
   howTo: [
-    "Measure the tiled area in square feet — the same area you used for the Tile Calculator.",
+    [
+      { text: "Measure the tiled area in square feet — the same area you used for the " },
+      { text: "Tile Calculator", calc: "tile-calculator" },
+      { text: "." },
+    ],
     "Pick the trowel notch for your tile size: 3/16 in V-notch for mosaic, 1/4 × 1/4 in square for tile up to 8 in, 1/4 × 3/8 in for 8 to 15 in, 1/2 × 1/2 in for large format over 15 in.",
     "Back-butter tile over 15 inches and all wet or exterior installs — spread a skim coat on the tile back as well as the floor. It uses about 35% more adhesive.",
     "Check the coverage printed on the bag you buy. Lightweight mortars cover more per pound, and an uneven substrate eats coverage fast.",
@@ -130,11 +134,15 @@ export const tileAdhesiveConfig: CalculatorConfig = {
   ],
   workedExample:
     "100 ft² of floor tile with a 1/4 × 1/4 in square-notch trowel: at 90 ft² per 50 lb bag and 10% waste, " +
-    "100 × 1.10 ÷ 90 = 1.22 bags, so buy 2 bags (100 lb). With a 1/2 × 1/2 in notch the same floor needs 6 bags.",
+    "100 × 1.10 ÷ 90 = 1.22 bags, so buy 2 bags (100 lb). With a 1/2 × 1/2 in notch the same floor needs 3 bags (100 × 1.10 ÷ 42 = 2.62 → 3 bags, 150 lb).",
   limitations: [
     "Coverage figures are the low ends of CUSTOM's VersaBond chart for one product. Other brands, modified vs. unmodified mortars, and lightweight mixes cover differently — the coverage on your bag is the final word.",
     "An uneven substrate, a heavily ridged tile back, or 95% coverage in a wet area can pull coverage 10–20% below the chart. The waste allowance only partly covers this.",
-    "Does not include grout (see the Grout Calculator), backer board, or the thinset used to set the backer board itself.",
+    [
+      { text: "Does not include grout (see the " },
+      { text: "Grout Calculator", calc: "grout-calculator" },
+      { text: "), backer board, or the thinset used to set the backer board itself." },
+    ],
     "Mixed thinset cannot be stored — buy whole bags and mix only what you can set before it skins over.",
   ],
   faqs: [
