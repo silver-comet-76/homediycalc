@@ -138,10 +138,12 @@ jobs:
           node scripts/measure-ui-stage1.mjs . 4321 /tmp/phase17b1-ui-measure after
           pkill -f "astro preview" || true
           ls -la /tmp/phase17b1-ui-measure/
-      - name: Check out the Phase 17B1 baseline (PR #16 head 9acf474e)
+      - name: Check out the Phase 17B1 baseline (exact SHA 9acf474e)
+        # QA-17B1-UI corrective: pin the immutable commit SHA, not the
+        # mutable branch name, so the baseline can never drift.
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: phase-17b1-seo-depth-internal-links
+          ref: 9acf474ee7278628a3dc32122b49d14906b6a643
       - name: Restore the measure script into the baseline tree
         run: |
           mkdir -p scripts
