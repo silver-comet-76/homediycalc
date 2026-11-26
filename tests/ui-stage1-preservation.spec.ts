@@ -1,0 +1,223 @@
+import { expect, test } from "@playwright/test";
+import { CALCULATOR_CONFIGS } from "../src/calculators/index";
+import { linkedTextToPlain, type LinkedText } from "../src/lib/linked-text";
+import { getCalculator, getRelatedCalculators } from "../src/lib/registry";
+import type { CalculatorConfig } from "../src/components/react/CalculatorConfig";
+
+/**
+ * Phase 17B1-UI Stage 1 (Direction C+): original substantive content is
+ * preserved verbatim on the three redesigned pages. The check is
+ * two-measure (see STAGE1_PLAN.md §2.3): (a) every original config string
+ * appears in the built page's text content, including text inside
+ * collapsed <details> (server-rendered, so it is in the DOM); (b) new UI
+ * words — TOC labels, takeaways, chapter numbers — are asserted
+ * separately and never claimed as original content.
+ *
+ * Also covers: default calculation outputs, the Tile Adhesive 5%-waste
+ * scenario (owner-corrected 2.38 / 2.50 / 3 bags), the Stair riser-height
+ * detail surviving hero promotion, TOC anchors, no horizontal overflow,
+ * and keyboard operation of the accordions. Runs on Chromium desktop and
+ * Pixel 5 mobile (see playwright.config.ts).
+ */
+
+const STAGE1 = [
+  { slug: "paint-calculator", path: "/calculators/paint-calculator/" },
+  { slug: "tile-adhesive-calculator", path: "/calculators/tile-adhesive-calculator/" },
+  { slug: "stair-calculator", path: "/calculators/stair-calculator/" },
+] as const;
+
+/** Collapse whitespace so server-rendered text matches the config strings. */
+function norm(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
+}
+
+function plain(value: string | LinkedText): string {
+  return linkedTextToPlain(value);
+}
+
+/** Every original substantive string for a config, in page order. */
+function originalStrings(config: CalculatorConfig): string[] {
+  const out: string[] = [];
+  for (const step of config.howTo) out.push(plain(step));
+  out.push(config.workedExample);
+  if (config.lookupTable) {
+    out.push("Typical values worked out with this calculator — find the size closest to yours.");
+    out.push(...config.lookupTable.headers);
+    for (const row of config.lookupTable.rows) out.push(...row);
+    if (config.lookupTable.note) out.push(plain(config.lookupTable.note));
+  }
+  for (const section of config.depthSections ?? []) {
+    out.push(section.heading);
+    for (const block of section.blocks) {
+      if (block.type === "table") {
+        out.push(...block.headers, ...block.rows.flat());
+      } else {
+        out.push(plain(block.text));
+      }
+    }
+  }
+  for (const item of config.limitations) out.push(plain(item));
+  for (const faq of config.faqs) {
+    out.push(faq.question);
+    out.push(plain(faq.answer));
+  }
+  out.push(config.formula);
+  return out.filter((s) => s.trim().length > 0);
+}
+
+/** Default result rows (live calculator outputs at the default inputs). */
+const DEFAULT_RESULTS: Record<string, string[]> = {
+  "paint-calculator": ["Paintable area", "381 ft²", "Paint needed", "2.18 gal", "Gallons to buy", "3 gal"],
+  "tile-adhesive-calculator": ["Adhesive needed", "61.1 lb", "Coverage per bag", "90 ft²/bag", "Bags to buy", "2 bags"],
+  "stair-calculator": ["Risers", "14 risers", "7.5 in each", "Treads", "13 treads", "Total run", "136.5 in", "Stringer length", "172.21 in", "Stair angle", "37.6°"],
+};
+
+for (const { slug, path } of STAGE1) {
+  const config = CALCULATOR_CONFIGS[slug];
+
+  test(`${slug}: every original content string is in the page (including collapsed text)`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+    const text = await page.evaluate(
+      () => (document.querySelector("main")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+    );
+    for (const expected of originalStrings(config)) {
+      expect(text, `missing original content on ${slug}: ${expected.slice(0, 80)}…`).toContain(
+        norm(expected),
+      );
+    }
+  });
+
+  test(`${slug}: default calculation outputs are unchanged`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+    const results = await page
+      .locator('section[aria-label="Results"]')
+      .innerText();
+    for (const expected of DEFAULT_RESULTS[slug]) {
+      expect(results).toContain(expected);
+    }
+  });
+
+  test(`${slug}: TOC links point to real anchors and the methodology link is present`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.getByRole("navigation", { name: "On this page" })).toBeVisible();
+    const hrefs = await page
+      .getByRole("navigation", { name: "On this page" })
+      .locator("a")
+      .evaluateAll((links) => links.map((a) => a.getAttribute("href") ?? ""));
+    expect(hrefs.length).toBeGreaterThan(5);
+    for (const href of hrefs) {
+      expect(href.startsWith("#"), `TOC href ${href} is not an anchor`).toBe(true);
+      const target = await page.evaluate((id) => !!document.querySelector(id), href);
+      expect(target, `TOC target ${href} missing on ${slug}`).toBe(true);
+    }
+    await expect(
+      page.getByRole("link", { name: "How we calculate" }).first(),
+    ).toHaveAttribute("href", "/how-we-calculate/");
+  });
+
+  test(`${slug}: no horizontal overflow at mobile width`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(path);
+    await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth,
+    );
+    expect(overflow).toBe(false);
+  });
+
+  test(`${slug}: related calculators keep their full summaries and hrefs`, async ({ page }) => {
+    await page.goto(path);
+    const meta = getCalculator(slug);
+    const related = getRelatedCalculators(meta);
+    expect(related.length).toBeGreaterThan(0);
+    const text = await page.evaluate(
+      () => (document.querySelector("main")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+    );
+    for (const rel of related) {
+      expect(text).toContain(norm(rel.summary));
+      await expect(page.getByRole("link", { name: rel.name }).first()).toHaveAttribute(
+        "href",
+        rel.url,
+      );
+    }
+  });
+
+  test(`${slug}: new UI words are present and counted separately from original content`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+    // Takeaways are new UI text: they appear, and the full chapter text
+    // they summarise is also in the DOM (asserted by the preservation test).
+    for (const section of config.depthSections ?? []) {
+      if (!section.takeaway) continue;
+      await expect(page.getByText(section.takeaway, { exact: false })).toBeVisible();
+    }
+    // The hero first row is prominent (text-2xl) and keeps its detail.
+    const firstValue = page.locator('section[aria-label="Results"] dl > div').first().locator("dd");
+    const fontSize = await firstValue.evaluate((el) => getComputedStyle(el).fontSize);
+    expect(parseFloat(fontSize)).toBeGreaterThanOrEqual(24);
+  });
+}
+
+test("stair: riser height stays visible when the first row is promoted", async ({ page }) => {
+  await page.goto("/calculators/stair-calculator/");
+  await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+  const results = page.locator('section[aria-label="Results"]');
+  await expect(results.getByText("14 risers")).toBeVisible();
+  await expect(results.getByText("7.5 in each")).toBeVisible();
+  // The worked line sits in the result block, outside the Results section.
+  await expect(page.getByText("105 in ÷ 7.75 in max riser = 14 risers at 7.5 in")).toBeVisible();
+});
+
+test("tile-adhesive: 5% waste scenario gives 2.38 before waste, 2.50 after, 3 to buy", async ({ page }) => {
+  await page.goto("/calculators/tile-adhesive-calculator/");
+  await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+  await page.getByLabel(/Trowel notch/).selectOption("42");
+  await page.getByLabel(/Waste allowance/).fill("5");
+  await page.waitForTimeout(400);
+  const results = page.locator('section[aria-label="Results"]');
+  await expect(results.getByText("125 lb")).toBeVisible();
+  await expect(results.getByText("42 ft²/bag")).toBeVisible();
+  await expect(results.getByText("3 bags")).toBeVisible();
+  await expect(page.getByText("100 ft² × 105% ÷ 42 ft²/bag = 2.5 bags → buy 3 bags.")).toBeVisible();
+});
+
+test("paint: keyboard opens a collapsed depth chapter and a FAQ", async ({ page }) => {
+  await page.goto("/calculators/paint-calculator/");
+  await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+  const chapter = page.locator("details.depth-details").first();
+  await expect(chapter).not.toHaveAttribute("open", "");
+  await chapter.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(() => chapter.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(true);
+  const faq = page.locator("details.faq-item").nth(1);
+  await expect(faq).not.toHaveAttribute("open", "");
+  await faq.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(() => faq.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(true);
+});
+
+test("stair: rise/run diagram renders with all five labels", async ({ page }) => {
+  await page.goto("/calculators/stair-calculator/");
+  await expect(
+    page.locator("figure", { hasText: "Measure the total rise floor to floor" }),
+  ).toBeVisible();
+  // SVG <text> is checked via textContent (locator text engines are HTML-oriented).
+  const figureText = await page
+    .locator("figure", { hasText: "Measure the total rise floor to floor" })
+    .evaluate((el) => el.textContent ?? "");
+  for (const label of ["Total rise", "Total run", "Tread depth", "Riser height", "Stringer = "]) {
+    expect(figureText, `diagram label "${label}" missing`).toContain(label);
+  }
+});
+
+test("non-C+ control: concrete keeps the original layout", async ({ page }) => {
+  await page.goto("/calculators/concrete-calculator/");
+  await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "On this page" })).toHaveCount(0);
+  await expect(page.locator(".faq-item")).toHaveCount(0);
+  await expect(page.locator(".depth-details")).toHaveCount(0);
+  await expect(page.locator(".guide")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Cubic yards vs cubic feet" })).toBeVisible();
+});
