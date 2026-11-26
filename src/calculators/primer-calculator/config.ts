@@ -114,6 +114,8 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const primerConfig: CalculatorConfig = {
   slug: "primer-calculator",
+  designCplus: true,
+  heroResultLabel: "Gallons to buy",
   lookupTable: {
     note: "Assumes 8 ft ceilings, 1 coat, 300 ft²/gal coverage, new drywall or bare plaster (×1.20), 10% waste, 1 door (21 ft²) and 2 windows (15 ft² each).",
     headers: ["Room size", "Wall area to prime", "Primer needed", "Gallons to buy"],
