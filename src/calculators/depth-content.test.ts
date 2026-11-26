@@ -230,6 +230,64 @@ describe("depth table figures recompute from the formulas", () => {
   });
 });
 
+/** Plain text of the paragraphs in one named depth section. */
+function depthSectionText(slug: string, sectionId: string): string {
+  const config = CALCULATOR_CONFIGS[slug];
+  const section = config?.depthSections?.find((s) => s.id === sectionId);
+  expect(section, `${slug} is missing depth section ${sectionId}`).toBeDefined();
+  const parts: string[] = [section?.heading ?? ""];
+  for (const block of section?.blocks ?? []) {
+    if (block.type === "paragraph") parts.push(linkedTextToPlain(block.text));
+  }
+  return parts.join("\n");
+}
+
+describe("corrective round QA-17B1 (2026-11-26)", () => {
+  it("QA-17B1-01 drywall: 54 in panels need two horizontal courses with one seam — never a single sheet with no joint", () => {
+    const text = depthSectionText("drywall-calculator", "sheet-sizes-thicknesses");
+    expect(text).toContain("two horizontal courses");
+    expect(text).toContain("108 in wall height");
+    expect(text).toContain("one horizontal seam");
+    expect(text).toContain("filler strip");
+    // The false claim must not come back in any form:
+    expect(text).not.toContain("single sheet spans floor to ceiling");
+    expect(text).not.toContain("no horizontal joint");
+    expect(text).not.toContain("one person can carry it");
+    // The same carry claim also lived in the sheet-size input hint:
+    const hints = (CALCULATOR_CONFIGS["drywall-calculator"]?.modes ?? []).flatMap(
+      (mode) => mode.fields,
+    );
+    expect(hints.length).toBeGreaterThan(0);
+    for (const field of hints) {
+      expect(field.hint ?? "").not.toContain("one person can carry it");
+    }
+    expect(hints.find((field) => field.id === "sheetSize")?.hint ?? "").toContain(
+      "common DIY size",
+    );
+  });
+
+  it("QA-17B1-02 tile adhesive: the 3-bag figure is a conditional estimate, and the ½×½ in square-notch is not recommended", () => {
+    const tileText = depthText("tile-calculator");
+    expect(tileText).toContain("conditional estimate at CUSTOM's chart coverage");
+    expect(tileText).toContain("excludes back-troweling material");
+    const groutText = depthText("grout-calculator");
+    expect(groutText).toContain("conditional estimate at CUSTOM's chart coverage");
+    expect(groutText).toContain("excluding back-troweling material");
+  });
+
+  it("QA-17B1-03 paint: the 12×12 example states its opening deductions, and the 9 ft comparison reuses them", () => {
+    const threeGallons = depthSectionText("paint-calculator", "three-gallon-numbers");
+    expect(threeGallons).toContain("333 ft²");
+    expect(threeGallons).toContain("one 21 ft² door and two 15 ft² windows");
+    expect(threeGallons).toContain("1.90 gal");
+    expect(threeGallons).toContain("2.09 gal");
+    expect(threeGallons).toContain("quarts are available for many paints");
+    const wallArea = depthSectionText("paint-calculator", "wall-area-not-floor-area");
+    expect(wallArea).toContain("same one-door and two-window deductions");
+    expect(wallArea).toContain("2.39 gal");
+  });
+});
+
 describe("Stair depth content preserves the Phase 16A safety wording", () => {
   it("states the 151 in boundary and the metric boundary in the same terms as the calculator", () => {
     const text = depthText("stair-calculator");
