@@ -209,6 +209,8 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const paverConfig: CalculatorConfig = {
   slug: "paver-calculator",
+  designCplus: true,
+  heroResultLabel: "Pavers needed",
   lookupTable: {
     note: "Assumes 12 × 12 in pavers, 2⅜ in thick, a ⅛ in joint, 10% waste, a 4 in compacted gravel base at 2,800 lb/yd³, 1 in of bedding sand, and joint sand at 100 lb/ft³ in 50 lb bags.",
     headers: ["Patio size", "Pavers needed", "Base gravel to order", "Bedding sand", "Joint sand"],
@@ -257,6 +259,9 @@ export const paverConfig: CalculatorConfig = {
     },
     {
       question: "How thick is the sand under pavers?",
+      // Safety-critical and appears nowhere else in default-visible
+      // content, so this FAQ stays open by default.
+      openByDefault: true,
       answer:
         "Exactly 1 inch of coarse, washed concrete sand (ASTM C33), screeded smooth and left uncompacted until the pavers are vibrated into it. Deeper bedding ruts under load; thinner bedding leaves pavers rocking. Do not use masonry sand or stone dust for bedding.",
     },
