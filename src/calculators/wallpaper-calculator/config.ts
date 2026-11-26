@@ -113,6 +113,8 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const wallpaperConfig: CalculatorConfig = {
   slug: "wallpaper-calculator",
+  designCplus: true,
+  heroResultLabel: "Rolls to buy",
   lookupTable: {
     note: "Assumes 8 ft walls, US double rolls (20.5 in × 33 ft), an 18 in pattern repeat, and 10% waste.",
     headers: ["Room size", "Strips needed", "Strip length", "Strips per roll", "Rolls to buy"],
@@ -151,6 +153,8 @@ export const wallpaperConfig: CalculatorConfig = {
     {
       id: "count-strips-not-square-feet",
       heading: "Count strips, not square feet — why area math under-orders",
+      takeaway:
+        "Wallpaper hangs in whole strips, so the roll count is decided by strips, not by area — area division under-orders on every patterned paper. Strips = wall length ÷ roll width, rounded up; each strip is wall height + pattern repeat + 4 in trim; strips per roll = roll length ÷ strip length, rounded down; rolls = strips (plus waste) ÷ strips per roll, rounded up. For the 12×15 ft room with 8 ft walls and an 18 in repeat: 54 ft of wall needs 32 strips of 9.83 ft; a 33 ft double roll yields 3 strips; with 10% waste that is 36 strips — 12 double rolls. Dividing wall area by roll area would have said 9 rolls — 3 rolls short, discovered halfway up the last wall, when the shop may not have your dye lot any more.",
       blocks: [
         {
           type: "paragraph",
@@ -181,6 +185,8 @@ export const wallpaperConfig: CalculatorConfig = {
     {
       id: "how-pattern-repeat-eats-rolls",
       heading: "How the pattern repeat eats rolls (the mechanism, without invented percentages)",
+      takeaway:
+        "The pattern repeat is the vertical distance after which the pattern starts over, printed on the roll label in inches. Each strip is cut one full repeat longer than the wall is high: strip length = wall height + pattern repeat + 4 in trim. A longer repeat makes every strip longer, fewer strips per roll, and more rolls — a 27 in repeat on a 9 ft wall can drop a roll from three strips to two, a third of its output. A plain or random-match paper has a repeat of 0 and wastes the least. No percentage allowance is given on this page, deliberately: the 10% / 15–20% / 20–25% figures on third-party pages are rules of thumb, not manufacturer guidance — no manufacturer publishes a numeric allowance, and Graham & Brown’s support page confirms only that the repeat must be allowed for, without a number. This calculator assumes straight-match paper; half-drop (drop-match) papers can waste more — check the label, and if yours is a drop match, treat the answer as a minimum and buy an extra roll. The 10% waste allowance is separate from the repeat and covers cutting mistakes and damaged strips — do not add a second allowance for the repeat.",
       blocks: [
         {
           type: "paragraph",
@@ -219,6 +225,8 @@ export const wallpaperConfig: CalculatorConfig = {
     {
       id: "when-no-strip-fits",
       heading: "When no strip fits on the roll",
+      takeaway:
+        "If the wall plus the pattern repeat is longer than the roll, no full strip fits — the calculator returns zero rolls and says so, rather than inventing a number. A 10 ft wall with a 27 in repeat needs 12.58 ft strips, which still fits a 33 ft double roll (2 strips), but a 12 ft stairwell wall with a 36 in repeat needs 15.33 ft strips, and a 16.5 ft single roll yields exactly one strip with almost nothing left over. Fixes, in order: choose a longer roll; choose a paper with a smaller repeat; or measure the tall wall strip by strip — a stairwell or sloped ceiling is not a rectangle and the room perimeter is the wrong length for it. Sloped ceilings, stairwells, and feature walls all need to be measured strip by strip.",
       blocks: [
         {
           type: "paragraph",
