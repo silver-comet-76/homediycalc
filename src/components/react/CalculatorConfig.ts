@@ -14,6 +14,24 @@
  */
 
 import type { ResultRow, UnitSystem } from "./CalculatorInputs";
+import type { LinkedText } from "../../lib/linked-text";
+
+/** One block inside a depth section: a paragraph or a table. */
+export type DepthBlock =
+  { type: "paragraph"; text: LinkedText } | { type: "table"; headers: string[]; rows: string[][] };
+
+/**
+ * One "go deeper" section below the calculator on a calculator page
+ * (Phase 17B-1 content depth). Headings render as H2s in the order given;
+ * paragraphs may carry inline links (LinkedText segments) and bold
+ * lead-ins; tables are plain data, no links inside cells.
+ */
+export interface DepthSection {
+  /** Stable anchor id (no spaces). */
+  id: string;
+  heading: string;
+  blocks: DepthBlock[];
+}
 
 export type FieldKind =
   "length" | "area" | "volume" | "number" | "count" | "percent" | "price" | "select";
@@ -86,8 +104,8 @@ export interface CalcOutput {
   costDetail?: string;
   /** One-line substitution showing the actual numbers, e.g. "10 × 10 × 0.33 ft = 33.33 ft³". */
   workedLine?: string;
-  /** Extra note shown under the results. */
-  note?: string;
+  /** Extra note shown under the results. May carry inline links (LinkedText). */
+  note?: string | LinkedText;
   /**
    * Prominent noncompliance warnings shown above the results, e.g. the
    * Stair Calculator's 151 in single-flight limit (2021 IRC R311.7.3).
@@ -139,7 +157,8 @@ export interface ModeSpec {
 
 export interface FaqItem {
   question: string;
-  answer: string;
+  /** Answer text; may carry inline links (LinkedText). */
+  answer: string | LinkedText;
 }
 
 /**
@@ -176,16 +195,22 @@ export interface CalculatorConfig {
   lookupTable?: {
     headers: string[];
     rows: string[][];
-    /** One-sentence note stating the assumptions the table used. */
-    note?: string;
+    /** One-sentence note stating the assumptions the table used. May carry inline links. */
+    note?: string | LinkedText;
   };
   /** Plain-language formula, shown under "How this is calculated". */
   formula: string;
-  /** How-to-measure steps, shown on the page. */
-  howTo: string[];
+  /** How-to-measure steps, shown on the page. Steps may carry inline links (LinkedText). */
+  howTo: (string | LinkedText)[];
   /** Worked example text, shown on the page. */
   workedExample: string;
   /** Limitations, shown on the page. */
-  limitations: string[];
+  limitations: (string | LinkedText)[];
   faqs: FaqItem[];
+  /**
+   * Optional "go deeper" sections (Phase 17B-1), rendered below the
+   * worked example and lookup table, in the order given. The interactive
+   * calculator stays above the fold; these sections must not push it down.
+   */
+  depthSections?: DepthSection[];
 }
