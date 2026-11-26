@@ -101,7 +101,7 @@ export const tileConfig: CalculatorConfig = {
       id: "grout-joint-changes-count",
       heading: "Why the grout joint changes the tile count",
       takeaway:
-        "Each tile’s footprint includes half a grout joint on each side, so the calculator divides by (tile length + joint) × (tile width + joint), not the tile’s face area: a 12×12 in tile with a ⅛ in joint covers 1.02 ft², not 1.00 ft² — 108 tiles per 100 ft² with the joint counted, 110 without. A wider joint means fewer tiles but more grout. Joint minimums (TCNA guidance as quoted in CUSTOM bulletin TB87): ⅛ in for rectified tile, 3/16 in for calibrated tile, and never under 1/16 in per ANSI A108.02 §4.3.8 — quoted guidance, not a direct TCNA citation.",
+        "Each tile’s footprint includes half a grout joint on each side, so the calculator divides by (tile length + joint) × (tile width + joint), not the tile’s face area: a 12×12 in tile with a ⅛ in joint covers 1.02 ft², not 1.00 ft² — for a 100 ft² floor, 108 tiles with the joint counted and 110 with no joint at all, with 10% waste included in both figures. A wider joint means fewer tiles but more grout. Joint minimums (TCNA guidance as quoted in CUSTOM bulletin TB87): ⅛ in for rectified tile, 3/16 in for calibrated tile, and never under 1/16 in per ANSI A108.02 §4.3.8 — quoted guidance, not a direct TCNA citation.",
       blocks: [
         {
           type: "paragraph",
@@ -163,7 +163,7 @@ export const tileConfig: CalculatorConfig = {
       id: "box-count",
       heading: "What the box count does — and does not — tell you",
       takeaway:
-        "Boxes are always rounded up: 55 tiles at 10 per box means 6 boxes and 5 spares, and 51 tiles still needs 6 boxes. That rounding is why a small area change sometimes changes nothing — 100 ft² needs 108 tiles (11 boxes) and 101 ft² needs 109 tiles, still 11 boxes. Do not shave the waste allowance to fit under a box boundary: the waste pays for real cuts, and running one tile short at the last row costs more in a second trip than the box saved.",
+        "Boxes are always rounded up: 55 tiles at 10 per box means 6 boxes and 5 spares, and 51 tiles still needs 6 boxes. That rounding is why a small area change sometimes changes nothing — for a 100 ft² floor (12×12 in tile, ⅛ in joint, 10% waste) it is 108 tiles (11 boxes), and a 101 ft² floor needs 109 tiles, still 11 boxes. Do not shave the waste allowance to fit under a box boundary: the waste pays for real cuts, and running one tile short at the last row costs more in a second trip than the box saved.",
       blocks: [
         {
           type: "paragraph",
