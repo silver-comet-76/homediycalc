@@ -158,7 +158,13 @@ export const flooringConfig: CalculatorConfig = {
     "Underlayment rolls cover about 100 ft² each and are counted on the " +
     "floor area without waste — offcuts are reusable.",
   howTo: [
-    "Measure the room wall to wall, in feet — go to the bottom of the baseboard and round up to the next inch. For an L-shaped room, split it into rectangles and add them (or use the Square Footage Calculator first).",
+    [
+      {
+        text: "Measure the room wall to wall, in feet — go to the bottom of the baseboard and round up to the next inch. For an L-shaped room, split it into rectangles and add them (or use the ",
+      },
+      { text: "Square Footage Calculator", calc: "square-footage-calculator" },
+      { text: " first)." },
+    ],
     "Add closets and nooks as extra square feet, or measure them as separate rectangles.",
     "Read the coverage per box off the carton — it varies by brand even for the same flooring type. Enter the exact figure rather than guessing.",
     "Choose the waste allowance: 10% for a straight lay in a normal room, 15% for a diagonal layout, 15–20% for herringbone or chevron, and more for rooms with many angles.",
@@ -168,7 +174,13 @@ export const flooringConfig: CalculatorConfig = {
     "At 20 ft² per box, buy 10 boxes. At 8 planks per box that is 80 planks, " +
     "and at 100 ft² per roll, 2 rolls of underlayment.",
   limitations: [
-    "Assumes plank flooring sold by the box (laminate, vinyl plank, engineered hardwood). Carpet, sheet vinyl, and individual tiles are measured differently — see the Tile Calculator for tile.",
+    [
+      {
+        text: "Assumes plank flooring sold by the box (laminate, vinyl plank, engineered hardwood). Carpet, sheet vinyl, and individual tiles are measured differently — see the ",
+      },
+      { text: "Tile Calculator", calc: "tile-calculator" },
+      { text: " for tile." },
+    ],
     "Does not include transition strips, stair nosings, or quarter-round trim — count those separately.",
     "The waste allowance covers cuts at walls and mistakes, not a pattern change mid-job. Very irregular rooms need a higher allowance.",
     "Buy all the flooring from the same batch (same dye lot) — shades vary between batches, and a later box may not match.",
