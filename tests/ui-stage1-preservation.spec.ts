@@ -196,10 +196,26 @@ for (const { slug, path } of STAGE1) {
       if (!section.takeaway) continue;
       await expect(page.getByText(section.takeaway, { exact: false })).toBeVisible();
     }
-    // The hero first row is prominent (text-2xl) and keeps its detail.
-    const firstValue = page.locator('section[aria-label="Results"] dl > div').first().locator("dd");
-    const fontSize = await firstValue.evaluate((el) => getComputedStyle(el).fontSize);
-    expect(parseFloat(fontSize)).toBeGreaterThanOrEqual(24);
+    // The hero row (by config heroResultLabel, not row order) is prominent
+    // (text-2xl) and keeps its detail; no other row is hero-sized.
+    const heroLabel = config.heroResultLabel ?? "";
+    const rows = page.locator('section[aria-label="Results"] dl > div');
+    const count = await rows.count();
+    let heroFound = false;
+    for (let i = 0; i < count; i++) {
+      const row = rows.nth(i);
+      const label = (await row.locator("dt").innerText()).trim();
+      const fontSize = parseFloat(
+        await row.locator("dd").evaluate((el) => getComputedStyle(el).fontSize),
+      );
+      if (label === heroLabel) {
+        heroFound = true;
+        expect(fontSize, `hero row "${label}" should be text-2xl`).toBeGreaterThanOrEqual(24);
+      } else {
+        expect(fontSize, `non-hero row "${label}" should not be hero-sized`).toBeLessThan(24);
+      }
+    }
+    expect(heroFound, `hero row "${heroLabel}" not found in results`).toBe(true);
   });
 }
 
@@ -245,16 +261,24 @@ test("paint: keyboard opens a collapsed depth chapter and a FAQ", async ({ page 
   await expect.poll(() => faq.evaluate((el) => (el as HTMLDetailsElement).open)).toBe(true);
 });
 
-test("stair: rise/run diagram renders with all five labels", async ({ page }) => {
+test("stair: rise/run diagram renders with all labels and the schematic caption", async ({
+  page,
+}) => {
   await page.goto("/calculators/stair-calculator/");
-  await expect(
-    page.locator("figure", { hasText: "Measure the total rise floor to floor" }),
-  ).toBeVisible();
+  const figure = page.locator("figure", { hasText: "Measurement schematic" });
+  await expect(figure).toBeVisible();
+  await expect(figure).toContainText("not a cut-ready or structural construction drawing");
   // SVG <text> is checked via textContent (locator text engines are HTML-oriented).
-  const figureText = await page
-    .locator("figure", { hasText: "Measure the total rise floor to floor" })
-    .evaluate((el) => el.textContent ?? "");
-  for (const label of ["Total rise", "Total run", "Tread depth", "Riser height", "Stringer = "]) {
+  const figureText = await figure.evaluate((el) => el.textContent ?? "");
+  for (const label of [
+    "Total rise",
+    "Total run",
+    "Tread depth",
+    "Riser height",
+    "Stringer = ",
+    "Lower floor",
+    "Upper floor",
+  ]) {
     expect(figureText, `diagram label "${label}" missing`).toContain(label);
   }
 });
