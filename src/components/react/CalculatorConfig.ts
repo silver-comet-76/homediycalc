@@ -232,12 +232,13 @@ export interface CalculatorConfig {
    */
   depthSections?: DepthSection[];
   /**
-   * Direction C+ layout (Phase 17B1-UI, Stage 1). When true, the page
-   * renders the compact calculator-first layout: compact TOC row, quick
+   * Direction C+ layout (Phase 17B1-UI). When true, the page renders
+   * the compact calculator-first layout: compact TOC row, quick
    * reference under the results, numbered guide chapters, long-chapter
-   * accordions, FAQ accordions, compact related list, compact mobile nav.
-   * Only the three Stage 1 calculators set it; the other 23 pages render
-   * the original layout. Removed at full rollout (all pages C+).
+   * accordions, FAQ accordions, compact related list, compact mobile
+   * nav. Stage 2 (full rollout) sets it on all 26 calculators; the
+   * flag and the original-layout branch are retained so the rollout
+   * stays reversible, and removing them is a separate owner decision.
    */
   designCplus?: boolean;
   /**
@@ -246,8 +247,8 @@ export interface CalculatorConfig {
    * is presentation-only and independent of row order — the first row
    * is not always the most important result. When unset, the first row
    * is emphasized. Must match a row label the calculator actually
-   * returns (enforced by src/calculators/ui-stage1.test.ts). Only the
-   * three Stage 1 calculators set it.
+   * returns (enforced by src/calculators/ui-stage1.test.ts). Stage 2
+   * sets it on all 26 calculators.
    */
   heroResultLabel?: string;
 }
