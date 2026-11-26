@@ -133,12 +133,20 @@ export interface ResultPanelProps {
   shoppingList?: string;
   onCopyShoppingList?: () => void;
   /**
-   * Direction C+ (Stage 1): render the first row's value hero-sized so
+   * Direction C+ (Stage 1): render the hero row's value hero-sized so
    * the headline result is prominent. The row's detail (e.g. the Stair
    * riser height, "7.5 in each") is always shown — promotion never
    * removes a secondary value.
    */
   heroFirstRow?: boolean;
+  /**
+   * QA-17B1-UI corrective round (Result Hero refinement): label of the
+   * row to emphasize, independent of row order — the first row is not
+   * always the most important result. When set, the row with this label
+   * is the hero; when unset (or unmatched), the first row is. The
+   * config's heroResultLabel feeds this prop. Presentation only.
+   */
+  heroRowLabel?: string;
 }
 
 /**
@@ -153,7 +161,16 @@ export function ResultPanel({
   shoppingList,
   onCopyShoppingList,
   heroFirstRow = false,
+  heroRowLabel,
 }: ResultPanelProps) {
+  // The hero row is the one whose label matches heroRowLabel; without a
+  // label (or when it matches nothing) the first row is the hero.
+  const heroIndex = heroRowLabel
+    ? Math.max(
+        0,
+        rows.findIndex((row) => row.label === heroRowLabel),
+      )
+    : 0;
   return (
     <section aria-label={title} className="card bg-brand-50">
       <h2 className="text-xl font-bold text-slate-900">{title}</h2>
@@ -166,7 +183,7 @@ export function ResultPanel({
             <dt className="text-slate-700">{row.label}</dt>
             <dd
               className={
-                heroFirstRow && index === 0
+                heroFirstRow && index === heroIndex
                   ? "text-right text-2xl font-bold text-slate-900"
                   : "text-right font-bold text-slate-900"
               }
