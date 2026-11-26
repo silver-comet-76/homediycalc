@@ -4,13 +4,13 @@ import Breadcrumbs from "./Breadcrumbs.astro";
 import Faq from "./Faq.astro";
 import FormulaSection from "./FormulaSection.astro";
 import { getCategory, getRelatedCalculators, type CalculatorMeta } from "../lib/registry";
-import type { LinkedText } from "../lib/linked-text";
+import type { FaqItem } from "./react/CalculatorConfig";
 
 export interface Props {
   calculator: CalculatorMeta;
   /** Formula explanation in plain language, shown under "How this is calculated". */
   formula?: string;
-  faqs?: { question: string; answer: string | LinkedText }[];
+  faqs?: FaqItem[];
   /**
    * Direction C+ (Phase 17B1-UI, Stage 1): compact calculator-first layout.
    * When true, the summary is tighter, a compact table-of-contents row is
