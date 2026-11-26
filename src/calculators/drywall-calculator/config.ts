@@ -82,7 +82,7 @@ const COMMON_FIELDS = [
       { value: "40", label: "4 × 10 ft (40 ft²)" },
       { value: "48", label: "4 × 12 ft (48 ft²)" },
     ],
-    hint: "4 × 8 ft is the DIY standard — one person can carry it. Longer sheets mean fewer seams to tape.",
+    hint: "4 × 8 ft is the common DIY size. Longer sheets mean fewer seams to tape.",
   },
   {
     id: "waste",
@@ -233,7 +233,7 @@ export const drywallConfig: CalculatorConfig = {
           type: "paragraph",
           text: [
             {
-              text: "A standard sheet is 4 ft × 8 ft (32 ft²) — the DIY standard, because one person can carry it. Longer sheets cover more area with fewer seams to tape: 4×10 ft is 40 ft², 4×12 ft is 48 ft², and USG's data sheet for its UltraLight panels lists lengths from 8 ft to 16 ft, in 48 in and 54 in widths — the 54 in width is made for 9 ft walls, so a single sheet spans floor to ceiling with no horizontal joint (USG Sheetrock Brand MH UltraLight Tuf-Base Gypsum Panels Data Sheet MH1314, rev. 8-13; a ½ in UltraLight panel weighs 1.25 lb per sq ft).",
+              text: "A standard sheet is 4 ft × 8 ft (32 ft²) — the common DIY size. Longer sheets cover more area with fewer seams to tape: 4×10 ft is 40 ft², 4×12 ft is 48 ft², and USG's data sheet for its UltraLight panels lists lengths from 8 ft to 16 ft, in 48 in and 54 in widths. For a 9 ft wall, 54 in wide panels can be installed in two horizontal courses, covering the 108 in wall height with one horizontal seam and avoiding the additional narrow filler strip required with standard 48 in wide panels (USG Sheetrock Brand MH UltraLight Tuf-Base Gypsum Panels Data Sheet MH1314, rev. 8-13; a ½ in UltraLight panel weighs 1.25 lb per sq ft).",
             },
           ],
         },
