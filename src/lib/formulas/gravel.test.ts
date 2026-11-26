@@ -28,6 +28,7 @@ describe("calculateGravel", () => {
     expect(r.adjustedYd3).toBeCloseTo(0.97, 2);
     expect(r.orderYd3).toBe(1);
     expect(r.weightLb).toBeCloseTo(2722.22, 1);
+    expect(r.weightTons).toBeCloseTo(1.36, 2);
   });
 
   it("rounds the order up to whole cubic yards", () => {
