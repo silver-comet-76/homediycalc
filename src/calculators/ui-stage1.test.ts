@@ -188,10 +188,17 @@ describe("Direction C+ takeaways are verified condensations", () => {
         const takeaway = section.takeaway as string;
         expect(takeaway.length).toBeGreaterThan(0);
         expect(takeaway.split(/\s+/).length).toBeLessThan(chapter.split(/\s+/).length);
+        // QA-17B1-UI-05: a takeaway may also restate figures from the
+        // page's worked example — same page, verified content — e.g. the
+        // Concrete waste takeaway states the 1.5 yd³ order from the worked
+        // example, and the Tile takeaways state the 10% waste from theirs.
+        // Numbers must still come from the chapter or the worked example,
+        // never invented.
+        const source = chapter + " " + (config.workedExample ? String(config.workedExample) : "");
         for (const token of numberTokens(takeaway)) {
           expect(
-            chapter.includes(token),
-            `takeaway number "${token}" does not appear in chapter "${section.id}"`,
+            source.includes(token),
+            `takeaway number "${token}" does not appear in chapter "${section.id}" or its worked example`,
           ).toBe(true);
         }
       });
@@ -249,6 +256,9 @@ const TAKEAWAY_QUALIFICATIONS: Record<string, Record<string, string[]>> = {
       "1.23 yd³",
       "1.36 yd³",
       "45 vs 50",
+      "4 in",
+      "1.5 yd³",
+      "rounded up",
     ],
     "measuring-non-rectangular-pour": ["4½ in", "0.15 yd³", "15%", "average"],
   },
@@ -288,9 +298,20 @@ const TAKEAWAY_QUALIFICATIONS: Record<string, Record<string, string[]>> = {
       "3/16 in",
       "1/16 in",
       "CUSTOM bulletin TB87",
+      "10% waste",
+      "no joint",
     ],
     "tiles-per-100-square-feet": ["828 tiles", "108", "55", "10% waste", "15%", "herringbone"],
-    "box-count": ["55 tiles", "6 boxes", "108 tiles", "11 boxes", "109 tiles"],
+    "box-count": [
+      "55 tiles",
+      "6 boxes",
+      "108 tiles",
+      "11 boxes",
+      "109 tiles",
+      "12×12",
+      "⅛ in",
+      "10% waste",
+    ],
   },
   "grout-calculator": {
     "how-grout-is-calculated": ["0.064 lb", "98.5 lb/ft³", "⅛ in", "⅜ in", "six times"],
@@ -303,7 +324,16 @@ const TAKEAWAY_QUALIFICATIONS: Record<string, Record<string, string[]>> = {
       "0.128 lb/ft²",
     ],
     "manufacturer-coverage-charts": ["98.5 lb/ft³", "MAPEI", "110 lb/ft³", "12%", "TDS-360"],
-    "why-actual-use-differs": ["10%", "15%", "98.5 lb/ft³", "2.62", "3 bags", "42"],
+    "why-actual-use-differs": [
+      "10%",
+      "15%",
+      "98.5 lb/ft³",
+      "2.62",
+      "3 bags",
+      "42",
+      "does not recommend",
+      "Tile Adhesive Calculator",
+    ],
   },
   "drywall-calculator": {
     "sheets-to-buy-vs-sheets-hung": ["16", "17", "478 ft²", "32 ft²", "× 1.10"],
