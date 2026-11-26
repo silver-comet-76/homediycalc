@@ -31,13 +31,22 @@ export interface DepthSection {
   id: string;
   heading: string;
   blocks: DepthBlock[];
+  /**
+   * Concise verified summary of the chapter (Direction C+, Stage 1).
+   * Shown with the heading when the chapter is collapsed; the full
+   * blocks stay in the accordion below it. Must condense the chapter's
+   * own text — no new claims, and every number in it must also appear
+   * in the chapter (enforced by src/calculators/ui-stage1.test.ts).
+   * A chapter without a takeaway stays fully expanded.
+   */
+  takeaway?: string;
 }
 
 export type FieldKind =
   "length" | "area" | "volume" | "number" | "count" | "percent" | "price" | "select";
 
 /** Kinds of SVG measurement diagram the shared component can draw. */
-export type DiagramKind = "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board";
+export type DiagramKind = "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board" | "stair";
 
 export type UnitKind = "length" | "area" | "volume" | "coverage";
 
@@ -213,4 +222,13 @@ export interface CalculatorConfig {
    * calculator stays above the fold; these sections must not push it down.
    */
   depthSections?: DepthSection[];
+  /**
+   * Direction C+ layout (Phase 17B1-UI, Stage 1). When true, the page
+   * renders the compact calculator-first layout: compact TOC row, quick
+   * reference under the results, numbered guide chapters, long-chapter
+   * accordions, FAQ accordions, compact related list, compact mobile nav.
+   * Only the three Stage 1 calculators set it; the other 23 pages render
+   * the original layout. Removed at full rollout (all pages C+).
+   */
+  designCplus?: boolean;
 }
