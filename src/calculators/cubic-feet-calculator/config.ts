@@ -19,6 +19,8 @@ const DIMENSION_UNITS = ["ft", "in", "yd", "m", "cm", "mm"];
 
 export const cubicFeetConfig: CalculatorConfig = {
   slug: "cubic-feet-calculator",
+  designCplus: true,
+  heroResultLabel: "Cubic feet",
   lookupTable: {
     note: "Rectangular boxes only — volume is length × width × height.",
     headers: [
