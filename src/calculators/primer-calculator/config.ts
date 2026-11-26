@@ -50,7 +50,11 @@ function primerOutput(netAreaFt2: number, v: Record<string, number>, present: Se
     ],
     costUsd: r.costUsd,
     workedLine: `${fmt(netAreaFt2)} ft² × ${fmt(req(v, "coats"), 0)} coat${req(v, "coats") === 1 ? "" : "s"} × ${fmt(req(v, "condition"), 2)} (surface) ÷ ${fmt(req(v, "coverage"), 0)} ft²/gal = ${fmt(r.adjustedGallons)} gal → buy ${r.gallonsToBuy} gal.`,
-    note: "Primer is a separate coat from paint — the Paint Calculator does not include it. One coat is usually enough; stained surfaces may need two.",
+    note: [
+      { text: "Primer is a separate coat from paint — the " },
+      { text: "Paint Calculator", calc: "paint-calculator" },
+      { text: " does not include it. One coat is usually enough; stained surfaces may need two." },
+    ],
   };
 }
 
