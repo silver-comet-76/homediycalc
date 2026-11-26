@@ -169,6 +169,14 @@ export interface FaqItem {
   question: string;
   /** Answer text; may carry inline links (LinkedText). */
   answer: string | LinkedText;
+  /**
+   * Open this FAQ by default in the compact (C+) accordion layout
+   * (QA-17B1-UI-01). Safety-critical answers must be default-visible
+   * and must not rely on the user opening an accordion. The first FAQ
+   * is always open by default; this flag opens additional ones.
+   * Only the Stair nosing FAQ sets it (Stage 1).
+   */
+  openByDefault?: boolean;
 }
 
 /**
@@ -232,4 +240,14 @@ export interface CalculatorConfig {
    * the original layout. Removed at full rollout (all pages C+).
    */
   designCplus?: boolean;
+  /**
+   * Label of the result row to emphasize (hero-sized) in the C+ layout
+   * (QA-17B1-UI corrective round, Result Hero refinement). The emphasis
+   * is presentation-only and independent of row order — the first row
+   * is not always the most important result. When unset, the first row
+   * is emphasized. Must match a row label the calculator actually
+   * returns (enforced by src/calculators/ui-stage1.test.ts). Only the
+   * three Stage 1 calculators set it.
+   */
+  heroResultLabel?: string;
 }
