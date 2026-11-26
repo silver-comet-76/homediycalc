@@ -13,6 +13,8 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const stairConfig: CalculatorConfig = {
   slug: "stair-calculator",
+  designCplus: true,
+  diagram: "stair",
   lookupTable: {
     note: "Assumes a 10.5 in tread depth and a 7.75 in maximum riser height (IRC R311.7.5.1/R311.7.5.2).",
     headers: ["Total rise", "Risers", "Treads", "Total run", "Stringer length", "Stair angle"],
@@ -58,6 +60,8 @@ export const stairConfig: CalculatorConfig = {
     {
       id: "how-riser-count-is-decided",
       heading: "How the riser count is decided (and why it always rounds up)",
+      takeaway:
+        "Risers = total rise ÷ maximum riser height, rounded up so no riser exceeds 7.75 in; every riser is then the same height, which also satisfies the IRC rule that risers stay within ⅜ in of each other — and a shorter riser always costs floor space.",
       blocks: [
         {
           type: "paragraph",
@@ -94,6 +98,8 @@ export const stairConfig: CalculatorConfig = {
     {
       id: "metric-display",
       heading: "Metric display — the same staircase in centimeters",
+      takeaway:
+        "The calculator works in canonical inches and converts only for display, so metric and imperial describe the same staircase — but 19.685 cm is the maximum riser height, not the tread depth, and swapping them would be rejected.",
       blocks: [
         {
           type: "paragraph",
