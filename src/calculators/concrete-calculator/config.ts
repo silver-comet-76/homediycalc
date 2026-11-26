@@ -12,6 +12,8 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const concreteConfig: CalculatorConfig = {
   slug: "concrete-calculator",
+  designCplus: true,
+  heroResultLabel: "Ready-mix to order",
   lookupTable: {
     note: "Assumes 10% waste and ready-mix rounded up to the next quarter cubic yard (0.25 yd³).",
     headers: [
@@ -81,6 +83,8 @@ export const concreteConfig: CalculatorConfig = {
     {
       id: "cubic-yards-vs-cubic-feet",
       heading: "Cubic yards vs cubic feet — which number do you order by?",
+      takeaway:
+        "Ready-mix is sold by the cubic yard and bags by the bag: 1 yd³ = 27 ft³, and both figures on this page come from the same volume — order by “Ready-mix to order” for ready-mix, or by the bag counts for bags. Thickness, not floor area, drives the volume: a 10×10 ft pad is 1.23 yd³ at 4 in but 1.85 yd³ at 6 in. Confirm your supplier’s minimum load and short-load fee before ordering.",
       blocks: [
         {
           type: "paragraph",
@@ -103,6 +107,8 @@ export const concreteConfig: CalculatorConfig = {
     {
       id: "waste-allowance",
       heading: "What the waste allowance is actually paying for",
+      takeaway:
+        "The waste allowance pays for real concrete lost to spillage, over-excavation, forms spreading, and 1–2% shrinkage as it hardens — not for bad arithmetic. NRMCA CIP 31 advises ordering about 4% to 10% more than the plan volume; this calculator defaults to 10%, the top of that range. Use 5% for a large, simple slab on checked level ground and 15% for irregular excavation. Note which volume you are reading: “Volume” is the theoretical hole, “With waste” is what to buy — for a 10×10 slab, 1.23 yd³ vs 1.36 yd³, and 45 vs 50 bags of 80 lb mix per yard.",
       blocks: [
         {
           type: "paragraph",
@@ -125,6 +131,8 @@ export const concreteConfig: CalculatorConfig = {
     {
       id: "measuring-non-rectangular-pour",
       heading: "Measuring a pour that is not a perfect rectangle",
+      takeaway:
+        "The calculator assumes a level, rectangular pour of uniform depth — measure the depth in several spots and use the average, not the shallowest: a slab 4 in at the edges and 5 in in the middle is a 4½ in slab, and the extra half inch over 100 ft² is another 0.15 yd³. For an L-shape, split it into two rectangles and add them; for a round pad, use π × radius² × depth; for fence-post holes, work out one hole as a cylinder and multiply. If the ground is too uneven to trust one depth, raise the waste allowance to 15%.",
       blocks: [
         {
           type: "paragraph",
