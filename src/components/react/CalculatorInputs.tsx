@@ -132,6 +132,13 @@ export interface ResultPanelProps {
   /** Optional plain-text shopping list and a copy handler. */
   shoppingList?: string;
   onCopyShoppingList?: () => void;
+  /**
+   * Direction C+ (Stage 1): render the first row's value hero-sized so
+   * the headline result is prominent. The row's detail (e.g. the Stair
+   * riser height, "7.5 in each") is always shown — promotion never
+   * removes a secondary value.
+   */
+  heroFirstRow?: boolean;
 }
 
 /**
@@ -145,18 +152,25 @@ export function ResultPanel({
   note,
   shoppingList,
   onCopyShoppingList,
+  heroFirstRow = false,
 }: ResultPanelProps) {
   return (
     <section aria-label={title} className="card bg-brand-50">
       <h2 className="text-xl font-bold text-slate-900">{title}</h2>
       <dl className="mt-4 space-y-3">
-        {rows.map((row) => (
+        {rows.map((row, index) => (
           <div
             key={row.label}
             className="flex items-baseline justify-between gap-4 border-b border-slate-200 pb-3 last:border-0 last:pb-0"
           >
             <dt className="text-slate-700">{row.label}</dt>
-            <dd className="text-right font-bold text-slate-900">
+            <dd
+              className={
+                heroFirstRow && index === 0
+                  ? "text-right text-2xl font-bold text-slate-900"
+                  : "text-right font-bold text-slate-900"
+              }
+            >
               {row.value}
               {row.detail ? (
                 <span className="block text-sm font-normal text-slate-600">{row.detail}</span>
