@@ -300,7 +300,9 @@ export const groutConfig: CalculatorConfig = {
               text: ". For a 100 ft² floor with a ½×½ in notch, thinset needs ",
             },
             { text: "3 bags", strong: true },
-            { text: " (100 × 1.10 ÷ 42 = 2.62 → 3), not 6." },
+            {
+              text: " (100 × 1.10 ÷ 42 = 2.62 → 3), not 6 — a conditional estimate at CUSTOM's chart coverage, excluding back-troweling material.",
+            },
           ],
         },
       ],
