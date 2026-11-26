@@ -1,19 +1,27 @@
 # ADR-9 release gate + measurements/screenshots + production artifact for the
-# Phase 17B1-UI Stage 1 implementation (Direction C+, branch
-# phase-17b1-ui-cplus, stacked on phase-17b1-seo-depth-internal-links).
+# Phase 17B1-UI Stage 2 implementation (Direction C+ full rollout to all
+# 26 calculators, branch phase-17b1-ui-cplus, stacked on
+# phase-17b1-seo-depth-internal-links).
 #
 # Test-only workflow. It runs the project's own gate script
 # (scripts/gate-round.sh) three times in a row on the pushed branch,
-# measures + screenshots the 3 Stage 1 pages (Paint, Tile Adhesive,
-# Stair) at 320/390/768/1280 px with scripts/measure-ui-stage1.mjs,
-# measures the same pages on the Phase 17B1 baseline (PR #16 head
-# 9acf474e) with the identical script and environment so the
-# before/after comparison is same-environment (QA-17B1-UI-04), then
-# builds the production artifact from the same source and audits
+# measures + screenshots all 26 calculator pages at 320/390/768/1280 px
+# with scripts/measure-ui-stage1.mjs, measures the same pages on the
+# Phase 17B1 baseline (PR #16 head 9acf474e) with the identical script
+# and environment so the before/after comparison is same-environment,
+# then builds the production artifact from the same source and audits
 # it. No deploy step, no secrets, no Cloudflare access, no Wrangler.
 # Outputs are uploaded as run artifacts (gate logs, baseline +
 # candidate measurements + screenshots, production dist/ + manifest),
 # never published or deployed.
+#
+# Refinement C (Stage 2): the candidate and baseline measurements run
+# in a SINGLE job on ONE runner (not two jobs on two runners), so the
+# before/after comparison shares the same runner image, Chromium,
+# fonts, and environment. The measurement report records the runner
+# image, Chromium version, viewport, device scale factors, script
+# version, and both SHAs. A before/after percentage is only valid when
+# both sides were measured in this job.
 #
 # Triggers: push to the Phase 17B1-UI branch, and workflow_dispatch for
 # manual re-runs. A workflow that only exists on a feature branch
@@ -40,7 +48,7 @@
 # manifest is path-inclusive (sha256 + relative path per file), per the
 # PR #7 review's note that a filename-omitting digest is weaker
 # provenance.
-name: ADR-9 Gate (Phase 17B1-UI Stage 1)
+name: ADR-9 Gate (Phase 17B1-UI Stage 2)
 
 on:
   push:
@@ -83,11 +91,30 @@ jobs:
           retention-days: 30
 
   measurements:
-    name: Stage 1 measurements + screenshots (320/390/768/1280)
+    # Refinement C (Stage 2): candidate AND baseline are measured in a
+    # SINGLE job on ONE runner, so the before/after comparison shares
+    # the same runner image, Chromium, fonts, and environment. The
+    # candidate is measured first (label "after"), then the job checks
+    # out the Phase 17B1 baseline (PR #16 head 9acf474e), restores the
+    # measure script (which does not exist on that branch — it is a
+    # self-contained script importing only node built-ins + playwright),
+    # rebuilds in local mode with the same env, and measures the same
+    # 26 pages at the same 4 widths with label "before". Both
+    # measurements.json files record the runner image (via the job's
+    # environment), Chromium version, viewport, device scale factors,
+    # script version, and both SHAs, so a reviewer can verify the
+    # comparison is same-runner. Runs on every push so the final gate
+    # run carries both versions in one run.
+    name: Measurements + screenshots, candidate + baseline (one runner, 26 pages)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
+    env:
+      MEAS_BASELINE_SHA: 9acf474ee7278628a3dc32122b49d14906b6a643
+      MEAS_CANDIDATE_SHA: ${{ github.sha }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Save the measure script (it does not exist on the baseline branch)
+        run: cp scripts/measure-ui-stage1.mjs /tmp/measure-ui-stage1.mjs
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
@@ -96,42 +123,21 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Install Playwright Chromium (+ system deps)
         run: npx playwright install --with-deps chromium
-      - name: Build (local mode, test origin)
+      - name: Record runner image version
+        run: |
+          echo "runner image: $ImageOS / $ImageVersion" | tee /tmp/phase17b1-ui-runner.txt
+          cat /etc/os-release | head -3 | tee -a /tmp/phase17b1-ui-runner.txt
+      - name: Build candidate (local mode, test origin)
         run: npm run build
         env:
           PUBLIC_BUILD_MODE: local
           PUBLIC_SITE_URL: https://example.com
-      - name: Measure + screenshot the 3 Stage 1 pages at 4 widths
+      - name: Measure + screenshot all 26 pages at 4 widths (candidate)
         run: |
           mkdir -p /tmp/phase17b1-ui-measure
           node scripts/measure-ui-stage1.mjs . 4321 /tmp/phase17b1-ui-measure after
           pkill -f "astro preview" || true
           ls -la /tmp/phase17b1-ui-measure/
-      - name: Upload measurements + screenshots
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: phase17b1-ui-measurements
-          path: /tmp/phase17b1-ui-measure/
-          retention-days: 30
-
-  baseline-measurements:
-    # QA-17B1-UI-04: the candidate measurements alone cannot support a
-    # before/after percentage — the baseline must be measured with the
-    # same script, browser, fonts, viewport height/widths, device scale
-    # factors, and method, in the same CI environment. This job checks
-    # out the Phase 17B1 baseline (PR #16 head 9acf474e), restores the
-    # measure script (which does not exist on that branch — it is a
-    # self-contained script importing only node built-ins + playwright),
-    # builds it in local mode with the same env, and measures the same
-    # 3 pages at the same 4 widths with label "before". Runs on every
-    # push so the final gate run carries both versions in one run.
-    name: Baseline measurements (9acf474e, same method)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - name: Save the measure script (it does not exist on the baseline branch)
-        run: cp scripts/measure-ui-stage1.mjs /tmp/measure-ui-stage1.mjs
       - name: Check out the Phase 17B1 baseline (PR #16 head 9acf474e)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -140,25 +146,27 @@ jobs:
         run: |
           mkdir -p scripts
           cp /tmp/measure-ui-stage1.mjs scripts/measure-ui-stage1.mjs
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: "24"
-          cache: npm
       - name: Install dependencies (baseline lockfile)
         run: npm ci --no-audit --no-fund
-      - name: Install Playwright Chromium (+ system deps)
-        run: npx playwright install --with-deps chromium
       - name: Build baseline (local mode, test origin)
         run: npm run build
         env:
           PUBLIC_BUILD_MODE: local
           PUBLIC_SITE_URL: https://example.com
-      - name: Measure the 3 Stage 1 pages at 4 widths (baseline)
+      - name: Measure all 26 pages at 4 widths (baseline)
         run: |
           mkdir -p /tmp/phase17b1-ui-measure-baseline
           node scripts/measure-ui-stage1.mjs . 4321 /tmp/phase17b1-ui-measure-baseline before
           pkill -f "astro preview" || true
           ls -la /tmp/phase17b1-ui-measure-baseline/
+      - name: Upload candidate measurements + screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase17b1-ui-measurements
+          path: |
+            /tmp/phase17b1-ui-measure/
+            /tmp/phase17b1-ui-runner.txt
+          retention-days: 30
       - name: Upload baseline measurements + screenshots
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
