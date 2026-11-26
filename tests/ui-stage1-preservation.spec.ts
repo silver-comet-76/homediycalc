@@ -76,19 +76,47 @@ function originalStrings(config: CalculatorConfig): string[] {
 
 /** Default result rows (live calculator outputs at the default inputs). */
 const DEFAULT_RESULTS: Record<string, string[]> = {
-  "paint-calculator": ["Paintable area", "381 ft²", "Paint needed", "2.18 gal", "Gallons to buy", "3 gal"],
-  "tile-adhesive-calculator": ["Adhesive needed", "61.1 lb", "Coverage per bag", "90 ft²/bag", "Bags to buy", "2 bags"],
-  "stair-calculator": ["Risers", "14 risers", "7.5 in each", "Treads", "13 treads", "Total run", "136.5 in", "Stringer length", "172.21 in", "Stair angle", "37.6°"],
+  "paint-calculator": [
+    "Paintable area",
+    "381 ft²",
+    "Paint needed",
+    "2.18 gal",
+    "Gallons to buy",
+    "3 gal",
+  ],
+  "tile-adhesive-calculator": [
+    "Adhesive needed",
+    "61.1 lb",
+    "Coverage per bag",
+    "90 ft²/bag",
+    "Bags to buy",
+    "2 bags",
+  ],
+  "stair-calculator": [
+    "Risers",
+    "14 risers",
+    "7.5 in each",
+    "Treads",
+    "13 treads",
+    "Total run",
+    "136.5 in",
+    "Stringer length",
+    "172.21 in",
+    "Stair angle",
+    "37.6°",
+  ],
 };
 
 for (const { slug, path } of STAGE1) {
   const config = mustGetConfig(slug);
 
-  test(`${slug}: every original content string is in the page (including collapsed text)`, async ({ page }) => {
+  test(`${slug}: every original content string is in the page (including collapsed text)`, async ({
+    page,
+  }) => {
     await page.goto(path);
     await expect(page.locator("[data-hydrated='true']")).toBeVisible();
-    const text = await page.evaluate(
-      () => (document.querySelector("main")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+    const text = await page.evaluate(() =>
+      (document.querySelector("main")?.textContent ?? "").replace(/\s+/g, " ").trim(),
     );
     for (const expected of originalStrings(config)) {
       expect(text, `missing original content on ${slug}: ${expected.slice(0, 80)}…`).toContain(
@@ -100,9 +128,7 @@ for (const { slug, path } of STAGE1) {
   test(`${slug}: default calculation outputs are unchanged`, async ({ page }) => {
     await page.goto(path);
     await expect(page.locator("[data-hydrated='true']")).toBeVisible();
-    const results = await page
-      .locator('section[aria-label="Results"]')
-      .innerText();
+    const results = await page.locator('section[aria-label="Results"]').innerText();
     const expectedRows = DEFAULT_RESULTS[slug];
     if (!expectedRows) throw new Error(`missing default results for ${slug}`);
     for (const expected of expectedRows) {
@@ -110,7 +136,9 @@ for (const { slug, path } of STAGE1) {
     }
   });
 
-  test(`${slug}: TOC links point to real anchors and the methodology link is present`, async ({ page }) => {
+  test(`${slug}: TOC links point to real anchors and the methodology link is present`, async ({
+    page,
+  }) => {
     await page.goto(path);
     await expect(page.getByRole("navigation", { name: "On this page" })).toBeVisible();
     const hrefs = await page
@@ -123,9 +151,10 @@ for (const { slug, path } of STAGE1) {
       const target = await page.evaluate((id) => !!document.querySelector(id), href);
       expect(target, `TOC target ${href} missing on ${slug}`).toBe(true);
     }
-    await expect(
-      page.getByRole("link", { name: "How we calculate" }).first(),
-    ).toHaveAttribute("href", "/how-we-calculate/");
+    await expect(page.getByRole("link", { name: "How we calculate" }).first()).toHaveAttribute(
+      "href",
+      "/how-we-calculate/",
+    );
   });
 
   test(`${slug}: no horizontal overflow at mobile width`, async ({ page }) => {
@@ -144,8 +173,8 @@ for (const { slug, path } of STAGE1) {
     if (!meta) throw new Error(`missing registry meta for ${slug}`);
     const related = getRelatedCalculators(meta);
     expect(related.length).toBeGreaterThan(0);
-    const text = await page.evaluate(
-      () => (document.querySelector("main")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+    const text = await page.evaluate(() =>
+      (document.querySelector("main")?.textContent ?? "").replace(/\s+/g, " ").trim(),
     );
     for (const rel of related) {
       expect(text).toContain(norm(rel.summary));
@@ -156,7 +185,9 @@ for (const { slug, path } of STAGE1) {
     }
   });
 
-  test(`${slug}: new UI words are present and counted separately from original content`, async ({ page }) => {
+  test(`${slug}: new UI words are present and counted separately from original content`, async ({
+    page,
+  }) => {
     await page.goto(path);
     await expect(page.locator("[data-hydrated='true']")).toBeVisible();
     // Takeaways are new UI text: they appear, and the full chapter text
@@ -182,7 +213,9 @@ test("stair: riser height stays visible when the first row is promoted", async (
   await expect(page.getByText("105 in ÷ 7.75 in max riser = 14 risers at 7.5 in")).toBeVisible();
 });
 
-test("tile-adhesive: 5% waste scenario gives 2.38 before waste, 2.50 after, 3 to buy", async ({ page }) => {
+test("tile-adhesive: 5% waste scenario gives 2.38 before waste, 2.50 after, 3 to buy", async ({
+  page,
+}) => {
   await page.goto("/calculators/tile-adhesive-calculator/");
   await expect(page.locator("[data-hydrated='true']")).toBeVisible();
   await page.getByLabel(/Trowel notch/).selectOption("42");
@@ -192,7 +225,9 @@ test("tile-adhesive: 5% waste scenario gives 2.38 before waste, 2.50 after, 3 to
   await expect(results.getByText("125 lb")).toBeVisible();
   await expect(results.getByText("42 ft²/bag")).toBeVisible();
   await expect(results.getByText("3 bags")).toBeVisible();
-  await expect(page.getByText("100 ft² × 105% ÷ 42 ft²/bag = 2.5 bags → buy 3 bags.")).toBeVisible();
+  await expect(
+    page.getByText("100 ft² × 105% ÷ 42 ft²/bag = 2.5 bags → buy 3 bags."),
+  ).toBeVisible();
 });
 
 test("paint: keyboard opens a collapsed depth chapter and a FAQ", async ({ page }) => {
