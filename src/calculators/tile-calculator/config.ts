@@ -207,7 +207,7 @@ export const tileConfig: CalculatorConfig = {
             },
             { text: "3 bags", strong: true },
             {
-              text: " (100 × 1.10 ÷ 42 = 2.62 → 3) — not 6, which is the answer for a 200 ft² floor.",
+              text: " (100 × 1.10 ÷ 42 = 2.62 → 3) — not 6, which is the answer for a 200 ft² floor. That 3-bag figure is a conditional estimate at CUSTOM's chart coverage and excludes back-troweling material.",
             },
           ],
         },
