@@ -5,8 +5,8 @@ import { getCalculator, getRelatedCalculators } from "../src/lib/registry";
 import type { CalculatorConfig } from "../src/components/react/CalculatorConfig";
 
 /**
- * Phase 17B1-UI Stage 1 (Direction C+): original substantive content is
- * preserved verbatim on the three redesigned pages. The check is
+ * Phase 17B1-UI Stage 2 (Direction C+ full rollout): original substantive
+ * content is preserved verbatim on all 26 redesigned pages. The check is
  * two-measure (see STAGE1_PLAN.md §2.3): (a) every original config string
  * appears in the built page's text content, including text inside
  * collapsed <details> (server-rendered, so it is in the DOM); (b) new UI
@@ -18,18 +18,45 @@ import type { CalculatorConfig } from "../src/components/react/CalculatorConfig"
  * detail surviving hero promotion, TOC anchors, no horizontal overflow,
  * and keyboard operation of the accordions. Runs on Chromium desktop and
  * Pixel 5 mobile (see playwright.config.ts).
+ *
+ * Stage 1 (Paint, Tile Adhesive, Stair) is the reference implementation;
+ * the other 23 were added in Stage 2 under the same rules. There is no
+ * non-C+ control page left — every calculator is C+.
  */
 
-const STAGE1 = [
+const ALL = [
+  { slug: "concrete-calculator", path: "/calculators/concrete-calculator/" },
+  { slug: "square-footage-calculator", path: "/calculators/square-footage-calculator/" },
   { slug: "paint-calculator", path: "/calculators/paint-calculator/" },
+  { slug: "gravel-calculator", path: "/calculators/gravel-calculator/" },
+  { slug: "mulch-calculator", path: "/calculators/mulch-calculator/" },
+  { slug: "concrete-slab-calculator", path: "/calculators/concrete-slab-calculator/" },
+  { slug: "cubic-yard-calculator", path: "/calculators/cubic-yard-calculator/" },
+  { slug: "cubic-feet-calculator", path: "/calculators/cubic-feet-calculator/" },
+  { slug: "tile-calculator", path: "/calculators/tile-calculator/" },
+  { slug: "brick-calculator", path: "/calculators/brick-calculator/" },
+  { slug: "drywall-calculator", path: "/calculators/drywall-calculator/" },
+  { slug: "concrete-bags-calculator", path: "/calculators/concrete-bags-calculator/" },
+  { slug: "flooring-calculator", path: "/calculators/flooring-calculator/" },
+  { slug: "paver-calculator", path: "/calculators/paver-calculator/" },
+  { slug: "topsoil-calculator", path: "/calculators/topsoil-calculator/" },
+  { slug: "grout-calculator", path: "/calculators/grout-calculator/" },
+  { slug: "board-foot-calculator", path: "/calculators/board-foot-calculator/" },
+  { slug: "mortar-calculator", path: "/calculators/mortar-calculator/" },
+  { slug: "ceiling-tile-calculator", path: "/calculators/ceiling-tile-calculator/" },
   { slug: "tile-adhesive-calculator", path: "/calculators/tile-adhesive-calculator/" },
+  { slug: "primer-calculator", path: "/calculators/primer-calculator/" },
+  { slug: "wallpaper-calculator", path: "/calculators/wallpaper-calculator/" },
+  { slug: "sealant-calculator", path: "/calculators/sealant-calculator/" },
+  { slug: "waterproofing-calculator", path: "/calculators/waterproofing-calculator/" },
+  { slug: "baseboard-calculator", path: "/calculators/baseboard-calculator/" },
   { slug: "stair-calculator", path: "/calculators/stair-calculator/" },
 ] as const;
 
-type Stage1Slug = (typeof STAGE1)[number]["slug"];
+type AllSlug = (typeof ALL)[number]["slug"];
 
 /** Indexed access is possibly-undefined under strict TS; the slugs are known to exist. */
-function mustGetConfig(slug: Stage1Slug): CalculatorConfig {
+function mustGetConfig(slug: AllSlug): CalculatorConfig {
   const config = CALCULATOR_CONFIGS[slug];
   if (!config) throw new Error(`missing config for ${slug}`);
   return config;
@@ -74,8 +101,36 @@ function originalStrings(config: CalculatorConfig): string[] {
   return out.filter((s) => s.trim().length > 0);
 }
 
-/** Default result rows (live calculator outputs at the default inputs). */
+/**
+ * Default result rows (live calculator outputs at the default inputs),
+ * verified against the calculator's own compute function at its default
+ * imperial inputs. A value here that does not match the rendered page
+ * means the calculator's defaults or formula changed — investigate,
+ * do not edit the expectation to force green.
+ */
 const DEFAULT_RESULTS: Record<string, string[]> = {
+  "concrete-calculator": [
+    "Volume",
+    "1.23 yd³",
+    "With 10% waste",
+    "1.36 yd³",
+    "Ready-mix to order",
+    "1.5 yd³",
+    "80 lb bags",
+    "62 bags",
+    "60 lb bags",
+    "82 bags",
+    "40 lb bags",
+    "123 bags",
+  ],
+  "square-footage-calculator": [
+    "Area",
+    "180 ft²",
+    "Square yards",
+    "20 yd²",
+    "Acres",
+    "0.0041 acres",
+  ],
   "paint-calculator": [
     "Paintable area",
     "381 ft²",
@@ -84,6 +139,174 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
     "Gallons to buy",
     "3 gal",
   ],
+  "gravel-calculator": [
+    "Volume",
+    "0.93 yd³",
+    "Cubic yards to order",
+    "1 yd³",
+    "Weight",
+    "1.36 tons",
+  ],
+  "mulch-calculator": [
+    "Volume",
+    "0.93 yd³",
+    "Bulk yards to order",
+    "1 yd³",
+    "Bags to buy",
+    "14 bags",
+  ],
+  "concrete-slab-calculator": [
+    "Slab volume",
+    "2.96 yd³",
+    "With 10% waste",
+    "3.26 yd³",
+    "Ready-mix to order",
+    "3.5 yd³",
+    "80 lb bags",
+    "147 bags",
+    "60 lb bags",
+    "196 bags",
+    "40 lb bags",
+    "294 bags",
+    "Wire-mesh sheets",
+    "2 sheets",
+  ],
+  "cubic-yard-calculator": [
+    "Cubic yards",
+    "1 yd³",
+    "Cubic feet",
+    "27 ft³",
+    "Cubic meters",
+    "0.76 m³",
+    "Liters",
+    "765 L",
+    "US gallons",
+    "201.97 gal",
+  ],
+  "cubic-feet-calculator": [
+    "Cubic feet",
+    "40 ft³",
+    "Cubic yards",
+    "1.48 yd³",
+    "Cubic meters",
+    "1.13 m³",
+    "Cubic inches",
+    "69,120 in³",
+    "Liters",
+    "1,133 L",
+    "US gallons",
+    "299.22 gal",
+  ],
+  "tile-calculator": [
+    "Area to tile",
+    "100 ft²",
+    "Tiles needed",
+    "108 tiles",
+    "Boxes needed",
+    "11 boxes",
+  ],
+  "brick-calculator": [
+    "Net wall area",
+    "80 ft²",
+    "Bricks needed",
+    "576 bricks",
+    "Mortar volume",
+    "5.09 ft³",
+    "Mortar bags (80 lb)",
+    "18 bags",
+  ],
+  "drywall-calculator": [
+    "Area to cover",
+    "478 ft²",
+    "Drywall sheets",
+    "17 sheets",
+    "Joint compound",
+    "4.78 gal",
+    "Paper tape",
+    "176.86 ft",
+    "Drywall screws",
+    "483 screws",
+  ],
+  "concrete-bags-calculator": [
+    "Volume needed",
+    "1.1 yd³",
+    "40 lb bags",
+    "99 bags",
+    "60 lb bags",
+    "66 bags",
+    "80 lb bags",
+    "50 bags",
+  ],
+  "flooring-calculator": [
+    "Floor area",
+    "180 ft²",
+    "Boxes needed",
+    "10 boxes",
+    "Underlayment rolls",
+    "2 rolls",
+  ],
+  "paver-calculator": [
+    "Pavers needed",
+    "207 pavers",
+    "Base gravel to order",
+    "3.41 yd³",
+    "Bedding sand",
+    "0.68 yd³",
+    "Joint sand",
+    "2 bags",
+  ],
+  "topsoil-calculator": [
+    "Topsoil volume",
+    "2.04 yd³",
+    "Bulk to order",
+    "3 yd³",
+    "Weight",
+    "2.04 tons",
+    "Bags",
+    "74 bags",
+  ],
+  "grout-calculator": [
+    "Grout per square foot",
+    "0.064 lb/ft²",
+    "Grout needed",
+    "7.1 lb",
+    "Bags needed",
+    "1 bags",
+  ],
+  "board-foot-calculator": [
+    "Board feet per piece",
+    "8 bf",
+    "Total board feet",
+    "84 bf",
+    "Volume",
+    "7 ft³",
+  ],
+  "mortar-calculator": [
+    "Wall area (bricks)",
+    "80 ft²",
+    "Mortar volume",
+    "5.09 ft³",
+    "Pre-mixed mortar",
+    "18 bags",
+    "Site mix — Type N (1:1:6)",
+    "0.87 ft³ cement",
+  ],
+  "ceiling-tile-calculator": [
+    "Tiles needed",
+    "40 tiles",
+    "Cartons to buy",
+    "3 cartons",
+    "Main tees (12 ft)",
+    "2 tees",
+    "Cross tees (4 ft)",
+    "15 tees",
+    "Cross tees (2 ft)",
+    "18 tees",
+    "Wall angle (10 ft)",
+    "5 pieces",
+    "Hanger wires",
+    "6 wires",
+  ],
   "tile-adhesive-calculator": [
     "Adhesive needed",
     "61.1 lb",
@@ -91,6 +314,50 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
     "90 ft²/bag",
     "Bags to buy",
     "2 bags",
+  ],
+  "primer-calculator": [
+    "Wall area to prime",
+    "381 ft²",
+    "Primer needed",
+    "1.68 gal",
+    "Gallons to buy",
+    "2 gal",
+  ],
+  "wallpaper-calculator": [
+    "Strips needed",
+    "32 strips",
+    "Strip length",
+    "9.83 ft",
+    "Strips per roll",
+    "3 strips",
+    "Rolls to buy",
+    "12 rolls",
+  ],
+  "sealant-calculator": [
+    "Sealant needed",
+    "45.7 fl oz",
+    "Coverage per tube",
+    "24.3 ft/tube",
+    "Tubes to buy",
+    "5 tubes",
+  ],
+  "waterproofing-calculator": [
+    "Membrane needed",
+    "2 gal",
+    "Containers to buy",
+    "2 containers",
+    "Liters to buy",
+    "7.57 L",
+  ],
+  "baseboard-calculator": [
+    "Net wall length",
+    "45 ft",
+    "Length with waste",
+    "49.5 ft",
+    "Pieces to buy",
+    "7 pieces",
+    "Length purchased",
+    "56 ft",
   ],
   "stair-calculator": [
     "Risers",
@@ -107,7 +374,7 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
   ],
 };
 
-for (const { slug, path } of STAGE1) {
+for (const { slug, path } of ALL) {
   const config = mustGetConfig(slug);
 
   test(`${slug}: every original content string is in the page (including collapsed text)`, async ({
@@ -283,12 +550,12 @@ test("stair: rise/run diagram renders with all labels and the schematic caption"
   }
 });
 
-test("non-C+ control: concrete keeps the original layout", async ({ page }) => {
-  await page.goto("/calculators/concrete-calculator/");
-  await expect(page.locator("[data-hydrated='true']")).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "On this page" })).toHaveCount(0);
-  await expect(page.locator(".faq-item")).toHaveCount(0);
-  await expect(page.locator(".depth-details")).toHaveCount(0);
-  await expect(page.locator(".guide")).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Cubic yards vs cubic feet" })).toBeVisible();
+test("all 26 calculators use the C+ layout (no original-layout page remains)", async ({ page }) => {
+  for (const { path } of ALL) {
+    await page.goto(path);
+    await expect(page.locator("[data-hydrated='true']")).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "On this page" })).toHaveCount(1);
+    await expect(page.locator(".faq-item").first()).toBeVisible();
+    await expect(page.locator(".guide")).toHaveCount(1);
+  }
 });
