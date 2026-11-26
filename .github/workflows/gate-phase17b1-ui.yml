@@ -6,11 +6,14 @@
 # (scripts/gate-round.sh) three times in a row on the pushed branch,
 # measures + screenshots the 3 Stage 1 pages (Paint, Tile Adhesive,
 # Stair) at 320/390/768/1280 px with scripts/measure-ui-stage1.mjs,
-# then builds the production artifact from the same source and audits
+# measures the same pages on the Phase 17B1 baseline (PR #16 head
+# 9acf474e) with the identical script and environment so the
+# before/after comparison is same-environment (QA-17B1-UI-04), then
+# builds the production artifact from the same source and audits
 # it. No deploy step, no secrets, no Cloudflare access, no Wrangler.
-# Outputs are uploaded as run artifacts (gate logs, measurements +
-# screenshots, production dist/ + manifest), never published or
-# deployed.
+# Outputs are uploaded as run artifacts (gate logs, baseline +
+# candidate measurements + screenshots, production dist/ + manifest),
+# never published or deployed.
 #
 # Triggers: push to the Phase 17B1-UI branch, and workflow_dispatch for
 # manual re-runs. A workflow that only exists on a feature branch
@@ -109,6 +112,58 @@ jobs:
         with:
           name: phase17b1-ui-measurements
           path: /tmp/phase17b1-ui-measure/
+          retention-days: 30
+
+  baseline-measurements:
+    # QA-17B1-UI-04: the candidate measurements alone cannot support a
+    # before/after percentage — the baseline must be measured with the
+    # same script, browser, fonts, viewport height/widths, device scale
+    # factors, and method, in the same CI environment. This job checks
+    # out the Phase 17B1 baseline (PR #16 head 9acf474e), restores the
+    # measure script (which does not exist on that branch — it is a
+    # self-contained script importing only node built-ins + playwright),
+    # builds it in local mode with the same env, and measures the same
+    # 3 pages at the same 4 widths with label "before". Runs on every
+    # push so the final gate run carries both versions in one run.
+    name: Baseline measurements (9acf474e, same method)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Save the measure script (it does not exist on the baseline branch)
+        run: cp scripts/measure-ui-stage1.mjs /tmp/measure-ui-stage1.mjs
+      - name: Check out the Phase 17B1 baseline (PR #16 head 9acf474e)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: phase-17b1-seo-depth-internal-links
+      - name: Restore the measure script into the baseline tree
+        run: |
+          mkdir -p scripts
+          cp /tmp/measure-ui-stage1.mjs scripts/measure-ui-stage1.mjs
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install dependencies (baseline lockfile)
+        run: npm ci --no-audit --no-fund
+      - name: Install Playwright Chromium (+ system deps)
+        run: npx playwright install --with-deps chromium
+      - name: Build baseline (local mode, test origin)
+        run: npm run build
+        env:
+          PUBLIC_BUILD_MODE: local
+          PUBLIC_SITE_URL: https://example.com
+      - name: Measure the 3 Stage 1 pages at 4 widths (baseline)
+        run: |
+          mkdir -p /tmp/phase17b1-ui-measure-baseline
+          node scripts/measure-ui-stage1.mjs . 4321 /tmp/phase17b1-ui-measure-baseline before
+          pkill -f "astro preview" || true
+          ls -la /tmp/phase17b1-ui-measure-baseline/
+      - name: Upload baseline measurements + screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase17b1-ui-measurements-baseline
+          path: /tmp/phase17b1-ui-measure-baseline/
           retention-days: 30
 
   production-artifact:
