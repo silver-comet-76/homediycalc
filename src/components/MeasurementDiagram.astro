@@ -174,7 +174,13 @@ const labels: Record<DiagramKind, string> = {
           <line x1="60" y1="178" x2="240" y2="178" stroke="#334155" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)" />
           <text x="150" y="194" text-anchor="middle" font-size="12" fill="#334155">Total run</text>
           <line x1="60" y1="122" x2="120" y2="122" stroke="#334155" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)" />
-          <text x="90" y="112" text-anchor="middle" font-size="11" fill="#334155">Tread depth</text>
+          {/*
+            Refinement A (Stage 2): the Tread depth label was centred over
+            its dimension line, so its right edge sat on the second riser
+            (x=120). Shifted left and up for separation from the step
+            outline; the dimension line itself is unchanged.
+          */}
+          <text x="84" y="108" text-anchor="middle" font-size="11" fill="#334155">Tread depth</text>
           <line x1="255" y1="40" x2="255" y2="70" stroke="#334155" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)" />
           <text x="262" y="59" font-size="11" fill="#334155">Riser height</text>
           <text x="180" y="150" text-anchor="middle" font-size="12" fill="#475569">Stringer = √(rise² + run²)</text>
