@@ -12,6 +12,8 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const sealantConfig: CalculatorConfig = {
   slug: "sealant-calculator",
+  designCplus: true,
+  heroResultLabel: "Tubes to buy",
   lookupTable: {
     note: "Assumes a ¼ × ¼ in bead, standard 10.1 fl oz tubes, and 10% waste.",
     headers: ["Joint length", "Sealant needed", "Coverage per tube", "Tubes to buy"],
