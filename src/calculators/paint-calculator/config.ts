@@ -60,6 +60,7 @@ function paintOutput(netAreaFt2: number, v: Record<string, number>, present: Set
 export const paintConfig: CalculatorConfig = {
   slug: "paint-calculator",
   designCplus: true,
+  heroResultLabel: "Gallons to buy",
   lookupTable: {
     note: "Assumes 8 ft ceilings, 2 coats, 350 ft²/gal coverage, 10% waste, 1 door (21 ft²) and 2 windows (15 ft² each).",
     headers: ["Room size", "Paintable area", "Paint needed", "Gallons to buy"],
@@ -97,7 +98,7 @@ export const paintConfig: CalculatorConfig = {
       id: "three-gallon-numbers",
       heading: "Raw paint, paint with waste, and gallons to buy — three different numbers",
       takeaway:
-        "Paint needed (1.90 gal) is the raw requirement; adding 10% waste gives 2.09 gal; gallons to buy (3 gal) rounds up to whole gallons — the extra is for touch-ups, and quarts can cover part of the gap.",
+        "In the 12×12 ft worked example (8 ft ceilings, 2 coats, 350 ft²/gal, 10% waste, 333 ft² net): Paint needed (1.90 gal) is the raw requirement; adding 10% waste gives 2.09 gal; gallons to buy (3 gal) rounds up to whole gallons — the extra is for touch-ups, and quarts can cover part of the gap.",
       blocks: [
         {
           type: "paragraph",
@@ -125,7 +126,7 @@ export const paintConfig: CalculatorConfig = {
       id: "wall-area-not-floor-area",
       heading: "Why two rooms with the same floor area need different amounts of paint",
       takeaway:
-        "Paint is bought by wall area, not floor area: a 5×20 ft room has a quarter more wall than a 10×10 ft room with the same floor, and raising 8 ft walls to 9 ft takes the 12×12 room from 2.09 to 2.39 gal — still 3 gallons to buy.",
+        "Paint is bought by wall area, not floor area: a 5×20 ft room has a quarter more wall than a 10×10 ft room with the same floor, and raising the 12×12 room's walls from 8 ft to 9 ft — same one-door and two-window deductions, 2 coats, 350 ft²/gal, 10% waste — takes the adjusted paint from 2.09 gal to 2.39 gal, still 3 gallons to buy.",
       blocks: [
         {
           type: "paragraph",
@@ -157,7 +158,7 @@ export const paintConfig: CalculatorConfig = {
       id: "primer-two-figures",
       heading: "Primer: two figures from the same manufacturer, and why they disagree",
       takeaway:
-        "Sherwin-Williams' data sheet lists primer at 400 sq ft/gal but its FAQ plans on 200–300 sq ft/gal — the first is a theoretical rate on a smooth surface, the second a planning figure for porous bare drywall; for the 12×12 room, buy 2 gallons either way.",
+        "Sherwin-Williams' data sheet lists primer at 400 sq ft/gal but its FAQ plans on 200–300 sq ft/gal — the first is a theoretical rate on a smooth surface, the second a planning figure for porous bare drywall. For the 12×12 room (333 ft² net) on bare drywall, the 200–300 planning range needs 1.11–1.67 gal — buy 2 gallons either way within that range.",
       blocks: [
         {
           type: "paragraph",
