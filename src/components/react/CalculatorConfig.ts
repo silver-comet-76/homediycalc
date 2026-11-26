@@ -46,7 +46,8 @@ export type FieldKind =
   "length" | "area" | "volume" | "number" | "count" | "percent" | "price" | "select";
 
 /** Kinds of SVG measurement diagram the shared component can draw. */
-export type DiagramKind = "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board" | "stair";
+export type DiagramKind =
+  "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board" | "stair";
 
 export type UnitKind = "length" | "area" | "volume" | "coverage";
 
