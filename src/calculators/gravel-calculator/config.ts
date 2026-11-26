@@ -38,7 +38,7 @@ export const gravelConfig: CalculatorConfig = {
   ],
   workedExample:
     "A 10 ft × 10 ft area, 3 in deep: 10 × 10 × 0.25 ft = 25 ft³ = 0.93 yd³. " +
-    "At 2,800 lb/yd³ the unrounded 0.926 yd³ weighs 2,593 lb, about 1.30 US tons.",
+    "At 2,800 lb/yd³, with the 5% compaction allowance the calculator applies by default, the adjusted 0.97 yd³ weighs about 2,722 lb, about 1.36 US short tons (2,593 lb, about 1.30 US short tons, before the allowance).",
   limitations: [
     "Density varies by stone type, size, and moisture — wet gravel can weigh 10–15% more than dry. Treat the weight as an estimate for ordering and hauling.",
     "The waste allowance only approximates compaction and settling. Crushed stone compacts to roughly 85% of its loose volume once driven on.",
