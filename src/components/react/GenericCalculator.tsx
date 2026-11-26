@@ -449,7 +449,84 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
     window.setTimeout(() => setSaved(false), 3000);
   }
 
+  /**
+   * Result block (warnings + results + worked line + actions). Rendered
+   * inside the inputs card in the original layout; Direction C+ renders
+   * it as a separated sibling card below the inputs (audit F8).
+   */
+  const cplus = config.designCplus === true;
+  const resultBlock = result ? (
+    <>
+      {result.warnings && result.warnings.length > 0 ? (
+        <div className="mb-4 space-y-2">
+          {result.warnings.map((warning) => (
+            <p
+              key={warning}
+              role="alert"
+              className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900"
+            >
+              {warning}
+            </p>
+          ))}
+        </div>
+      ) : null}
+      <ResultPanel
+        title="Results"
+        rows={
+          result.costUsd !== undefined
+            ? [
+                ...result.rows,
+                {
+                  label: result.costLabel ?? "Estimated cost",
+                  value: `$${result.costUsd.toFixed(2)}`,
+                  detail: result.costDetail ?? "From the prices you entered only.",
+                },
+              ]
+            : result.rows
+        }
+        note={
+          result.note ??
+          "Package quantities are always rounded up — you are never told to buy less than you need."
+        }
+        shoppingList={shoppingList}
+        onCopyShoppingList={copyShoppingList}
+        heroFirstRow={cplus}
+      />
+      {result.workedLine ? (
+        <p className="mt-3 text-sm text-slate-600">
+          <span className="font-semibold text-slate-700">Your calculation: </span>
+          {result.workedLine}
+        </p>
+      ) : null}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button type="button" onClick={addToProject} className="btn-primary">
+          Add to Project
+        </button>
+        {copied ? (
+          <p role="status" className="text-sm font-medium text-green-700">
+            Shopping list copied.
+          </p>
+        ) : null}
+        {copyFailed ? (
+          <p role="status" className="text-sm font-medium text-red-700">
+            Copy did not work in this browser — select the list text manually.
+          </p>
+        ) : null}
+        {saved ? (
+          <p role="status" className="text-sm font-medium text-green-700">
+            Saved to{" "}
+            <a href="/my-project/" className="font-semibold">
+              My Project
+            </a>
+            .
+          </p>
+        ) : null}
+      </div>
+    </>
+  ) : null;
+
   return (
+    <>
     <div className="card" data-hydrated={hydrated ? "true" : undefined}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <UnitToggle value={system} onChange={switchSystem} />
@@ -559,79 +636,15 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
         )}
       </div>
 
-      {result ? (
-        <div className="mt-6">
-          {result.warnings && result.warnings.length > 0 ? (
-            <div className="mb-4 space-y-2">
-              {result.warnings.map((warning) => (
-                <p
-                  key={warning}
-                  role="alert"
-                  className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900"
-                >
-                  {warning}
-                </p>
-              ))}
-            </div>
-          ) : null}
-          <ResultPanel
-            title="Results"
-            rows={
-              result.costUsd !== undefined
-                ? [
-                    ...result.rows,
-                    {
-                      label: result.costLabel ?? "Estimated cost",
-                      value: `$${result.costUsd.toFixed(2)}`,
-                      detail: result.costDetail ?? "From the prices you entered only.",
-                    },
-                  ]
-                : result.rows
-            }
-            note={
-              result.note ??
-              "Package quantities are always rounded up — you are never told to buy less than you need."
-            }
-            shoppingList={shoppingList}
-            onCopyShoppingList={copyShoppingList}
-          />
-          {result.workedLine ? (
-            <p className="mt-3 text-sm text-slate-600">
-              <span className="font-semibold text-slate-700">Your calculation: </span>
-              {result.workedLine}
-            </p>
-          ) : null}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={addToProject} className="btn-primary">
-              Add to Project
-            </button>
-            {copied ? (
-              <p role="status" className="text-sm font-medium text-green-700">
-                Shopping list copied.
-              </p>
-            ) : null}
-            {copyFailed ? (
-              <p role="status" className="text-sm font-medium text-red-700">
-                Copy did not work in this browser — select the list text manually.
-              </p>
-            ) : null}
-            {saved ? (
-              <p role="status" className="text-sm font-medium text-green-700">
-                Saved to{" "}
-                <a href="/my-project/" className="font-semibold">
-                  My Project
-                </a>
-                .
-              </p>
-            ) : null}
-          </div>
-        </div>
-      ) : (
+      {!cplus && result ? <div className="mt-6">{resultBlock}</div> : null}
+      {!result ? (
         <p className="mt-6 text-slate-600">
           Enter your measurements above to see results. Fix any highlighted fields first — a result
           is only shown when every required input is valid.
         </p>
-      )}
+      ) : null}
     </div>
+    {cplus && result ? <div className="mt-4">{resultBlock}</div> : null}
+    </>
   );
 }
