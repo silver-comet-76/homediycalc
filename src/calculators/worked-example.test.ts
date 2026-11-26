@@ -5,6 +5,7 @@ import { gravelConfig } from "./gravel-calculator/config";
 import { calculateTile } from "../lib/formulas/tile";
 import { calculateTileAdhesive } from "../lib/formulas/tile-adhesive";
 import { calculateGravel } from "../lib/formulas/gravel";
+import { linkedTextToPlain } from "../lib/linked-text";
 
 /**
  * Worked-example prose pinned to its formula (Phase 17B-1, D-1/D-2/D-3).
@@ -46,6 +47,33 @@ describe("worked examples agree with their formulas", () => {
     expect(r.adhesiveLb).toBeCloseTo(130.95, 2);
     expect(tileAdhesiveConfig.workedExample).toContain("3 bags");
     expect(tileAdhesiveConfig.workedExample).not.toContain("needs 6 bags");
+  });
+
+  it("QA-17B1-02 tile adhesive: the 3-bag result stays, but the ½×½ in notch is a conditional estimate and not recommended", () => {
+    // The 42 ft²/bag figure is CUSTOM's chart estimating figure, and the
+    // example excludes back-troweling material (the calculator adds ~35%
+    // only when back-buttering is selected).
+    expect(tileAdhesiveConfig.workedExample).toContain("3 bags");
+    expect(tileAdhesiveConfig.workedExample).toContain("chart estimating figure");
+    expect(tileAdhesiveConfig.workedExample).toContain("excludes any back-troweling material");
+    expect(tileAdhesiveConfig.workedExample).toContain("does not recommend");
+    expect(tileAdhesiveConfig.workedExample).toContain("U-notch at 30°");
+    // The prescriptive guidance must not present the ½×½ in square-notch
+    // as the recommended large-format choice:
+    const howTo = tileAdhesiveConfig.howTo.map((step) => linkedTextToPlain(step));
+    const notchStep = howTo.find((step) => step.startsWith("Pick the trowel notch"));
+    expect(notchStep).toBeDefined();
+    expect(notchStep).toContain("does not recommend");
+    expect(notchStep).toContain("U-notch at 30°");
+    expect(notchStep).not.toContain("1/2 × 1/2 in for large format over 15 in");
+    const trowelFaq = tileAdhesiveConfig.faqs.find((faq) =>
+      faq.question.includes("What size trowel"),
+    );
+    expect(trowelFaq).toBeDefined();
+    const trowelAnswer = linkedTextToPlain(trowelFaq?.answer ?? "");
+    expect(trowelAnswer).toContain("does not recommend");
+    expect(trowelAnswer).toContain("U-notch at 30°");
+    expect(trowelAnswer).not.toContain("step up to a 1/2 × 1/2 in notch");
   });
 
   it("D-3 gravel: 10×10 ft, 3 in deep, 5% allowance, 2,800 lb/yd³ → 2,722 lb / 1.36 US short tons", () => {
