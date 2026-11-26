@@ -4,23 +4,45 @@ import type { LinkedText as LinkedTextType } from "../lib/linked-text";
 
 export interface Props {
   faqs: { question: string; answer: string | LinkedTextType }[];
+  /**
+   * Direction C+ (Phase 17B1-UI, Stage 1): native <details> accordions,
+   * first open. Same H2, questions, and answers — only the presentation
+   * compacts. Questions stay <h3> (inside <summary>, rendered inline)
+   * so the heading structure is preserved.
+   */
+  compact?: boolean;
 }
 
-const { faqs } = Astro.props;
+const { faqs, compact = false } = Astro.props;
 ---
 
 <h2 id="faq-heading" class="text-2xl font-bold text-slate-900">
   Frequently asked questions
 </h2>
-<div class="mt-4 space-y-4">
-  {
-    faqs.map((faq) => (
-      <div class="card">
-        <h3 class="font-semibold text-slate-900">{faq.question}</h3>
-        <p class="mt-1 text-slate-700">
-          {typeof faq.answer === "string" ? faq.answer : <LinkedText text={faq.answer} />}
-        </p>
-      </div>
-    ))
-  }
-</div>
+{
+  compact ? (
+    <div class="mt-4 space-y-2">
+      {faqs.map((faq, i) => (
+        <details class="faq-item" open={i === 0 ? true : undefined}>
+          <summary>
+            <h3>{faq.question}</h3>
+          </summary>
+          <p class="mt-2 text-slate-700">
+            {typeof faq.answer === "string" ? faq.answer : <LinkedText text={faq.answer} />}
+          </p>
+        </details>
+      ))}
+    </div>
+  ) : (
+    <div class="mt-4 space-y-4">
+      {faqs.map((faq) => (
+        <div class="card">
+          <h3 class="font-semibold text-slate-900">{faq.question}</h3>
+          <p class="mt-1 text-slate-700">
+            {typeof faq.answer === "string" ? faq.answer : <LinkedText text={faq.answer} />}
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
