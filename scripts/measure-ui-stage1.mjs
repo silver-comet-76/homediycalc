@@ -1,11 +1,10 @@
 /**
- * Stage 1 UI measurement — before/after comparison for Direction C+.
+ * Stage 2 UI measurement — before/after comparison for Direction C+.
  * Dev/CI utility (not shipped to the site).
  *
  * Usage: node scripts/measure-ui-stage1.mjs <worktreeDir> <port> <outDir> [label]
  * Serves the worktree's dist/ with `astro preview`, and for each of the
- * three Stage 1 pages (Paint, Tile Adhesive, Stair) at 320 / 390 / 768 /
- * 1280 px widths measures:
+ * 26 calculator pages at 320 / 390 / 768 / 1280 px widths measures:
  *   - default document height and fully-expanded height (all <details> open)
  *   - distance from the page top to the calculator and to the result panel
  *   - horizontal overflow (scrollWidth vs innerWidth)
@@ -16,6 +15,13 @@
  * Takes full-page screenshots (default + expanded) and writes
  * measurements.json to outDir. Requires the site to be built first
  * (e.g. `npm run build` with PUBLIC_BUILD_MODE=local).
+ *
+ * Refinement C (Stage 2): the report records the environment metadata
+ * (Chromium version, viewport height, device scale factors, script
+ * version, baseline/candidate SHAs from env MEAS_BASELINE_SHA and
+ * MEAS_CANDIDATE_SHA) so a before/after comparison can be checked for
+ * same-runner equivalence. The CI workflow runs baseline and candidate
+ * measurements in a single job on one runner.
  *
  * Note: `astro preview` can leave an orphan server behind on SIGTERM;
  * the caller should kill any leftover `astro preview` process after
@@ -29,12 +35,38 @@ const [worktreeDir, portStr, outDir, label = "run"] = process.argv.slice(2);
 const port = Number(portStr);
 const base = `http://127.0.0.1:${port}`;
 
+const SCRIPT_VERSION = "stage2-1";
+
 const PAGES = [
+  ["concrete-calculator", "/calculators/concrete-calculator/"],
+  ["square-footage-calculator", "/calculators/square-footage-calculator/"],
   ["paint-calculator", "/calculators/paint-calculator/"],
+  ["gravel-calculator", "/calculators/gravel-calculator/"],
+  ["mulch-calculator", "/calculators/mulch-calculator/"],
+  ["concrete-slab-calculator", "/calculators/concrete-slab-calculator/"],
+  ["cubic-yard-calculator", "/calculators/cubic-yard-calculator/"],
+  ["cubic-feet-calculator", "/calculators/cubic-feet-calculator/"],
+  ["tile-calculator", "/calculators/tile-calculator/"],
+  ["brick-calculator", "/calculators/brick-calculator/"],
+  ["drywall-calculator", "/calculators/drywall-calculator/"],
+  ["concrete-bags-calculator", "/calculators/concrete-bags-calculator/"],
+  ["flooring-calculator", "/calculators/flooring-calculator/"],
+  ["paver-calculator", "/calculators/paver-calculator/"],
+  ["topsoil-calculator", "/calculators/topsoil-calculator/"],
+  ["grout-calculator", "/calculators/grout-calculator/"],
+  ["board-foot-calculator", "/calculators/board-foot-calculator/"],
+  ["mortar-calculator", "/calculators/mortar-calculator/"],
+  ["ceiling-tile-calculator", "/calculators/ceiling-tile-calculator/"],
   ["tile-adhesive-calculator", "/calculators/tile-adhesive-calculator/"],
+  ["primer-calculator", "/calculators/primer-calculator/"],
+  ["wallpaper-calculator", "/calculators/wallpaper-calculator/"],
+  ["sealant-calculator", "/calculators/sealant-calculator/"],
+  ["waterproofing-calculator", "/calculators/waterproofing-calculator/"],
+  ["baseboard-calculator", "/calculators/baseboard-calculator/"],
   ["stair-calculator", "/calculators/stair-calculator/"],
 ];
 const WIDTHS = [320, 390, 768, 1280];
+const VIEWPORT_HEIGHT = 800;
 
 function waitForServer(url, timeoutMs = 30000) {
   const start = Date.now();
@@ -84,20 +116,38 @@ async function measureState(page) {
 
 mkdirSync(outDir, { recursive: true });
 
-const server = spawn("./node_modules/.bin/astro", ["preview", "--port", String(port), "--host", "127.0.0.1"], {
-  cwd: worktreeDir,
-  stdio: "ignore",
-});
-const report = { label, pages: {} };
+const server = spawn(
+  "./node_modules/.bin/astro",
+  ["preview", "--port", String(port), "--host", "127.0.0.1"],
+  {
+    cwd: worktreeDir,
+    stdio: "ignore",
+  },
+);
+const report = {
+  label,
+  scriptVersion: SCRIPT_VERSION,
+  environment: {
+    baselineSha: process.env.MEAS_BASELINE_SHA ?? null,
+    candidateSha: process.env.MEAS_CANDIDATE_SHA ?? null,
+    viewportHeight: VIEWPORT_HEIGHT,
+    widths: WIDTHS,
+    deviceScaleFactors: { mobile: 2, desktop: 1 },
+    isMobileAtWidth: "width <= 390",
+  },
+  pages: {},
+};
 try {
   await waitForServer(`${base}/`);
   const browser = await chromium.launch();
+  // Chromium version for the environment record (refinement C).
+  report.environment.chromiumVersion = browser.version();
   for (const [slug, path] of PAGES) {
     report.pages[slug] = {};
     for (const width of WIDTHS) {
       const isMobile = width <= 390;
       const ctx = await browser.newContext({
-        viewport: { width, height: 800 },
+        viewport: { width, height: VIEWPORT_HEIGHT },
         isMobile,
         deviceScaleFactor: isMobile ? 2 : 1,
       });
@@ -140,7 +190,9 @@ try {
         expanded: exp,
         scenario,
       };
-      console.log(`measured ${slug} @ ${width}px: default ${def.height}px, expanded ${exp.height}px`);
+      console.log(
+        `measured ${slug} @ ${width}px: default ${def.height}px, expanded ${exp.height}px`,
+      );
       await ctx.close();
     }
   }
