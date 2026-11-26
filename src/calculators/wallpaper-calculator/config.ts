@@ -147,6 +147,90 @@ export const wallpaperConfig: CalculatorConfig = {
     "The 4 in trim allowance (2 in top, 2 in bottom) is a standard estimating figure. Very uneven ceilings or deep coving may need more.",
     "Roll sizes are nominal — check the label on the pattern you are buying, because the width is what the strip count divides by.",
   ],
+  depthSections: [
+    {
+      id: "count-strips-not-square-feet",
+      heading: "Count strips, not square feet — why area math under-orders",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "Wallpaper hangs in whole strips, so the roll count is decided by strips, not by area — and area division under-orders on every patterned paper. Strips = wall length ÷ roll width, rounded ",
+            },
+            { text: "up", strong: true },
+            {
+              text: "; each strip is wall height + pattern repeat + 4 in trim; strips per roll = roll length ÷ strip length, rounded ",
+            },
+            { text: "down", strong: true },
+            {
+              text: "; rolls = strips (plus waste) ÷ strips per roll, rounded ",
+            },
+            { text: "up", strong: true },
+            {
+              text: ". The rounding directions are the whole story. Strips round up because a wall 31.6 strips wide needs 32 strips — you cannot hang 0.6 of a strip. Strips per roll round down because a roll that yields 3.36 strips yields 3 strips and a tail — the tail is perfectly good paper and it is scrap, because no strip on the wall is that short. Area division assumes the tail is usable; strip counting does not. For the 12×15 ft room with 8 ft walls and an 18 in repeat: 54 ft of wall needs 32 strips of 9.83 ft; a 33 ft double roll yields 3 strips; with 10% waste that is 36 strips — ",
+            },
+            { text: "12 double rolls", strong: true },
+            {
+              text: ". Dividing wall area by roll area would have said 9 rolls. The area answer is 3 rolls short, and the shortfall is discovered halfway up the last wall, when the shop may not have your dye lot any more.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "how-pattern-repeat-eats-rolls",
+      heading: "How the pattern repeat eats rolls (the mechanism, without invented percentages)",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "The pattern repeat is the vertical distance after which the pattern starts over, printed on the roll label in inches. To line the pattern up across strips, each strip is cut ",
+            },
+            { text: "one full repeat longer", strong: true },
+            {
+              text: " than the wall is high: strip length = wall height + pattern repeat + 4 in trim. That is the entire mechanism, and it is why the repeat is the single input that changes the answer most. A longer repeat makes every strip longer; longer strips mean fewer strips per roll; fewer strips per roll mean more rolls. A 27 in repeat on a 9 ft wall can drop a roll from three strips to two — a third of the roll's output, gone in one step. A plain or random-match paper has a repeat of 0 and wastes the least, because its strips are wall height plus trim only.",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "No percentage allowance is given on this page, deliberately. The common figures quoted on third-party calculator and blog pages — about 10% for a plain paper, 15–20% for a straight match, 20–25% for a drop match — are rules of thumb from those pages, not manufacturer guidance: no manufacturer publishes a numeric pattern-repeat allowance, and Graham & Brown's support page (the manufacturer source checked for this page) confirms only that the repeat must be allowed for, without a number. This calculator does not need a percentage, because it counts the repeat exactly — the full repeat length is added to every strip, and the strips-per-roll division does the rest. Note the match type on your label: this calculator assumes straight-match paper, where each strip is cut one full repeat longer than the wall. Half-drop (drop-match) papers can waste more, because the pattern is offset by half a repeat on alternate strips — check the match type on the label, and if yours is a drop match, treat the calculator's answer as a minimum and buy an extra roll.",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "The 10% waste allowance on this calculator is ",
+            },
+            { text: "separate", strong: true },
+            {
+              text: " from the repeat. It covers cutting mistakes and damaged strips. The pattern-repeat waste is already in the strip count — do not add a second allowance for it on top.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "when-no-strip-fits",
+      heading: "When no strip fits on the roll",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "If the wall plus the pattern repeat is longer than the roll, no full strip fits — the calculator returns zero rolls and says so, rather than inventing a number. It happens on tall walls with a large repeat: a 10 ft wall with a 27 in repeat needs strips 12.58 ft long, which still fits a 33 ft double roll (2 strips), but a 12 ft stairwell wall with a 36 in repeat needs 15.33 ft strips, and a 16.5 ft single roll yields exactly one strip with almost nothing left over. The fixes, in order: choose a longer roll (a double roll instead of a single); choose a paper with a smaller repeat; or measure the tall wall strip by strip instead of as part of the room total, because a stairwell or a sloped ceiling is not a rectangle and the room perimeter is the wrong length for it. Sloped ceilings, stairwells, and feature walls all need to be measured strip by strip — the calculator assumes all walls are the same height and the room is rectangular, and its limitations already say so.",
+            },
+          ],
+        },
+      ],
+    },
+  ],
   faqs: [
     {
       question: "How many rolls of wallpaper do I need for a 12 × 12 room?",
