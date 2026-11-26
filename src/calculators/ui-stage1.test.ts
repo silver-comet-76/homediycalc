@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CALCULATOR_CONFIGS } from "./index";
 import { linkedTextToPlain } from "../lib/linked-text";
-import type {
-  CalculatorConfig,
-  DepthSection,
-} from "../components/react/CalculatorConfig";
+import type { CalculatorConfig, DepthSection } from "../components/react/CalculatorConfig";
 
 /**
  * Phase 17B1-UI Stage 1 (Direction C+): the flag gates exactly the three
