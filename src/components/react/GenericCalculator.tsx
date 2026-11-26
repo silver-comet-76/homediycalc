@@ -491,6 +491,7 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
         shoppingList={shoppingList}
         onCopyShoppingList={copyShoppingList}
         heroFirstRow={cplus}
+        heroRowLabel={config.heroResultLabel}
       />
       {result.workedLine ? (
         <p className="mt-3 text-sm text-slate-600">
