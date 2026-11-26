@@ -4,6 +4,7 @@ import SEO from "./SEO.astro";
 import AdSlot from "./AdSlot.astro";
 import { CATEGORIES } from "../lib/registry";
 import { SITE_NAME, SITE_TAGLINE, IS_PRODUCTION } from "../lib/site";
+import type { LinkedText } from "../lib/linked-text";
 
 export interface Props {
   title: string;
@@ -11,7 +12,7 @@ export interface Props {
   canonical?: string;
   ogType?: "website" | "article";
   breadcrumbs?: { name: string; path?: string }[];
-  faqs?: { question: string; answer: string }[];
+  faqs?: { question: string; answer: string | LinkedText }[];
 }
 
 const { title, description, canonical, ogType, breadcrumbs, faqs } = Astro.props;
