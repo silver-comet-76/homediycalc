@@ -5,6 +5,7 @@
  * every slug with a config — all 26 calculators (25 from Phase 4, plus Stair in Phase 15).
  */
 import CalculatorShell from "../../components/CalculatorShell.astro";
+import LinkedText from "../../components/LinkedText.astro";
 import MeasurementDiagram from "../../components/MeasurementDiagram.astro";
 import { GenericCalculator } from "../../components/react/GenericCalculator";
 import { getCalculator } from "../../lib/registry";
@@ -40,7 +41,9 @@ if (!calculator || !config) {
       How to measure
     </h2>
     <ol class="mt-3 max-w-3xl list-decimal space-y-2 pl-6 text-slate-700">
-      {config.howTo.map((step) => <li>{step}</li>)}
+      {config.howTo.map((step) => (
+        <li>{typeof step === "string" ? step : <LinkedText text={step} />}</li>
+      ))}
     </ol>
   </section>
 
@@ -85,10 +88,62 @@ if (!calculator || !config) {
           </table>
         </div>
         {config.lookupTable.note && (
-          <p class="mt-3 max-w-3xl text-sm text-slate-600">{config.lookupTable.note}</p>
+          <p class="mt-3 max-w-3xl text-sm text-slate-600">
+            {typeof config.lookupTable.note === "string" ? (
+              config.lookupTable.note
+            ) : (
+              <LinkedText text={config.lookupTable.note} />
+            )}
+          </p>
         )}
       </section>
     )
+  }
+
+  {
+    config.depthSections?.map((section) => (
+      <section slot="content" aria-labelledby={section.id} class="mt-10">
+        <h2 id={section.id} class="text-2xl font-bold text-slate-900">
+          {section.heading}
+        </h2>
+        {section.blocks.map((block) =>
+          block.type === "table" ? (
+            <div class="mt-4 overflow-x-auto">
+              <table class="w-full max-w-3xl border-collapse border border-slate-200 text-sm">
+                <thead>
+                  <tr>
+                    {block.headers.map((header) => (
+                      <th class="border border-slate-200 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-900">
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.map((row) => (
+                    <tr>
+                      {row.map((cell, index) => (
+                        <td class="border border-slate-200 px-3 py-2 text-slate-700">
+                          {index === 0 ? (
+                            <strong class="font-semibold text-slate-900">{cell}</strong>
+                          ) : (
+                            cell
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p class="mt-3 max-w-3xl text-slate-700">
+              <LinkedText text={block.text} />
+            </p>
+          ),
+        )}
+      </section>
+    ))
   }
 
   <section slot="content" aria-labelledby="limitations" class="mt-10">
@@ -96,7 +151,9 @@ if (!calculator || !config) {
       Limitations
     </h2>
     <ul class="mt-3 max-w-3xl list-disc space-y-2 pl-6 text-slate-700">
-      {config.limitations.map((item) => <li>{item}</li>)}
+      {config.limitations.map((item) => (
+        <li>{typeof item === "string" ? item : <LinkedText text={item} />}</li>
+      ))}
     </ul>
   </section>
 </CalculatorShell>
