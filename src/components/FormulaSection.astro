@@ -1,0 +1,25 @@
+---
+/**
+ * Formula explanation for "How this is calculated" — the plain-language
+ * formula, plus the link to the methodology page. Shared by
+ * CalculatorShell (original layout) and [slug].astro (Direction C+,
+ * where it renders after the quick-reference table so the table sits
+ * directly below the results). Same markup, text, and anchor id in both.
+ */
+export interface Props {
+  formula: string;
+}
+
+const { formula } = Astro.props;
+---
+
+<section aria-labelledby="how-calculated" class="mt-10">
+  <h2 id="how-calculated" class="text-2xl font-bold text-slate-900">
+    How this is calculated
+  </h2>
+  <p class="mt-3 max-w-3xl text-slate-700">{formula}</p>
+  <p class="mt-3 max-w-3xl text-slate-700">
+    <a href="/how-we-calculate/" class="underline">How we calculate</a> — the formulas,
+    sources, and limits behind every calculator on this site.
+  </p>
+</section>
