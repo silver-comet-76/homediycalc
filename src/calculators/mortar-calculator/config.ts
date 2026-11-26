@@ -201,7 +201,13 @@ export const mortarConfig: CalculatorConfig = {
     "Type M 0.33 / 0.08 / 1.0; Type O 0.11 / 0.22 / 1.0. " +
     "(Mix ratios by volume: Type N 1:1:6, Type S 1:½:4½, Type M 1:¼:3¾, Type O 1:2:9 — cement : lime : sand.)",
   howTo: [
-    "Measure the wall: length × height in feet. Subtract large openings (doors, windows) — enter them as an area, or use the Brick Calculator's opening inputs and bring the net area here.",
+    [
+      {
+        text: "Measure the wall: length × height in feet. Subtract large openings (doors, windows) — enter them as an area, or use the ",
+      },
+      { text: "Brick Calculator", calc: "brick-calculator" },
+      { text: "'s opening inputs and bring the net area here." },
+    ],
     "Pick the masonry unit: modular brick (7⅝ × 2¼ × 3⅝ in) or standard 8 × 8 × 16 in concrete block. The joint volume — and therefore the mortar — is different for each.",
     "Choose the mortar type for the site-mix breakdown: Type N is the default for ordinary above-grade residential brickwork; Type S for below-grade and structural work; Type M for foundations and heavy loads; Type O for soft or historic brick.",
     "Choose the waste allowance: 15% is the BIA's low end; use 25% for repointing, irregular units, or inexperienced hands.",
