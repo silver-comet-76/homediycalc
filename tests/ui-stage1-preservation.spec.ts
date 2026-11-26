@@ -26,6 +26,15 @@ const STAGE1 = [
   { slug: "stair-calculator", path: "/calculators/stair-calculator/" },
 ] as const;
 
+type Stage1Slug = (typeof STAGE1)[number]["slug"];
+
+/** Indexed access is possibly-undefined under strict TS; the slugs are known to exist. */
+function mustGetConfig(slug: Stage1Slug): CalculatorConfig {
+  const config = CALCULATOR_CONFIGS[slug];
+  if (!config) throw new Error(`missing config for ${slug}`);
+  return config;
+}
+
 /** Collapse whitespace so server-rendered text matches the config strings. */
 function norm(text: string): string {
   return text.replace(/\s+/g, " ").trim();
@@ -73,7 +82,7 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
 };
 
 for (const { slug, path } of STAGE1) {
-  const config = CALCULATOR_CONFIGS[slug];
+  const config = mustGetConfig(slug);
 
   test(`${slug}: every original content string is in the page (including collapsed text)`, async ({ page }) => {
     await page.goto(path);
@@ -94,7 +103,9 @@ for (const { slug, path } of STAGE1) {
     const results = await page
       .locator('section[aria-label="Results"]')
       .innerText();
-    for (const expected of DEFAULT_RESULTS[slug]) {
+    const expectedRows = DEFAULT_RESULTS[slug];
+    if (!expectedRows) throw new Error(`missing default results for ${slug}`);
+    for (const expected of expectedRows) {
       expect(results).toContain(expected);
     }
   });
@@ -130,6 +141,7 @@ for (const { slug, path } of STAGE1) {
   test(`${slug}: related calculators keep their full summaries and hrefs`, async ({ page }) => {
     await page.goto(path);
     const meta = getCalculator(slug);
+    if (!meta) throw new Error(`missing registry meta for ${slug}`);
     const related = getRelatedCalculators(meta);
     expect(related.length).toBeGreaterThan(0);
     const text = await page.evaluate(
