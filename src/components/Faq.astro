@@ -1,6 +1,9 @@
 ---
+import LinkedText from "./LinkedText.astro";
+import type { LinkedText as LinkedTextType } from "../lib/linked-text";
+
 export interface Props {
-  faqs: { question: string; answer: string }[];
+  faqs: { question: string; answer: string | LinkedTextType }[];
 }
 
 const { faqs } = Astro.props;
@@ -14,7 +17,9 @@ const { faqs } = Astro.props;
     faqs.map((faq) => (
       <div class="card">
         <h3 class="font-semibold text-slate-900">{faq.question}</h3>
-        <p class="mt-1 text-slate-700">{faq.answer}</p>
+        <p class="mt-1 text-slate-700">
+          {typeof faq.answer === "string" ? faq.answer : <LinkedText text={faq.answer} />}
+        </p>
       </div>
     ))
   }
