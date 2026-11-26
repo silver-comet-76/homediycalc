@@ -96,3 +96,106 @@ describe("Direction C+ takeaways are verified condensations", () => {
     }
   }
 });
+
+/**
+ * QA-17B1-UI-02: a number-token check cannot establish meaning. Each
+ * takeaway must carry the qualifications its figures depend on — the
+ * worked example they belong to, the conditions of a comparison, and
+ * the scope of a conclusion. These phrases are the minimum; the
+ * takeaway may say more.
+ */
+const TAKEAWAY_QUALIFICATIONS: Record<string, Record<string, string[]>> = {
+  "paint-calculator": {
+    "three-gallon-numbers": ["12×12", "333 ft²", "1.90 gal", "2.09 gal"],
+    "wall-area-not-floor-area": [
+      "12×12",
+      "8 ft",
+      "9 ft",
+      "2.09 gal",
+      "2.39 gal",
+      "350 ft²/gal",
+      "10% waste",
+    ],
+    "coats-and-coverage": ["350 ft²/gal", "350–400", "smooth, sealed"],
+    "primer-two-figures": [
+      "200–300",
+      "bare drywall",
+      "333 ft² net",
+      "1.11–1.67 gal",
+      "within that range",
+    ],
+  },
+  "stair-calculator": {
+    "how-riser-count-is-decided": ["7.75 in", "⅜ in"],
+    "metric-display": ["19.685 cm", "maximum riser height", "tread depth"],
+  },
+};
+
+describe("QA-17B1-UI-02: takeaways carry their example assumptions and qualifications", () => {
+  for (const slug of STAGE1) {
+    const config = mustGetConfig(slug);
+    for (const section of config.depthSections ?? []) {
+      if (!section.takeaway) continue;
+      const required = TAKEAWAY_QUALIFICATIONS[slug]?.[section.id];
+      if (!required) continue;
+      it(`${slug} / ${section.id}: takeaway states its qualifications`, () => {
+        const takeaway = section.takeaway as string;
+        for (const phrase of required) {
+          expect(
+            takeaway.includes(phrase),
+            `takeaway for "${section.id}" is missing qualification "${phrase}"`,
+          ).toBe(true);
+        }
+      });
+    }
+  }
+});
+
+/** Default canonical values for a mode in imperial. defaultImp is
+ * already canonical for the three Stage 1 calculators in imperial
+ * (ft/ft² for Paint and Tile Adhesive, in for Stair). */
+function defaultImperialValues(config: CalculatorConfig) {
+  const mode = config.modes.find((m) => m.id === config.defaultMode) ?? config.modes[0];
+  if (!mode) throw new Error(`no mode for ${config.slug}`);
+  const values: Record<string, number> = {};
+  const present = new Set<string>();
+  for (const field of mode.fields) {
+    if (field.defaultImp === "") continue;
+    const n = Number(field.defaultImp);
+    if (Number.isNaN(n)) {
+      throw new Error(`non-numeric default for ${config.slug}.${field.id}`);
+    }
+    values[field.id] = n;
+    present.add(field.id);
+  }
+  return { mode, values, present };
+}
+
+describe("Result Hero: heroResultLabel matches a real result row", () => {
+  for (const slug of STAGE1) {
+    it(`${slug}: hero label matches a default result row`, () => {
+      const config = mustGetConfig(slug);
+      const label = config.heroResultLabel;
+      expect(label, `${slug} must set heroResultLabel`).toBeDefined();
+      const { mode, values, present } = defaultImperialValues(config);
+      const output = mode.compute(values, present, "imperial");
+      const labels = output.rows.map((r) => r.label);
+      expect(
+        labels,
+        `${slug} hero label "${label}" matches no result row (${labels.join(", ")})`,
+      ).toContain(label);
+    });
+  }
+});
+
+describe("QA-17B1-UI-01: safety-critical FAQ answers are open by default", () => {
+  it("only the Stair nosing FAQ is flagged openByDefault", () => {
+    const flagged: string[] = [];
+    for (const config of Object.values(CALCULATOR_CONFIGS)) {
+      for (const faq of config.faqs) {
+        if (faq.openByDefault) flagged.push(`${config.slug}: ${faq.question}`);
+      }
+    }
+    expect(flagged).toEqual(["stair-calculator: How deep should stair treads be?"]);
+  });
+});
