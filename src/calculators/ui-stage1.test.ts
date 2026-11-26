@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { CALCULATOR_CONFIGS } from "./index";
 import { linkedTextToPlain } from "../lib/linked-text";
-import type { DepthSection } from "../components/react/CalculatorConfig";
+import type {
+  CalculatorConfig,
+  DepthSection,
+} from "../components/react/CalculatorConfig";
 
 /**
  * Phase 17B1-UI Stage 1 (Direction C+): the flag gates exactly the three
@@ -12,6 +15,13 @@ import type { DepthSection } from "../components/react/CalculatorConfig";
  */
 
 const STAGE1 = ["paint-calculator", "tile-adhesive-calculator", "stair-calculator"] as const;
+
+/** Indexed access is possibly-undefined under strict TS; the slugs are known to exist. */
+function mustGetConfig(slug: (typeof STAGE1)[number]): CalculatorConfig {
+  const config = CALCULATOR_CONFIGS[slug];
+  if (!config) throw new Error(`missing config for ${slug}`);
+  return config;
+}
 
 function chapterPlainText(section: DepthSection): string {
   return section.blocks
@@ -40,11 +50,11 @@ describe("Direction C+ Stage 1 flags", () => {
   });
 
   it("stair uses the new rise/run diagram", () => {
-    expect(CALCULATOR_CONFIGS["stair-calculator"].diagram).toBe("stair");
+    expect(mustGetConfig("stair-calculator").diagram).toBe("stair");
   });
 
   it("collapses the long chapters and keeps the safety / worked-example chapters expanded", () => {
-    const paint = CALCULATOR_CONFIGS["paint-calculator"].depthSections ?? [];
+    const paint = mustGetConfig("paint-calculator").depthSections ?? [];
     expect(paint.filter((s) => s.takeaway).map((s) => s.id)).toEqual([
       "three-gallon-numbers",
       "wall-area-not-floor-area",
@@ -55,7 +65,7 @@ describe("Direction C+ Stage 1 flags", () => {
       paint.find((s) => s.id === "worked-examples-one-wall-ceiling")?.takeaway,
     ).toBeUndefined();
 
-    const stair = CALCULATOR_CONFIGS["stair-calculator"].depthSections ?? [];
+    const stair = mustGetConfig("stair-calculator").depthSections ?? [];
     expect(stair.filter((s) => s.takeaway).map((s) => s.id)).toEqual([
       "how-riser-count-is-decided",
       "metric-display",
@@ -65,13 +75,13 @@ describe("Direction C+ Stage 1 flags", () => {
       stair.find((s) => s.id === "worked-examples-9-ft-boundary-refusals")?.takeaway,
     ).toBeUndefined();
 
-    expect(CALCULATOR_CONFIGS["tile-adhesive-calculator"].depthSections ?? []).toEqual([]);
+    expect(mustGetConfig("tile-adhesive-calculator").depthSections ?? []).toEqual([]);
   });
 });
 
 describe("Direction C+ takeaways are verified condensations", () => {
   for (const slug of STAGE1) {
-    const config = CALCULATOR_CONFIGS[slug];
+    const config = mustGetConfig(slug);
     for (const section of config.depthSections ?? []) {
       if (!section.takeaway) continue;
       it(`${slug} / ${section.id}: takeaway is shorter than the chapter and uses only its numbers`, () => {
