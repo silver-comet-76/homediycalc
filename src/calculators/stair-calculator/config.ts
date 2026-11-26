@@ -50,8 +50,106 @@ export const stairConfig: CalculatorConfig = {
     "Local building codes vary and may amend the IRC limits, and the 2024 IRC renumbers the stair section to R318.7. Check your local code before building.",
     "This is a quantity and layout estimate, not a structural design. Stringer sizing, lumber species and grade, and support details need a qualified professional or your local code's span tables.",
     "Headroom, stair width, handrails, and guards are not checked. The IRC requires at least 6 ft 8 in of headroom, a minimum stair width of 36 in, and a handrail on at least one side for stairs with 4 or more risers — verify all of these separately.",
-    "One flight of stairs may not exceed 12 ft 7 in (151 in) of vertical rise between floors or landings (IRC R311.7.3). This calculator does not enforce that limit — a taller rise needs an intermediate landing.",
+    "One flight of stairs may not exceed 12 ft 7 in (151 in) of vertical rise between floors or landings (IRC R311.7.3). This calculator does not reject a taller rise — it shows a warning and returns the straight-flight numbers as a planning estimate only. A taller rise needs an intermediate landing, which this calculator does not design.",
     "Landings must be at least 36 in deep in the direction of travel (IRC R311.7.6). This calculator does not cover landings.",
+    "This calculator gives a preliminary planning estimate for a straight staircase. It does not certify a stair as code-compliant, does not produce cut-ready stringer designs (cut angles and connection details are not calculated), and does not guarantee compliance with any code — the 2021 IRC is a model code that local jurisdictions adopt with amendments, and the local building department governs. The 2024 IRC renumbers the stair section to R318.7 with the dimensions unchanged (as reported by secondary sources; the ICC text was not read for this page).",
+  ],
+  depthSections: [
+    {
+      id: "how-riser-count-is-decided",
+      heading: "How the riser count is decided (and why it always rounds up)",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "The calculator starts from the one number you cannot change — the total rise, floor to floor — and the one number the code caps — the maximum riser height, 7.75 in under the 2021 IRC (R311.7.5.1). It divides the rise by the maximum and rounds ",
+            },
+            { text: "up", strong: true },
+            {
+              text: ": a 105 in rise divided by 7.75 in is 13.55, so the stair has 14 risers, each 105 ÷ 14 = 7.5 in high. Rounding up is what keeps every riser under the maximum. Rounding to the nearest whole number would give 14 here too, but for a 96 in rise it would give 12 risers at exactly 8 in each — over the limit. Once the count is fixed, every riser is made the same height (total rise ÷ riser count), which also satisfies the IRC rule that risers in a flight stay within ⅜ in of each other — the calculator meets it by construction, because all its risers are identical. The tread count is then one less than the riser count, because the upper floor is the last tread: 14 risers need 13 treads. If you lower the maximum riser below 7.75 in — because your local code requires it, or because you want a gentler stair — the riser count goes up, each riser gets shorter, and the total run gets longer. There is no free lunch in stair geometry: a shorter riser always costs floor space.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "the-151-inch-rule",
+      heading: "The 151-inch rule: warning, not rejection",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "One flight of stairs may not rise more than 12 ft 7 in (151 in) between floor levels or landings (2021 IRC R311.7.3). This calculator does ",
+            },
+            { text: "not", strong: true },
+            {
+              text: " enforce that limit the way it enforces the riser and tread limits. A total rise of exactly 151 in returns numbers with no warning — 151 in is the limit itself, and it is allowed. A rise of 152 in returns the same kind of numbers, but with a warning: the rise exceeds the single-flight limit, a landing is required between floors, and the numbers are a straight-flight planning estimate only, not a compliant single-flight design. In metric, the same boundary is 383.54 cm — exactly 151 in, so it shows no warning — and 383.5401 cm is just over the limit, so it warns. The distinction matters: the riser and tread limits are about the shape of each step, and a step that breaks them is wrong in itself, so the calculator refuses it. The flight limit is about the shape of the whole stair, and a rise over 151 in is not wrong as a measurement — it is a stair that needs a landing, which this calculator does not design. Do not strip the warning out when quoting the numbers, and do not treat a warned result as a design you can build as a single flight.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "metric-display",
+      heading: "Metric display — the same staircase in centimeters",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "The calculator works in canonical inches internally and converts only for display, so the metric results describe the same physical staircase as the imperial ones. The metric defaults are 266.7 cm total rise (105 in), 26.67 cm tread depth (10.5 in), and 19.685 cm maximum riser (7.75 in). Note which figure is which: ",
+            },
+            { text: "19.685 cm is the maximum riser height", strong: true },
+            {
+              text: "; the tread depth is 26.67 cm. Swapping them would describe a staircase with 19.685 cm treads — under the 10 in (25.4 cm) minimum — and the calculator would reject it. For the 105 in example in metric: 266.7 cm rise, 14 risers at 19.05 cm each, 13 treads at 26.67 cm, total run 346.71 cm, stringer length about 437.4 cm, angle 37.57°. Switching between imperial and metric and back restores the same values and the same warning state: the calculation stays in canonical inches and only the display converts, so repeated switching does not drift the input or change whether the 151 in warning shows. The lookup table on the page stays in inches as a static reference; the calculator itself converts every result when you switch systems.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "worked-examples-9-ft-boundary-refusals",
+      heading: "Worked examples — the 9 ft rise, the boundary, and what the calculator refuses",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            { text: "9 ft floor-to-floor rise, 108 in (the most-asked example).", strong: true },
+            {
+              text: " Risers: 108 ÷ 7.75 = 13.94 → 14 risers. Riser height: 108 ÷ 14 = 7.71 in. Treads: 13. Total run: 13 × 10.5 = 136.5 in (11 ft 4.5 in). Stringer: √(108² + 136.5²) = 174.06 in (14 ft 6 in). Angle: 38.35°. In metric: rise 274.32 cm, risers 14 at 19.59 cm, run 346.71 cm, stringer 442.11 cm. The 108 in and 105 in rises share the same 136.5 in run, but the 108 in stair is steeper (38.35° vs 37.57°).",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            { text: "The boundary: 151 in vs 152 in.", strong: true },
+            {
+              text: " At 151 in: 20 risers at 7.55 in, 19 treads, run 199.5 in, stringer 250.20 in, 37.12° — ",
+            },
+            { text: "no warning", strong: true },
+            {
+              text: " (151 in is the limit itself). At 152 in: 20 risers at 7.6 in, 19 treads, run 199.5 in, stringer 250.81 in, 37.30° — ",
+            },
+            { text: "warning shown, numbers still returned", strong: true },
+            {
+              text: " as a straight-flight planning estimate. At 160 in: 21 risers at 7.62 in, 20 treads, run 210 in, stringer 264.01 in, 37.30° — warning shown. The numbers barely change across the boundary; what changes is what you are allowed to build as a single flight.",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            { text: "What the calculator refuses.", strong: true },
+            {
+              text: " A maximum riser of 8 in is rejected: the formula throws and the input field caps at 7.75. A tread depth under 10 in is rejected the same way. These are not warnings you can dismiss; no result is produced from invalid input.",
+            },
+          ],
+        },
+      ],
+    },
   ],
   faqs: [
     {
