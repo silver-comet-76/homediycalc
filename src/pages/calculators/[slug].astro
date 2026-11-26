@@ -4,13 +4,15 @@
  * ARCHITECTURE.md §13 — not 26 static files). getStaticPaths emits
  * every slug with a config — all 26 calculators (25 from Phase 4, plus Stair in Phase 15).
  *
- * Direction C+ (Phase 17B1-UI, Stage 1) renders only on the three pages
- * whose config sets designCplus. The non-C+ branch below is the original
- * layout, byte-identical for the other 23 pages. C+ changes: the lookup
- * table moves directly below the results (before the guide), the formula
- * follows it, guide chapters are numbered, long depth chapters collapse
- * behind a verified takeaway (full text in a native <details>), and the
- * worked example renders as a distinct card. No original text is changed.
+ * Direction C+ (Phase 17B1-UI, Stage 2 full rollout) renders on all 26
+ * pages whose config sets designCplus. The non-C+ branch below is the
+ * original layout, retained (unrendered) so the rollout stays
+ * reversible; removing it is a separate owner decision. C+ changes: the
+ * lookup table moves directly below the results (before the guide), the
+ * formula follows it, guide chapters are numbered, long depth chapters
+ * collapse behind a verified takeaway (full text in a native <details>),
+ * and the worked example renders as a distinct card. No original text
+ * is changed.
  */
 import CalculatorShell from "../../components/CalculatorShell.astro";
 import FormulaSection from "../../components/FormulaSection.astro";
