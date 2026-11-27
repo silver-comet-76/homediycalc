@@ -47,7 +47,7 @@ export type FieldKind =
 
 /** Kinds of SVG measurement diagram the shared component can draw. */
 export type DiagramKind =
-  "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board" | "stair";
+  "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board" | "stair" | "fence";
 
 export type UnitKind = "length" | "area" | "volume" | "coverage";
 
@@ -236,7 +236,7 @@ export interface CalculatorConfig {
    * the compact calculator-first layout: compact TOC row, quick
    * reference under the results, numbered guide chapters, long-chapter
    * accordions, FAQ accordions, compact related list, compact mobile
-   * nav. Stage 2 (full rollout) sets it on all 26 calculators; the
+   * nav. Stage 2 (full rollout) sets it on all 31 calculators; the
    * flag and the original-layout branch are retained so the rollout
    * stays reversible, and removing them is a separate owner decision.
    */
@@ -248,7 +248,7 @@ export interface CalculatorConfig {
    * is not always the most important result. When unset, the first row
    * is emphasized. Must match a row label the calculator actually
    * returns (enforced by src/calculators/ui-stage1.test.ts). Stage 2
-   * sets it on all 26 calculators.
+   * sets it on all 31 calculators.
    */
   heroResultLabel?: string;
 }

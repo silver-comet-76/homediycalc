@@ -34,6 +34,11 @@ const CALCULATORS = [
   { slug: "waterproofing-calculator", name: "Waterproofing Calculator" },
   { slug: "baseboard-calculator", name: "Baseboard Calculator" },
   { slug: "stair-calculator", name: "Stair Calculator" },
+  { slug: "sand-calculator", name: "Sand Calculator" },
+  { slug: "raised-bed-soil-calculator", name: "Raised Garden Bed Soil Calculator" },
+  { slug: "sod-calculator", name: "Sod / Turf Calculator" },
+  { slug: "lawn-seed-calculator", name: "Lawn Seed Calculator" },
+  { slug: "fence-calculator", name: "Fence Calculator" },
 ] as const;
 
 for (const { slug, name } of CALCULATORS) {
@@ -79,7 +84,7 @@ for (const { slug, name } of CALCULATORS) {
   });
 }
 
-test("calculator pages appear in the sitemap; all 26 calculators are shipped", async ({
+test("calculator pages appear in the sitemap; all 31 calculators are shipped", async ({
   request,
 }) => {
   const sitemap = await request.get("/sitemap.xml");
@@ -91,5 +96,5 @@ test("calculator pages appear in the sitemap; all 26 calculators are shipped", a
   for (const { slug } of CALCULATORS) {
     expect(text).toContain(`<loc>${origin}/calculators/${slug}/</loc>`);
   }
-  expect(CALCULATORS).toHaveLength(26);
+  expect(CALCULATORS).toHaveLength(31);
 });

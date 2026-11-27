@@ -36,17 +36,17 @@ function bagsOutput(volumeFt3: number, v: Record<string, number>, present: Set<s
       },
       {
         label: "40 lb bags",
-        value: `${r.bags40} bags`,
+        value: `${r.bags40} ${r.bags40 === 1 ? "bag" : "bags"}`,
         detail: `${CONCRETE_BAG_YIELDS_FT3[40]} ft³ per bag (QUIKRETE No. 1101)${priceDetail("pricePerBag40", r.bags40)}`,
       },
       {
         label: "60 lb bags",
-        value: `${r.bags60} bags`,
+        value: `${r.bags60} ${r.bags60 === 1 ? "bag" : "bags"}`,
         detail: `${CONCRETE_BAG_YIELDS_FT3[60]} ft³ per bag (QUIKRETE No. 1101)${priceDetail("pricePerBag60", r.bags60)}`,
       },
       {
         label: "80 lb bags",
-        value: `${r.bags80} bags`,
+        value: `${r.bags80} ${r.bags80 === 1 ? "bag" : "bags"}`,
         detail: `${CONCRETE_BAG_YIELDS_FT3[80]} ft³ per bag (QUIKRETE No. 1101)${priceDetail("pricePerBag80", r.bags80)}`,
       },
       ...(r.cheapestSize
@@ -67,7 +67,7 @@ function bagsOutput(volumeFt3: number, v: Record<string, number>, present: Set<s
     ],
     costUsd: r.costUsd,
     note: "Pick one bag size and buy that count — the three counts are alternatives for the same volume, not a combined list.",
-    workedLine: `${fmt(r.volumeYd3)} yd³ × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.adjustedFt3)} ft³ → ${r.bags80} × 80 lb bags (0.60 ft³ each), or ${r.bags60} × 60 lb, or ${r.bags40} × 40 lb.`,
+    workedLine: `${fmt(r.volumeYd3)} yd³ × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.adjustedFt3)} ft³ → ${r.bags80} × 80 lb ${r.bags80 === 1 ? "bag" : "bags"} (0.60 ft³ each), or ${r.bags60} × 60 lb, or ${r.bags40} × 40 lb.`,
   };
 }
 

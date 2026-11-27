@@ -47,7 +47,7 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       ? [
           {
             label: "Pre-mixed mortar",
-            value: `${r.bags} bags`,
+            value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
             detail:
               r.bagsBasis === "rating"
                 ? `80 lb bags at up to ${r.unitsPerBag} ${UNIT_LABELS[unit]} per bag (QUIKRETE 1102 maximum), derated by ${fmt(req(v, "waste"), 0)}% waste — rounded up`
@@ -71,12 +71,12 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       {
         label: `Site mix — ${TYPE_LABELS[mortarType]}`,
         value: `${fmt(r.cementFt3)} ft³ cement`,
-        detail: `${r.cementSacks} × 94 lb sacks; ${fmt(r.limeFt3)} ft³ lime; ${fmt(r.sandFt3)} ft³ sand`,
+        detail: `${r.cementSacks} × 94 lb ${r.cementSacks === 1 ? "sack" : "sacks"}; ${fmt(r.limeFt3)} ft³ lime; ${fmt(r.sandFt3)} ft³ sand`,
       },
     ],
     lines: [
       ...(r.bags !== null ? [`Mortar mix, 80 lb bags: ${r.bags}`] : []),
-      `Site mix ${TYPE_LABELS[mortarType]} — cement: ${r.cementSacks} × 94 lb sacks (${fmt(r.cementFt3)} ft³), lime: ${fmt(r.limeFt3)} ft³, sand: ${fmt(r.sandFt3)} ft³`,
+      `Site mix ${TYPE_LABELS[mortarType]} — cement: ${r.cementSacks} × 94 lb ${r.cementSacks === 1 ? "sack" : "sacks"} (${fmt(r.cementFt3)} ft³), lime: ${fmt(r.limeFt3)} ft³, sand: ${fmt(r.sandFt3)} ft³`,
       `Masonry units in the wall: ${r.unitsNeeded} ${UNIT_LABELS[unit]}`,
     ],
     costUsd: r.costUsd,
@@ -88,8 +88,8 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       r.bags === null
         ? `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³ (no bag count — joint wider than the standard ⅜ in; enter a verified bag yield for a count).`
         : r.bagsBasis === "rating"
-          ? `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³; ${r.unitsNeeded} × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${r.unitsPerBag} per bag = ${r.bags} bags.`
-          : `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³ ÷ ${fmt(req(v, "bagYieldFt3"))} ft³ per bag = ${r.bags} bags.`,
+          ? `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³; ${r.unitsNeeded} × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${r.unitsPerBag} per bag = ${r.bags} ${r.bags === 1 ? "bag" : "bags"}.`
+          : `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³ ÷ ${fmt(req(v, "bagYieldFt3"))} ft³ per bag = ${r.bags} ${r.bags === 1 ? "bag" : "bags"}.`,
   };
 }
 
@@ -224,6 +224,7 @@ export const mortarConfig: CalculatorConfig = {
     "0.87 ft³ of lime, and 5.09 ft³ of sand.",
   limitations: [
     "Mortar volume is the geometric joint volume. In practice, mortar also fills the cores of hollow block and the gaps behind irregular stone — block and stone walls can need more than this estimate.",
+    "Why this page says 549 bricks while the Brick Calculator says 576 for the same 10 × 8 ft wall: 549 is the number of bricks installed in the wall, and 576 is the number to buy — 549 plus the 5% brick-waste allowance for breakage and cuts. The Brick Calculator adds that allowance; this calculator reports the installed count only and has no brick-waste input, because broken bricks take no mortar. The mortar figures agree exactly on both pages for the same wall: 5.09 ft³ and 18 bags.",
     "Bag counts come from the QUIKRETE maximum (up to 37 bricks or 13 blocks per 80 lb bag), derated by your waste allowance — but only for standard units at the standard ⅜ in joint or narrower. For wider joints the rating does not apply: enter your bag's verified yield (ft³ per bag) and bags = mortar volume ÷ that yield; with no yield entered, no bag count, bag cost, or shopping-list bag line is shown. A bag that states a different count on its label wins over the default for standard geometry — and the data sheet states no cubic-foot yield per bag, so this calculator claims none of its own.",
     "Site-mix parts are the ASTM C270 batch yields per cubic foot of mortar. They are an ordering guide; dry volumes do not add up exactly to the mixed volume, and sand must be measured damp and loose.",
     "This calculator estimates materials only. Mortar type and strength are structural decisions — for load-bearing walls, foundations, or historic brick, follow the specification from a qualified professional.",

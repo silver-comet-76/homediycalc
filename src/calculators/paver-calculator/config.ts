@@ -60,7 +60,7 @@ function paverOutput(
       },
       {
         label: "Joint sand",
-        value: `${r.jointSandBags} bags`,
+        value: `${r.jointSandBags} ${r.jointSandBags === 1 ? "bag" : "bags"}`,
         detail: `${fmt(r.jointSandLb, 1)} lb — ${fmt(req(v, "jointSandBag"), 0)} lb bags`,
       },
     ],
@@ -68,7 +68,7 @@ function paverOutput(
       `Pavers (${fmt(req(v, "paverLength"), 2)} × ${fmt(req(v, "paverWidth"), 2)} in): ${r.pavers}`,
       `Base gravel (${fmt(req(v, "baseDepth"), 0)} in compacted): ${fmt(r.baseLooseYd3)} yd³ loose (about ${fmt(r.baseTons)} tons)`,
       `Bedding sand (1 in layer): ${fmt(r.beddingSandYd3)} yd³ (about ${fmt(r.beddingSandTons)} tons)`,
-      `Polymeric joint sand (${fmt(req(v, "jointSandBag"), 0)} lb bags): ${r.jointSandBags} bags`,
+      `Polymeric joint sand (${fmt(req(v, "jointSandBag"), 0)} lb bags): ${r.jointSandBags} ${r.jointSandBags === 1 ? "bag" : "bags"}`,
     ],
     costUsd: r.costUsd,
     note: "Base and bedding-sand figures already include the base extending at least 6 in past the paver edge on every side (or the base thickness, when the base is deeper than 6 in), and compacted gravel loses about 20% of its volume, so the loose volume to order is larger than the compacted volume. Enter the patio length and width for the exact extended footprint — with only the area known, the extension is estimated as if the paved area were square.",
@@ -215,7 +215,7 @@ export const paverConfig: CalculatorConfig = {
     note: "Assumes 12 × 12 in pavers, 2⅜ in thick, a ⅛ in joint, 10% waste, a 4 in compacted gravel base at 2,800 lb/yd³, 1 in of bedding sand, and joint sand at 100 lb/ft³ in 50 lb bags.",
     headers: ["Patio size", "Pavers needed", "Base gravel to order", "Bedding sand", "Joint sand"],
     rows: [
-      ["10 × 10 ft patio", "108 pavers", "1.87 yd³", "0.37 yd³", "1 bags"],
+      ["10 × 10 ft patio", "108 pavers", "1.87 yd³", "0.37 yd³", "1 bag"],
       ["12 × 12 ft patio", "156 pavers", "2.61 yd³", "0.52 yd³", "2 bags"],
       ["16 × 12 ft patio", "207 pavers", "3.41 yd³", "0.68 yd³", "2 bags"],
       ["10 × 20 ft patio", "216 pavers", "3.56 yd³", "0.71 yd³", "2 bags"],

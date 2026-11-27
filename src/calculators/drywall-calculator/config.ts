@@ -40,18 +40,18 @@ function drywallOutput(
       },
       {
         label: "Drywall sheets",
-        value: `${r.sheetsToBuy} sheets`,
-        detail: `${r.sheetsHung} sheets hung + ${fmt(req(v, "waste"), 0)}% waste — ${fmt(req(v, "sheetSize"), 0)} ft² per sheet`,
+        value: `${r.sheetsToBuy} ${r.sheetsToBuy === 1 ? "sheet" : "sheets"}`,
+        detail: `${r.sheetsHung} ${r.sheetsHung === 1 ? "sheet" : "sheets"} hung + ${fmt(req(v, "waste"), 0)}% waste — ${fmt(req(v, "sheetSize"), 0)} ft² per sheet`,
       },
       {
         label: "Joint compound",
         value: `${fmt(r.compoundGal)} gal`,
-        detail: `${r.pails} × ${fmt(req(v, "pailSize"), 1)} gal pails — about ${fmt(req(v, "compoundCoverage"), 0)} ft² per gallon`,
+        detail: `${r.pails} × ${fmt(req(v, "pailSize"), 1)} gal ${r.pails === 1 ? "pail" : "pails"} — about ${fmt(req(v, "compoundCoverage"), 0)} ft² per gallon`,
       },
       {
         label: "Paper tape",
         value: `${fmt(r.tapeFt)} ft`,
-        detail: `${r.tapeRolls} × 250 ft rolls — about 370 ft per 1,000 ft²`,
+        detail: `${r.tapeRolls} × 250 ft ${r.tapeRolls === 1 ? "roll" : "rolls"} — about 370 ft per 1,000 ft²`,
       },
       {
         label: "Drywall screws",
@@ -66,7 +66,7 @@ function drywallOutput(
       `Drywall screws: ${r.screws} (about ${fmt(r.screwLb, 1)} lb)`,
     ],
     costUsd: r.costUsd,
-    workedLine: `${fmt(r.totalAreaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(req(v, "sheetSize"), 0)} ft² per sheet = ${r.sheetsToBuy} sheets; compound ${fmt(r.totalAreaFt2)} ÷ ${fmt(req(v, "compoundCoverage"), 0)} = ${fmt(r.compoundGal)} gal → ${r.pails} pails.`,
+    workedLine: `${fmt(r.totalAreaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(req(v, "sheetSize"), 0)} ft² per sheet = ${r.sheetsToBuy} ${r.sheetsToBuy === 1 ? "sheet" : "sheets"}; compound ${fmt(r.totalAreaFt2)} ÷ ${fmt(req(v, "compoundCoverage"), 0)} = ${fmt(r.compoundGal)} gal → ${r.pails} ${r.pails === 1 ? "pail" : "pails"}.`,
   };
 }
 

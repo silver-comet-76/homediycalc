@@ -63,6 +63,7 @@ export const brickConfig: CalculatorConfig = {
     "Does not check structural requirements — load-bearing brickwork, lintels, and footings need a qualified professional and local code approval.",
     "The face-area brick count (6.86/ft²) and the BIA coursing figure (6.75/ft²) differ by 1.6%; either is a reasonable estimate, and the waste allowance covers the gap.",
     "Mortar bags come from the QUIKRETE maximum of up to 37 standard bricks per 80 lb bag (Mortar Mix No. 1102 data sheet), derated by the mortar waste allowance — the larger of the bricks you buy ÷ 37 and the installed bricks × (1 + mortar waste%) ÷ 37 governs. The data sheet states no cubic-foot yield per bag, so the calculator claims none. The rating applies only to modular brick at the standard ⅜ in joint or narrower: for other brick sizes or wider joints, no bag count, bag cost, or shopping-list bag line is shown unless you enter your bag's verified yield (ft³ per bag).",
+    "Why this page says 576 bricks while the Mortar Calculator says 549 for the same 10 × 8 ft wall: 549 is the number of bricks installed in the wall, and 576 is the number to buy — 549 plus the 5% brick-waste allowance for breakage and cuts. The Mortar Calculator reports the installed count only; it has no brick-waste input, because broken bricks take no mortar. The mortar figures agree exactly on both pages for the same wall: 5.09 ft³ and 18 bags.",
   ],
   faqs: [
     {
@@ -264,10 +265,10 @@ export const brickConfig: CalculatorConfig = {
             ? [
                 {
                   label: "Mortar bags (80 lb)",
-                  value: `${r.mortarBags} bags`,
+                  value: `${r.mortarBags} ${r.mortarBags === 1 ? "bag" : "bags"}`,
                   detail:
                     r.mortarBagsBasis === "rating"
-                      ? `QUIKRETE ${fmt(req(v, "bricksPerBag"), 0)}-brick maximum, derated by ${fmt(req(v, "mortarWaste"), 0)}% waste — covers ${r.bricksNeeded} bricks (${r.mortarBagsByRating} bags) and the waste-adjusted volume`
+                      ? `QUIKRETE ${fmt(req(v, "bricksPerBag"), 0)}-brick maximum, derated by ${fmt(req(v, "mortarWaste"), 0)}% waste — covers ${r.bricksNeeded} bricks (${r.mortarBagsByRating} ${r.mortarBagsByRating === 1 ? "bag" : "bags"}) and the waste-adjusted volume`
                       : `From your entered yield of ${fmt(req(v, "bagYieldFt3"))} ft³ per bag — covers ${fmt(r.mortarVolumeFt3)} ft³ of mortar (${fmt(req(v, "mortarWaste"), 0)}% waste included)`,
                 },
               ]
@@ -294,7 +295,7 @@ export const brickConfig: CalculatorConfig = {
               ? [
                   {
                     label: "Pallets",
-                    value: `${r.pallets} pallets`,
+                    value: `${r.pallets} ${r.pallets === 1 ? "pallet" : "pallets"}`,
                     detail: `${fmt(req(v, "palletSize"), 0)} bricks per pallet`,
                   },
                 ]
@@ -317,7 +318,7 @@ export const brickConfig: CalculatorConfig = {
               : undefined,
           workedLine:
             r.mortarBags !== null
-              ? `${fmt(r.netAreaFt2)} ft² × ${fmt(r.bricksPerFt2)} bricks/ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${r.bricksNeeded} bricks; mortar ${fmt(r.mortarVolumeFt3)} ft³ → ${r.mortarBags} bags.`
+              ? `${fmt(r.netAreaFt2)} ft² × ${fmt(r.bricksPerFt2)} bricks/ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${r.bricksNeeded} bricks; mortar ${fmt(r.mortarVolumeFt3)} ft³ → ${r.mortarBags} ${r.mortarBags === 1 ? "bag" : "bags"}.`
               : `${fmt(r.netAreaFt2)} ft² × ${fmt(r.bricksPerFt2)} bricks/ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${r.bricksNeeded} bricks; mortar ${fmt(r.mortarVolumeFt3)} ft³ (no bag count — non-standard brick size or joint; enter a verified bag yield for a count).`,
         };
       },

@@ -41,7 +41,7 @@ export const concreteSlabConfig: CalculatorConfig = {
         "62 bags",
         "82 bags",
         "123 bags",
-        "1 sheets",
+        "1 sheet",
       ],
       [
         "12 × 12 × 4 in slab",
@@ -51,7 +51,7 @@ export const concreteSlabConfig: CalculatorConfig = {
         "88 bags",
         "118 bags",
         "176 bags",
-        "1 sheets",
+        "1 sheet",
       ],
       [
         "20 × 12 × 4 in slab",
@@ -272,22 +272,22 @@ export const concreteSlabConfig: CalculatorConfig = {
             },
             {
               label: "80 lb bags",
-              value: `${r.bags80} bags`,
+              value: `${r.bags80} ${r.bags80 === 1 ? "bag" : "bags"}`,
               detail: `${CONCRETE_BAG_YIELDS_FT3[80]} ft³ per bag (QUIKRETE No. 1101)`,
             },
             {
               label: "60 lb bags",
-              value: `${r.bags60} bags`,
+              value: `${r.bags60} ${r.bags60 === 1 ? "bag" : "bags"}`,
               detail: `${CONCRETE_BAG_YIELDS_FT3[60]} ft³ per bag`,
             },
             {
               label: "40 lb bags",
-              value: `${r.bags40} bags`,
+              value: `${r.bags40} ${r.bags40 === 1 ? "bag" : "bags"}`,
               detail: `${CONCRETE_BAG_YIELDS_FT3[40]} ft³ per bag`,
             },
             {
               label: "Wire-mesh sheets",
-              value: `${r.meshSheets} sheets`,
+              value: `${r.meshSheets} ${r.meshSheets === 1 ? "sheet" : "sheets"}`,
               detail: "Information only — not a structural specification",
             },
           ],

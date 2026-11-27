@@ -3,7 +3,7 @@ import { CALCULATOR_CONFIGS } from "../src/calculators/index";
 import type { CalculatorConfig } from "../src/components/react/CalculatorConfig";
 
 /**
- * QA-17B1-UI-06: 26-calculator accessibility matrix (automated checks).
+ * QA-17B1-UI-06: 31-calculator accessibility matrix (automated checks).
  *
  * Every check here runs against the real rendered page (production-mode
  * build) and asserts actual behavior — nothing is marked PASS without
@@ -46,6 +46,11 @@ const ALL = [
   { slug: "waterproofing-calculator", path: "/calculators/waterproofing-calculator/" },
   { slug: "baseboard-calculator", path: "/calculators/baseboard-calculator/" },
   { slug: "stair-calculator", path: "/calculators/stair-calculator/" },
+  { slug: "sand-calculator", path: "/calculators/sand-calculator/" },
+  { slug: "raised-bed-soil-calculator", path: "/calculators/raised-bed-soil-calculator/" },
+  { slug: "sod-calculator", path: "/calculators/sod-calculator/" },
+  { slug: "lawn-seed-calculator", path: "/calculators/lawn-seed-calculator/" },
+  { slug: "fence-calculator", path: "/calculators/fence-calculator/" },
 ] as const;
 
 type AllSlug = (typeof ALL)[number]["slug"];

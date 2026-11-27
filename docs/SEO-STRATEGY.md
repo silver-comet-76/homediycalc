@@ -91,7 +91,7 @@ Thin pages (tool only, no explanation) do not ship.
 
 1. Create/verify the property in Google Search Console (owner's Google account; the agent does not create Google accounts).
 2. Verify ownership via the method Search Console offers — **HTML file** (download Search Console's file, place it unchanged in `public/`, redeploy, verify), **HTML meta tag** (add the tag Search Console gives to the shared `src/components/Layout.astro` `<head>`, redeploy, verify), or **DNS TXT record** (add the TXT record Search Console gives at the domain's DNS provider; no code change; best choice if the owner controls the domain's DNS). Full step-by-step instructions for all three methods are in `docs/DEPLOYMENT.md` §8. Do not invent a verification filename, meta-tag value, or TXT value — each comes from Search Console at setup time.
-3. Submit `sitemap.xml` after launch (Phase 6): `https://<domain>/sitemap.xml` under **Sitemaps**. The sitemap lists exactly the shipped pages (39 URLs).
+3. Submit `sitemap.xml` after launch (Phase 6): `https://<domain>/sitemap.xml` under **Sitemaps**. The sitemap lists exactly the shipped pages (46 URLs).
 4. Monitor Coverage and Performance reports weekly for the first month after launch; fix crawl errors before adding new pages. The weekly checklist (Coverage, Performance, Enhancements, Core Web Vitals, Manual actions / Security issues) is in `docs/DEPLOYMENT.md` §8.4.
 
 Bing Webmaster Tools submission is optional and follows the same sitemap; it is not a launch blocker.

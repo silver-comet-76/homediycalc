@@ -19,16 +19,17 @@ import type {
 
 /**
  * Phase 17B1-UI Stage 2 (Direction C+ full rollout): the flag gates all
- * 26 calculators, and every collapsed chapter's takeaway is a verified
+ * 31 calculators, and every collapsed chapter's takeaway is a verified
  * condensation of its own chapter — no new claims, no invented numbers.
  * Rendered-HTML preservation is covered by
  * tests/ui-stage1-preservation.spec.ts.
  *
  * Stage 1 (Paint, Tile Adhesive, Stair) is the reference implementation;
- * the other 23 were added in Stage 2 under the same rules.
+ * the other 23 were added in Stage 2 and the five Phase 17 calculators
+ * under the same rules.
  */
 
-/** All 26 calculators, in registry order. */
+/** All 31 calculators, in registry order. */
 const ALL = [
   "concrete-calculator",
   "square-footage-calculator",
@@ -56,6 +57,11 @@ const ALL = [
   "waterproofing-calculator",
   "baseboard-calculator",
   "stair-calculator",
+  "sand-calculator",
+  "raised-bed-soil-calculator",
+  "sod-calculator",
+  "lawn-seed-calculator",
+  "fence-calculator",
 ] as const;
 
 type Slug = (typeof ALL)[number];
@@ -85,7 +91,7 @@ function numberTokens(text: string): string[] {
 }
 
 describe("Direction C+ Stage 2 flags", () => {
-  it("flags all 26 calculators", () => {
+  it("flags all 31 calculators", () => {
     const flagged = Object.values(CALCULATOR_CONFIGS)
       .filter((c) => c.designCplus === true)
       .map((c) => c.slug)
@@ -95,6 +101,12 @@ describe("Direction C+ Stage 2 flags", () => {
 
   it("stair uses the new rise/run diagram", () => {
     expect(mustGetConfig("stair-calculator").diagram).toBe("stair");
+  });
+
+  it("fence uses the fence run diagram, not the baseboard room diagram", () => {
+    // The "linear" kind is the baseboard room outline (perimeter minus
+    // doors); a fence run needs its own posts/spacing/gate drawing.
+    expect(mustGetConfig("fence-calculator").diagram).toBe("fence");
   });
 
   it("collapses the long chapters and keeps the safety / worked-example chapters expanded", () => {
@@ -153,6 +165,11 @@ describe("Direction C+ Stage 2 flags", () => {
       "waterproofing-calculator": [],
       "baseboard-calculator": [],
       "stair-calculator": ["how-riser-count-is-decided", "metric-display"],
+      "sand-calculator": [],
+      "raised-bed-soil-calculator": [],
+      "sod-calculator": [],
+      "lawn-seed-calculator": [],
+      "fence-calculator": [],
     };
     for (const slug of ALL) {
       const sections = mustGetConfig(slug).depthSections ?? [];

@@ -1,6 +1,8 @@
 # Product Requirements Document (PRD) — HomeDIYCalc
 
-> Status: Phase 0 planning document (written before any code existed). The site has since been built: 25 calculators, 39 pages, Vitest 204/204, Playwright 68/68 — see `docs/PHASE-REPORT.md`.
+> Status: Phase 0 planning document (written before any code existed). The site has since been built: 31 calculators, 46 pages — see `docs/PHASE-REPORT.md`.
+
+> Update 2026-11-27: Phase 17B2 adds five landscaping calculators (Sand, Raised Garden Bed Soil, Sod/Turf, Lawn Seed, Fence), bringing the site to 31 calculators and 46 sitemap URLs (47 built pages: 46 shipped + 404).
 > Position: "Calculate Materials. Estimate Costs. Build Your Shopping List."
 > Market: US primary; UK, Canada, Australia, New Zealand secondary.
 > Language: US English throughout.
@@ -8,7 +10,7 @@
 ## 1. Objectives
 
 1. Give homeowners, DIYers, and small contractors a free, fast, no-signup way to calculate how much material a home improvement job needs and what it will roughly cost.
-2. Cover the 25 most-searched material calculations with correct, transparent math — every formula shown on the page.
+2. Cover the 26 most-searched material calculations with correct, transparent math — every formula shown on the page.
 3. Turn each calculation into a copyable shopping list and an optional saved project, so the calculator output is directly usable at the store.
 4. Rank in US search for calculator-intent queries through original, genuinely useful pages — no doorway pages, no thin content.
 5. Run at zero marginal cost: fully static, no backend, no database, no paid API, hosted on Cloudflare Pages free tier.
@@ -25,7 +27,7 @@ Non-users by design: nobody is required to register, log in, or pay. There is no
 
 ## 3. Business Rules
 
-1. **Free forever, no registration, no login.** All 25 calculators are usable without any account.
+1. **Free forever, no registration, no login.** All 31 calculators are usable without any account.
 2. **No backend, no database, no paid API.** All calculation happens in the browser in pure TypeScript. The site must build and run with zero server-side logic.
 3. **No invented data.** Prices, coverage rates, densities, and yields shown as defaults must be labeled as typical/reference values with a source. If the user enters no price, no cost is shown — never a fabricated price.
 4. **Package quantities always round up.** A shopping list must never under-order.
@@ -34,7 +36,7 @@ Non-users by design: nobody is required to register, log in, or pay. There is no
 7. **US English only.** All shipped copy is US English. Imperial units are the default; metric is a first-class toggle, not an afterthought.
 8. **No placeholder pages.** A page ships only when its content, calculator, and tests are complete.
 
-## 4. The 25 Calculators
+## 4. The 26 Calculators
 
 URL pattern: `/calculators/<slug>/` (e.g. `/calculators/concrete-calculator/`).
 
@@ -77,6 +79,7 @@ URL pattern: `/calculators/<slug>/` (e.g. `/calculators/concrete-calculator/`).
 | 23 | Sealant Calculator | `sealant-calculator` | Interior and Maintenance |
 | 24 | Waterproofing Calculator | `waterproofing-calculator` | Interior and Maintenance |
 | 25 | Baseboard Calculator | `baseboard-calculator` | Interior and Maintenance |
+| 26 | Stair Calculator | `stair-calculator` | Measurement |
 
 ### 4.4 Categories (6)
 
@@ -84,7 +87,7 @@ URL pattern: `/calculators/<slug>/` (e.g. `/calculators/concrete-calculator/`).
 2. Painting — Paint, Primer
 3. Flooring and Tiles — Tile, Flooring, Grout, Tile Adhesive
 4. Landscaping — Gravel, Mulch, Paver, Topsoil
-5. Measurement — Square Footage, Cubic Yard, Cubic Feet, Board Foot
+5. Measurement — Square Footage, Cubic Yard, Cubic Feet, Board Foot, Stair
 6. Interior and Maintenance — Drywall, Ceiling Tile, Wallpaper, Sealant, Waterproofing, Baseboard
 
 ## 5. Functional Requirements (apply to every calculator unless noted)
@@ -144,7 +147,7 @@ URL pattern: `/calculators/<slug>/` (e.g. `/calculators/concrete-calculator/`).
 |---|---|
 | Home | `/` |
 | All Calculators | `/calculators/` |
-| Calculator page (×25) | `/calculators/<slug>/` |
+| Calculator page (×26) | `/calculators/<slug>/` |
 | Category page (×6) | `/categories/<slug>/` |
 | My Project | `/my-project/` |
 | About | `/about/` |
@@ -192,7 +195,7 @@ See `docs/ROADMAP.md` (Phases 0–6). P0 calculators ship first; P1, then P2; SE
 
 ## 13. Acceptance Criteria (project-level)
 
-- [ ] All 25 calculators live at their specified URLs, each with imperial+metric, waste allowance, editable coverage/density/yield with references, package quantities rounded up, optional prices with cost estimate, formulas shown, reset, copyable shopping list, validation, and mobile-first layout.
+- [ ] All 31 calculators live at their specified URLs, each with imperial+metric, waste allowance, editable coverage/density/yield with references, package quantities rounded up, optional prices with cost estimate, formulas shown, reset, copyable shopping list, validation, and mobile-first layout.
 - [ ] My Project works end-to-end in LocalStorage (save, list, remove, copy combined list).
 - [ ] Home, All Calculators, 6 category pages, My Project, About, Contact, Privacy Policy, Terms of Use, Disclaimer all live with real content.
 - [ ] `npm run build` produces a fully static site; `npm run test` (Vitest) and `npm run test:e2e` (Playwright) pass.

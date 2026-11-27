@@ -1,6 +1,10 @@
 # Architecture — HomeDIYCalc
 
 > Status: Phase 1 complete (2026-11-20). The foundation is built and verified: Astro scaffold, unit engine, registry, shared layout/components, 14 static pages, sitemap/robots, Vitest + Playwright tests all passing. No calculator pages exist yet (Phases 2–3). The §13 open questions are resolved below with what was actually built.
+>
+> Update 2026-11-27: Phases 2–4 and Phase 15 have since shipped; 26 calculator pages are now live and the sitemap lists 41 URLs; counts in the dated Phase 1 record above are as of that phase.
+
+> Update 2026-11-27: Phase 17B2 adds five landscaping calculators (Sand, Raised Garden Bed Soil, Sod/Turf, Lawn Seed, Fence), bringing the site to 31 calculator pages and 46 sitemap URLs.
 
 ## 1. Overview
 
@@ -48,7 +52,7 @@ src/
   pages/
     index.astro
     calculators/index.astro
-    calculators/<slug>/index.astro   (×25)
+    calculators/<slug>/index.astro   (×26)
     categories/<slug>.astro          (×6)
     my-project.astro
     about.astro  contact.astro
@@ -70,7 +74,7 @@ docs/                # Project documentation
 
 ## 4. Centralized Calculator Registry
 
-`src/lib/registry.ts` is the **single source of truth** for the 25 calculators:
+`src/lib/registry.ts` is the **single source of truth** for the 31 calculators:
 
 ```ts
 // Illustrative shape — exact fields to be finalized in Phase 1.
@@ -88,7 +92,7 @@ interface CalculatorMeta {
 
 - Home, All Calculators, category pages, sitemap, breadcrumbs, and "related calculators" sections are all generated from the registry.
 - Adding a calculator means: registry entry + formula module + tests + React island + Astro page. A calculator with a missing piece is not done.
-- The registry is also the checklist for completeness: 25 entries, 10 P0, 8 P1, 7 P2.
+- The registry is also the checklist for completeness: 26 entries, 11 P0, 8 P1, 7 P2.
 
 ## 5. React Islands Pattern
 
@@ -174,7 +178,7 @@ Styling is Tailwind CSS utility classes, with a small set of shared component cl
 
 ## 13. Open Questions — Resolved in Phase 1 (2026-11-20)
 
-- **Dynamic route vs. one `.astro` file per calculator page:** registry-driven dynamic route. Category pages already use it (`src/pages/categories/[slug].astro` with `getStaticPaths` from the registry). Calculator pages in Phases 2–3 will use the same pattern (`src/pages/calculators/[slug].astro`), not 25 files.
+- **Dynamic route vs. one `.astro` file per calculator page:** registry-driven dynamic route. Category pages already use it (`src/pages/categories/[slug].astro` with `getStaticPaths` from the registry). Calculator pages in Phases 2–3 will use the same pattern (`src/pages/calculators/[slug].astro`), not 26 files.
 - **`client:load` vs. `client:visible` default for calculator islands:** default is `client:visible` (below-fold widgets stay light); `client:load` only where a specific page justifies it. No islands exist yet in Phase 1.
 - **Exact LocalStorage key and schema versioning:** `homediycalc:project:v1`, schema version 1, owned by `src/lib/project.ts` (guarded serialize/parse; corrupt/wrong-version data returns an empty project, never throws).
 - **`astro check` vs. plain `tsc` for typechecking:** `astro check` (script `npm run typecheck`). Requires `@astrojs/check@0.9.12` (MIT, pinned exact) as a devDependency — see `docs/PHASE-REPORT.md` Phase 1 §5. Passes with 0 errors across 27 files.

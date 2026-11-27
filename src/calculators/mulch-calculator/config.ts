@@ -40,7 +40,8 @@ export const mulchConfig: CalculatorConfig = {
   ],
   workedExample:
     "A 10 ft × 10 ft bed, 3 in deep: 10 × 10 × 0.25 ft = 25 ft³ = 0.93 yd³. " +
-    "In 2 ft³ bags that is 13 bags (25 ÷ 2, rounded up).",
+    "With the default 5% settling allowance that is 26.25 ft³, so in 2 ft³ bags " +
+    "that is 14 bags (26.25 ÷ 2 = 13.125, rounded up).",
   limitations: [
     "Does not account for settling beyond the waste allowance — mulch settles noticeably in the first weeks, especially shredded bark.",
     "No density is assumed, so there is no weight output unless you enter one. Bagged mulch weights vary widely with moisture: the same bag can weigh 50% more after rain.",
@@ -175,7 +176,7 @@ export const mulchConfig: CalculatorConfig = {
             },
             {
               label: "Bags to buy",
-              value: `${r.bags} bags`,
+              value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
               detail: `${fmt(req(v, "bagSize"))} ft³ per bag`,
             },
             ...(r.weightLb !== undefined
@@ -193,7 +194,7 @@ export const mulchConfig: CalculatorConfig = {
             `Mulch bags (${fmt(req(v, "bagSize"))} ft³): ${r.bags}`,
           ],
           costUsd: r.costUsd,
-          workedLine: `${fmt(req(v, "length"))} × ${fmt(req(v, "width"))} × ${fmt(req(v, "depth"), 3)} ft = ${fmt(r.volumeFt3)} ft³ = ${fmt(r.volumeYd3)} yd³; ${fmt(r.adjustedFt3)} ft³ with waste ÷ ${fmt(req(v, "bagSize"))} ft³ per bag = ${r.bags} bags.`,
+          workedLine: `${fmt(req(v, "length"))} × ${fmt(req(v, "width"))} × ${fmt(req(v, "depth"), 3)} ft = ${fmt(r.volumeFt3)} ft³ = ${fmt(r.volumeYd3)} yd³; ${fmt(r.adjustedFt3)} ft³ with waste ÷ ${fmt(req(v, "bagSize"))} ft³ per bag = ${r.bags} ${r.bags === 1 ? "bag" : "bags"}.`,
         };
       },
     },

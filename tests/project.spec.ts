@@ -84,6 +84,13 @@ test("planner: add from two calculators, edit, export CSV, clear", async ({ page
   expect(stored).not.toBeNull();
   expect(JSON.parse(stored as string).items).toEqual([]);
 
+  // E4 regression: Clear must not leave stale item inputs in the hidden
+  // DOM — #project-rooms is emptied and the project name resets to the
+  // default, not just hidden behind the empty state.
+  await expect(page.locator("#project-rooms")).toBeEmpty();
+  await expect(page.locator("#project-name")).toHaveValue("My Project");
+  await expect(page.locator("#project-total")).toBeEmpty();
+
   expect(consoleErrors).toEqual([]);
 });
 

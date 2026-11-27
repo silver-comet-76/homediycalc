@@ -1,5 +1,9 @@
 # Roadmap — HomeDIYCalc
 
+> Update 2026-11-27: the Stair Calculator shipped in Phase 15, bringing the site to 26 calculators and 41 sitemap URLs (42 built pages: 41 shipped + 404); counts in the dated phase records below are as of their phase. In particular, the sitemap now lists exactly the 41 shipped pages.
+
+> Update 2026-11-27: Phase 17B2 adds five landscaping calculators (Sand, Raised Garden Bed Soil, Sod/Turf, Lawn Seed, Fence), bringing the site to 31 calculators and 46 sitemap URLs (47 built pages: 46 shipped + 404).
+
 > Phases 0–6. Each phase has scope and exit criteria. A phase is done only when its exit criteria are met and recorded in `docs/PHASE-REPORT.md`. No phase's exit criteria may be marked met on the basis of work that was not done or tests that did not run.
 
 ## Phase 0 — Planning and Documentation (complete)

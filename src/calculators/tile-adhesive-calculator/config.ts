@@ -33,15 +33,15 @@ function adhesiveOutput(areaFt2: number, v: Record<string, number>, present: Set
       },
       {
         label: "Bags to buy",
-        value: `${r.bags} bags`,
+        value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
         detail: `${fmt(req(v, "bagWeight"), 0)} lb bags — rounded up`,
       },
     ],
     lines: [
-      `Tile adhesive (thinset, ${fmt(req(v, "bagWeight"), 0)} lb bags): ${r.bags} bags (${fmt(r.adhesiveLb, 1)} lb)`,
+      `Tile adhesive (thinset, ${fmt(req(v, "bagWeight"), 0)} lb bags): ${r.bags} ${r.bags === 1 ? "bag" : "bags"} (${fmt(r.adhesiveLb, 1)} lb)`,
     ],
     costUsd: r.costUsd,
-    workedLine: `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(r.effectiveCoverageFt2PerBag, 1)} ft²/bag = ${fmt(r.adhesiveLb / req(v, "bagWeight"), 2)} bags → buy ${r.bags} bags.`,
+    workedLine: `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(r.effectiveCoverageFt2PerBag, 1)} ft²/bag = ${fmt(r.adhesiveLb / req(v, "bagWeight"), 2)} bags → buy ${r.bags} ${r.bags === 1 ? "bag" : "bags"}.`,
     note: "Coverage is the low end of the CUSTOM VersaBond chart for your trowel notch. Check the bag you buy — lightweight mortars cover more, and an uneven substrate covers less.",
   };
 }
@@ -109,7 +109,7 @@ export const tileAdhesiveConfig: CalculatorConfig = {
     note: "Assumes a ¼ × ¼ in square-notch trowel (90 ft² per 50 lb bag), no back-buttering, and 10% waste.",
     headers: ["Room size", "Adhesive needed", "Coverage per bag", "Bags to buy"],
     rows: [
-      ["5 × 8 ft room", "24.4 lb", "90 ft²/bag", "1 bags"],
+      ["5 × 8 ft room", "24.4 lb", "90 ft²/bag", "1 bag"],
       ["10 × 10 ft room", "61.1 lb", "90 ft²/bag", "2 bags"],
       ["10 × 12 ft room", "73.3 lb", "90 ft²/bag", "2 bags"],
       ["12 × 15 ft room", "110 lb", "90 ft²/bag", "3 bags"],

@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 /**
  * Shared-component regression coverage for GenericCalculator
- * (QA-16A-05 second corrective round): the island drives all 26
+ * (QA-16A-05 second corrective round): the island drives all 31
  * calculators, so the canonical-validation fix must not change
  * validation behaviour anywhere else. Targeted tests across the
  * validation categories — explicit canonical min/max bounds, positive
