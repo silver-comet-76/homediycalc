@@ -68,7 +68,7 @@ function paverOutput(
       `Pavers (${fmt(req(v, "paverLength"), 2)} × ${fmt(req(v, "paverWidth"), 2)} in): ${r.pavers}`,
       `Base gravel (${fmt(req(v, "baseDepth"), 0)} in compacted): ${fmt(r.baseLooseYd3)} yd³ loose (about ${fmt(r.baseTons)} tons)`,
       `Bedding sand (1 in layer): ${fmt(r.beddingSandYd3)} yd³ (about ${fmt(r.beddingSandTons)} tons)`,
-      `Polymeric joint sand (${fmt(req(v, "jointSandBag"), 0)} lb bags): ${r.jointSandBags} bags`,
+      `Polymeric joint sand (${fmt(req(v, "jointSandBag"), 0)} lb bags): ${r.jointSandBags} ${r.jointSandBags === 1 ? "bag" : "bags"}`,
     ],
     costUsd: r.costUsd,
     note: "Base and bedding-sand figures already include the base extending at least 6 in past the paver edge on every side (or the base thickness, when the base is deeper than 6 in), and compacted gravel loses about 20% of its volume, so the loose volume to order is larger than the compacted volume. Enter the patio length and width for the exact extended footprint — with only the area known, the extension is estimated as if the paved area were square.",

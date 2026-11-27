@@ -166,7 +166,7 @@ export const gravelConfig: CalculatorConfig = {
               ? [
                   {
                     label: "Bags",
-                    value: `${r.bags} bags`,
+                    value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
                     detail: `At ${fmt(req(v, "bagWeight"), 0)} lb per bag`,
                   },
                 ]

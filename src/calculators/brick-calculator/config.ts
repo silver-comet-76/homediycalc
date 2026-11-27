@@ -265,10 +265,10 @@ export const brickConfig: CalculatorConfig = {
             ? [
                 {
                   label: "Mortar bags (80 lb)",
-                  value: `${r.mortarBags} bags`,
+                  value: `${r.mortarBags} ${r.mortarBags === 1 ? "bag" : "bags"}`,
                   detail:
                     r.mortarBagsBasis === "rating"
-                      ? `QUIKRETE ${fmt(req(v, "bricksPerBag"), 0)}-brick maximum, derated by ${fmt(req(v, "mortarWaste"), 0)}% waste — covers ${r.bricksNeeded} bricks (${r.mortarBagsByRating} bags) and the waste-adjusted volume`
+                      ? `QUIKRETE ${fmt(req(v, "bricksPerBag"), 0)}-brick maximum, derated by ${fmt(req(v, "mortarWaste"), 0)}% waste — covers ${r.bricksNeeded} bricks (${r.mortarBagsByRating} ${r.mortarBagsByRating === 1 ? "bag" : "bags"}) and the waste-adjusted volume`
                       : `From your entered yield of ${fmt(req(v, "bagYieldFt3"))} ft³ per bag — covers ${fmt(r.mortarVolumeFt3)} ft³ of mortar (${fmt(req(v, "mortarWaste"), 0)}% waste included)`,
                 },
               ]
@@ -295,7 +295,7 @@ export const brickConfig: CalculatorConfig = {
               ? [
                   {
                     label: "Pallets",
-                    value: `${r.pallets} pallets`,
+                    value: `${r.pallets} ${r.pallets === 1 ? "pallet" : "pallets"}`,
                     detail: `${fmt(req(v, "palletSize"), 0)} bricks per pallet`,
                   },
                 ]
@@ -318,7 +318,7 @@ export const brickConfig: CalculatorConfig = {
               : undefined,
           workedLine:
             r.mortarBags !== null
-              ? `${fmt(r.netAreaFt2)} ft² × ${fmt(r.bricksPerFt2)} bricks/ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${r.bricksNeeded} bricks; mortar ${fmt(r.mortarVolumeFt3)} ft³ → ${r.mortarBags} bags.`
+              ? `${fmt(r.netAreaFt2)} ft² × ${fmt(r.bricksPerFt2)} bricks/ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${r.bricksNeeded} bricks; mortar ${fmt(r.mortarVolumeFt3)} ft³ → ${r.mortarBags} ${r.mortarBags === 1 ? "bag" : "bags"}.`
               : `${fmt(r.netAreaFt2)} ft² × ${fmt(r.bricksPerFt2)} bricks/ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${r.bricksNeeded} bricks; mortar ${fmt(r.mortarVolumeFt3)} ft³ (no bag count — non-standard brick size or joint; enter a verified bag yield for a count).`,
         };
       },

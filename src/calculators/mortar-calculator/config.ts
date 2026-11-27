@@ -47,7 +47,7 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       ? [
           {
             label: "Pre-mixed mortar",
-            value: `${r.bags} bags`,
+            value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
             detail:
               r.bagsBasis === "rating"
                 ? `80 lb bags at up to ${r.unitsPerBag} ${UNIT_LABELS[unit]} per bag (QUIKRETE 1102 maximum), derated by ${fmt(req(v, "waste"), 0)}% waste — rounded up`
@@ -71,12 +71,12 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       {
         label: `Site mix — ${TYPE_LABELS[mortarType]}`,
         value: `${fmt(r.cementFt3)} ft³ cement`,
-        detail: `${r.cementSacks} × 94 lb sacks; ${fmt(r.limeFt3)} ft³ lime; ${fmt(r.sandFt3)} ft³ sand`,
+        detail: `${r.cementSacks} × 94 lb ${r.cementSacks === 1 ? "sack" : "sacks"}; ${fmt(r.limeFt3)} ft³ lime; ${fmt(r.sandFt3)} ft³ sand`,
       },
     ],
     lines: [
       ...(r.bags !== null ? [`Mortar mix, 80 lb bags: ${r.bags}`] : []),
-      `Site mix ${TYPE_LABELS[mortarType]} — cement: ${r.cementSacks} × 94 lb sacks (${fmt(r.cementFt3)} ft³), lime: ${fmt(r.limeFt3)} ft³, sand: ${fmt(r.sandFt3)} ft³`,
+      `Site mix ${TYPE_LABELS[mortarType]} — cement: ${r.cementSacks} × 94 lb ${r.cementSacks === 1 ? "sack" : "sacks"} (${fmt(r.cementFt3)} ft³), lime: ${fmt(r.limeFt3)} ft³, sand: ${fmt(r.sandFt3)} ft³`,
       `Masonry units in the wall: ${r.unitsNeeded} ${UNIT_LABELS[unit]}`,
     ],
     costUsd: r.costUsd,
@@ -88,8 +88,8 @@ function mortarOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       r.bags === null
         ? `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³ (no bag count — joint wider than the standard ⅜ in; enter a verified bag yield for a count).`
         : r.bagsBasis === "rating"
-          ? `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³; ${r.unitsNeeded} × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${r.unitsPerBag} per bag = ${r.bags} bags.`
-          : `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³ ÷ ${fmt(req(v, "bagYieldFt3"))} ft³ per bag = ${r.bags} bags.`,
+          ? `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³; ${r.unitsNeeded} × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${r.unitsPerBag} per bag = ${r.bags} ${r.bags === 1 ? "bag" : "bags"}.`
+          : `${fmt(areaFt2)} ft² × ${fmt(r.unitsPerFt2, 2)} ${UNIT_LABELS[unit]}/ft² = ${r.unitsNeeded} ${UNIT_LABELS[unit]}; mortar ${fmt(r.mortarVolumeFt3)} ft³ ÷ ${fmt(req(v, "bagYieldFt3"))} ft³ per bag = ${r.bags} ${r.bags === 1 ? "bag" : "bags"}.`,
   };
 }
 

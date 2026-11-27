@@ -3,6 +3,7 @@ import Layout from "../components/Layout.astro";
 import Faq from "../components/Faq.astro";
 import HeroIllustration from "../components/HeroIllustration.astro";
 import {
+  CALCULATORS,
   CATEGORIES,
   getCalculator,
   getCalculatorsByCategory,
@@ -213,7 +214,7 @@ const faqs = [
             >
               <path d="M5 12l5 5 9-10"></path>
             </svg>
-            26 Calculators
+            {CALCULATORS.length} Calculators
           </li>
         </ul>
       </div>

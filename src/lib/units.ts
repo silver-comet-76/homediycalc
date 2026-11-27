@@ -91,6 +91,9 @@ export const POUNDS_PER_US_TON = 2000;
 /** Kilograms in one pound (avoirdupois) — exact by definition. */
 export const KILOGRAMS_PER_POUND = 0.45359237;
 
+/** Kilograms in one metric tonne — exact by definition. */
+export const KILOGRAMS_PER_TONNE = 1000;
+
 /** Length of one unit expressed in feet (the canonical length unit). */
 const FEET_PER_LENGTH_UNIT: Record<LengthUnit, number> = {
   ft: 1,
@@ -258,6 +261,27 @@ export function poundsToKilograms(pounds: number): number {
 /** Convert pounds to US short tons. */
 export function poundsToShortTons(pounds: number): number {
   return pounds / POUNDS_PER_US_TON;
+}
+
+/** Convert kilograms to metric tonnes (1 tonne = 1,000 kg exactly). */
+export function kilogramsToTonnes(kilograms: number): number {
+  return kilograms / KILOGRAMS_PER_TONNE;
+}
+
+/**
+ * Convert a grass-seed application rate from lb per 1,000 ft² to g/m².
+ * 1 lb per 1,000 ft² = 453.59237 g per 92.90304 m² = 4.882 g/m².
+ */
+export function lbPer1000Ft2ToGramsPerSquareMeter(lbPer1000Ft2: number): number {
+  return (lbPer1000Ft2 * poundsToKilograms(1) * 1000) / squareFeetToSquareMeters(1000);
+}
+
+/**
+ * Convert a grass-seed application rate from g/m² to lb per 1,000 ft²
+ * (the inverse of `lbPer1000Ft2ToGramsPerSquareMeter`).
+ */
+export function gramsPerSquareMeterToLbPer1000Ft2(gPerM2: number): number {
+  return (gPerM2 * squareFeetToSquareMeters(1000)) / (poundsToKilograms(1) * 1000);
 }
 
 /**

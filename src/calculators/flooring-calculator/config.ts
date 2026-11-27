@@ -32,7 +32,7 @@ function flooringOutput(areaFt2: number, v: Record<string, number>, present: Set
       },
       {
         label: "Boxes needed",
-        value: `${r.boxes} boxes`,
+        value: `${r.boxes} ${r.boxes === 1 ? "box" : "boxes"}`,
         detail: `${fmt(req(v, "boxCoverage"), 2)} ft² per box — rounded up`,
       },
       ...(r.planks !== undefined
@@ -55,16 +55,16 @@ function flooringOutput(areaFt2: number, v: Record<string, number>, present: Set
         : []),
     ],
     lines: [
-      `Flooring (${fmt(req(v, "boxCoverage"), 2)} ft² per box): ${r.boxes} boxes`,
+      `Flooring (${fmt(req(v, "boxCoverage"), 2)} ft² per box): ${r.boxes} ${r.boxes === 1 ? "box" : "boxes"}`,
       ...(r.planks !== undefined ? [`Planks: ${r.planks}`] : []),
       ...(r.underlaymentRolls !== undefined
         ? [
-            `Underlayment (${fmt(req(v, "rollCoverage"), 0)} ft² per roll): ${r.underlaymentRolls} rolls`,
+            `Underlayment (${fmt(req(v, "rollCoverage"), 0)} ft² per roll): ${r.underlaymentRolls} ${r.underlaymentRolls === 1 ? "roll" : "rolls"}`,
           ]
         : []),
     ],
     costUsd: r.costUsd,
-    workedLine: `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.adjustedAreaFt2)} ft² ÷ ${fmt(req(v, "boxCoverage"), 2)} ft² per box = ${r.boxes} boxes.`,
+    workedLine: `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.adjustedAreaFt2)} ft² ÷ ${fmt(req(v, "boxCoverage"), 2)} ft² per box = ${r.boxes} ${r.boxes === 1 ? "box" : "boxes"}.`,
   };
 }
 

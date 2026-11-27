@@ -38,10 +38,10 @@ function adhesiveOutput(areaFt2: number, v: Record<string, number>, present: Set
       },
     ],
     lines: [
-      `Tile adhesive (thinset, ${fmt(req(v, "bagWeight"), 0)} lb bags): ${r.bags} bags (${fmt(r.adhesiveLb, 1)} lb)`,
+      `Tile adhesive (thinset, ${fmt(req(v, "bagWeight"), 0)} lb bags): ${r.bags} ${r.bags === 1 ? "bag" : "bags"} (${fmt(r.adhesiveLb, 1)} lb)`,
     ],
     costUsd: r.costUsd,
-    workedLine: `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(r.effectiveCoverageFt2PerBag, 1)} ft²/bag = ${fmt(r.adhesiveLb / req(v, "bagWeight"), 2)} bags → buy ${r.bags} bags.`,
+    workedLine: `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(r.effectiveCoverageFt2PerBag, 1)} ft²/bag = ${fmt(r.adhesiveLb / req(v, "bagWeight"), 2)} bags → buy ${r.bags} ${r.bags === 1 ? "bag" : "bags"}.`,
     note: "Coverage is the low end of the CUSTOM VersaBond chart for your trowel notch. Check the bag you buy — lightweight mortars cover more, and an uneven substrate covers less.",
   };
 }

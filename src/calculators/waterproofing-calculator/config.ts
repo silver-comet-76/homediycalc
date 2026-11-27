@@ -94,7 +94,7 @@ function liquidOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       `Liquid waterproofing membrane: ${r.containers} × ${fmt(req(v, "containerGal"), 2)} gal containers (${fmt(r.gallons)} gal)`,
     ],
     costUsd: r.costUsd,
-    workedLine: `${fmt(areaFt2)} ft² × ${fmt(req(v, "coats"), 0)} coats ÷ ${fmt(req(v, "coverage"), 0)} ft²/gal × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.gallons)} gal → ${r.containers} containers.`,
+    workedLine: `${fmt(areaFt2)} ft² × ${fmt(req(v, "coats"), 0)} coats ÷ ${fmt(req(v, "coverage"), 0)} ft²/gal × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.gallons)} gal → ${r.containers} ${r.containers === 1 ? "container" : "containers"}.`,
     note: "Two coats is the minimum — a single coat leaves pinholes. Let the first coat dry fully (it changes color) before the second, at right angles to the first.",
   };
 }
@@ -266,15 +266,15 @@ export const waterproofingConfig: CalculatorConfig = {
             },
             {
               label: "Rolls to buy",
-              value: `${r.rolls} rolls`,
+              value: `${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"}`,
               detail: `${fmt(req(v, "rollCoverage"), 0)} ft² per roll — rounded up`,
             },
           ],
           lines: [
-            `Sheet waterproofing membrane: ${r.rolls} rolls (${fmt(req(v, "rollCoverage"), 0)} ft² per roll)`,
+            `Sheet waterproofing membrane: ${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"} (${fmt(req(v, "rollCoverage"), 0)} ft² per roll)`,
           ],
           costUsd: r.costUsd,
-          workedLine: `${fmt(req(v, "area"))} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(req(v, "rollCoverage"), 0)} ft²/roll = ${r.rolls} rolls.`,
+          workedLine: `${fmt(req(v, "area"))} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(req(v, "rollCoverage"), 0)} ft²/roll = ${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"}.`,
           note: "Seams need KERDI-BAND, corners need pre-formed corners, and pipes need pipe seals — the roll count alone is not the whole order.",
         };
       },

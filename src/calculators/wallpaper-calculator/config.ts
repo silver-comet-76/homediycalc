@@ -32,7 +32,7 @@ function wallpaperOutput(
   const rows: { label: string; value: string; detail?: string }[] = [
     {
       label: "Strips needed",
-      value: `${r.strips} strips`,
+      value: `${r.strips} ${r.strips === 1 ? "strip" : "strips"}`,
       detail: `${fmt(wallLengthFt)} ft of wall ÷ ${fmt(roll.widthIn, 1)} in roll width`,
     },
     {
@@ -42,23 +42,26 @@ function wallpaperOutput(
     },
     {
       label: "Strips per roll",
-      value: r.stripsPerRoll > 0 ? `${r.stripsPerRoll} strips` : "None fits",
+      value:
+        r.stripsPerRoll > 0
+          ? `${r.stripsPerRoll} ${r.stripsPerRoll === 1 ? "strip" : "strips"}`
+          : "None fits",
       detail: `${fmt(roll.lengthFt, 1)} ft roll ÷ ${fmt(r.stripLengthFt)} ft per strip, rounded down`,
     },
     {
       label: "Rolls to buy",
-      value: `${r.rolls} rolls`,
+      value: `${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"}`,
       detail: `${roll.label} — rounded up`,
     },
   ];
   return {
     rows,
     lines: [
-      `Wallpaper (${roll.label}): ${r.rolls} rolls`,
-      `${r.strips} strips of ${fmt(r.stripLengthFt)} ft, ${r.stripsPerRoll} strips per roll`,
+      `Wallpaper (${roll.label}): ${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"}`,
+      `${r.strips} ${r.strips === 1 ? "strip" : "strips"} of ${fmt(r.stripLengthFt)} ft, ${r.stripsPerRoll} ${r.stripsPerRoll === 1 ? "strip" : "strips"} per roll`,
     ],
     costUsd: r.costUsd,
-    workedLine: `${r.strips} strips × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${r.stripsPerRoll} strips per roll = ${r.rolls} rolls.`,
+    workedLine: `${r.strips} ${r.strips === 1 ? "strip" : "strips"} × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${r.stripsPerRoll} ${r.stripsPerRoll === 1 ? "strip" : "strips"} per roll = ${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"}.`,
     note:
       r.stripsPerRoll === 0
         ? "No full strip fits on this roll — the wall plus the pattern repeat is longer than the roll. Choose a longer roll or a paper with a smaller repeat."

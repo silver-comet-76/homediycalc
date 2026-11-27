@@ -12,12 +12,26 @@ import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
 
+/**
+ * Select value for purchaseMethod = rolls. The island stores select
+ * values as numbers; 0 is pallets, the default. A missing value (e.g.
+ * the lookup-table recompute, which passes no purchase method) also
+ * means pallets.
+ */
+const PURCHASE_ROLLS = 1;
+
+const PURCHASE_NOTE =
+  "Package quantities are always rounded up — you are never told to buy less than you need.";
+
 function sodOutput(
   grossAreaFt2: number,
   v: Record<string, number>,
   present: Set<string>,
   areaWorkedLine: string,
 ) {
+  // opt, not req: the lookup-table recompute passes no purchase
+  // method, and a missing value means the default (pallets).
+  const isRolls = opt(v, "purchaseMethod") === PURCHASE_ROLLS;
   const r = calculateSod({
     grossAreaFt2,
     exclusionsFt2: opt(v, "exclusions"),
@@ -26,7 +40,27 @@ function sodOutput(
     palletCoverageFt2: req(v, "palletCoverage"),
     pricePerRoll: present.has("pricePerRoll") ? req(v, "pricePerRoll") : undefined,
     pricePerPallet: present.has("pricePerPallet") ? req(v, "pricePerPallet") : undefined,
+    purchaseMethod: isRolls ? "rolls" : "pallets",
   });
+  // The other form's cost, for the comparison in the row detail only:
+  // the headline cost follows the chosen form, never the other one.
+  const palletCost = present.has("pricePerPallet")
+    ? r.pallets * req(v, "pricePerPallet")
+    : undefined;
+  const rollCost = present.has("pricePerRoll") ? r.rolls * req(v, "pricePerRoll") : undefined;
+  const rollsDetail = isRolls
+    ? `${fmt(req(v, "rollCoverage"), 0)} ft² per roll — rounded up — your purchase method`
+    : rollCost !== undefined
+      ? `${fmt(req(v, "rollCoverage"), 0)} ft² per roll — rounded up. Alternative: ${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"} would cost $${rollCost.toFixed(2)} at the roll price you entered — buy rolls or pallets, not both.`
+      : `${fmt(req(v, "rollCoverage"), 0)} ft² per roll — rounded up. Alternative — buy rolls or pallets, not both.`;
+  const palletBaseDetail = r.lastPalletPartial
+    ? `${fmt(req(v, "palletCoverage"), 0)} ft² per pallet — last pallet is partial, you need only ${fmt(r.lastPalletFt2, 0)} ft² of it`
+    : `${fmt(req(v, "palletCoverage"), 0)} ft² per pallet — whole pallets only`;
+  const palletsDetail = isRolls
+    ? palletCost !== undefined
+      ? `${palletBaseDetail}. Alternative: ${r.pallets} ${r.pallets === 1 ? "pallet" : "pallets"} would cost $${palletCost.toFixed(2)} at the pallet price you entered — buy rolls or pallets, not both.`
+      : `${palletBaseDetail}. Alternative — buy rolls or pallets, not both.`
+    : `${palletBaseDetail} — your purchase method`;
   return {
     ...(r.netAreaFt2 <= 0
       ? { warnings: ["The exclusions cover the whole lawn, so no sod is needed."] }
@@ -45,21 +79,28 @@ function sodOutput(
       {
         label: "Rolls to buy",
         value: `${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"}`,
-        detail: `${fmt(req(v, "rollCoverage"), 0)} ft² per roll — rounded up`,
+        detail: rollsDetail,
       },
       {
         label: "Pallets to buy",
         value: `${r.pallets} ${r.pallets === 1 ? "pallet" : "pallets"}`,
-        detail: r.lastPalletPartial
-          ? `${fmt(req(v, "palletCoverage"), 0)} ft² per pallet — last pallet is partial, you need only ${fmt(r.lastPalletFt2, 0)} ft² of it`
-          : `${fmt(req(v, "palletCoverage"), 0)} ft² per pallet — whole pallets only`,
+        detail: palletsDetail,
       },
     ],
-    lines: [
-      `Sod (rolls): ${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"} (${fmt(req(v, "rollCoverage"), 0)} ft² each)`,
-      `Sod (pallets): ${r.pallets} ${r.pallets === 1 ? "pallet" : "pallets"} (${fmt(req(v, "palletCoverage"), 0)} ft² each)`,
-    ],
+    // The shopping list carries only the chosen form — rolls or
+    // pallets, never both. The partial-pallet flag travels with the
+    // pallet line, because the result rows do not travel to My Project.
+    lines: isRolls
+      ? [
+          `Sod (rolls): ${r.rolls} ${r.rolls === 1 ? "roll" : "rolls"} (${fmt(req(v, "rollCoverage"), 0)} ft² each)`,
+        ]
+      : [
+          `Sod (pallets): ${r.pallets} ${r.pallets === 1 ? "pallet" : "pallets"} (${fmt(req(v, "palletCoverage"), 0)} ft² each)${r.lastPalletPartial ? ` — last pallet is partial, you need only ${fmt(r.lastPalletFt2, 0)} ft² of it` : ""}`,
+        ],
     costUsd: r.costUsd,
+    note: isRolls
+      ? `Buy rolls or pallets, not both — the shopping list contains only the rolls. ${PURCHASE_NOTE}`
+      : `Buy rolls or pallets, not both — the shopping list contains only the pallets. ${PURCHASE_NOTE}`,
     workedLine:
       `${areaWorkedLine} × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.adjustedAreaFt2, 0)} ft²; ` +
       `rolls ${fmt(r.adjustedAreaFt2, 0)} ÷ ${fmt(req(v, "rollCoverage"), 0)} = ${r.rolls}; ` +
@@ -117,12 +158,25 @@ const COMMON_FIELDS = [
     hint: "A US pallet covers 400–500 ft². Enter your supplier's figure.",
   },
   {
+    id: "purchaseMethod",
+    label: "Buy as",
+    kind: "select" as const,
+    defaultImp: "0",
+    defaultMet: "0",
+    options: [
+      { value: "0", label: "Pallets" },
+      { value: "1", label: "Rolls" },
+    ],
+    hint: "Choose how you will buy it. The shopping list and the cost follow this choice — rolls or pallets, never both.",
+  },
+  {
     id: "pricePerRoll",
     label: "Price per roll (optional)",
     kind: "price" as const,
     defaultImp: "",
     defaultMet: "",
     optional: true,
+    hint: "Used only when “Buy as” is Rolls.",
   },
   {
     id: "pricePerPallet",
@@ -131,6 +185,7 @@ const COMMON_FIELDS = [
     defaultImp: "",
     defaultMet: "",
     optional: true,
+    hint: "Used only when “Buy as” is Pallets.",
   },
 ];
 
@@ -159,12 +214,14 @@ export const sodConfig: CalculatorConfig = {
     "÷ coverage per pallet, rounded up. A US roll covers 10 ft² (2 × 5 ft) and a US " +
     "pallet 400–500 ft² (450 ft² is the small end, used as the default); a UK turf roll " +
     "covers about 1 m². Waste is 5% for a simple rectangle and 10% for curves and cuts. " +
-    "Cost uses the pallet price when entered (pallets are the bulk form — pallet wins when " +
-    "both a pallet and a roll price are entered); otherwise the roll price.",
+    "Cost follows the “Buy as” choice: pallets are priced at the pallet price, rolls at " +
+    "the roll price — a buyer buys rolls or pallets, never both. No cost is shown when " +
+    "the price for the chosen form is not entered.",
   howTo: [
     "Measure the lawn in feet — length × width for a rectangle, or split an irregular lawn into rectangles and add them. Use the round or L-shaped mode when it fits better.",
     "Subtract the house, driveway, beds, and paths: anything the lawn does not cover. Measure each one and add them up.",
     "Check the coverage: a US sod roll is 10 ft² (2 × 5 ft) and a US pallet is 400–500 ft², but sizes vary by supplier and region — a UK turf roll is about 1 m². Enter your supplier's figures.",
+    "Choose “Buy as”: pallets or rolls. The shopping list and the cost follow that choice, so the two forms are never added together — the other form stays visible as a labelled alternative with its own cost when you entered its price.",
     "Set the waste: 5% for a simple rectangle, 10% for curves and cuts. The last pallet is flagged when it is only partly needed, so you can ask your supplier about a partial pallet.",
   ],
   workedExample:
@@ -181,7 +238,7 @@ export const sodConfig: CalculatorConfig = {
     ],
     [
       {
-        text: "Sod and seed are different methods for the same lawn: sod is instant but costs more per square foot, seed is cheaper but takes months. For the seed quantities, see the ",
+        text: "Sod and seed are different methods for the same lawn: sod typically establishes in 3–4 weeks but costs more per square foot, seed is cheaper but takes around 4–6 weeks to establish and longer to fill in fully (Univ. of Maryland Extension). For the seed quantities, see the ",
       },
       { text: "Lawn Seed Calculator", calc: "lawn-seed-calculator" },
       { text: "." },
@@ -191,7 +248,7 @@ export const sodConfig: CalculatorConfig = {
     {
       question: "How many square feet are in a pallet of sod?",
       answer:
-        "400–500 ft² for a US pallet; this calculator defaults to 450 ft², the small end of the range. A pallet weighs roughly 1,750–2,000 lb — about a ton — so check that your vehicle or delivery can handle it.",
+        "400–500 ft² for a US pallet; this calculator defaults to 450 ft², the small end of the range. A pallet weighs roughly 1,750–2,000 lb — about a ton (Purdue Extension: sod weighs about 35–40 lb per square yard; Mississippi State Extension: a 450 ft² pallet may weigh as much as a ton) — so check that your vehicle or delivery can handle it.",
     },
     {
       question: "How big is a roll of sod?",
@@ -206,17 +263,17 @@ export const sodConfig: CalculatorConfig = {
     {
       question: "When is the best time to lay sod?",
       answer:
-        "For cool-season grasses, spring (March–May) and early fall (September–October). For warm-season grasses, late spring to early summer, once the soil is warm. Sod laid in the heat of summer needs far more watering to take.",
+        "For cool-season grasses, late summer to early fall (mid-August to mid-October) — spring planting (March into early April) is more challenging than fall planting. For warm-season grasses, late spring to early summer (mid-May into June), once the soil is warm (Univ. of Maryland Extension). Sod laid in the heat of summer needs far more watering to take.",
     },
     {
       question: "Sod or seed — which is better?",
       answer:
-        "Sod gives you a lawn in 2–3 weeks and costs more per square foot; seed is much cheaper but takes 3–4 months to fill in (longer for some grasses). Choose sod when you need the lawn now and can water it daily for the first two weeks; choose seed when budget matters more than speed.",
+        "Sod typically establishes in 3–4 weeks after laying (roots in 2–3 weeks) and costs more per square foot; seed is much cheaper but takes around 4–6 weeks to establish and longer to fill in fully (Univ. of Maryland Extension). Choose sod when you need the lawn now and can water it daily for the first two weeks; choose seed when budget matters more than speed.",
     },
     {
       question: "How long can sod sit on the pallet before laying it?",
       answer:
-        "Lay it the day it arrives if you can — within 24 hours in warm weather. Sod on a pallet heats up and dries out fast; if you must wait, keep the pallet in the shade and water it lightly, and never leave it stacked for more than a day or two.",
+        "Lay it the day it arrives if you can — actively growing sod should be installed within 24–48 hours of harvest (Univ. of Tennessee Extension), and sod is highly perishable, so install it promptly after delivery, especially in hot, dry weather (Univ. of Maryland Extension). Sod on a pallet heats up and dries out fast; if you must wait, keep the pallet in the shade and water it lightly (Mississippi State Extension), or unstack the rolls and lay them flat in the shade (Univ. of Maryland Extension) — never leave it stacked for more than a day or two.",
     },
   ],
   modes: [

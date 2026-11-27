@@ -58,4 +58,38 @@ describe("paverConfig extended footprint (PVR-2)", () => {
     expect(faq?.answer).not.toContain("190 sq ft");
     expect(faq?.answer).not.toContain("90 sq ft");
   });
+
+  it("singularizes the joint-sand count in the result row and the shopping-list line (F-2)", () => {
+    // Hand-derived: 10 × 10 ft patio, 12 × 12 in pavers, ⅛ in joints,
+    // 2⅜ in thick, joint sand at 100 lb/ft³ in 50 lb bags.
+    // Joint volume per ft² = 144 × 3.015625 × 2.375 ÷ 147.015625 ≈ 7.01 in³,
+    // so 100 ft² needs ≈ 40.6 lb → ceil(40.6 ÷ 50) = 1 bag.
+    const values = {
+      length: 10,
+      width: 10,
+      paverLength: 12,
+      paverWidth: 12,
+      joint: 0.125,
+      paverThickness: 2.375,
+      waste: 10,
+      baseDepth: 4,
+      baseDensity: 2800,
+      beddingSandDepth: 1,
+      jointSandDensity: 100,
+      jointSandBag: 50,
+    };
+    const present = new Set(Object.keys(values));
+    const out = dimensionsMode?.compute(values, present);
+    const jointRow = out?.rows.find((r) => r.label === "Joint sand");
+    expect(jointRow?.value).toBe("1 bag");
+    expect(jointRow?.detail).toContain("40.6 lb");
+    const jointLine = out?.lines.find((l) => l.startsWith("Polymeric joint sand"));
+    expect(jointLine).toBe("Polymeric joint sand (50 lb bags): 1 bag");
+    expect(out?.lines.join(" ")).not.toContain("1 bags");
+
+    // Plural case is unchanged: the 16 × 12 ft patio needs ≈ 78 lb → 2 bags.
+    const plural = dimensionsMode?.compute({ ...values, length: 16, width: 12 }, present);
+    expect(plural?.rows.find((r) => r.label === "Joint sand")?.value).toBe("2 bags");
+    expect(plural?.lines.find((l) => l.startsWith("Polymeric joint sand"))).toContain("2 bags");
+  });
 });

@@ -14,6 +14,18 @@ import { formatNumber } from "../../lib/validation";
 
 const fmt = (n: number, d = 2) => formatNumber(n, d);
 
+/**
+ * Select values for purchaseMethod. The island stores select values
+ * as numbers; 0 is premixed bags, the default. A missing value (e.g.
+ * the lookup-table recompute, which passes no purchase method) also
+ * means bags.
+ */
+const PURCHASE_BULK = 1;
+const PURCHASE_COMPONENTS = 2;
+
+const PURCHASE_NOTE =
+  "Package quantities are always rounded up — you are never told to buy less than you need.";
+
 function raisedBedOutput(
   soilFt3: number,
   v: Record<string, number>,
@@ -21,6 +33,11 @@ function raisedBedOutput(
   workedLine: string,
   warnings?: string[],
 ) {
+  // opt, not req: the lookup-table recompute passes no purchase
+  // method, and a missing value means the default (bags).
+  const method = opt(v, "purchaseMethod");
+  const isBulk = method === PURCHASE_BULK;
+  const isComponents = method === PURCHASE_COMPONENTS;
   const r = calculateRaisedBedSoil({
     soilFt3,
     settlingPct: req(v, "settling"),
@@ -30,7 +47,45 @@ function raisedBedOutput(
     bagSizeFt3: req(v, "bagSize"),
     pricePerYd3: present.has("pricePerYd3") ? req(v, "pricePerYd3") : undefined,
     pricePerBag: present.has("pricePerBag") ? req(v, "pricePerBag") : undefined,
+    purchaseMethod: isBulk ? "bulk" : isComponents ? "components" : "bags",
   });
+  // The other premixed form's cost, for the comparison in the row
+  // detail only: the headline cost follows the chosen form, never the
+  // other one.
+  const bulkCost = present.has("pricePerYd3") ? r.orderYd3 * req(v, "pricePerYd3") : undefined;
+  const bagCost = present.has("pricePerBag") ? r.bags * req(v, "pricePerBag") : undefined;
+  const bulkDetail = isBulk
+    ? "Rounded up to whole yards — your purchase method"
+    : bulkCost !== undefined
+      ? `Rounded up to whole yards. Alternative: ${r.orderYd3} yd³ of premixed soil would cost $${bulkCost.toFixed(2)} at the bulk price you entered — buy one form, not all three.`
+      : "Rounded up to whole yards. Alternative — buy one form, not all three.";
+  const bagsDetail =
+    !isBulk && !isComponents
+      ? `${fmt(req(v, "bagSize"), 2)} ft³ per bag — rounded up — your purchase method`
+      : bagCost !== undefined
+        ? `${fmt(req(v, "bagSize"), 2)} ft³ per bag — rounded up. Alternative: ${r.bags} ${r.bags === 1 ? "bag" : "bags"} of premixed soil would cost $${bagCost.toFixed(2)} at the bag price you entered — buy one form, not all three.`
+        : `${fmt(req(v, "bagSize"), 2)} ft³ per bag — rounded up. Alternative — buy one form, not all three.`;
+  const mixDetail = isComponents
+    ? "Topsoil / compost / perlite, normalized to 100% — buy the three parts separately and mix them"
+    : "Topsoil / compost / perlite, normalized to 100% — this is what is in the premixed soil, not a separate purchase";
+  // The shopping list carries only the chosen form. For premixed soil
+  // the mix is composition, not a purchase, so it stays on the page
+  // as a result row and out of the shopping list; for the components
+  // choice the three parts ARE the shopping list.
+  const lines = isComponents
+    ? [
+        `Topsoil: ${fmt(r.topsoilFt3)} ft³`,
+        `Compost: ${fmt(r.compostFt3)} ft³`,
+        `Perlite: ${fmt(r.aerationFt3)} ft³`,
+      ]
+    : isBulk
+      ? [`Raised bed soil (bulk): ${r.orderYd3} yd³`]
+      : [`Raised bed soil bags (${fmt(req(v, "bagSize"), 2)} ft³ each): ${r.bags}`];
+  const note = isComponents
+    ? `Buy one form, not all three — the shopping list contains only the three mix components. The parts have no prices, so no cost is shown for this choice. ${PURCHASE_NOTE}`
+    : isBulk
+      ? `Buy one form, not all three — the shopping list contains only the bulk order. ${PURCHASE_NOTE}`
+      : `Buy one form, not all three — the shopping list contains only the bags. ${PURCHASE_NOTE}`;
   return {
     ...(warnings && warnings.length > 0 ? { warnings } : {}),
     rows: [
@@ -42,25 +97,22 @@ function raisedBedOutput(
       {
         label: "Bulk to order",
         value: `${r.orderYd3} yd³`,
-        detail: "Rounded up to whole yards",
+        detail: bulkDetail,
       },
       {
         label: "Bags to buy",
         value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
-        detail: `${fmt(req(v, "bagSize"), 2)} ft³ per bag — rounded up`,
+        detail: bagsDetail,
       },
       {
         label: `Mix (${fmt(req(v, "topsoilPct"), 0)}/${fmt(req(v, "compostPct"), 0)}/${fmt(req(v, "aerationPct"), 0)})`,
         value: `${fmt(r.topsoilFt3)} / ${fmt(r.compostFt3)} / ${fmt(r.aerationFt3)} ft³`,
-        detail: "Topsoil / compost / perlite, normalized to 100%",
+        detail: mixDetail,
       },
     ],
-    lines: [
-      `Raised bed soil (bulk): ${r.orderYd3} yd³`,
-      `Raised bed soil bags (${fmt(req(v, "bagSize"), 2)} ft³ each): ${r.bags}`,
-      `Mix: ${fmt(r.topsoilFt3)} ft³ topsoil, ${fmt(r.compostFt3)} ft³ compost, ${fmt(r.aerationFt3)} ft³ perlite`,
-    ],
+    lines,
     costUsd: r.costUsd,
+    note,
     workedLine,
   };
 }
@@ -72,7 +124,7 @@ const COMMON_FIELDS = [
     kind: "percent" as const,
     defaultImp: "10",
     defaultMet: "10",
-    hint: "10% covers first-season settling. Beds can lose 10–20% of their height in the first season — top up in fall.",
+    hint: "10% covers first-season settling. A freshly filled bed settles — UF/IFAS Extension says the level may drop by about 2 in — and keeps shrinking, so top up after each planting season.",
   },
   {
     id: "topsoilPct",
@@ -80,7 +132,7 @@ const COMMON_FIELDS = [
     kind: "percent" as const,
     defaultImp: "60",
     defaultMet: "60",
-    hint: "Mix proportions are adjustable — 60/30/10 topsoil/compost/perlite is a commonly published starting point, not a universal recipe. The calculator normalizes the three figures so they always add to 100%.",
+    hint: "Mix proportions are adjustable — 60/30/10 topsoil/compost/perlite is one extension-published starting point (Univ. of Illinois Extension), not a universal recipe. The calculator normalizes the three figures so they always add to 100%.",
   },
   {
     id: "compostPct",
@@ -108,12 +160,26 @@ const COMMON_FIELDS = [
     hint: "1.5 or 2 ft³ bags are common. Read your bag.",
   },
   {
+    id: "purchaseMethod",
+    label: "Buy as",
+    kind: "select" as const,
+    defaultImp: "0",
+    defaultMet: "0",
+    options: [
+      { value: "0", label: "Premixed soil — bags" },
+      { value: "1", label: "Premixed soil — bulk" },
+      { value: "2", label: "Mix components separately" },
+    ],
+    hint: "Choose how you will buy it: premixed soil in bags or in bulk, or the topsoil, compost, and perlite separately to mix yourself. The shopping list and the cost follow this choice.",
+  },
+  {
     id: "pricePerYd3",
     label: "Price per cubic yard (optional)",
     kind: "price" as const,
     defaultImp: "",
     defaultMet: "",
     optional: true,
+    hint: "Used only when “Buy as” is premixed soil in bulk.",
   },
   {
     id: "pricePerBag",
@@ -122,6 +188,7 @@ const COMMON_FIELDS = [
     defaultImp: "",
     defaultMet: "",
     optional: true,
+    hint: "Used only when “Buy as” is premixed soil in bags.",
   },
 ];
 
@@ -155,25 +222,29 @@ export const raisedBedSoilConfig: CalculatorConfig = {
     "Bags = ordered volume ÷ bag size, rounded up. The mix splits the ordered volume: " +
     "60% topsoil / 30% compost / 10% perlite (or coarse sand) by default — a commonly " +
     "published starting point, not a universal recipe — and the three proportions are " +
-    "normalized so they always add to 100%. Cost uses the bulk price when entered (bulk " +
-    "wins when both a bulk and a bag price are entered — a buyer buys bulk or bags, never " +
-    "both); otherwise the bag price.",
+    "normalized so they always add to 100%. Cost follows the “Buy as” " +
+    "choice: premixed soil in bulk is priced at the bulk price per " +
+    "cubic yard, premixed soil in bags at the bag price — a buyer buys " +
+    "one form, not all three. Buying the mix components separately has " +
+    "no cost here, because the parts carry no prices. No cost is shown " +
+    "when the price for the chosen form is not entered.",
   howTo: [
     "Measure the INSIDE dimensions of the bed in feet — the wood thickness does not hold soil.",
-    "Decide the fill depth: the soil depth, not the bed height. Leave about 2 in of freeboard at the top so water and mulch stay in. Most vegetables need 8–12 in of soil; tomatoes and carrots need 12–18 in.",
+    "Decide the fill depth: the soil depth, not the bed height. Fill to near the top — UF/IFAS Extension advises filling to the very top, since the level drops about 2 in as it settles — and leave room for mulch on top. Most vegetables need 8–12 in of soil; tomatoes, peppers, and squash need 12–24 in (Univ. of Maryland Extension).",
     "Subtract bottom filler if you use any — logs, branches, or straw under the soil displace it. Leave the filler field empty when there is none.",
     "Count the beds: identical beds multiply the volume, so enter how many you are filling.",
     "Check the mix: 60/30/10 topsoil/compost/perlite is a common starting point, but adjust it to your soil and plants — the calculator normalizes the three figures to 100%.",
+    "Choose “Buy as”: premixed soil in bags, premixed soil in bulk, or the three mix components separately to mix yourself. The shopping list and the cost follow that choice, so the forms are never added together — the other forms stay visible as labelled alternatives.",
   ],
   workedExample:
     "A 4 × 8 ft bed, 10 in of soil: 8 × 4 × 10/12 = 26.67 ft³ = 0.99 yd³. " +
     "With a 10% settling allowance that is 29.33 ft³ = 1.09 yd³. " +
     "At a 60/30/10 mix that is 17.6 ft³ of topsoil, 8.8 ft³ of compost, and 2.93 ft³ of perlite — or 15 bags of 2 ft³. Bulk to order: 2 yd³.",
   limitations: [
-    "The 60/30/10 mix is a starting point, not a prescription — soil, compost, and perlite vary by supplier, and some growers use no perlite at all. Adjust the proportions to your soil and plants.",
-    "Settling is an assumption, not a measurement: beds commonly lose 10–20% of their height in the first season. Top the beds up in fall rather than over-ordering in spring.",
+    "The 60/30/10 mix is a starting point, not a prescription — soil, compost, and perlite vary by supplier, extension services publish different starting points for the same job, and some growers use no perlite at all. Adjust the proportions to your soil and plants.",
+    "Settling is an assumption, not a measurement: a freshly filled bed settles (UF/IFAS Extension: the level may drop by about 2 in) and keeps shrinking as the organic matter breaks down. Top the beds up after each planting season rather than over-ordering in spring.",
     "Does not account for soil removed by digging or for a drainage layer — the volume here is the soil in the bed only.",
-    "Bottom filler (logs, branches, straw — hugelkultur-style) is only suitable in beds at least 18 in deep. It ties up nitrogen as it breaks down and settles further, so expect to top up more in the first year.",
+    "Bottom filler (logs, branches, straw — hugelkultur-style) is only suitable in deep beds (at least 18 in, as a general gardening rule — no extension source gives the depth). Buried wood ties up nitrogen as it breaks down, because woody material mixed into the root zone draws on soil nitrogen while it decomposes, and the bed settles further, so expect to top up more in the first year.",
     [
       { text: "For ground-level lawns and beds, use the " },
       { text: "Topsoil Calculator", calc: "topsoil-calculator" },
@@ -189,17 +260,17 @@ export const raisedBedSoilConfig: CalculatorConfig = {
     {
       question: "How deep should I fill a raised bed?",
       answer:
-        "8–12 in of soil suits most vegetables; tomatoes and carrots need 12–18 in. Fill depth is the soil depth, not the bed height — leave about 2 in of freeboard at the top so water and mulch stay in the bed.",
+        "8–12 in of soil suits most vegetables; tomatoes, peppers, and squash need 12–24 in (Univ. of Maryland Extension). Fill depth is the soil depth, not the bed height — fill to near the top (UF/IFAS Extension: the level drops about 2 in as it settles) and leave room for mulch.",
     },
     {
       question: "What mix should I use for a raised bed?",
       answer:
-        "A commonly published starting point is 60% topsoil, 30% compost, and 10% perlite (or coarse sand) — but it is not the only reputable formula, and the proportions are adjustable here. Some growers skip the perlite; others raise the compost share. The calculator normalizes whatever you enter to 100%.",
+        "Univ. of Illinois Extension's raised-bed checklist gives 60% topsoil, 30% compost, and 10% soilless mix as one example — but it is not the only extension formula: Univ. of Maryland Extension gives compost and topsoil at 1:2 or 1:1 for a bed on lawn, and Iowa State gives equal parts topsoil, organic matter, and coarse sand, or about 70% topsoil and 30% compost. The proportions are adjustable here. Some growers skip the perlite; others raise the compost share. The calculator normalizes whatever you enter to 100%.",
     },
     {
       question: "How much does raised bed soil settle?",
       answer:
-        "Beds commonly lose 10–20% of their height in the first season as the mix settles and decomposes. The calculator defaults to a 10% settling allowance — top the beds up in fall rather than over-ordering in spring.",
+        "A freshly filled bed settles — UF/IFAS Extension says the level may drop by about 2 in — and keeps shrinking over time as the organic matter breaks down. The calculator defaults to a 10% settling allowance — top the beds up after each planting season rather than over-ordering in spring.",
     },
     {
       question: "Raised bed calculator or topsoil calculator — which one?",
@@ -209,7 +280,7 @@ export const raisedBedSoilConfig: CalculatorConfig = {
     {
       question: "Can I fill the bottom of a raised bed with logs and branches?",
       answer:
-        "Yes, in beds at least 18 in deep — logs, branches, and straw under the soil (hugelkultur-style) displace soil and slowly break down. It is not free: the wood ties up nitrogen as it decomposes, and the bed settles further, so expect to top up more in the first year. Enter the filler depth and the calculator subtracts it from the soil volume.",
+        "Yes, in deep beds — at least 18 in, as a general gardening rule — logs, branches, and straw under the soil (hugelkultur-style) displace soil and slowly break down. It is not free: buried wood ties up nitrogen as it decomposes, and the bed settles further, so expect to top up more in the first year. Enter the filler depth and the calculator subtracts it from the soil volume.",
     },
   ],
   modes: [
@@ -247,7 +318,7 @@ export const raisedBedSoilConfig: CalculatorConfig = {
           metUnit: "cm",
           defaultImp: "10",
           defaultMet: "25",
-          hint: "Soil depth, not bed height: 8–12 in for most vegetables, 12–18 in for tomatoes and carrots. Leave 2 in of freeboard at the top.",
+          hint: "Soil depth, not bed height: 8–12 in for most vegetables, 12–24 in for tomatoes, peppers, and squash (Univ. of Maryland Extension). Fill to near the top; the level drops about 2 in as it settles (UF/IFAS Extension).",
         },
         {
           id: "fillerDepth",
@@ -261,7 +332,7 @@ export const raisedBedSoilConfig: CalculatorConfig = {
           defaultMet: "",
           optional: true,
           min: 0,
-          hint: "Logs, branches, or straw under the soil that displaces it. Leave empty for none. Only for beds at least 18 in deep.",
+          hint: "Logs, branches, or straw under the soil that displaces it. Leave empty for none. Only for deep beds (at least 18 in).",
         },
         {
           id: "beds",

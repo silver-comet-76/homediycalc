@@ -163,15 +163,15 @@ export const sealantConfig: CalculatorConfig = {
             },
             {
               label: "Tubes to buy",
-              value: `${r.tubes} tubes`,
+              value: `${r.tubes} ${r.tubes === 1 ? "tube" : "tubes"}`,
               detail: `${fmt(req(v, "tubeVolume"), 1)} fl oz tubes — rounded up`,
             },
           ],
           lines: [
-            `Sealant (${fmt(req(v, "tubeVolume"), 1)} fl oz tubes): ${r.tubes} tubes (${fmt(r.volumeFlOz, 1)} fl oz)`,
+            `Sealant (${fmt(req(v, "tubeVolume"), 1)} fl oz tubes): ${r.tubes} ${r.tubes === 1 ? "tube" : "tubes"} (${fmt(r.volumeFlOz, 1)} fl oz)`,
           ],
           costUsd: r.costUsd,
-          workedLine: `${fmt(req(v, "jointLength"))} ft × 12 × ${fmt(req(v, "beadWidth"), 2)} in × ${fmt(req(v, "beadDepth"), 2)} in × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.volumeFlOz, 1)} fl oz → ${r.tubes} tubes.`,
+          workedLine: `${fmt(req(v, "jointLength"))} ft × 12 × ${fmt(req(v, "beadWidth"), 2)} in × ${fmt(req(v, "beadDepth"), 2)} in × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.volumeFlOz, 1)} fl oz → ${r.tubes} ${r.tubes === 1 ? "tube" : "tubes"}.`,
         };
       },
     },

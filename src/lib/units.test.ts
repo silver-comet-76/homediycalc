@@ -16,7 +16,12 @@ import {
   fromFeet,
   fromSquareFeet,
   gallonsToLiters,
+  gramsPerSquareMeterToLbPer1000Ft2,
+  kilogramsToTonnes,
+  lbPer1000Ft2ToGramsPerSquareMeter,
   litersToGallons,
+  poundsToKilograms,
+  poundsToShortTons,
   roundForDisplay,
   squareFeetToSquareMeters,
   squareMetersToSquareFeet,
@@ -153,6 +158,29 @@ describe("volume conversions", () => {
     expect(toCubicFeet(1, "yd3")).toBe(27);
     expect(fromCubicFeet(27, "yd3")).toBe(1);
     expect(toCubicFeet(5, "gal")).toBeCloseTo(0.6684027777777778, 9);
+  });
+});
+
+describe("mass conversions", () => {
+  it("converts kilograms to metric tonnes (divide by 1,000)", () => {
+    expect(kilogramsToTonnes(1000)).toBe(1);
+    expect(kilogramsToTonnes(1663.17)).toBeCloseTo(1.66317, 5);
+    expect(kilogramsToTonnes(0)).toBe(0);
+  });
+  it("converts pounds to kilograms and US short tons", () => {
+    expect(poundsToKilograms(1)).toBe(0.45359237);
+    expect(poundsToShortTons(2000)).toBe(1);
+    expect(poundsToShortTons(5400)).toBe(2.7);
+  });
+  it("converts seeding rates between lb per 1,000 ft² and g/m²", () => {
+    // 1 lb per 1,000 ft² = 4.882 g/m².
+    expect(lbPer1000Ft2ToGramsPerSquareMeter(1)).toBeCloseTo(4.882, 3);
+    expect(lbPer1000Ft2ToGramsPerSquareMeter(7)).toBeCloseTo(34.18, 2);
+    expect(gramsPerSquareMeterToLbPer1000Ft2(4.882)).toBeCloseTo(1, 3);
+    expect(gramsPerSquareMeterToLbPer1000Ft2(lbPer1000Ft2ToGramsPerSquareMeter(7))).toBeCloseTo(
+      7,
+      9,
+    );
   });
 });
 

@@ -110,3 +110,114 @@ describe("brickConfig bag suppression (ADR-12)", () => {
     expect(out.costDetail).toBeUndefined();
   });
 });
+
+/**
+ * Config-level tests for the singular/plural sweep (Phase 17B2 QA
+ * corrective round): a count of 1 reads "1 bag", a count of 2 reads
+ * "2 bags", in the mortar-bag row, its detail, and the worked line.
+ *
+ * Counts are hand-derived from the formula (6.86 bricks/ft² for
+ * modular brick at a ⅜ in joint; bags = the larger of bricks to buy
+ * ÷ 37 and installed bricks × 1.15 ÷ 37, rounded up): a 2 × 2 ft
+ * wall needs 29 bricks and 1 bag; a 3 × 2 ft wall needs 44 bricks
+ * and 2 bags.
+ */
+describe("brickConfig singular/plural mortar bags", () => {
+  const wallMode = brickConfig.modes.find((m) => m.id === "wall");
+  if (!wallMode) throw new Error("brick wall mode missing");
+
+  function compute(overrides: Record<string, number> = {}, extraPresent: string[] = []) {
+    const values = {
+      length: 2,
+      height: 2,
+      openings: 0,
+      brickLength: 7.625,
+      brickHeight: 2.25,
+      brickDepth: 3.625,
+      joint: 0.375,
+      waste: 5,
+      mortarWaste: 15,
+      bricksPerBag: 37,
+      ...overrides,
+    };
+    const present = new Set([...Object.keys(values), ...extraPresent]);
+    return wallMode!.compute(values, present);
+  }
+
+  function bagRow(out: ReturnType<typeof compute>) {
+    return out.rows.find((r) => r.label === "Mortar bags (80 lb)");
+  }
+
+  it("says '1 bag' for a 2 × 2 ft wall", () => {
+    const out = compute();
+    expect(bagRow(out)?.value).toBe("1 bag");
+    expect(bagRow(out)?.detail).toBe(
+      "QUIKRETE 37-brick maximum, derated by 15% waste — covers 29 bricks (1 bag) and the waste-adjusted volume",
+    );
+    expect(out.workedLine).toBe(
+      "4 ft² × 6.86 bricks/ft² × 105% = 29 bricks; mortar 0.26 ft³ → 1 bag.",
+    );
+    expect(out.lines).toContain("Mortar mix, 80 lb bags: 1");
+  });
+
+  it("says '2 bags' for a 3 × 2 ft wall", () => {
+    const out = compute({ length: 3 });
+    expect(bagRow(out)?.value).toBe("2 bags");
+    expect(bagRow(out)?.detail).toBe(
+      "QUIKRETE 37-brick maximum, derated by 15% waste — covers 44 bricks (2 bags) and the waste-adjusted volume",
+    );
+    expect(out.workedLine).toBe(
+      "6 ft² × 6.86 bricks/ft² × 105% = 44 bricks; mortar 0.39 ft³ → 2 bags.",
+    );
+    expect(out.lines).toContain("Mortar mix, 80 lb bags: 2");
+  });
+});
+
+/**
+ * Config-level tests for the singular/plural sweep follow-up (Phase
+ * 17B2 QA corrective round): the pallet count reads "1 pallet" at
+ * count 1 and "2 pallets" at count 2.
+ *
+ * Counts are hand-derived from the formula (pallets = bricks to buy
+ * ÷ bricks per pallet, rounded up): a 2 × 2 ft wall needs 29 bricks,
+ * so a 500-brick pallet gives 1 pallet and a 20-brick pallet gives
+ * 2 pallets.
+ */
+describe("brickConfig singular/plural pallets", () => {
+  const wallMode = brickConfig.modes.find((m) => m.id === "wall");
+  if (!wallMode) throw new Error("brick wall mode missing");
+
+  function compute(overrides: Record<string, number> = {}, extraPresent: string[] = []) {
+    const values = {
+      length: 2,
+      height: 2,
+      openings: 0,
+      brickLength: 7.625,
+      brickHeight: 2.25,
+      brickDepth: 3.625,
+      joint: 0.375,
+      waste: 5,
+      mortarWaste: 15,
+      bricksPerBag: 37,
+      ...overrides,
+    };
+    const present = new Set([...Object.keys(values), ...extraPresent]);
+    return wallMode!.compute(values, present);
+  }
+
+  function palletRow(out: ReturnType<typeof compute>) {
+    return out.rows.find((r) => r.label === "Pallets");
+  }
+
+  it("says '1 pallet' for a 2 × 2 ft wall with 500 bricks per pallet", () => {
+    const out = compute({ palletSize: 500 });
+    expect(palletRow(out)?.value).toBe("1 pallet");
+    expect(palletRow(out)?.detail).toBe("500 bricks per pallet");
+  });
+
+  it("says '2 pallets' for a 2 × 2 ft wall with 20 bricks per pallet", () => {
+    const out = compute({ palletSize: 20 });
+    expect(palletRow(out)?.value).toBe("2 pallets");
+    expect(palletRow(out)?.detail).toBe("20 bricks per pallet");
+  });
+});

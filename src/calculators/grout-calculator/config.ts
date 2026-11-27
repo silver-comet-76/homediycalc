@@ -43,7 +43,7 @@ function groutOutput(areaFt2: number, v: Record<string, number>, present: Set<st
       },
     ],
     lines: [
-      `Grout (${fmt(req(v, "bagWeight"), 0)} lb bags): ${r.bags} bags (${fmt(r.groutLb, 1)} lb)`,
+      `Grout (${fmt(req(v, "bagWeight"), 0)} lb bags): ${r.bags} ${r.bags === 1 ? "bag" : "bags"} (${fmt(r.groutLb, 1)} lb)`,
     ],
     costUsd: r.costUsd,
     workedLine: `${fmt(areaFt2)} ft² × ${fmt(r.groutLbPerFt2, 4)} lb/ft² × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.groutLb, 1)} lb → ${r.bags} × ${fmt(req(v, "bagWeight"), 0)} lb bags.`,

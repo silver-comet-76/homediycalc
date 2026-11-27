@@ -15,14 +15,28 @@ import {
  *
  * Pure functions only. Canonical unit: cubic feet for volume.
  *
- * Reference values (see docs/FORMULAS.md): sand-type densities from
- * getcalcworks.com — play sand 1.35, mason sand 1.40, concrete sand
- * 1.50, fill sand 1.30 tons/yd³ (2,700 / 2,800 / 3,000 / 2,600
- * lb/yd³); dry sand is about 100 lb/ft³ (1,600 kg/m³). Wet sand runs
- * about 10–15% heavier. A 50 lb bag is about 0.5 ft³, so 54 × 50 lb
- * bags fill a cubic yard. The density field defaults to 2,700 lb/yd³
- * (play sand) and is editable; the page states the range.
+ * Reference values (see docs/FORMULAS.md): dry sand is about
+ * 100 lb/ft³ (2,700 lb/yd³, 1,600 kg/m³) — the figure implied by
+ * QUIKRETE's 50 lb bag yielding about 0.5 ft³ (QUIKRETE Premium Play
+ * Sand, bag label and product listing) — and loose sand generally runs
+ * 2,630–2,960 lb/yd³ (Missouri DOT, Engineering Policy Guide,
+ * Highway Maintenance Tables and Conversion Factors). Damp sand runs
+ * about 10–15% heavier than dry sand and wet sand up to about 20%
+ * heavier (Engineering ToolBox, Ditch Filling Materials — Densities:
+ * dry 100, ordinary damp 115, wet 120 lb/ft³). A 50 lb bag is about
+ * 0.5 ft³, so 54 × 50 lb bags fill a cubic yard. The density field
+ * defaults to 2,700 lb/yd³ (dry play sand) and is editable; the page
+ * states the range. Sand types differ mainly in grain size and use,
+ * not in a fixed weight — no per-type density is assumed.
+ *
+ * Two weights are returned and must never be confused: the weight of
+ * the material required (unrounded volume after waste) and the weight
+ * of the rounded purchase quantity (whole yards ordered). The second
+ * is always >= the first.
  */
+
+/** How the buyer buys the sand: whole cubic yards in bulk, or bags. */
+export type SandPurchaseMethod = "bulk" | "bags";
 
 export interface SandInput {
   volumeFt3: number;
@@ -36,6 +50,14 @@ export interface SandInput {
   pricePerYd3?: number;
   /** Optional price per bag, in USD. */
   pricePerBag?: number;
+  /**
+   * Which form the buyer buys. The cost follows the chosen form and
+   * only that form's price: bulk is priced per cubic yard, bags per
+   * bag. When absent (older callers), the legacy rule applies — the
+   * bulk price wins when both are entered, otherwise whichever price
+   * is present — so existing callers keep their cost.
+   */
+  purchaseMethod?: SandPurchaseMethod;
 }
 
 export interface SandResult {
@@ -47,12 +69,18 @@ export interface SandResult {
   adjustedM3: number;
   /** Bulk cubic yards to order (rounded up to whole yards). */
   orderYd3: number;
-  /** Weight in pounds. */
+  /** Weight of the material required, in pounds (unrounded volume). */
   weightLb: number;
-  /** Weight in US short tons. */
+  /** Weight of the material required, in US short tons. */
   weightTons: number;
-  /** Weight in kilograms. */
+  /** Weight of the material required, in kilograms. */
   weightKg: number;
+  /** Weight of the rounded order, in pounds (orderYd3 × density). */
+  orderWeightLb: number;
+  /** Weight of the rounded order, in US short tons. */
+  orderWeightTons: number;
+  /** Weight of the rounded order, in kilograms. */
+  orderWeightKg: number;
   /** Bags to buy (rounded up). */
   bags: number;
   /** Cost in USD, only when a price was entered. */
@@ -67,16 +95,30 @@ export function calculateSand(input: SandInput): SandResult {
   const weightLb = adjustedYd3 * input.densityLbYd3;
   const weightTons = poundsToShortTons(weightLb);
   const weightKg = poundsToKilograms(weightLb);
+  // Weight of the rounded purchase quantity, not of the requirement:
+  // the buyer hauls and pays for whole yards, so the order weight is
+  // what the truck carries. It equals the requirement weight only when
+  // the requirement is already a whole number of yards.
+  const orderWeightLb = orderYd3 * input.densityLbYd3;
+  const orderWeightTons = poundsToShortTons(orderWeightLb);
+  const orderWeightKg = poundsToKilograms(orderWeightLb);
   const bags = ceilUp(adjustedFt3 / input.bagSizeFt3);
-  // A buyer buys bulk OR bags, never both: the bulk price wins when
-  // both prices are entered (as in the Topsoil Calculator), and the bulk
-  // cost uses the rounded order quantity, not the unrounded volume.
+  // A buyer buys bulk OR bags, never both. When the purchase method
+  // is chosen, only that form's price applies: the bulk cost uses the
+  // rounded order quantity, the bag cost uses the bag count, and no
+  // cost is shown when the chosen form has no price — the other
+  // form's price never silently prices this one. When no method is
+  // given (older callers), the legacy rule applies: the bulk price
+  // wins when both prices are entered, otherwise whichever price is
+  // present.
+  const bulkCost = input.pricePerYd3 !== undefined ? orderYd3 * input.pricePerYd3 : undefined;
+  const bagCost = input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
   const costUsd =
-    input.pricePerYd3 !== undefined
-      ? orderYd3 * input.pricePerYd3
-      : input.pricePerBag !== undefined
-        ? bags * input.pricePerBag
-        : undefined;
+    input.purchaseMethod === "bags"
+      ? bagCost
+      : input.purchaseMethod === "bulk"
+        ? bulkCost
+        : (bulkCost ?? bagCost);
   return {
     adjustedFt3,
     adjustedYd3,
@@ -85,6 +127,9 @@ export function calculateSand(input: SandInput): SandResult {
     weightLb,
     weightTons,
     weightKg,
+    orderWeightLb,
+    orderWeightTons,
+    orderWeightKg,
     bags,
     costUsd,
   };
@@ -106,11 +151,11 @@ export interface SandCoverageResult {
   areaFt2: number;
   /** Area the amount covers at the given depth, in square meters. */
   areaM2: number;
-  /** Weight in pounds. */
+  /** Weight of the sand on hand, in pounds (amount × density). */
   weightLb: number;
-  /** Weight in US short tons. */
+  /** Weight of the sand on hand, in US short tons. */
   weightTons: number;
-  /** Weight in kilograms. */
+  /** Weight of the sand on hand, in kilograms. */
   weightKg: number;
 }
 

@@ -176,7 +176,7 @@ export const mulchConfig: CalculatorConfig = {
             },
             {
               label: "Bags to buy",
-              value: `${r.bags} bags`,
+              value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
               detail: `${fmt(req(v, "bagSize"))} ft³ per bag`,
             },
             ...(r.weightLb !== undefined
@@ -194,7 +194,7 @@ export const mulchConfig: CalculatorConfig = {
             `Mulch bags (${fmt(req(v, "bagSize"))} ft³): ${r.bags}`,
           ],
           costUsd: r.costUsd,
-          workedLine: `${fmt(req(v, "length"))} × ${fmt(req(v, "width"))} × ${fmt(req(v, "depth"), 3)} ft = ${fmt(r.volumeFt3)} ft³ = ${fmt(r.volumeYd3)} yd³; ${fmt(r.adjustedFt3)} ft³ with waste ÷ ${fmt(req(v, "bagSize"))} ft³ per bag = ${r.bags} bags.`,
+          workedLine: `${fmt(req(v, "length"))} × ${fmt(req(v, "width"))} × ${fmt(req(v, "depth"), 3)} ft = ${fmt(r.volumeFt3)} ft³ = ${fmt(r.volumeYd3)} yd³; ${fmt(r.adjustedFt3)} ft³ with waste ÷ ${fmt(req(v, "bagSize"))} ft³ per bag = ${r.bags} ${r.bags === 1 ? "bag" : "bags"}.`,
         };
       },
     },

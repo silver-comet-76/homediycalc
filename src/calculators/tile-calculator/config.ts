@@ -35,7 +35,7 @@ function tileOutput(areaFt2: number, v: Record<string, number>, present: Set<str
       },
       {
         label: "Boxes needed",
-        value: `${r.boxesNeeded} boxes`,
+        value: `${r.boxesNeeded} ${r.boxesNeeded === 1 ? "box" : "boxes"}`,
         detail: `${fmt(req(v, "tilesPerBox"), 0)} tiles per box — rounded up`,
       },
     ],
@@ -44,7 +44,7 @@ function tileOutput(areaFt2: number, v: Record<string, number>, present: Set<str
       `Boxes of tile (${fmt(req(v, "tilesPerBox"), 0)} per box): ${r.boxesNeeded}`,
     ],
     costUsd: r.costUsd,
-    workedLine: `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(r.effectiveTileAreaFt2, 4)} ft² per tile = ${r.tilesNeeded} tiles → ${r.boxesNeeded} boxes.`,
+    workedLine: `${fmt(areaFt2)} ft² × ${fmt(100 + req(v, "waste"), 0)}% ÷ ${fmt(r.effectiveTileAreaFt2, 4)} ft² per tile = ${r.tilesNeeded} tiles → ${r.boxesNeeded} ${r.boxesNeeded === 1 ? "box" : "boxes"}.`,
   };
 }
 

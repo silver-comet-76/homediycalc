@@ -382,8 +382,10 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
     "1.36 yd³",
     "Bulk to order",
     "2 yd³",
-    "Weight",
-    "1.83 tons",
+    "Weight needed",
+    "1.83 tons (US short tons)",
+    "Weight of order",
+    "2.7 tons (US short tons)",
     "Bags",
     "74 bags",
   ],
@@ -413,7 +415,13 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
     "Seed with buffer",
     "38.5 lb",
     "Bags to buy",
-    "1 × 25 lb + 1 × 10 lb + 2 × 3 lb",
+    // 17B2 corrective Workstream B replaced greedy largest-first bagging
+    // (1 x 25 + 1 x 10 + 2 x 3 = 41 lb) with least-overbuy search:
+    // 5,000 ft2 x 7 lb/1,000 ft2 = 35 lb, +10% buffer = 38.5 lb, and
+    // 3 x 10 + 3 x 3 = 39 lb is the lightest mix >= 38.5 lb (6 bags;
+    // the only other 39 lb mix is 13 x 3 lb). See
+    // src/lib/formulas/lawn-seed.test.ts ("finds the least overbuy").
+    "3 × 10 lb + 3 × 3 lb",
   ],
   "fence-calculator": [
     "Posts",

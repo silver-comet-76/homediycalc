@@ -7,12 +7,19 @@ import { ceilUp, squareFeetToSquareMeters } from "../units";
  * Pure functions only. Canonical unit: square feet for area.
  *
  * Reference values (see docs/FORMULAS.md): a US sod roll covers
- * 10 ft² (2 × 5 ft); Southern slabs are 16 × 24 in; a US pallet covers
- * 400–500 ft² (450 ft² is the small end, used as the default); a UK
- * turf roll covers about 1 m². Waste is 5% for a simple rectangle and
- * 10% for curves and cuts (homebuildlab). Roll and pallet coverage are
- * editable because piece sizes vary by supplier and region.
+ * 10 ft² (2 × 5 ft — Univ. of Maryland Extension; Purdue AY-28-W);
+ * Southern slabs are 16 × 24 in (Univ. of Tennessee W160-C); a US
+ * pallet covers 400–500 ft² (Mississippi State P2951; Purdue AY-28-W
+ * gives about 450 ft²), and 450 ft² is the small end, used as the
+ * default; a UK turf roll covers about 1 m² (Rolawn Medallion spec).
+ * Waste is about 5% more than measured for a simple rectangle
+ * (Mississippi State P2951) and about 10% more for curves and cuts
+ * (Purdue AY-28-W). Roll and pallet coverage are editable because
+ * piece sizes vary by supplier and region.
  */
+
+/** How the buyer buys the sod: whole pallets, or individual rolls. */
+export type SodPurchaseMethod = "pallets" | "rolls";
 
 export interface SodInput {
   /** Lawn area before exclusions, in square feet. */
@@ -29,6 +36,14 @@ export interface SodInput {
   pricePerRoll?: number;
   /** Optional price per pallet, in USD. */
   pricePerPallet?: number;
+  /**
+   * Which form the buyer buys. The cost follows the chosen form and
+   * only that form's price: pallets are priced per pallet, rolls per
+   * roll. When absent (older callers), the legacy rule applies — the
+   * pallet price wins when both are entered (pallets are the bulk
+   * form), otherwise whichever price is present.
+   */
+  purchaseMethod?: SodPurchaseMethod;
 }
 
 export interface SodResult {
@@ -65,15 +80,22 @@ export function calculateSod(input: SodInput): SodResult {
   // A 0.01 ft² tolerance keeps floating-point noise from flagging a
   // full pallet as partial (e.g. 449.9999 ft² of a 450 ft² pallet).
   const lastPalletPartial = pallets > 0 && lastPalletFt2 < input.palletCoverageFt2 - 0.01;
-  // A buyer buys rolls OR pallets, never both: the pallet price wins
-  // when both prices are entered (pallets are the bulk form), and the
-  // pallet cost uses the rounded pallet count.
+  // A buyer buys rolls OR pallets, never both. When the purchase
+  // method is chosen, only that form's price applies: the pallet cost
+  // uses the rounded pallet count, the roll cost uses the roll count,
+  // and no cost is shown when the chosen form has no price. When no
+  // method is given (older callers), the legacy rule applies: the
+  // pallet price wins when both prices are entered (pallets are the
+  // bulk form), otherwise whichever price is present.
+  const palletCost =
+    input.pricePerPallet !== undefined ? pallets * input.pricePerPallet : undefined;
+  const rollCost = input.pricePerRoll !== undefined ? rolls * input.pricePerRoll : undefined;
   const costUsd =
-    input.pricePerPallet !== undefined
-      ? pallets * input.pricePerPallet
-      : input.pricePerRoll !== undefined
-        ? rolls * input.pricePerRoll
-        : undefined;
+    input.purchaseMethod === "rolls"
+      ? rollCost
+      : input.purchaseMethod === "pallets"
+        ? palletCost
+        : (palletCost ?? rollCost);
   return {
     grossAreaFt2: input.grossAreaFt2,
     netAreaFt2,

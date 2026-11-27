@@ -7,15 +7,21 @@ import { ceilUp, cubicFeetToCubicMeters, cubicFeetToCubicYards } from "../units"
  * Pure functions only. Canonical unit: cubic feet for volume.
  *
  * Reference values (see docs/FORMULAS.md): the 60/30/10 mix (topsoil /
- * compost / perlite or coarse sand) is a commonly published starting
- * point (harvestmath, homebuildatlas) — not a universal prescription —
- * so the three proportions are user-editable and are normalized so they
- * always add to 100%. Beds lose 10–20% of their height to settling in
- * the first season (raisedgardenbed.org; gridgarden.eu). Fill depth is
- * the soil depth, not the bed height: 8–12 in for most vegetables,
- * 12–18 in for tomatoes and carrots. Bag sizes of 1.5 and 2 ft³ are
- * common.
+ * compost / perlite or coarse sand) is one example from Univ. of
+ * Illinois Extension's raised-bed checklist — not a universal
+ * prescription (Univ. of Maryland Extension and Iowa State publish
+ * different starting points) — so the three proportions are
+ * user-editable and are normalized so they always add to 100%. A
+ * freshly filled bed settles — UF/IFAS Extension says the level may
+ * drop by about 2 in — and keeps shrinking, so it is topped up after
+ * each planting season. Fill depth is the soil depth, not the bed
+ * height: 8–12 in for most vegetables, 12–24 in for tomatoes, peppers,
+ * and squash (Univ. of Maryland Extension). Bag sizes of 1.5 and
+ * 2 ft³ are common.
  */
+
+/** How the buyer buys the soil: premixed in bulk or in bags, or the mix components separately to mix at home. */
+export type RaisedBedSoilPurchaseMethod = "bulk" | "bags" | "components";
 
 export interface RaisedBedSoilInput {
   /** Net soil volume before the settling allowance, in cubic feet. */
@@ -28,10 +34,18 @@ export interface RaisedBedSoilInput {
   aerationPct: number;
   /** Bag size in cubic feet (2 is common). */
   bagSizeFt3: number;
-  /** Optional price per cubic yard (bulk), in USD. */
+  /** Optional price per cubic yard (bulk premixed soil), in USD. */
   pricePerYd3?: number;
-  /** Optional price per bag, in USD. */
+  /** Optional price per bag (premixed soil), in USD. */
   pricePerBag?: number;
+  /**
+   * Which form the buyer buys. The cost follows the chosen form and
+   * only that form's price. Buying the components separately has no
+   * cost here — the parts carry no prices. When absent (older
+   * callers), the legacy rule applies: the bulk price wins when both
+   * are entered, otherwise whichever price is present.
+   */
+  purchaseMethod?: RaisedBedSoilPurchaseMethod;
 }
 
 export interface RaisedBedSoilResult {
@@ -68,15 +82,24 @@ export function calculateRaisedBedSoil(input: RaisedBedSoilInput): RaisedBedSoil
   const topsoilFt3 = total > 0 ? (orderedFt3 * input.topsoilPct) / total : 0;
   const compostFt3 = total > 0 ? (orderedFt3 * input.compostPct) / total : 0;
   const aerationFt3 = total > 0 ? (orderedFt3 * input.aerationPct) / total : 0;
-  // A buyer buys bulk OR bags, never both: the bulk price wins when
-  // both prices are entered (as in the Topsoil Calculator), and the bulk
-  // cost uses the rounded order quantity, not the unrounded volume.
+  // A buyer buys bulk OR bags, never both — or the mix components
+  // separately instead of premixed soil. When the purchase method is
+  // chosen, only that form's price applies: the bulk cost uses the
+  // rounded order quantity, the bag cost uses the bag count, and the
+  // components have no prices, so no cost is shown for them. When no
+  // method is given (older callers), the legacy rule applies: the bulk
+  // price wins when both prices are entered, otherwise whichever
+  // price is present.
+  const bulkCost = input.pricePerYd3 !== undefined ? orderYd3 * input.pricePerYd3 : undefined;
+  const bagCost = input.pricePerBag !== undefined ? bags * input.pricePerBag : undefined;
   const costUsd =
-    input.pricePerYd3 !== undefined
-      ? orderYd3 * input.pricePerYd3
-      : input.pricePerBag !== undefined
-        ? bags * input.pricePerBag
-        : undefined;
+    input.purchaseMethod === "bags"
+      ? bagCost
+      : input.purchaseMethod === "components"
+        ? undefined
+        : input.purchaseMethod === "bulk"
+          ? bulkCost
+          : (bulkCost ?? bagCost);
   return {
     soilFt3: input.soilFt3,
     orderedFt3,

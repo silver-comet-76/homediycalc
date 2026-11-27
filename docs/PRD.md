@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD) — HomeDIYCalc
 
-> Status: Phase 0 planning document (written before any code existed). The site has since been built: 26 calculators, 41 pages — see `docs/PHASE-REPORT.md`.
+> Status: Phase 0 planning document (written before any code existed). The site has since been built: 31 calculators, 46 pages — see `docs/PHASE-REPORT.md`.
 
 > Update 2026-11-27: Phase 17B2 adds five landscaping calculators (Sand, Raised Garden Bed Soil, Sod/Turf, Lawn Seed, Fence), bringing the site to 31 calculators and 46 sitemap URLs (47 built pages: 46 shipped + 404).
 > Position: "Calculate Materials. Estimate Costs. Build Your Shopping List."

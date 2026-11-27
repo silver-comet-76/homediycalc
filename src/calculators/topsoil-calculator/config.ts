@@ -41,7 +41,7 @@ function topsoilOutput(volumeFt3: number, v: Record<string, number>, present: Se
       },
       {
         label: "Bags",
-        value: `${r.bags} bags`,
+        value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
         detail: `${fmt(req(v, "bagSize"), 2)} ft³ per bag — rounded up`,
       },
     ],

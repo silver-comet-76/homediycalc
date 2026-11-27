@@ -18,7 +18,7 @@
 
 ## 2. Prerequisites
 
-1. **GitHub repository with the project pushed** (all 26 calculators and main pages complete). **Done 2026-11-21:** the repository https://github.com/silver-comet-76/homediycalc exists (public, main at merge commit `e8345f7e` — PR #2 merged 2026-11-22). The Git-integration path in §3 can now be executed once a Cloudflare account and Pages project exist.
+1. **GitHub repository with the project pushed** (all 31 calculators and main pages complete). **Done 2026-11-21:** the repository https://github.com/silver-comet-76/homediycalc exists (public, main at merge commit `e8345f7e` — PR #2 merged 2026-11-22). The Git-integration path in §3 can now be executed once a Cloudflare account and Pages project exist.
 2. **A Cloudflare account (free).** **Not created.** The agent does not create accounts on the user's behalf without instruction. Do not create one as part of Phase 6.
 3. **Node.js 24** for the build (see §1). Locally verified: Node v24.22.1.
 4. **Wrangler (for the manual path only).** **Not installed** in this environment (`command -v wrangler` returns nothing). Do not add it as a project dependency without a license note; install it only when a manual deploy is actually being done (see §4).
@@ -135,7 +135,7 @@ Do not submit anything yet — there is no domain and no live site. The steps be
 
 ### 8.4 What to check weekly in the first month
 
-- **Pages / Coverage:** any page Search Console says is "not indexed" or errored. Fix crawl errors before adding new pages. Expect the 41 pages to appear gradually over the first 1–2 weeks, not all at once.
+- **Pages / Coverage:** any page Search Console says is "not indexed" or errored. Fix crawl errors before adding new pages. Expect the 46 pages to appear gradually over the first 1–2 weeks, not all at once.
 - **Performance:** impressions and clicks per query/page. Record the numbers only from Search Console; do not claim rankings or traffic from any other source.
 - **Enhancements:** structured-data (FAQ, Breadcrumb) errors — the JSON-LD must keep matching visible content.
 - **Core Web Vitals / Experience:** any URL flagged "Poor" — re-measure with Lighthouse on the live host if flagged.
@@ -339,6 +339,8 @@ Full steps are in §8 (all three verification methods + sitemap submission + the
 - Do not submit indexing requests for individual pages and do not request AdSense review — neither is authorized.
 
 > Google Search Console verification CONFIRMED 2026-11-24 (Google welcome email to itgaminglim@gmail.com, subject 'Get started using Search Console with https://homediycalc.pages.dev/' — Google sends this only after successful verification). Sitemap submission status, indexed pages, exclusions, and Performance remain UNKNOWN (no Search Console dashboard access).
+>
+> 2026-11-27 (Phase 17B2 corrective round, Workstream I): the candidate production-origin build's 46-URL sitemap was verified — all 46 URLs return 200, robots.txt allows all with the production sitemap URL, canonicals are self-referential to the production origin, titles/descriptions are 46/46 unique, and no page carries a noindex meta in the production build — so the site is VERIFIED CRAWLABLE and VERIFIED INDEXABLE as a technical matter (see `~/workspace/phase17b2-corrective/gsc-status.md`). This does not establish that Google has submitted or processed the sitemap or indexed any page; sitemap submission, sitemap processing, and actual indexing remain UNKNOWN. A Gmail re-check on 2026-11-27 found no new Search Console mail since the 2026-11-24 welcome email.
 
 ### 14.8 WebKit / Safari — blocker and independent device test procedure
 
