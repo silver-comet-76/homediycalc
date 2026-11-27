@@ -18,7 +18,7 @@
 
 ## 2. Prerequisites
 
-1. **GitHub repository with the project pushed** (all 25 calculators and main pages complete). **Done 2026-11-21:** the repository https://github.com/silver-comet-76/homediycalc exists (public, main at merge commit `e8345f7e` — PR #2 merged 2026-11-22). The Git-integration path in §3 can now be executed once a Cloudflare account and Pages project exist.
+1. **GitHub repository with the project pushed** (all 26 calculators and main pages complete). **Done 2026-11-21:** the repository https://github.com/silver-comet-76/homediycalc exists (public, main at merge commit `e8345f7e` — PR #2 merged 2026-11-22). The Git-integration path in §3 can now be executed once a Cloudflare account and Pages project exist.
 2. **A Cloudflare account (free).** **Not created.** The agent does not create accounts on the user's behalf without instruction. Do not create one as part of Phase 6.
 3. **Node.js 24** for the build (see §1). Locally verified: Node v24.22.1.
 4. **Wrangler (for the manual path only).** **Not installed** in this environment (`command -v wrangler` returns nothing). Do not add it as a project dependency without a license note; install it only when a manual deploy is actually being done (see §4).
@@ -69,12 +69,12 @@ Confirm the exact command against the installed Wrangler version at the time —
 
 ## 5. Pre-Deploy Checklist (every deploy)
 
-- [ ] `npm run build` succeeds locally with no errors (clean `dist/`, 40 pages: 39 shipped + 404).
+- [ ] `npm run build` succeeds locally with no errors (clean `dist/`, 47 pages: 46 shipped + 404).
 - [ ] `npm run lint` passes (Prettier formatting check, ADR-10).
 - [ ] `npm run typecheck` passes (0 errors, 0 warnings, 0 hints).
 - [ ] `npm run test` (Vitest) passes.
 - [ ] `npm run test:e2e` (Playwright) passes against the production build.
-- [ ] `dist/sitemap.xml` lists exactly the shipped pages (39 URLs).
+- [ ] `dist/sitemap.xml` lists exactly the shipped pages (46 URLs).
 - [ ] `dist/robots.txt` present and pointing at the sitemap.
 - [ ] `dist/_headers` present (security headers, §11).
 - [ ] No placeholder pages, no fake data, no ad/analytics scripts unless owner-approved — verify with `grep -ri "adsbygoogle\|pagead2\|googlesyndication" dist/` (expect no hits outside the privacy-policy prose, which states ads are disabled) and the `src/lib/ads.test.ts` suite (asserts ads are disabled and all IDs are placeholders).
@@ -131,11 +131,11 @@ Do not submit anything yet — there is no domain and no live site. The steps be
 
 1. After the first successful deploy and verification, go to **Sitemaps** in Search Console.
 2. Enter `sitemap.xml` (URL-prefix property) or the full URL `https://<domain>/sitemap.xml` (Domain property) and click **Submit**.
-3. The sitemap must list exactly the shipped pages — 39 URLs today. If Search Console reports a sitemap error, fix the sitemap (regenerated from the registry at build time) and resubmit; do not hand-edit `dist/sitemap.xml`.
+3. The sitemap must list exactly the shipped pages — 46 URLs today. If Search Console reports a sitemap error, fix the sitemap (regenerated from the registry at build time) and resubmit; do not hand-edit `dist/sitemap.xml`.
 
 ### 8.4 What to check weekly in the first month
 
-- **Pages / Coverage:** any page Search Console says is "not indexed" or errored. Fix crawl errors before adding new pages. Expect the 39 pages to appear gradually over the first 1–2 weeks, not all at once.
+- **Pages / Coverage:** any page Search Console says is "not indexed" or errored. Fix crawl errors before adding new pages. Expect the 41 pages to appear gradually over the first 1–2 weeks, not all at once.
 - **Performance:** impressions and clicks per query/page. Record the numbers only from Search Console; do not claim rankings or traffic from any other source.
 - **Enhancements:** structured-data (FAQ, Breadcrumb) errors — the JSON-LD must keep matching visible content.
 - **Core Web Vitals / Experience:** any URL flagged "Poor" — re-measure with Lighthouse on the live host if flagged.
@@ -154,7 +154,7 @@ Bing Webmaster Tools is optional and uses the same sitemap (`https://<domain>/si
 
 ## 10. Post-Launch Checks (first deploy)
 
-- [ ] All 25 calculator URLs return HTTP 200 on the live domain.
+- [ ] All 26 calculator URLs return HTTP 200 on the live domain.
 - [ ] Home page, all 6 category pages, and My Project return HTTP 200.
 - [ ] Sitemap submitted to Search Console (§8.3).
 - [ ] Home page, one calculator page, and My Project smoke-tested live.
@@ -187,8 +187,8 @@ required after the first deploy.
 
 **Honest limitation:** the CSP keeps `'unsafe-inline'` for scripts and
 styles because Astro inlines the island loader script (and the React
-runtime snippet) and component styles at build time — 26 pages in `dist/`
-carry an inline `<style>` tag and every calculator page carries inline
+runtime snippet) and component styles at build time — 32 pages in `dist/`
+carry an inline `<style>` tag (all 31 calculator pages, plus My Project) and every calculator page carries inline
 `<script>` tags for hydration. Removing `'unsafe-inline'` would break
 calculator hydration, so it stays until the build can emit those assets
 as external files. The policy still blocks every external source, which
@@ -217,6 +217,10 @@ following are done, in order. No single step enables ads on its own.
 
 ## 13. Deployment Status (Phase 6, 2026-11-20)
 
+> Update 2026-11-27: the Stair Calculator shipped in Phase 15, bringing the site to 26 calculators and 41 sitemap URLs (42 built pages: 41 shipped + 404); counts in the dated Phase 6 record below are as of that phase — the clean build is now 42 pages with 41 URLs, and the smoke test is 26/26 calculator URLs.
+
+> Update 2026-11-27: Phase 17B2 adds five landscaping calculators, bringing the site to 31 calculators and 46 sitemap URLs (47 built pages: 46 shipped + 404); the clean build is now 47 pages with 46 URLs, and the smoke test is 31/31 calculator URLs.
+
 **Prepared in Phase 6 (done, verified locally):**
 
 - Clean production build verified: 39 pages, `sitemap.xml` with 39 URLs, `robots.txt`, `public/_headers` copied to `dist/_headers`, `favicon.svg`, `og-image.svg` (see `docs/QA-REPORT.md` §11).
@@ -239,6 +243,10 @@ ADR-9 passed on 2026-11-20 at commit ca29ba1 (3 consecutive clean full test roun
 ## 14. Phase 8 — Controlled Staging and Pre-Public-Launch Readiness (2026-11-22, Issue #3)
 
 ### 14.1 Merged baseline
+
+> Update 2026-11-27: the Stair Calculator shipped in Phase 15, bringing the site to 26 calculators and 42 pages (41 indexable + 404); the baseline counts below are as of the Phase 8 merge and are unchanged.
+
+> Update 2026-11-27: Phase 17B2 adds five landscaping calculators, bringing the site to 31 calculators and 47 pages (46 indexable + 404).
 
 - PR #2 merged into `main` on 2026-11-22 (merge commit `e8345f7e0cb04051767955968bd8ef0efabd65e9`; reviewed head `f4d2f3e1`, approval review 6011576970). Phase 8 works on branch `phase-8-launch` from that content. See `docs/QA-REPORT.md` §13.6 for the merge record; the post-merge read-back from GitHub is **complete** (2026-11-22 ~20:30 JST — PR #2 `merged: true`, `merged_at` 2026-11-22T10:25:04Z, `merged_by` silver-comet-76, head `f4d2f3e1`, base `34b917a8`; merge commit `e8345f7e` confirmed via the branch head; key files on `main` match the reviewed head).
 - Baseline at merge: 25 calculators, Vitest 282/282, Playwright 76/76, 40 pages (39 indexable + 404), Lighthouse Home + Paint 100/100/100/83. Current Phase 8 counts after the review response: Vitest 318/318, Playwright 80/80, 40 pages (39 indexable + 404), Lighthouse re-measured per round on the production-mode build (see `docs/QA-REPORT.md` §15).
@@ -304,10 +312,10 @@ If preview access cannot be configured (e.g. the account lacks the setting), the
 
 Until the owner authorizes an external deployment, staging means the local production preview:
 
-1. `rm -rf dist/ && npm run build` — clean build, 40 pages, no errors. This is a **local-mode** build (no `PUBLIC_*` vars): relative URLs and a noindex tag on every page — the fail-closed default (ADR-17). A noindex tag here is expected, not a failure.
+1. `rm -rf dist/ && npm run build` — clean build, 47 pages, no errors. This is a **local-mode** build (no `PUBLIC_*` vars): relative URLs and a noindex tag on every page — the fail-closed default (ADR-17). A noindex tag here is expected, not a failure.
 2. `npm run preview` — serves the production build at `http://localhost:4321`.
 3. Smoke-check: home page, all 6 category pages, My Project, and at least one calculator per category load with zero console errors; one calculation returns a result; the shopping-list copy and Add to Project work.
-4. `curl -s http://localhost:4321/robots.txt` shows `Sitemap: /sitemap.xml` (relative — no origin is set locally, by design) and `curl -s http://localhost:4321/sitemap.xml` lists 39 URLs.
+4. `curl -s http://localhost:4321/robots.txt` shows `Sitemap: /sitemap.xml` (relative — no origin is set locally, by design) and `curl -s http://localhost:4321/sitemap.xml` lists 46 URLs.
 5. Confirm the mode rules hold: `grep -r "noindex" dist/ --include="*.html"` must return every page (local build = noindex everywhere). To check the production-mode rules locally, build once with the RFC 2606 test origin and the explicit mode — `PUBLIC_BUILD_MODE=production PUBLIC_SITE_URL=https://example.com npm run build` — and confirm `grep -r "noindex" dist/` returns nothing and the canonical is `https://example.com/` (an origin without the mode builds a local site — verify that too: `PUBLIC_SITE_URL=https://example.com npm run build` must still carry noindex on every page; the gate audit checks all modes automatically, see `docs/QA-REPORT.md` §16).
 
 External staging (only after owner approval): create the Direct Upload Pages project (§14.2), set the preview environment variables (§14.3), enable the preview access policy (§14.4), build with `PUBLIC_BUILD_MODE=preview` and upload it as a preview deployment (`npx wrangler pages deploy dist --branch=<branch> --project-name=<project>`), then run the same smoke checks plus the live header check (§14.6) against the preview URL.
@@ -327,8 +335,10 @@ Expected on every response: `nosniff`, `DENY`, `strict-origin-when-cross-origin`
 Full steps are in §8 (all three verification methods + sitemap submission + the weekly checks for the first month). Phase 8 additions:
 
 - The property to add is the production origin once it exists (URL-prefix property with the exact `*.pages.dev` URL, or the custom domain later). Do not add a property for a preview hostname.
-- Submit `sitemap.xml` only after the first production deploy and verification. The sitemap then lists 39 absolute URLs (ADR-14).
+- Submit `sitemap.xml` only after the first production deploy and verification. The sitemap then lists 41 absolute URLs (ADR-14).
 - Do not submit indexing requests for individual pages and do not request AdSense review — neither is authorized.
+
+> Google Search Console verification CONFIRMED 2026-11-24 (Google welcome email to itgaminglim@gmail.com, subject 'Get started using Search Console with https://homediycalc.pages.dev/' — Google sends this only after successful verification). Sitemap submission status, indexed pages, exclusions, and Performance remain UNKNOWN (no Search Console dashboard access).
 
 ### 14.8 WebKit / Safari — blocker and independent device test procedure
 

@@ -7,7 +7,7 @@ import type { CalculatorConfig, FieldSpec } from "../src/components/react/Calcul
  * QA-17B1-UI-07: data-driven baseline-vs-candidate functional regression.
  *
  * This spec does NOT assert against hardcoded values. It drives each of
- * the 26 calculators through the same scenarios (default, non-default
+ * the 31 calculators through the same scenarios (default, non-default
  * Imperial, non-default Metric, unit round-trip, alternate modes, invalid
  * input, reset, optional cost) and records the rendered results to a JSON
  * file (REGRESSION_OUT). The same spec is run once against the baseline
@@ -44,6 +44,11 @@ const ALL = [
   { slug: "waterproofing-calculator", path: "/calculators/waterproofing-calculator/" },
   { slug: "baseboard-calculator", path: "/calculators/baseboard-calculator/" },
   { slug: "stair-calculator", path: "/calculators/stair-calculator/" },
+  { slug: "sand-calculator", path: "/calculators/sand-calculator/" },
+  { slug: "raised-bed-soil-calculator", path: "/calculators/raised-bed-soil-calculator/" },
+  { slug: "sod-calculator", path: "/calculators/sod-calculator/" },
+  { slug: "lawn-seed-calculator", path: "/calculators/lawn-seed-calculator/" },
+  { slug: "fence-calculator", path: "/calculators/fence-calculator/" },
 ] as const;
 
 type AllSlug = (typeof ALL)[number]["slug"];
@@ -204,6 +209,13 @@ for (const { slug, path } of ALL) {
       await page.goto(path);
       await page.waitForSelector("[data-hydrated='true']");
       const defaultRows = (await readResults(page)).fullText;
+      // The default field value is read here, not taken from the
+      // "record default" test: the suite runs with fullyParallel, so
+      // that test may run in another worker where this test's shared
+      // `rec` object was never populated (gate round 1: grout's reset
+      // compared against `undefined` and failed on both projects).
+      const defaultFieldValue = await page.locator(`#${inputId}`).inputValue();
+      rec.defaultFieldValue = defaultFieldValue;
       const value = nonDefaultValue(field, "imp");
       await page.locator(`#${inputId}`).fill(value);
       await page.waitForTimeout(400);
@@ -215,10 +227,10 @@ for (const { slug, path } of ALL) {
         field: field.id,
         changedTo: value,
         restoredValue,
-        restoredToDefault: restoredValue === (rec.defaultFieldValue as string),
+        restoredToDefault: restoredValue === defaultFieldValue,
         rowsMatchDefault: resetRows === defaultRows,
       };
-      expect(restoredValue).toBe(rec.defaultFieldValue as string);
+      expect(restoredValue).toBe(defaultFieldValue);
       expect(resetRows).toBe(defaultRows);
     });
 

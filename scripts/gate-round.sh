@@ -11,7 +11,7 @@
 # Steps: three mode builds (ADR-17) + the full check set + negative builds.
 #   1. Production-mode build with the RFC 2606 test origin
 #      https://example.com (a mechanism test only — never a production
-#      host): clean build (40 pages), Vitest, typecheck, lint (Prettier),
+#      host): clean build (47 pages), Vitest, typecheck, lint (Prettier),
 #      scripted audit checks with --mode production --origin
 #      https://example.com (exact-origin canonical/sitemap/robots, no
 #      noindex), Playwright e2e (desktop + mobile, also against this

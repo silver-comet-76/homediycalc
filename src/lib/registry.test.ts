@@ -10,12 +10,12 @@ import {
 } from "./registry";
 
 describe("registry completeness", () => {
-  it("registers exactly 26 calculators", () => {
-    expect(CALCULATORS).toHaveLength(26);
+  it("registers exactly 31 calculators", () => {
+    expect(CALCULATORS).toHaveLength(31);
   });
-  it("has 11 P0, 8 P1, and 7 P2 calculators", () => {
+  it("has 11 P0, 13 P1, and 7 P2 calculators", () => {
     expect(getCalculatorsByPriority("P0")).toHaveLength(11);
-    expect(getCalculatorsByPriority("P1")).toHaveLength(8);
+    expect(getCalculatorsByPriority("P1")).toHaveLength(13);
     expect(getCalculatorsByPriority("P2")).toHaveLength(7);
   });
   it("has exactly 6 categories", () => {
@@ -61,16 +61,25 @@ describe("registry completeness", () => {
     expect(p2).toContain("baseboard-calculator");
     expect(p2).toContain("waterproofing-calculator");
   });
-  it("places P0 calculators in Phase 2, P1 in Phase 3, and P2 in Phase 4 — except the Phase 15 Stair Calculator, a P0 added later", () => {
+  it("places P0 calculators in Phase 2, P1 in Phase 3, and P2 in Phase 4 — except the Phase 15 Stair Calculator, a P0 added later, and the five Phase 17 landscaping calculators, P1 added later", () => {
+    const phase17 = new Set([
+      "sand-calculator",
+      "raised-bed-soil-calculator",
+      "sod-calculator",
+      "lawn-seed-calculator",
+      "fence-calculator",
+    ]);
     for (const calc of CALCULATORS) {
       const expected =
         calc.slug === "stair-calculator"
           ? 15
-          : calc.priority === "P0"
-            ? 2
-            : calc.priority === "P1"
-              ? 3
-              : 4;
+          : phase17.has(calc.slug)
+            ? 17
+            : calc.priority === "P0"
+              ? 2
+              : calc.priority === "P1"
+                ? 3
+                : 4;
       expect(calc.phase).toBe(expected);
     }
   });
@@ -100,13 +109,13 @@ describe("registry related graph (Phase 17B-1, A1–A4)", () => {
     return CALCULATORS.filter((calc) => calc.related.includes(slug)).length;
   }
 
-  it("keeps exactly 78 related edges with exactly 3 outbound per calculator", () => {
+  it("keeps exactly 93 related edges with exactly 3 outbound per calculator", () => {
     for (const calc of CALCULATORS) {
       expect(calc.related).toHaveLength(3);
       expect(new Set(calc.related).size).toBe(3);
       expect(calc.related).not.toContain(calc.slug);
     }
-    expect(CALCULATORS.reduce((n, calc) => n + calc.related.length, 0)).toBe(78);
+    expect(CALCULATORS.reduce((n, calc) => n + calc.related.length, 0)).toBe(93);
   });
 
   it("gives Paver and Stair at least one related inbound link (A1, A2)", () => {
@@ -120,23 +129,34 @@ describe("registry related graph (Phase 17B-1, A1–A4)", () => {
     }
   });
 
-  it("has the exact indegrees the A1–A4 swaps produce", () => {
+  it("has the exact indegrees the A1–A4 swaps and the Phase 17B2 graph produce", () => {
     // A1: Gravel -> Paver (Mulch 2 -> 1). A2: Board Foot -> Stair (Flooring 6 -> 5).
     // A3: Drywall -> Primer (Square Footage 11 -> 10). A4: Wallpaper -> Drywall (Square Footage 10 -> 9).
-    expect(indegree("paver-calculator")).toBe(1);
+    // Phase 17B2: Gravel -> Sand, Paver -> Sand, Topsoil -> Raised Bed/Sod/Lawn Seed,
+    // Concrete Bags -> Fence, plus the five new calculators' own edges
+    // (Square Footage 9 -> 11, Topsoil 3 -> 7, Paver 1 -> 2, Cubic Yard 4 -> 2,
+    // Tile 8 -> 7, Mortar 2 -> 1, Concrete Bags 3 -> 4, Gravel 5 -> 6, Concrete 6 -> 7).
+    expect(indegree("paver-calculator")).toBe(2);
     expect(indegree("stair-calculator")).toBe(1);
     expect(indegree("mulch-calculator")).toBe(1);
     expect(indegree("flooring-calculator")).toBe(5);
     expect(indegree("primer-calculator")).toBe(3);
     expect(indegree("drywall-calculator")).toBe(4);
-    expect(indegree("square-footage-calculator")).toBe(9);
+    expect(indegree("square-footage-calculator")).toBe(11);
+    expect(indegree("topsoil-calculator")).toBe(7);
+    expect(indegree("cubic-yard-calculator")).toBe(2);
+    expect(indegree("tile-calculator")).toBe(7);
+    expect(indegree("mortar-calculator")).toBe(1);
+    expect(indegree("concrete-bags-calculator")).toBe(4);
+    expect(indegree("gravel-calculator")).toBe(6);
+    expect(indegree("concrete-calculator")).toBe(7);
   });
 
-  it("has the exact A1–A4 related arrays", () => {
+  it("has the exact A1–A4 related arrays (Gravel rewired by Phase 17B2)", () => {
     expect(getCalculator("gravel-calculator")?.related).toEqual([
       "topsoil-calculator",
+      "sand-calculator",
       "paver-calculator",
-      "cubic-yard-calculator",
     ]);
     expect(getCalculator("board-foot-calculator")?.related).toEqual([
       "cubic-feet-calculator",
@@ -152,6 +172,47 @@ describe("registry related graph (Phase 17B-1, A1–A4)", () => {
       "paint-calculator",
       "drywall-calculator",
       "primer-calculator",
+    ]);
+    // Phase 17B2 rewiring and the five new calculators' arrays.
+    expect(getCalculator("paver-calculator")?.related).toEqual([
+      "sand-calculator",
+      "gravel-calculator",
+      "topsoil-calculator",
+    ]);
+    expect(getCalculator("topsoil-calculator")?.related).toEqual([
+      "raised-bed-soil-calculator",
+      "sod-calculator",
+      "lawn-seed-calculator",
+    ]);
+    expect(getCalculator("concrete-bags-calculator")?.related).toEqual([
+      "concrete-calculator",
+      "concrete-slab-calculator",
+      "fence-calculator",
+    ]);
+    expect(getCalculator("sand-calculator")?.related).toEqual([
+      "gravel-calculator",
+      "paver-calculator",
+      "topsoil-calculator",
+    ]);
+    expect(getCalculator("raised-bed-soil-calculator")?.related).toEqual([
+      "topsoil-calculator",
+      "mulch-calculator",
+      "sod-calculator",
+    ]);
+    expect(getCalculator("sod-calculator")?.related).toEqual([
+      "topsoil-calculator",
+      "lawn-seed-calculator",
+      "square-footage-calculator",
+    ]);
+    expect(getCalculator("lawn-seed-calculator")?.related).toEqual([
+      "sod-calculator",
+      "topsoil-calculator",
+      "square-footage-calculator",
+    ]);
+    expect(getCalculator("fence-calculator")?.related).toEqual([
+      "concrete-bags-calculator",
+      "concrete-calculator",
+      "gravel-calculator",
     ]);
   });
 });

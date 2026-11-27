@@ -43,9 +43,9 @@ export const stairConfig: CalculatorConfig = {
     "Check headroom above the stairs: at least 6 ft 8 in clear above the tread nosings (IRC R311.7.2). If the run does not fit or the headroom is short, the stair needs a landing or a turn, which this calculator does not cover.",
   ],
   workedExample:
-    "A total rise of 105 in (8 ft 9 in) with a 10.5 in tread: 105 ÷ 7.75 = 13.5, so " +
+    "A total rise of 105 in (8 ft 9 in) with a 10.5 in tread: 105 ÷ 7.75 = 13.55, so " +
     "14 risers at 7.5 in each; 13 treads × 10.5 in = 136.5 in of run (11 ft 4.5 in); " +
-    "the stringer is √(105² + 136.5²) = 172.2 in (about 14 ft 4 in), at a 37.6° angle.",
+    "the stringer is √(105² + 136.5²) = 172.21 in (about 14 ft 4 in), at a 37.6° angle.",
   limitations: [
     "This calculator gives preliminary planning estimates under the 2021 IRC assumptions stated here. It does not guarantee compliance with your local building code, which may adopt a different code edition or amend these limits — check with your local authority having jurisdiction before building.",
     "Straight stairs only. It does not cover winders, landings, or stairs that turn.",

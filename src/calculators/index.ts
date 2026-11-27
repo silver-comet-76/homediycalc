@@ -1,7 +1,7 @@
 /**
  * Per-calculator configs, keyed by slug. The dynamic calculator route
  * (src/pages/calculators/[slug].astro) renders the config for the
- * requested slug; all 26 configs ship, so every registered calculator
+ * requested slug; all 31 configs ship, so every registered calculator
  * URL renders — no unshipped page is ever linked or listed.
  */
 
@@ -32,6 +32,11 @@ import { sealantConfig } from "./sealant-calculator/config";
 import { waterproofingConfig } from "./waterproofing-calculator/config";
 import { baseboardConfig } from "./baseboard-calculator/config";
 import { stairConfig } from "./stair-calculator/config";
+import { sandConfig } from "./sand-calculator/config";
+import { raisedBedSoilConfig } from "./raised-bed-soil-calculator/config";
+import { sodConfig } from "./sod-calculator/config";
+import { lawnSeedConfig } from "./lawn-seed-calculator/config";
+import { fenceConfig } from "./fence-calculator/config";
 
 export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
   "concrete-calculator": concreteConfig,
@@ -60,9 +65,14 @@ export const CALCULATOR_CONFIGS: Record<string, CalculatorConfig> = {
   "waterproofing-calculator": waterproofingConfig,
   "baseboard-calculator": baseboardConfig,
   "stair-calculator": stairConfig,
+  "sand-calculator": sandConfig,
+  "raised-bed-soil-calculator": raisedBedSoilConfig,
+  "sod-calculator": sodConfig,
+  "lawn-seed-calculator": lawnSeedConfig,
+  "fence-calculator": fenceConfig,
 };
 
-/** Slugs of the calculators shipped in Phases 2 (P0), 3 (P1), and 4 (P2). */
+/** Slugs of the calculators shipped in Phases 2 (P0), 3 (P1), 4 (P2), 15, and 17. */
 export const SHIPPED_CALCULATOR_SLUGS = Object.keys(CALCULATOR_CONFIGS);
 
 export function getCalculatorConfig(slug: string): CalculatorConfig | undefined {

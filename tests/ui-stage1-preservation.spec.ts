@@ -6,7 +6,7 @@ import type { CalculatorConfig } from "../src/components/react/CalculatorConfig"
 
 /**
  * Phase 17B1-UI Stage 2 (Direction C+ full rollout): original substantive
- * content is preserved verbatim on all 26 redesigned pages. The check is
+ * content is preserved verbatim on all 31 redesigned pages. The check is
  * two-measure (see STAGE1_PLAN.md §2.3): (a) every original config string
  * appears in the built page's text content, including text inside
  * collapsed <details> (server-rendered, so it is in the DOM); (b) new UI
@@ -51,6 +51,11 @@ const ALL = [
   { slug: "waterproofing-calculator", path: "/calculators/waterproofing-calculator/" },
   { slug: "baseboard-calculator", path: "/calculators/baseboard-calculator/" },
   { slug: "stair-calculator", path: "/calculators/stair-calculator/" },
+  { slug: "sand-calculator", path: "/calculators/sand-calculator/" },
+  { slug: "raised-bed-soil-calculator", path: "/calculators/raised-bed-soil-calculator/" },
+  { slug: "sod-calculator", path: "/calculators/sod-calculator/" },
+  { slug: "lawn-seed-calculator", path: "/calculators/lawn-seed-calculator/" },
+  { slug: "fence-calculator", path: "/calculators/fence-calculator/" },
 ] as const;
 
 type AllSlug = (typeof ALL)[number]["slug"];
@@ -271,7 +276,7 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
     "Grout needed",
     "7.1 lb",
     "Bags needed",
-    "1 bags",
+    "1 bag",
   ],
   "board-foot-calculator": [
     "Board feet per piece",
@@ -371,6 +376,54 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
     "172.21 in",
     "Stair angle",
     "37.6°",
+  ],
+  "sand-calculator": [
+    "Sand volume",
+    "1.36 yd³",
+    "Bulk to order",
+    "2 yd³",
+    "Weight",
+    "1.83 tons",
+    "Bags",
+    "74 bags",
+  ],
+  "raised-bed-soil-calculator": [
+    "Soil volume",
+    "29.33 ft³",
+    "Bulk to order",
+    "2 yd³",
+    "Bags to buy",
+    "15 bags",
+    "Mix (60/30/10)",
+    "17.6 / 8.8 / 2.93 ft³",
+  ],
+  "sod-calculator": [
+    "Lawn area",
+    "600 ft²",
+    "Area with waste",
+    "660 ft²",
+    "Rolls to buy",
+    "66 rolls",
+    "Pallets to buy",
+    "2 pallets",
+  ],
+  "lawn-seed-calculator": [
+    "Seed needed",
+    "35 lb",
+    "Seed with buffer",
+    "38.5 lb",
+    "Bags to buy",
+    "1 × 25 lb + 1 × 10 lb + 2 × 3 lb",
+  ],
+  "fence-calculator": [
+    "Posts",
+    "14 posts",
+    "Rails",
+    "43 rails",
+    "Pickets",
+    "220 pickets",
+    "Concrete bags (80 lb)",
+    "28 bags",
   ],
 };
 
@@ -550,7 +603,24 @@ test("stair: rise/run diagram renders with all labels and the schematic caption"
   }
 });
 
-test("all 26 calculators use the C+ layout (no original-layout page remains)", async ({ page }) => {
+test("fence: run diagram renders with all labels and the fence caption", async ({ page }) => {
+  await page.goto("/calculators/fence-calculator/");
+  const figure = page.locator("figure", { hasText: "Measure the run along the fence line" });
+  await expect(figure).toBeVisible();
+  await expect(figure).toContainText(
+    "Measure the run along the fence line, minus gates and openings.",
+  );
+  // SVG <text> is checked via textContent (locator text engines are HTML-oriented).
+  const figureText = await figure.evaluate((el) => el.textContent ?? "");
+  for (const label of ["Run length", "Post spacing", "Gate / opening", "Post"]) {
+    expect(figureText, `diagram label "${label}" missing`).toContain(label);
+  }
+  // The baseboard room diagram must not appear on the fence page.
+  expect(figureText).not.toContain("no baseboard");
+  expect(figureText).not.toContain("Measure at floor level");
+});
+
+test("all 31 calculators use the C+ layout (no original-layout page remains)", async ({ page }) => {
   for (const { path } of ALL) {
     await page.goto(path);
     await expect(page.locator("[data-hydrated='true']")).toBeVisible();

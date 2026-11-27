@@ -140,6 +140,13 @@ export const topsoilConfig: CalculatorConfig = {
     "Weight is an estimate: the same cubic yard can weigh anywhere from about 2,000 to 3,400 lb depending on texture, organic content, and moisture. The volume is exact; the weight is only as good as the density you enter.",
     "Does not account for compaction after spreading or for soil removed by grading — the settling allowance only approximates it.",
     "Topsoil quality varies by supplier. Screened topsoil, garden soil (topsoil mixed with compost), and fill dirt are different products with different densities and prices.",
+    [
+      {
+        text: "Use this calculator for ground-level lawns and beds, where the area is flat and there is no mix or filler to account for. For a contained raised bed — inside dimensions, a mix, settling, and bottom filler — use the ",
+      },
+      { text: "Raised Garden Bed Soil Calculator", calc: "raised-bed-soil-calculator" },
+      { text: "." },
+    ],
   ],
   faqs: [
     {

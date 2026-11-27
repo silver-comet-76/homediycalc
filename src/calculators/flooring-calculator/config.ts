@@ -48,7 +48,7 @@ function flooringOutput(areaFt2: number, v: Record<string, number>, present: Set
         ? [
             {
               label: "Underlayment rolls",
-              value: `${r.underlaymentRolls} rolls`,
+              value: `${r.underlaymentRolls} ${r.underlaymentRolls === 1 ? "roll" : "rolls"}`,
               detail: `${fmt(req(v, "rollCoverage"), 0)} ft² per roll — rounded up`,
             },
           ]
@@ -142,7 +142,7 @@ export const flooringConfig: CalculatorConfig = {
     note: "Assumes 20 ft² per box, underlayment included at 100 ft² per roll, and 10% waste.",
     headers: ["Room size", "Floor area", "Boxes needed", "Underlayment rolls"],
     rows: [
-      ["10 × 10 ft room", "100 ft²", "6 boxes", "1 rolls"],
+      ["10 × 10 ft room", "100 ft²", "6 boxes", "1 roll"],
       ["12 × 12 ft room", "144 ft²", "8 boxes", "2 rolls"],
       ["12 × 15 ft room", "180 ft²", "10 boxes", "2 rolls"],
       ["15 × 20 ft room", "300 ft²", "17 boxes", "3 rolls"],

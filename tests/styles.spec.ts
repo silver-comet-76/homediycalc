@@ -75,13 +75,13 @@ test("styles: card-title links meet the 24px minimum target height", async ({ pa
     }
   }
 
-  // The "See all 26 calculators" link on the home page is not inside a
+  // The "See all 31 calculators" link on the home page is not inside a
   // card, but it is the same font-semibold pattern and must also clear
   // 24px.
   await page.goto("/");
   const seeAllHeight = await page.evaluate(() => {
     const a = [...document.querySelectorAll("a")].find((el) =>
-      el.textContent?.includes("See all 26 calculators"),
+      el.textContent?.includes("See all 31 calculators"),
     );
     return a?.getBoundingClientRect().height ?? 0;
   });

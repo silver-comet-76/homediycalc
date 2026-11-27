@@ -41,7 +41,7 @@ export const concreteSlabConfig: CalculatorConfig = {
         "62 bags",
         "82 bags",
         "123 bags",
-        "1 sheets",
+        "1 sheet",
       ],
       [
         "12 × 12 × 4 in slab",
@@ -51,7 +51,7 @@ export const concreteSlabConfig: CalculatorConfig = {
         "88 bags",
         "118 bags",
         "176 bags",
-        "1 sheets",
+        "1 sheet",
       ],
       [
         "20 × 12 × 4 in slab",
@@ -287,7 +287,7 @@ export const concreteSlabConfig: CalculatorConfig = {
             },
             {
               label: "Wire-mesh sheets",
-              value: `${r.meshSheets} sheets`,
+              value: `${r.meshSheets} ${r.meshSheets === 1 ? "sheet" : "sheets"}`,
               detail: "Information only — not a structural specification",
             },
           ],

@@ -1,5 +1,5 @@
 /**
- * Centralized calculator registry — the single source of truth for the 26
+ * Centralized calculator registry — the single source of truth for the 31
  * calculators on HomeDIYCalc.
  *
  * Every calculator is registered exactly once here. Home, All Calculators,
@@ -8,9 +8,11 @@
  * page. Adding a calculator = registry entry + formula module + tests +
  * React island + Astro page (see AGENTS.md).
  *
- * Priority: P0 ships in Phase 2, P1 in Phase 3, P2 in Phase 4. All 26
+ * Priority: P0 ships in Phase 2, P1 in Phase 3, P2 in Phase 4. All 31
  * calculators are shipped; the registry records their live URLs and
- * SEO metadata. The Stair Calculator (P0) shipped in Phase 15.
+ * SEO metadata. The Stair Calculator (P0) shipped in Phase 15; the five
+ * landscaping calculators (Sand, Raised Bed Soil, Sod, Lawn Seed, Fence)
+ * ship in Phase 17.
  */
 
 export type Priority = "P0" | "P1" | "P2";
@@ -40,7 +42,7 @@ export interface CalculatorMeta {
   /** Live URL: /calculators/<slug>/ — P0 from Phase 2, P1 from Phase 3, P2 from Phase 4. */
   url: string;
   /** Phase in which this calculator ships. */
-  phase: 2 | 3 | 4 | 15;
+  phase: 2 | 3 | 4 | 15 | 17;
   seoTitle: string;
   seoDescription: string;
   /** Slugs of related calculators, used for cross-linking. */
@@ -85,10 +87,10 @@ export const CATEGORIES: CategoryMeta[] = [
     name: "Landscaping",
     url: "/categories/landscaping/",
     description:
-      "Gravel, mulch, pavers, and topsoil — work out cubic yards and weight for driveways, beds, and patios.",
+      "Gravel, mulch, pavers, topsoil, sand, raised beds, sod, lawn seed, and fences — work out cubic yards, weight, and counts for driveways, beds, lawns, and patios.",
     seoTitle: "Free Landscaping Calculators | HomeDIYCalc",
     seoDescription:
-      "Free gravel, mulch, paver, and topsoil calculators. Work out cubic yards and tons for your yard project.",
+      "Free gravel, mulch, paver, topsoil, sand, sod, lawn seed, and fence calculators. Work out cubic yards, tons, and counts for your yard project.",
   },
   {
     slug: "measurement",
@@ -165,7 +167,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoTitle: "Gravel Calculator — Cubic Yards & Tons | HomeDIYCalc",
     seoDescription:
       "Calculate how much gravel you need in cubic yards and tons. Enter area and depth — get an order amount for driveways and paths.",
-    related: ["topsoil-calculator", "paver-calculator", "cubic-yard-calculator"],
+    related: ["topsoil-calculator", "sand-calculator", "paver-calculator"],
     summary: "Works out gravel volume in cubic yards and weight in tons from area and depth.",
   },
   {
@@ -275,7 +277,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoTitle: "Concrete Bags Calculator — 40, 60 & 80 lb Bags | HomeDIYCalc",
     seoDescription:
       "Calculate how many bags of concrete you need. Enter volume — get bag counts for 40, 60, and 80 lb bags.",
-    related: ["concrete-calculator", "concrete-slab-calculator", "mortar-calculator"],
+    related: ["concrete-calculator", "concrete-slab-calculator", "fence-calculator"],
     summary: "Works out bag counts for 40, 60, and 80 lb concrete bags from a target volume.",
   },
   {
@@ -301,7 +303,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoTitle: "Paver Calculator — Patio & Driveway Pavers | HomeDIYCalc",
     seoDescription:
       "Calculate how many pavers you need for a patio or walkway. Enter area and paver size — get counts with waste included.",
-    related: ["tile-calculator", "gravel-calculator", "topsoil-calculator"],
+    related: ["sand-calculator", "gravel-calculator", "topsoil-calculator"],
     summary: "Works out paver counts for patios and walkways from area and paver size.",
   },
   {
@@ -314,7 +316,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     seoTitle: "Topsoil Calculator — Cubic Yards & Tons | HomeDIYCalc",
     seoDescription:
       "Calculate how much topsoil you need in cubic yards and tons. Enter area and depth — get an order amount for lawns and beds.",
-    related: ["gravel-calculator", "mulch-calculator", "cubic-yard-calculator"],
+    related: ["raised-bed-soil-calculator", "sod-calculator", "lawn-seed-calculator"],
     summary: "Works out topsoil volume in cubic yards and weight in tons from area and depth.",
   },
   {
@@ -462,6 +464,77 @@ export const CALCULATORS: CalculatorMeta[] = [
     related: ["square-footage-calculator", "board-foot-calculator", "concrete-calculator"],
     summary:
       "Work out riser height, tread count, total run, and stringer length for a straight staircase.",
+  },
+  // ---- P1 (Phase 17) ----
+  {
+    slug: "sand-calculator",
+    name: "Sand Calculator",
+    category: "landscaping",
+    priority: "P1",
+    url: "/calculators/sand-calculator/",
+    phase: 17,
+    seoTitle: "Sand Calculator — Cubic Yards, Tons & Bags | HomeDIYCalc",
+    seoDescription:
+      "Calculate how much sand you need in cubic yards and tons. Enter area and depth — get an order amount for sandboxes, pool bases, and fill.",
+    related: ["gravel-calculator", "paver-calculator", "topsoil-calculator"],
+    summary:
+      "Works out sand volume in cubic yards and weight in tons from area and depth, with bag counts.",
+  },
+  {
+    slug: "raised-bed-soil-calculator",
+    name: "Raised Garden Bed Soil Calculator",
+    category: "landscaping",
+    priority: "P1",
+    url: "/calculators/raised-bed-soil-calculator/",
+    phase: 17,
+    seoTitle: "Raised Garden Bed Soil Calculator | HomeDIYCalc",
+    seoDescription:
+      "Calculate how much soil you need to fill a raised garden bed. Enter inside dimensions and fill depth — get cubic feet, yards, mix parts, and bags.",
+    related: ["topsoil-calculator", "mulch-calculator", "sod-calculator"],
+    summary:
+      "Works out soil volume for raised beds from inside dimensions and fill depth, with mix proportions, settling, and bag counts.",
+  },
+  {
+    slug: "sod-calculator",
+    name: "Sod / Turf Calculator",
+    category: "landscaping",
+    priority: "P1",
+    url: "/calculators/sod-calculator/",
+    phase: 17,
+    seoTitle: "Sod / Turf Calculator — Rolls, Pallets & Area | HomeDIYCalc",
+    seoDescription:
+      "Calculate how much sod (turf) you need in rolls and pallets. Enter lawn area and roll size — get pieces, pallets, and a partial-pallet flag.",
+    related: ["topsoil-calculator", "lawn-seed-calculator", "square-footage-calculator"],
+    summary:
+      "Works out sod (turf) rolls and pallets from lawn area, with exclusions and a partial-pallet flag.",
+  },
+  {
+    slug: "lawn-seed-calculator",
+    name: "Lawn Seed Calculator",
+    category: "landscaping",
+    priority: "P1",
+    url: "/calculators/lawn-seed-calculator/",
+    phase: 17,
+    seoTitle: "Lawn Seed Calculator — Pounds, Coverage & Bags | HomeDIYCalc",
+    seoDescription:
+      "Calculate how much grass seed you need. Enter lawn area and your seeding rate — get seed weight and bag counts for new lawns and overseeding.",
+    related: ["sod-calculator", "topsoil-calculator", "square-footage-calculator"],
+    summary:
+      "Works out grass seed weight and bag counts from lawn area and seeding rate, for new lawns and overseeding.",
+  },
+  {
+    slug: "fence-calculator",
+    name: "Fence Calculator",
+    category: "landscaping",
+    priority: "P1",
+    url: "/calculators/fence-calculator/",
+    phase: 17,
+    seoTitle: "Fence Calculator — Posts, Rails, Pickets & Panels | HomeDIYCalc",
+    seoDescription:
+      "Calculate fence materials — posts, rails, pickets, or panels. Enter run length and spacing — get counts with gates and waste included.",
+    related: ["concrete-bags-calculator", "concrete-calculator", "gravel-calculator"],
+    summary:
+      "Works out fence posts, rails, pickets, or panels from run length and spacing, with gate deductions.",
   },
 ];
 

@@ -81,7 +81,7 @@ function liquidOutput(areaFt2: number, v: Record<string, number>, present: Set<s
       },
       {
         label: "Containers to buy",
-        value: `${r.containers} containers`,
+        value: `${r.containers} ${r.containers === 1 ? "container" : "containers"}`,
         detail: `${fmt(req(v, "containerGal"), 2)} gal containers — rounded up`,
       },
       {
@@ -107,7 +107,7 @@ export const waterproofingConfig: CalculatorConfig = {
     note: "Assumes a liquid membrane, 2 coats at 110 ft²/gal per coat, 1 gal containers, and 10% waste.",
     headers: ["Room size", "Membrane needed", "Containers to buy", "Liters to buy"],
     rows: [
-      ["5 × 8 ft room", "0.8 gal", "1 containers", "3.79 L"],
+      ["5 × 8 ft room", "0.8 gal", "1 container", "3.79 L"],
       ["10 × 10 ft room", "2 gal", "2 containers", "7.57 L"],
       ["10 × 12 ft room", "2.4 gal", "3 containers", "11.36 L"],
       ["12 × 15 ft room", "3.6 gal", "4 containers", "15.14 L"],

@@ -33,7 +33,7 @@ function adhesiveOutput(areaFt2: number, v: Record<string, number>, present: Set
       },
       {
         label: "Bags to buy",
-        value: `${r.bags} bags`,
+        value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
         detail: `${fmt(req(v, "bagWeight"), 0)} lb bags — rounded up`,
       },
     ],
@@ -109,7 +109,7 @@ export const tileAdhesiveConfig: CalculatorConfig = {
     note: "Assumes a ¼ × ¼ in square-notch trowel (90 ft² per 50 lb bag), no back-buttering, and 10% waste.",
     headers: ["Room size", "Adhesive needed", "Coverage per bag", "Bags to buy"],
     rows: [
-      ["5 × 8 ft room", "24.4 lb", "90 ft²/bag", "1 bags"],
+      ["5 × 8 ft room", "24.4 lb", "90 ft²/bag", "1 bag"],
       ["10 × 10 ft room", "61.1 lb", "90 ft²/bag", "2 bags"],
       ["10 × 12 ft room", "73.3 lb", "90 ft²/bag", "2 bags"],
       ["12 × 15 ft room", "110 lb", "90 ft²/bag", "3 bags"],

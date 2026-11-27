@@ -2,10 +2,10 @@
 """HomeDIYCalc release-gate audit checks (ADR-9).
 
 Reads the production build in dist/ and verifies, with no network access:
-  - 42 built pages: 41 indexable pages + the custom 404 page
+  - 47 built pages: 46 indexable pages + the custom 404 page
     (the Google Search Console verification file is a static asset in
     dist/, not a page, and is excluded from the page count)
-  - sitemap.xml lists exactly the 41 indexable pages (404 excluded)
+  - sitemap.xml lists exactly the 46 indexable pages (404 excluded)
   - every page: unique <title> (<= 65 chars), unique meta description
     (<= 165 chars), self-referential canonical, exactly one <h1>,
     Open Graph + Twitter card meta, JSON-LD that parses
@@ -233,7 +233,7 @@ def main() -> int:
 
     html_files = sorted(dist.rglob("*.html"))
     pages = [p for p in html_files if p.name not in ("404.html", GSC_VERIFICATION_FILE)]
-    check("built pages: 41 indexable + custom 404", len(pages) == 41 and (dist / "404.html").is_file(),
+    check("built pages: 46 indexable + custom 404", len(pages) == 46 and (dist / "404.html").is_file(),
           f"{len(pages)} indexable, 404={'yes' if (dist / '404.html').is_file() else 'no'}")
 
     sitemap = (dist / "sitemap.xml").read_text(encoding="utf-8")
@@ -244,8 +244,8 @@ def main() -> int:
     # Normalise: /calculators/x/ style paths with trailing slash, root as /.
     page_paths = [pp if pp.endswith("/") or pp == "/" else pp + "/" for pp in page_paths]
     page_paths = ["/" if pp == "//" else pp for pp in page_paths]
-    check("sitemap lists exactly the 41 indexable pages (404 excluded)",
-          len(sitemap_urls) == 41 and sitemap_paths == sorted(page_paths)
+    check("sitemap lists exactly the 46 indexable pages (404 excluded)",
+          len(sitemap_urls) == 46 and sitemap_paths == sorted(page_paths)
           and not any("404" in u for u in sitemap_urls),
           f"{len(sitemap_urls)} URLs")
     # Origin rule (ADR-15): production and preview-with-origin sitemaps

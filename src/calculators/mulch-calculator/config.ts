@@ -40,7 +40,8 @@ export const mulchConfig: CalculatorConfig = {
   ],
   workedExample:
     "A 10 ft × 10 ft bed, 3 in deep: 10 × 10 × 0.25 ft = 25 ft³ = 0.93 yd³. " +
-    "In 2 ft³ bags that is 13 bags (25 ÷ 2, rounded up).",
+    "With the default 5% settling allowance that is 26.25 ft³, so in 2 ft³ bags " +
+    "that is 14 bags (26.25 ÷ 2 = 13.125, rounded up).",
   limitations: [
     "Does not account for settling beyond the waste allowance — mulch settles noticeably in the first weeks, especially shredded bark.",
     "No density is assumed, so there is no weight output unless you enter one. Bagged mulch weights vary widely with moisture: the same bag can weigh 50% more after rain.",

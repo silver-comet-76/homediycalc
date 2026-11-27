@@ -1612,6 +1612,221 @@ const LOOKUP_INPUTS: Record<string, LookupInputs> = {
       },
     ],
   },
+  "sand-calculator": {
+    mode: "area",
+    rows: [
+      {
+        label: "10 × 10 × 4 in sandbox",
+        display: { length: 10, width: 10, depth: 4, waste: 10, density: 2700, bagSize: 0.5 },
+      },
+      {
+        label: "10 × 10 × 6 in sandbox",
+        display: { length: 10, width: 10, depth: 6, waste: 10, density: 2700, bagSize: 0.5 },
+      },
+      {
+        label: "10 × 20 × 4 in patio base",
+        display: { length: 10, width: 20, depth: 4, waste: 10, density: 2700, bagSize: 0.5 },
+      },
+      {
+        label: "12 × 12 × 4 in pool base",
+        display: { length: 12, width: 12, depth: 4, waste: 10, density: 2700, bagSize: 0.5 },
+      },
+      {
+        label: "20 × 10 × 6 in fill",
+        display: { length: 20, width: 10, depth: 6, waste: 10, density: 2700, bagSize: 0.5 },
+      },
+    ],
+  },
+  "raised-bed-soil-calculator": {
+    mode: "bed",
+    rows: [
+      {
+        label: "4 × 4 × 10 in bed",
+        display: {
+          length: 4,
+          width: 4,
+          fillDepth: 10,
+          beds: 1,
+          settling: 10,
+          topsoilPct: 60,
+          compostPct: 30,
+          aerationPct: 10,
+          bagSize: 2,
+        },
+      },
+      {
+        label: "4 × 8 × 10 in bed",
+        display: {
+          length: 8,
+          width: 4,
+          fillDepth: 10,
+          beds: 1,
+          settling: 10,
+          topsoilPct: 60,
+          compostPct: 30,
+          aerationPct: 10,
+          bagSize: 2,
+        },
+      },
+      {
+        label: "4 × 8 × 12 in bed",
+        display: {
+          length: 8,
+          width: 4,
+          fillDepth: 12,
+          beds: 1,
+          settling: 10,
+          topsoilPct: 60,
+          compostPct: 30,
+          aerationPct: 10,
+          bagSize: 2,
+        },
+      },
+      {
+        label: "8 × 8 × 10 in bed",
+        display: {
+          length: 8,
+          width: 8,
+          fillDepth: 10,
+          beds: 1,
+          settling: 10,
+          topsoilPct: 60,
+          compostPct: 30,
+          aerationPct: 10,
+          bagSize: 2,
+        },
+      },
+      {
+        label: "2 beds of 4 × 4 × 10 in",
+        display: {
+          length: 4,
+          width: 4,
+          fillDepth: 10,
+          beds: 2,
+          settling: 10,
+          topsoilPct: 60,
+          compostPct: 30,
+          aerationPct: 10,
+          bagSize: 2,
+        },
+      },
+    ],
+  },
+  "sod-calculator": {
+    mode: "rectangle",
+    rows: [
+      {
+        label: "10 × 10 ft lawn",
+        display: { length: 10, width: 10, waste: 10, rollCoverage: 10, palletCoverage: 450 },
+      },
+      {
+        label: "20 × 20 ft lawn",
+        display: { length: 20, width: 20, waste: 10, rollCoverage: 10, palletCoverage: 450 },
+      },
+      {
+        label: "20 × 30 ft lawn",
+        display: { length: 20, width: 30, waste: 10, rollCoverage: 10, palletCoverage: 450 },
+      },
+      {
+        label: "30 × 40 ft lawn",
+        display: { length: 30, width: 40, waste: 10, rollCoverage: 10, palletCoverage: 450 },
+      },
+      {
+        label: "50 × 100 ft lawn",
+        display: { length: 50, width: 100, waste: 10, rollCoverage: 10, palletCoverage: 450 },
+      },
+    ],
+  },
+  "lawn-seed-calculator": {
+    mode: "area",
+    rows: [
+      {
+        label: "1,000 ft² lawn",
+        display: { length: 50, width: 20, jobType: 1, rate: 7, buffer: 10 },
+      },
+      {
+        label: "2,500 ft² lawn",
+        display: { length: 50, width: 50, jobType: 1, rate: 7, buffer: 10 },
+      },
+      {
+        label: "5,000 ft² lawn",
+        display: { length: 50, width: 100, jobType: 1, rate: 7, buffer: 10 },
+      },
+      {
+        label: "10,000 ft² lawn",
+        display: { length: 100, width: 100, jobType: 1, rate: 7, buffer: 10 },
+      },
+      {
+        label: "5,000 ft² bluegrass lawn",
+        display: { length: 50, width: 100, jobType: 1, rate: 2.5, buffer: 10 },
+      },
+    ],
+  },
+  "fence-calculator": {
+    mode: "picket",
+    rows: [
+      {
+        label: "50 ft run",
+        display: {
+          runLength: 50,
+          postSpacing: 8,
+          fenceHeight: 6,
+          picketWidth: 6,
+          picketGap: 0,
+          waste: 10,
+          concreteBagsPerPost: 2,
+        },
+      },
+      {
+        label: "100 ft run",
+        display: {
+          runLength: 100,
+          postSpacing: 8,
+          fenceHeight: 6,
+          picketWidth: 6,
+          picketGap: 0,
+          waste: 10,
+          concreteBagsPerPost: 2,
+        },
+      },
+      {
+        label: "150 ft run",
+        display: {
+          runLength: 150,
+          postSpacing: 8,
+          fenceHeight: 6,
+          picketWidth: 6,
+          picketGap: 0,
+          waste: 10,
+          concreteBagsPerPost: 2,
+        },
+      },
+      {
+        label: "200 ft run",
+        display: {
+          runLength: 200,
+          postSpacing: 8,
+          fenceHeight: 6,
+          picketWidth: 6,
+          picketGap: 0,
+          waste: 10,
+          concreteBagsPerPost: 2,
+        },
+      },
+      {
+        label: "100 ft run, 4 ft high",
+        display: {
+          runLength: 100,
+          postSpacing: 8,
+          fenceHeight: 4,
+          picketWidth: 6,
+          picketGap: 0,
+          waste: 10,
+          concreteBagsPerPost: 2,
+        },
+      },
+    ],
+  },
 };
 
 /** Run a config mode's compute() with display values and return the display rows. */

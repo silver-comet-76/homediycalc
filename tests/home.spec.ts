@@ -125,11 +125,16 @@ test("sitemap and robots are served", async ({ request }) => {
   expect(sitemapText).toContain(`<loc>${origin}/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/calculators/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/categories/painting/</loc>`);
-  // Shipped calculator pages are in the sitemap — all 26 from Phase 15.
+  // Shipped calculator pages are in the sitemap — all 31 from Phase 17.
   expect(sitemapText).toContain(`<loc>${origin}/calculators/concrete-calculator/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/calculators/drywall-calculator/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/calculators/ceiling-tile-calculator/</loc>`);
   expect(sitemapText).toContain(`<loc>${origin}/calculators/baseboard-calculator/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/sand-calculator/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/raised-bed-soil-calculator/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/sod-calculator/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/lawn-seed-calculator/</loc>`);
+  expect(sitemapText).toContain(`<loc>${origin}/calculators/fence-calculator/</loc>`);
 
   const robots = await request.get("/robots.txt");
   expect(robots.ok()).toBeTruthy();

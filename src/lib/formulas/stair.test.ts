@@ -11,7 +11,7 @@ describe("calculateStair", () => {
     // One fewer tread than risers: 13 treads x 10.5 in = 136.5 in of run.
     expect(r.treadCount).toBe(13);
     expect(r.totalRunIn).toBeCloseTo(136.5, 2);
-    // Stringer is the hypotenuse: sqrt(105^2 + 136.5^2) = sqrt(29642.25) = 172.21 in.
+    // Stringer is the hypotenuse: sqrt(105^2 + 136.5^2) = sqrt(29657.25) = 172.21 in.
     expect(r.stringerLengthIn).toBeCloseTo(172.21, 2);
     // Angle: atan(105 / 136.5) = 37.57 degrees.
     expect(r.stairAngleDeg).toBeCloseTo(37.57, 2);
