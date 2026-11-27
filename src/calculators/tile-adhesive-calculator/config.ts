@@ -103,6 +103,8 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const tileAdhesiveConfig: CalculatorConfig = {
   slug: "tile-adhesive-calculator",
+  designCplus: true,
+  heroResultLabel: "Bags to buy",
   lookupTable: {
     note: "Assumes a ¼ × ¼ in square-notch trowel (90 ft² per 50 lb bag), no back-buttering, and 10% waste.",
     headers: ["Room size", "Adhesive needed", "Coverage per bag", "Bags to buy"],

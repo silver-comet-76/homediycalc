@@ -18,6 +18,8 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const concreteSlabConfig: CalculatorConfig = {
   slug: "concrete-slab-calculator",
+  designCplus: true,
+  heroResultLabel: "Ready-mix to order",
   lookupTable: {
     note: "Assumes 10% waste, ready-mix rounded up to the next quarter cubic yard (0.25 yd³), and wire-mesh sheets of 160 ft² each.",
     headers: [

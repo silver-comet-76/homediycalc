@@ -13,9 +13,15 @@ export interface Props {
   ogType?: "website" | "article";
   breadcrumbs?: { name: string; path?: string }[];
   faqs?: { question: string; answer: string | LinkedText }[];
+  /**
+   * Direction C+ (Phase 17B1-UI, Stage 1): compact mobile header — the
+   * main and category navs scroll horizontally instead of wrapping tall.
+   */
+  compactNav?: boolean;
 }
 
-const { title, description, canonical, ogType, breadcrumbs, faqs } = Astro.props;
+const { title, description, canonical, ogType, breadcrumbs, faqs, compactNav = false } =
+  Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 
@@ -53,13 +59,13 @@ const currentPath = Astro.url.pathname;
     >
       Skip to main content
     </a>
-    <header class="border-b border-slate-200 bg-white">
+    <header class={compactNav ? "compact-nav border-b border-slate-200 bg-white" : "border-b border-slate-200 bg-white"}>
       <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4">
         <a href="/" class="text-xl font-extrabold tracking-tight text-slate-900 no-underline hover:no-underline">
           {SITE_NAME}
           <span class="sr-only"> — home</span>
         </a>
-        <nav aria-label="Main navigation" class="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-medium">
+        <nav aria-label="Main navigation" class="main-nav flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-medium">
           <a href="/calculators/" class:list={[{ "font-bold text-brand-700": currentPath.startsWith("/calculators") }, "inline-block py-1 text-slate-700"]}>
             All Calculators
           </a>
@@ -91,7 +97,7 @@ const currentPath = Astro.url.pathname;
         </form>
       </div>
       <nav aria-label="Categories" class="border-t border-slate-100 bg-slate-50">
-        <ul class="mx-auto flex max-w-6xl flex-wrap gap-x-5 gap-y-1 px-4 py-2 text-sm">
+        <ul class="category-nav-list mx-auto flex max-w-6xl flex-wrap gap-x-5 gap-y-1 px-4 py-2 text-sm">
           {
             CATEGORIES.map((category) => (
               <li>

@@ -140,6 +140,8 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const groutConfig: CalculatorConfig = {
   slug: "grout-calculator",
+  designCplus: true,
+  heroResultLabel: "Bags needed",
   lookupTable: {
     note: "Assumes 12 × 12 in tiles, a ⅛ in wide by ⅜ in deep joint, grout at 98.5 lb/ft³, 10 lb bags, and 10% waste.",
     headers: ["Room size", "Grout per square foot", "Grout needed", "Bags needed"],
@@ -184,6 +186,8 @@ export const groutConfig: CalculatorConfig = {
     {
       id: "how-grout-is-calculated",
       heading: "How grout is actually calculated (and why tile size matters more than area)",
+      takeaway:
+        "Grout fills the joints, so the amount depends on how much joint there is per square foot — tile size matters more than area. A 12×12 in tile with ⅛ in joints ⅜ in deep needs 0.064 lb of grout per square foot (at the default density of 98.5 lb/ft³); a 2×2 in mosaic at the same joint width needs about six times as much per square foot. “How much grout for 100 square feet” has no single answer — measure the tile, the joint width, and the joint depth (usually the tile thickness) first, and use the same tiled area as the Tile Calculator.",
       blocks: [
         {
           type: "paragraph",
@@ -200,6 +204,8 @@ export const groutConfig: CalculatorConfig = {
     {
       id: "grout-per-100-square-feet",
       heading: "Grout per 100 square feet, by tile size (MAPEI Ultracolor Plus FA basis)",
+      takeaway:
+        "Grout per 100 ft² at the calculator’s defaults (⅛ in joints, ⅜ in depth — ¼ in for the 2×2 mosaic — density 98.5 lb/ft³, 10% extra), in 10 lb bags: 2×2 in mosaic 28.2 lb (3 bags); 4¼×4¼ in 19.9 lb (2); 6×24 in 8.8 lb (1); 12×12 in 7.1 lb (1); 12×24 in 5.3 lb (1); 18×18 in 4.7 lb (1); 24×24 in 3.5 lb (1). The 12×12 row is the worked example on this page. The 2×2 row assumes ¼ in depth — at ⅜ in it would need 42.3 lb, so state the tile thickness when comparing figures. Wider joints scale in proportion: at 3/16 in joints, 12×12 needs 0.096 lb/ft² (10.6 lb per 100 ft² with waste); at ¼ in, 0.128 lb/ft² (14.1 lb).",
       blocks: [
         {
           type: "paragraph",
@@ -240,6 +246,8 @@ export const groutConfig: CalculatorConfig = {
     {
       id: "manufacturer-coverage-charts",
       heading: "Manufacturer coverage charts: the same floor, two different answers",
+      takeaway:
+        "Grout is sold by weight and different grouts weigh different amounts per cubic foot, so two manufacturers’ charts can differ for the same floor and both be right for their own product. The default density 98.5 lb/ft³ reproduces the MAPEI Ultracolor Plus FA chart to within 2% (a 10 lb bag covers about 156 ft² of 12×12 in tile with ⅛ in joints). CUSTOM’s Polyblend Plus implies about 110 lb/ft³ — roughly 12% heavier — so the same floor needs about 12% more pounds. CUSTOM’s own chart (TDS-360, 3/22/2023) states coverage per 25 lb bag directly and is the better source for that product. Read the chart for the product you buy and set the calculator’s density to match; do not mix the two products’ figures.",
       blocks: [
         {
           type: "paragraph",
@@ -288,6 +296,8 @@ export const groutConfig: CalculatorConfig = {
     {
       id: "why-actual-use-differs",
       heading: "Why the grout you actually use differs from the geometric calculation",
+      takeaway:
+        "The formula calculates the joint volume as if the joints were rectangular boxes filled exactly to the tile surface, so it is a lower bound with a loss allowance on top, not an exact prediction. Grout is lost on the float, in the bucket, and in the sponge — the 10% extra is for exactly that, and mosaic or very small tile deserves 15%. Tile sizes vary slightly from nominal, so a fractionally smaller tile leaves a fractionally wider joint. One factor works the other way: finished grout sits slightly below the tile surface, so the joints hold a little less than full depth. Premixed, urethane, and epoxy grouts have their own densities and charts — the 98.5 lb/ft³ default does not apply to them. Thinset is a separate material sized by trowel notch: for a 100 ft² floor with a ½×½ in notch, thinset needs 3 bags (100 × 1.10 ÷ 42 = 2.62 → 3), not 6 — a conditional estimate at CUSTOM’s chart coverage, excluding back-troweling material. CUSTOM does not recommend the ½×½ in square-notch for large format — the right notch depends on your tile size, so check the Tile Adhesive Calculator before choosing.",
       blocks: [
         {
           type: "paragraph",

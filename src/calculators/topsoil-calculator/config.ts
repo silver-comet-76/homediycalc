@@ -101,6 +101,8 @@ const COMMON_FIELDS = [
 
 export const topsoilConfig: CalculatorConfig = {
   slug: "topsoil-calculator",
+  designCplus: true,
+  heroResultLabel: "Bulk to order",
   lookupTable: {
     note: "Assumes a 10% settling allowance, topsoil at 2,000 lb per cubic yard, and 0.75 ft³ bags.",
     headers: ["Bed (L × W × depth)", "Topsoil volume", "Bulk to order", "Weight", "Bags"],

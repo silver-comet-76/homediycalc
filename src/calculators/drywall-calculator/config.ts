@@ -153,6 +153,8 @@ const COMMON_FIELDS = [
 
 export const drywallConfig: CalculatorConfig = {
   slug: "drywall-calculator",
+  designCplus: true,
+  heroResultLabel: "Drywall sheets",
   lookupTable: {
     note: "Assumes 8 ft walls, 1 door and 2 windows, ceiling included, 4 × 8 ft sheets, 10% waste, joint compound at 100 ft²/gal in 4.5 gal pails, and standard screw counts for 4 × 8 ft sheets (28 per wall sheet, 35 per ceiling sheet).",
     headers: [
@@ -204,6 +206,8 @@ export const drywallConfig: CalculatorConfig = {
     {
       id: "sheets-to-buy-vs-sheets-hung",
       heading: "Sheets to buy vs sheets hung — why waste applies to one number and not the other",
+      takeaway:
+        "Sheets hung (16 in the worked example) is the count that covers the area — wall and ceiling sheets each rounded up separately. Sheets to buy (17) adds the waste allowance (× 1.10) on top of the total area, then divides once: ceil(478 ft² × 1.10 ÷ 32 ft²) = 17. Waste applies to sheets only: compound, tape, and screws are estimated from the 478 ft² actually hung, not the waste-inflated area — you do not tape the sheet you threw away.",
       blocks: [
         {
           type: "paragraph",
@@ -228,6 +232,8 @@ export const drywallConfig: CalculatorConfig = {
     {
       id: "sheet-sizes-thicknesses",
       heading: "Sheet sizes, thicknesses, and what to order",
+      takeaway:
+        "A standard sheet is 4 ft × 8 ft (32 ft²); longer sheets mean fewer seams: 4×10 ft is 40 ft² and 4×12 ft is 48 ft², and USG UltraLight panels run 8–16 ft long in 48 in and 54 in widths. For a 9 ft wall, 54 in panels cover the 108 in height in two horizontal courses with one seam. Thicknesses are ¼, ⅜, ½, and ⅝ in: ½ in is standard, ⅝ in Type X is the fire-rated board (typically garage ceilings beneath habitable rooms), and ¼ in is an overlay, not a single-layer board. Thickness does not change the sheet count, but it decides fire rating, sound, and spanning — and the fastener spacings quoted are the 2021 IRC Table R702.3.5 values as corroborated from the reproduced table. Note: this calculator deducts 20 ft² per door; the Paint Calculator deducts 21 ft² — both deliberate conventions, not errors.",
       blocks: [
         {
           type: "paragraph",
@@ -254,6 +260,8 @@ export const drywallConfig: CalculatorConfig = {
     {
       id: "screws-per-sheet-spacing",
       heading: "Screws: how many per sheet, and the spacing they come from",
+      takeaway:
+        "Estimating counts for framing 16 in on center (Material Guides, at ASTM C840 / GA-216 spacing): a 4×8 ft sheet takes 28 screws on walls and 35 on ceilings; 4×10 ft takes 32 and 40; 4×12 ft takes 40 and 50. Ceilings take more because the screws go closer together overhead. The code maximum spacings are 2021 IRC Table R702.3.5 (corroborated from the reproduced table): ceilings 12 in; walls 16 in on 16 in framing, 12 in on 24 in framing; ⅝ in Type X garage ceiling beneath habitable rooms 6 in. There is no separate edge-vs-field screw spacing in that table — the “8 in” figure quoted in earlier research is the nail spacing, not a screw spacing. Screws must be Type W or S (ASTM C1002), penetrating the wood at least ⅝ in. Screws are sold by the pound — about 250 per pound for 1¼ in coarse-thread screws.",
       blocks: [
         {
           type: "paragraph",
@@ -306,6 +314,8 @@ export const drywallConfig: CalculatorConfig = {
     {
       id: "joint-compound-tape-finish-level",
       heading: "Joint compound, tape, and finish level — what the per-gallon figure assumes",
+      takeaway:
+        "Joint compound is estimated at 100 ft² per gallon for a Level 4 three-coat finish — about 0.3 gal per 4×8 ft sheet, or one 4.5 gal pail per 450 ft² (about 14 sheets). USG’s figures support that rate: All Purpose compound about 10 gal per 1,000 ft² and Plus 3 about 9.4 gal per 1,000 ft², both for a standard three-coat job; its guide gives 10.0 gal All Purpose, 9.0 gal Plus 3, and 370 ft of paper tape per 1,000 ft². The 100 ft²/gal figure is for a Level 4 finish only — a Level 5 skim coat takes much more, and no published per-level quantities exist. Corner bead for outside corners is not included.",
       blocks: [
         {
           type: "paragraph",

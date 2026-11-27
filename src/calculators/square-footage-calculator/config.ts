@@ -32,6 +32,8 @@ function areaOutput(shape: SquareFootageShape, v: Record<string, number>) {
 
 export const squareFootageConfig: CalculatorConfig = {
   slug: "square-footage-calculator",
+  designCplus: true,
+  heroResultLabel: "Area",
   lookupTable: {
     note: "Rectangular rooms only — area is length × width.",
     headers: ["Rectangle (L × W)", "Area", "Square yards", "Acres"],

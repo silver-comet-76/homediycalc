@@ -84,6 +84,8 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const baseboardConfig: CalculatorConfig = {
   slug: "baseboard-calculator",
+  designCplus: true,
+  heroResultLabel: "Pieces to buy",
   lookupTable: {
     note: "Assumes 1 door (3 ft wide), 8 ft stock pieces, and 10% waste.",
     headers: [

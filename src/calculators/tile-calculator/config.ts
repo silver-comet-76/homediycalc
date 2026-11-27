@@ -50,6 +50,8 @@ function tileOutput(areaFt2: number, v: Record<string, number>, present: Set<str
 
 export const tileConfig: CalculatorConfig = {
   slug: "tile-calculator",
+  designCplus: true,
+  heroResultLabel: "Boxes needed",
   lookupTable: {
     note: "Assumes 12 × 12 in tiles, a ⅛ in grout joint, 10% waste, and 10 tiles per box.",
     headers: ["Room size", "Area to tile", "Tiles needed", "Boxes needed"],
@@ -98,6 +100,8 @@ export const tileConfig: CalculatorConfig = {
     {
       id: "grout-joint-changes-count",
       heading: "Why the grout joint changes the tile count",
+      takeaway:
+        "Each tile’s footprint includes half a grout joint on each side, so the calculator divides by (tile length + joint) × (tile width + joint), not the tile’s face area: a 12×12 in tile with a ⅛ in joint covers 1.02 ft², not 1.00 ft² — for a 100 ft² floor, 108 tiles with the joint counted and 110 with no joint at all, with 10% waste included in both figures. A wider joint means fewer tiles but more grout. Joint minimums (TCNA guidance as quoted in CUSTOM bulletin TB87): ⅛ in for rectified tile, 3/16 in for calibrated tile, and never under 1/16 in per ANSI A108.02 §4.3.8 — quoted guidance, not a direct TCNA citation.",
       blocks: [
         {
           type: "paragraph",
@@ -120,6 +124,8 @@ export const tileConfig: CalculatorConfig = {
     {
       id: "tiles-per-100-square-feet",
       heading: "Tiles per 100 square feet, by tile size",
+      takeaway:
+        "Sanity-check any tile estimate in tiles per 100 ft² (⅛ in joints, 10% waste, 10 tiles per box): 3×6 in subway needs 828 tiles (83 boxes), 12×12 in needs 108 (11 boxes), 12×24 in needs 55 (6 boxes). The 12×12 row is 108, not 110 — the joint counts. Small tiles need far more pieces. Always read tiles-per-box off the box you buy: if it holds 5 large-format tiles, a 12×24 floor needs 11 boxes, not 6. Raise the 10% waste default to 15% or more for diagonal layouts or patterns such as herringbone.",
       blocks: [
         {
           type: "paragraph",
@@ -156,6 +162,8 @@ export const tileConfig: CalculatorConfig = {
     {
       id: "box-count",
       heading: "What the box count does — and does not — tell you",
+      takeaway:
+        "Boxes are always rounded up: 55 tiles at 10 per box means 6 boxes and 5 spares, and 51 tiles still needs 6 boxes. That rounding is why a small area change sometimes changes nothing — for a 100 ft² floor (12×12 in tile, ⅛ in joint, 10% waste) it is 108 tiles (11 boxes), and a 101 ft² floor needs 109 tiles, still 11 boxes. Do not shave the waste allowance to fit under a box boundary: the waste pays for real cuts, and running one tile short at the last row costs more in a second trip than the box saved.",
       blocks: [
         {
           type: "paragraph",

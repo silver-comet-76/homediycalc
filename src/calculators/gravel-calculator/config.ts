@@ -12,6 +12,8 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const gravelConfig: CalculatorConfig = {
   slug: "gravel-calculator",
+  designCplus: true,
+  heroResultLabel: "Cubic yards to order",
   lookupTable: {
     note: "Assumes a 5% compaction allowance and gravel at 2,800 lb per cubic yard.",
     headers: ["Area (L × W × depth)", "Volume", "Cubic yards to order", "Weight"],

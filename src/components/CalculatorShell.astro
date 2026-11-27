@@ -2,17 +2,33 @@
 import Layout from "./Layout.astro";
 import Breadcrumbs from "./Breadcrumbs.astro";
 import Faq from "./Faq.astro";
+import FormulaSection from "./FormulaSection.astro";
 import { getCategory, getRelatedCalculators, type CalculatorMeta } from "../lib/registry";
-import type { LinkedText } from "../lib/linked-text";
+import type { FaqItem } from "./react/CalculatorConfig";
 
 export interface Props {
   calculator: CalculatorMeta;
   /** Formula explanation in plain language, shown under "How this is calculated". */
   formula?: string;
-  faqs?: { question: string; answer: string | LinkedText }[];
+  faqs?: FaqItem[];
+  /**
+   * Direction C+ (Phase 17B1-UI): compact calculator-first layout.
+   * When true, the summary is tighter, a compact table-of-contents row is
+   * shown above the calculator, the formula is rendered by the page itself
+   * (after the quick-reference table), and the FAQ and related sections
+   * render in their compact forms. Stage 2 sets it on all 26 pages.
+   */
+  cplus?: boolean;
+  /**
+   * Compact table-of-contents items for C+ pages, in page order. Built by
+   * the page, which knows its own sections; hrefs are the stable anchors.
+   * Labels are navigation text (new UI words, counted separately from
+   * original content).
+   */
+  toc?: { href: string; label: string }[];
 }
 
-const { calculator, formula, faqs = [] } = Astro.props;
+const { calculator, formula, faqs = [], cplus = false, toc = [] } = Astro.props;
 const category = getCategory(calculator.category);
 const related = getRelatedCalculators(calculator);
 const crumbs = [
@@ -28,6 +44,7 @@ const crumbs = [
   canonical={calculator.url}
   breadcrumbs={crumbs}
   faqs={faqs}
+  compactNav={cplus}
 >
   <Breadcrumbs items={crumbs} />
   <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
@@ -36,53 +53,75 @@ const crumbs = [
   <p class="mt-2 text-sm text-slate-500">
     Methodology: <a href="/how-we-calculate/" class="underline">How we calculate</a>
   </p>
-  <p class="mt-3 max-w-3xl text-lg text-slate-600">{calculator.summary}</p>
+  <p class={cplus ? "mt-3 max-w-3xl text-slate-600" : "mt-3 max-w-3xl text-lg text-slate-600"}>
+    {calculator.summary}
+  </p>
+
+  {
+    cplus && toc.length > 0 && (
+      <nav
+        aria-label="On this page"
+        class="mt-4 flex gap-x-4 overflow-x-auto border-y border-slate-100 py-2 text-sm whitespace-nowrap"
+      >
+        <span class="shrink-0 font-semibold text-slate-900">On this page:</span>
+        {toc.map((item) => (
+          <a href={item.href} class="shrink-0">
+            {item.label}
+          </a>
+        ))}
+      </nav>
+    )
+  }
 
   <section aria-label="Calculator" class="mt-8">
     <slot name="calculator" />
   </section>
 
   {
-    formula && (
-      <section aria-labelledby="how-calculated" class="mt-10">
-        <h2 id="how-calculated" class="text-2xl font-bold text-slate-900">
-          How this is calculated
-        </h2>
-        <p class="mt-3 max-w-3xl text-slate-700">{formula}</p>
-        <p class="mt-3 max-w-3xl text-slate-700">
-          <a href="/how-we-calculate/" class="underline">How we calculate</a> — the formulas,
-          sources, and limits behind every calculator on this site.
-        </p>
-      </section>
-    )
+    /* Original layout: the formula sits directly under the calculator.
+       C+ pages render it themselves, after the quick-reference table. */
+    !cplus && formula && <FormulaSection formula={formula} />
   }
 
   <slot name="content" />
 
   {
     faqs.length > 0 && (
-      <section aria-labelledby="faq-heading" class="mt-10">
-        <Faq faqs={faqs} />
+      <section aria-labelledby="faq-heading" class={cplus ? "mt-8" : "mt-10"}>
+        <Faq faqs={faqs} compact={cplus} />
       </section>
     )
   }
 
   {
     related.length > 0 && (
-      <section aria-labelledby="related-heading" class="mt-10">
+      <section aria-labelledby="related-heading" class={cplus ? "mt-8" : "mt-10"}>
         <h2 id="related-heading" class="text-2xl font-bold text-slate-900">
           Related calculators
         </h2>
-        <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {related.map((rel) => (
-            <li class="card">
-              <a href={rel.url} class="inline-block py-0.5 leading-6 font-semibold text-slate-900">
-                {rel.name}
-              </a>
-              <p class="mt-1 text-sm text-slate-600">{rel.summary}</p>
-            </li>
-          ))}
-        </ul>
+        {cplus ? (
+          <ul class="mt-3 space-y-3">
+            {related.map((rel) => (
+              <li>
+                <a href={rel.url} class="font-semibold text-slate-900">
+                  {rel.name}
+                </a>
+                <p class="mt-0.5 text-sm text-slate-600">{rel.summary}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((rel) => (
+              <li class="card">
+                <a href={rel.url} class="inline-block py-0.5 leading-6 font-semibold text-slate-900">
+                  {rel.name}
+                </a>
+                <p class="mt-1 text-sm text-slate-600">{rel.summary}</p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     )
   }

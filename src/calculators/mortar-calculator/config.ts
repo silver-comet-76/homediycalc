@@ -163,6 +163,8 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const mortarConfig: CalculatorConfig = {
   slug: "mortar-calculator",
+  designCplus: true,
+  heroResultLabel: "Pre-mixed mortar",
   lookupTable: {
     note: "Assumes modular brick (7⅝ × 2¼ × 3⅝ in), a ⅜ in joint, 15% mortar waste, and Type N site mix (1:1:6).",
     headers: [

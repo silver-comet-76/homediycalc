@@ -58,4 +58,58 @@
   .toggle-pressed::before {
     content: "✓ ";
   }
+
+  /* Direction C+ (Phase 17B1-UI, Stage 1): numbered guide chapters. The
+     number is a CSS counter on the chapter heading — the heading text
+     itself is unchanged, so anchors and text content are unaffected.
+     The .guide wrapper exists only on C+ pages. */
+  .guide {
+    counter-reset: guide-chapter;
+  }
+  .guide .guide-chapter {
+    counter-increment: guide-chapter;
+  }
+  .guide .guide-chapter > h2::before {
+    content: counter(guide-chapter) ". ";
+    color: var(--color-brand-600);
+  }
+
+  /* Direction C+ FAQ accordions: compact bordered rows instead of full
+     cards. The question stays an <h3> inside <summary>, rendered inline
+     next to the disclosure marker, so the heading structure is preserved. */
+  .faq-item {
+    @apply rounded-xl border border-slate-200 bg-white px-4 py-3;
+  }
+  .faq-item summary {
+    @apply cursor-pointer font-semibold text-slate-900;
+  }
+  .faq-item summary h3 {
+    @apply inline text-base font-semibold text-slate-900;
+  }
+
+  /* Direction C+ depth-chapter accordions: the takeaway stays visible;
+     the full chapter text is one click away, server-rendered. */
+  .depth-details {
+    @apply mt-3;
+  }
+  .depth-details summary {
+    @apply cursor-pointer text-sm font-semibold text-brand-700;
+  }
+}
+
+/* Direction C+ (Phase 17B1-UI, Stage 1): compact mobile header. On narrow
+   screens the main and category navs stay on one horizontally scrollable
+   row instead of wrapping tall. Unlayered so it overrides the flex-wrap
+   utility. Only applies when Layout receives compactNav (C+ pages). */
+@media (max-width: 639px) {
+  .compact-nav .main-nav,
+  .compact-nav .category-nav-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .compact-nav .main-nav a,
+  .compact-nav .category-nav-list a {
+    white-space: nowrap;
+  }
 }

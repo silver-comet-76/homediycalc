@@ -3,8 +3,19 @@
  * Registry-driven calculator pages (one dynamic route, per
  * ARCHITECTURE.md §13 — not 26 static files). getStaticPaths emits
  * every slug with a config — all 26 calculators (25 from Phase 4, plus Stair in Phase 15).
+ *
+ * Direction C+ (Phase 17B1-UI, Stage 2 full rollout) renders on all 26
+ * pages whose config sets designCplus. The non-C+ branch below is the
+ * original layout, retained (unrendered) so the rollout stays
+ * reversible; removing it is a separate owner decision. C+ changes: the
+ * lookup table moves directly below the results (before the guide), the
+ * formula follows it, guide chapters are numbered, long depth chapters
+ * collapse behind a verified takeaway (full text in a native <details>),
+ * and the worked example renders as a distinct card. No original text
+ * is changed.
  */
 import CalculatorShell from "../../components/CalculatorShell.astro";
+import FormulaSection from "../../components/FormulaSection.astro";
 import LinkedText from "../../components/LinkedText.astro";
 import MeasurementDiagram from "../../components/MeasurementDiagram.astro";
 import { GenericCalculator } from "../../components/react/GenericCalculator";
@@ -21,9 +32,37 @@ const config = slug ? CALCULATOR_CONFIGS[slug] : undefined;
 if (!calculator || !config) {
   throw new Error(`Unknown calculator slug: ${slug}`);
 }
+
+const cplus = config.designCplus === true;
+
+// Compact table of contents for C+ pages, in page order. Labels are the
+// section headings themselves (navigation text, counted separately from
+// original content); hrefs are the stable anchors. Guide chapters are
+// numbered from 3 — "How to measure" is chapter 1, "Worked example" is 2.
+const toc = cplus
+  ? [
+      ...(config.lookupTable ? [{ href: "#common-sizes", label: "Quick reference" }] : []),
+      ...(config.formula ? [{ href: "#how-calculated", label: "How this is calculated" }] : []),
+      { href: "#how-to-measure", label: "How to measure" },
+      { href: "#worked-example", label: "Worked example" },
+      ...(config.depthSections ?? []).map((section, i) => ({
+        href: `#${section.id}`,
+        label: `${i + 3}. ${section.heading}`,
+      })),
+      { href: "#limitations", label: "Limitations" },
+      ...(config.faqs.length > 0 ? [{ href: "#faq-heading", label: "FAQ" }] : []),
+      { href: "#related-heading", label: "Related calculators" },
+    ]
+  : [];
 ---
 
-<CalculatorShell calculator={calculator} formula={config.formula} faqs={config.faqs}>
+<CalculatorShell
+  calculator={calculator}
+  formula={config.formula}
+  faqs={config.faqs}
+  cplus={cplus}
+  toc={toc}
+>
   <GenericCalculator
     slot="calculator"
     slug={slug}
@@ -31,39 +70,18 @@ if (!calculator || !config) {
     client:load
   />
 
-  <section slot="content" aria-labelledby="how-to-measure" class="mt-10">
-    {
-      config.diagram && (
-        <MeasurementDiagram kind={config.diagram} />
-      )
-    }
-    <h2 id="how-to-measure" class="text-2xl font-bold text-slate-900">
-      How to measure
-    </h2>
-    <ol class="mt-3 max-w-3xl list-decimal space-y-2 pl-6 text-slate-700">
-      {config.howTo.map((step) => (
-        <li>{typeof step === "string" ? step : <LinkedText text={step} />}</li>
-      ))}
-    </ol>
-  </section>
-
-  <section slot="content" aria-labelledby="worked-example" class="mt-10">
-    <h2 id="worked-example" class="text-2xl font-bold text-slate-900">
-      Worked example
-    </h2>
-    <p class="mt-3 max-w-3xl text-slate-700">{config.workedExample}</p>
-  </section>
-
   {
-    config.lookupTable && (
-      <section slot="content" aria-labelledby="common-sizes" class="mt-10">
+    /* C+: the lookup table sits directly below the results, and the
+       formula follows it (the shell skips the formula when cplus). */
+    cplus && config.lookupTable && (
+      <section slot="content" aria-labelledby="common-sizes" class="mt-8">
         <h2 id="common-sizes" class="text-2xl font-bold text-slate-900">
           Common sizes
         </h2>
         <p class="mt-3 max-w-3xl text-slate-700">
           Typical values worked out with this calculator — find the size closest to yours.
         </p>
-        <div class="mt-4 overflow-x-auto">
+        <div class="mt-4 overflow-x-auto" tabindex="0">
           <table class="w-full max-w-3xl border-collapse border border-slate-200 text-sm">
             <thead>
               <tr>
@@ -99,20 +117,158 @@ if (!calculator || !config) {
       </section>
     )
   }
+  {cplus && config.formula && <FormulaSection slot="content" formula={config.formula} />}
 
   {
-    config.depthSections?.map((section) => (
-      <section slot="content" aria-labelledby={section.id} class="mt-10">
-        <h2 id={section.id} class="text-2xl font-bold text-slate-900">
-          {section.heading}
-        </h2>
-        {section.blocks.map((block) =>
-          block.type === "table" ? (
+    cplus ? (
+      <div class="guide" slot="content">
+        <section class="guide-chapter mt-8" aria-labelledby="how-to-measure">
+          {config.diagram && <MeasurementDiagram kind={config.diagram} />}
+          <h2 id="how-to-measure" class="text-2xl font-bold text-slate-900">
+            How to measure
+          </h2>
+          <ol class="mt-3 max-w-3xl list-decimal space-y-2 pl-6 text-slate-700">
+            {config.howTo.map((step) => (
+              <li>{typeof step === "string" ? step : <LinkedText text={step} />}</li>
+            ))}
+          </ol>
+        </section>
+
+        <section class="guide-chapter mt-8" aria-labelledby="worked-example">
+          <h2 id="worked-example" class="text-2xl font-bold text-slate-900">
+            Worked example
+          </h2>
+          <div class="mt-3 max-w-3xl rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <p class="text-slate-700">{config.workedExample}</p>
+          </div>
+        </section>
+
+        {config.depthSections?.map((section) =>
+          section.takeaway ? (
+            <section class="guide-chapter mt-8" aria-labelledby={section.id}>
+              <h2 id={section.id} class="text-2xl font-bold text-slate-900">
+                {section.heading}
+              </h2>
+              <p class="mt-3 max-w-3xl font-medium text-slate-800">{section.takeaway}</p>
+              <details class="depth-details">
+                <summary>Read the full explanation</summary>
+                {section.blocks.map((block) =>
+                  block.type === "table" ? (
+                    <div class="mt-4 overflow-x-auto" tabindex="0">
+                      <table class="w-full max-w-3xl border-collapse border border-slate-200 text-sm">
+                        <thead>
+                          <tr>
+                            {block.headers.map((header) => (
+                              <th class="border border-slate-200 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-900">
+                                {header}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {block.rows.map((row) => (
+                            <tr>
+                              {row.map((cell, index) => (
+                                <td class="border border-slate-200 px-3 py-2 text-slate-700">
+                                  {index === 0 ? (
+                                    <strong class="font-semibold text-slate-900">{cell}</strong>
+                                  ) : (
+                                    cell
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p class="mt-3 max-w-3xl text-slate-700">
+                      <LinkedText text={block.text} />
+                    </p>
+                  ),
+                )}
+              </details>
+            </section>
+          ) : (
+            <section class="guide-chapter mt-8" aria-labelledby={section.id}>
+              <h2 id={section.id} class="text-2xl font-bold text-slate-900">
+                {section.heading}
+              </h2>
+              {section.blocks.map((block) =>
+                block.type === "table" ? (
+                  <div class="mt-4 overflow-x-auto" tabindex="0">
+                    <table class="w-full max-w-3xl border-collapse border border-slate-200 text-sm">
+                      <thead>
+                        <tr>
+                          {block.headers.map((header) => (
+                            <th class="border border-slate-200 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-900">
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {block.rows.map((row) => (
+                          <tr>
+                            {row.map((cell, index) => (
+                              <td class="border border-slate-200 px-3 py-2 text-slate-700">
+                                {index === 0 ? (
+                                  <strong class="font-semibold text-slate-900">{cell}</strong>
+                                ) : (
+                                  cell
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p class="mt-3 max-w-3xl text-slate-700">
+                    <LinkedText text={block.text} />
+                  </p>
+                ),
+              )}
+            </section>
+          ),
+        )}
+      </div>
+    ) : (
+      <>
+        <section slot="content" aria-labelledby="how-to-measure" class="mt-10">
+          {config.diagram && <MeasurementDiagram kind={config.diagram} />}
+          <h2 id="how-to-measure" class="text-2xl font-bold text-slate-900">
+            How to measure
+          </h2>
+          <ol class="mt-3 max-w-3xl list-decimal space-y-2 pl-6 text-slate-700">
+            {config.howTo.map((step) => (
+              <li>{typeof step === "string" ? step : <LinkedText text={step} />}</li>
+            ))}
+          </ol>
+        </section>
+
+        <section slot="content" aria-labelledby="worked-example" class="mt-10">
+          <h2 id="worked-example" class="text-2xl font-bold text-slate-900">
+            Worked example
+          </h2>
+          <p class="mt-3 max-w-3xl text-slate-700">{config.workedExample}</p>
+        </section>
+
+        {config.lookupTable && (
+          <section slot="content" aria-labelledby="common-sizes" class="mt-10">
+            <h2 id="common-sizes" class="text-2xl font-bold text-slate-900">
+              Common sizes
+            </h2>
+            <p class="mt-3 max-w-3xl text-slate-700">
+              Typical values worked out with this calculator — find the size closest to yours.
+            </p>
             <div class="mt-4 overflow-x-auto">
               <table class="w-full max-w-3xl border-collapse border border-slate-200 text-sm">
                 <thead>
                   <tr>
-                    {block.headers.map((header) => (
+                    {config.lookupTable.headers.map((header) => (
                       <th class="border border-slate-200 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-900">
                         {header}
                       </th>
@@ -120,15 +276,11 @@ if (!calculator || !config) {
                   </tr>
                 </thead>
                 <tbody>
-                  {block.rows.map((row) => (
+                  {config.lookupTable.rows.map((row) => (
                     <tr>
                       {row.map((cell, index) => (
                         <td class="border border-slate-200 px-3 py-2 text-slate-700">
-                          {index === 0 ? (
-                            <strong class="font-semibold text-slate-900">{cell}</strong>
-                          ) : (
-                            cell
-                          )}
+                          {index === 0 ? <strong class="font-semibold text-slate-900">{cell}</strong> : cell}
                         </td>
                       ))}
                     </tr>
@@ -136,17 +288,66 @@ if (!calculator || !config) {
                 </tbody>
               </table>
             </div>
-          ) : (
-            <p class="mt-3 max-w-3xl text-slate-700">
-              <LinkedText text={block.text} />
-            </p>
-          ),
+            {config.lookupTable.note && (
+              <p class="mt-3 max-w-3xl text-sm text-slate-600">
+                {typeof config.lookupTable.note === "string" ? (
+                  config.lookupTable.note
+                ) : (
+                  <LinkedText text={config.lookupTable.note} />
+                )}
+              </p>
+            )}
+          </section>
         )}
-      </section>
-    ))
+
+        {config.depthSections?.map((section) => (
+          <section slot="content" aria-labelledby={section.id} class="mt-10">
+            <h2 id={section.id} class="text-2xl font-bold text-slate-900">
+              {section.heading}
+            </h2>
+            {section.blocks.map((block) =>
+              block.type === "table" ? (
+                <div class="mt-4 overflow-x-auto">
+                  <table class="w-full max-w-3xl border-collapse border border-slate-200 text-sm">
+                    <thead>
+                      <tr>
+                        {block.headers.map((header) => (
+                          <th class="border border-slate-200 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-900">
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {block.rows.map((row) => (
+                        <tr>
+                          {row.map((cell, index) => (
+                            <td class="border border-slate-200 px-3 py-2 text-slate-700">
+                              {index === 0 ? (
+                                <strong class="font-semibold text-slate-900">{cell}</strong>
+                              ) : (
+                                cell
+                              )}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p class="mt-3 max-w-3xl text-slate-700">
+                  <LinkedText text={block.text} />
+                </p>
+              ),
+            )}
+          </section>
+        ))}
+      </>
+    )
   }
 
-  <section slot="content" aria-labelledby="limitations" class="mt-10">
+  <section slot="content" aria-labelledby="limitations" class={cplus ? "mt-8" : "mt-10"}>
     <h2 id="limitations" class="text-2xl font-bold text-slate-900">
       Limitations
     </h2>

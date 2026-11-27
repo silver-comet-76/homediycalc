@@ -12,6 +12,8 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const mulchConfig: CalculatorConfig = {
   slug: "mulch-calculator",
+  designCplus: true,
+  heroResultLabel: "Bags to buy",
   lookupTable: {
     note: "Assumes a 5% settling allowance and 2 ft³ bags.",
     headers: ["Bed (L × W × depth)", "Volume", "Bulk yards to order", "Bags to buy"],
@@ -52,6 +54,9 @@ export const mulchConfig: CalculatorConfig = {
     },
     {
       question: "How deep should mulch be?",
+      // Safety-critical and appears nowhere else in default-visible
+      // content, so this FAQ stays open by default.
+      openByDefault: true,
       answer:
         "2–3 inches is the usual recommendation for weed suppression and moisture retention. Less than 2 in does little; more than 4 in can suffocate roots and hold too much water. Fresh beds start at 3 in because mulch settles.",
     },

@@ -101,6 +101,8 @@ function liquidOutput(areaFt2: number, v: Record<string, number>, present: Set<s
 
 export const waterproofingConfig: CalculatorConfig = {
   slug: "waterproofing-calculator",
+  designCplus: true,
+  heroResultLabel: "Containers to buy",
   lookupTable: {
     note: "Assumes a liquid membrane, 2 coats at 110 ft²/gal per coat, 1 gal containers, and 10% waste.",
     headers: ["Room size", "Membrane needed", "Containers to buy", "Liters to buy"],

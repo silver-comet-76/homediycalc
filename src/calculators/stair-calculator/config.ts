@@ -13,6 +13,9 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const stairConfig: CalculatorConfig = {
   slug: "stair-calculator",
+  designCplus: true,
+  heroResultLabel: "Risers",
+  diagram: "stair",
   lookupTable: {
     note: "Assumes a 10.5 in tread depth and a 7.75 in maximum riser height (IRC R311.7.5.1/R311.7.5.2).",
     headers: ["Total rise", "Risers", "Treads", "Total run", "Stringer length", "Stair angle"],
@@ -58,6 +61,8 @@ export const stairConfig: CalculatorConfig = {
     {
       id: "how-riser-count-is-decided",
       heading: "How the riser count is decided (and why it always rounds up)",
+      takeaway:
+        "Risers = total rise ÷ maximum riser height, rounded up so no riser exceeds 7.75 in; every riser is then the same height, which also satisfies the IRC rule that risers stay within ⅜ in of each other — and a shorter riser always costs floor space.",
       blocks: [
         {
           type: "paragraph",
@@ -94,6 +99,8 @@ export const stairConfig: CalculatorConfig = {
     {
       id: "metric-display",
       heading: "Metric display — the same staircase in centimeters",
+      takeaway:
+        "The calculator works in canonical inches and converts only for display, so metric and imperial describe the same staircase — but 19.685 cm is the maximum riser height, not the tread depth, and swapping them would be rejected.",
       blocks: [
         {
           type: "paragraph",
@@ -169,6 +176,10 @@ export const stairConfig: CalculatorConfig = {
     },
     {
       question: "How deep should stair treads be?",
+      // QA-17B1-UI-01: the nosing requirements below (R311.7.5.3) are
+      // safety-critical and appear nowhere else in default-visible
+      // content, so this FAQ stays open by default.
+      openByDefault: true,
       answer:
         "At least 10 in under the 2021 IRC (R311.7.5.2); 10.5–11 in is comfortable for most feet. Tread depth is measured horizontally between the vertical planes of the foremost projection of adjacent treads — the nosing tip is the foremost projection, so the nosing is included in the 10 in, not added on top of it. On stairs with solid risers and treads under 11 in deep, the IRC requires a nosing projecting ¾ in to 1-¼ in past the riser below (R311.7.5.3); no nosing is required once the tread is 11 in or deeper.",
     },

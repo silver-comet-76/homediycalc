@@ -142,6 +142,8 @@ const COMMON_FIELDS: FieldSpec[] = [
 
 export const ceilingTileConfig: CalculatorConfig = {
   slug: "ceiling-tile-calculator",
+  designCplus: true,
+  heroResultLabel: "Cartons to buy",
   lookupTable: {
     note: "Assumes 2 × 2 ft tiles, 10% waste, and the standard 16 tiles per carton.",
     headers: [
@@ -248,6 +250,9 @@ export const ceilingTileConfig: CalculatorConfig = {
     },
     {
       question: "Can I replace ceiling tiles without replacing the grid?",
+      // Safety-critical and appears nowhere else in default-visible
+      // content, so this FAQ stays open by default.
+      openByDefault: true,
       answer:
         "Yes, if the grid is sound and the new tiles are the same size. Use the Known area mode — it counts tiles and cartons only, with no grid components. Check that the old grid is level and the tees are not bent or rusted first.",
     },

@@ -449,189 +449,203 @@ export function GenericCalculator({ slug, calculatorName }: GenericCalculatorPro
     window.setTimeout(() => setSaved(false), 3000);
   }
 
-  return (
-    <div className="card" data-hydrated={hydrated ? "true" : undefined}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <UnitToggle value={system} onChange={switchSystem} />
-        <button type="button" onClick={reset} className="btn-secondary px-3 py-1.5 text-sm">
-          Reset
-        </button>
-      </div>
-
-      {config.modes.length > 1 ? (
-        <fieldset className="mt-5">
-          <legend className="label">Calculation method</legend>
-          <div className="flex flex-wrap gap-2">
-            {config.modes.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                aria-pressed={modeId === m.id}
-                onClick={() => switchMode(m.id)}
-                className={
-                  modeId === m.id
-                    ? "toggle-pressed rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
-                    : "rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
-                }
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-        </fieldset>
+  /**
+   * Result block (warnings + results + worked line + actions). Rendered
+   * inside the inputs card in the original layout; Direction C+ renders
+   * it as a separated sibling card below the inputs (audit F8).
+   */
+  const cplus = config.designCplus === true;
+  const resultBlock = result ? (
+    <>
+      {result.warnings && result.warnings.length > 0 ? (
+        <div className="mb-4 space-y-2">
+          {result.warnings.map((warning) => (
+            <p
+              key={warning}
+              role="alert"
+              className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900"
+            >
+              {warning}
+            </p>
+          ))}
+        </div>
       ) : null}
-
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        {mode.fields.map((field) =>
-          field.kind === "select" ? (
-            <div key={field.id}>
-              <label htmlFor={`${config.slug}-${mode.id}-${field.id}`} className="label">
-                {field.label}
-              </label>
-              <select
-                id={`${config.slug}-${mode.id}-${field.id}`}
-                value={values[field.id] ?? ""}
-                onChange={(event) => handleFieldChange(field, event.target.value)}
-                aria-invalid={errors[field.id] ? true : undefined}
-                aria-describedby={
-                  errors[field.id]
-                    ? `${config.slug}-${mode.id}-${field.id}-error`
-                    : field.hint
-                      ? `${config.slug}-${mode.id}-${field.id}-hint`
-                      : undefined
-                }
-                className="input-field"
-              >
-                {(field.options ?? []).map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              {errors[field.id] ? (
-                <p
-                  id={`${config.slug}-${mode.id}-${field.id}-error`}
-                  role="alert"
-                  className="mt-1 text-sm font-medium text-red-700"
-                >
-                  {errors[field.id]}
-                </p>
-              ) : field.hint ? (
-                <p
-                  id={`${config.slug}-${mode.id}-${field.id}-hint`}
-                  className="mt-1 text-sm text-slate-500"
-                >
-                  {field.hint}
-                </p>
-              ) : null}
-            </div>
-          ) : (
-            <div key={field.id}>
-              <NumberInput
-                id={`${config.slug}-${mode.id}-${field.id}`}
-                label={field.label}
-                value={values[field.id] ?? ""}
-                onChange={(value) => handleFieldChange(field, value)}
-                unit={field.unitKind ? fieldUnits[field.id] : undefined}
-                error={errors[field.id]}
-                hint={field.hint}
-                required={!field.optional}
-              />
-              {field.allowUnitSelect && field.unitOptions ? (
-                <label className="mt-1 block text-sm text-slate-600">
-                  Unit for {field.label.toLowerCase()}:{" "}
-                  <select
-                    aria-label={`${field.label} unit`}
-                    value={fieldUnits[field.id] ?? ""}
-                    onChange={(event) => changeFieldUnit(field, event.target.value)}
-                    className="rounded-md border border-slate-300 px-2 py-1 text-sm"
-                  >
-                    {field.unitOptions.map((unit) => (
-                      <option key={unit} value={unit}>
-                        {unit}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : null}
-            </div>
-          ),
-        )}
+      <ResultPanel
+        title="Results"
+        rows={
+          result.costUsd !== undefined
+            ? [
+                ...result.rows,
+                {
+                  label: result.costLabel ?? "Estimated cost",
+                  value: `$${result.costUsd.toFixed(2)}`,
+                  detail: result.costDetail ?? "From the prices you entered only.",
+                },
+              ]
+            : result.rows
+        }
+        note={
+          result.note ??
+          "Package quantities are always rounded up — you are never told to buy less than you need."
+        }
+        shoppingList={shoppingList}
+        onCopyShoppingList={copyShoppingList}
+        heroFirstRow={cplus}
+        heroRowLabel={config.heroResultLabel}
+      />
+      {result.workedLine ? (
+        <p className="mt-3 text-sm text-slate-600">
+          <span className="font-semibold text-slate-700">Your calculation: </span>
+          {result.workedLine}
+        </p>
+      ) : null}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button type="button" onClick={addToProject} className="btn-primary">
+          Add to Project
+        </button>
+        {copied ? (
+          <p role="status" className="text-sm font-medium text-green-700">
+            Shopping list copied.
+          </p>
+        ) : null}
+        {copyFailed ? (
+          <p role="status" className="text-sm font-medium text-red-700">
+            Copy did not work in this browser — select the list text manually.
+          </p>
+        ) : null}
+        {saved ? (
+          <p role="status" className="text-sm font-medium text-green-700">
+            Saved to{" "}
+            <a href="/my-project/" className="font-semibold">
+              My Project
+            </a>
+            .
+          </p>
+        ) : null}
       </div>
+    </>
+  ) : null;
 
-      {result ? (
-        <div className="mt-6">
-          {result.warnings && result.warnings.length > 0 ? (
-            <div className="mb-4 space-y-2">
-              {result.warnings.map((warning) => (
-                <p
-                  key={warning}
-                  role="alert"
-                  className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900"
+  return (
+    <>
+      <div className="card" data-hydrated={hydrated ? "true" : undefined}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <UnitToggle value={system} onChange={switchSystem} />
+          <button type="button" onClick={reset} className="btn-secondary px-3 py-1.5 text-sm">
+            Reset
+          </button>
+        </div>
+
+        {config.modes.length > 1 ? (
+          <fieldset className="mt-5">
+            <legend className="label">Calculation method</legend>
+            <div className="flex flex-wrap gap-2">
+              {config.modes.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  aria-pressed={modeId === m.id}
+                  onClick={() => switchMode(m.id)}
+                  className={
+                    modeId === m.id
+                      ? "toggle-pressed rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+                      : "rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+                  }
                 >
-                  {warning}
-                </p>
+                  {m.label}
+                </button>
               ))}
             </div>
-          ) : null}
-          <ResultPanel
-            title="Results"
-            rows={
-              result.costUsd !== undefined
-                ? [
-                    ...result.rows,
-                    {
-                      label: result.costLabel ?? "Estimated cost",
-                      value: `$${result.costUsd.toFixed(2)}`,
-                      detail: result.costDetail ?? "From the prices you entered only.",
-                    },
-                  ]
-                : result.rows
-            }
-            note={
-              result.note ??
-              "Package quantities are always rounded up — you are never told to buy less than you need."
-            }
-            shoppingList={shoppingList}
-            onCopyShoppingList={copyShoppingList}
-          />
-          {result.workedLine ? (
-            <p className="mt-3 text-sm text-slate-600">
-              <span className="font-semibold text-slate-700">Your calculation: </span>
-              {result.workedLine}
-            </p>
-          ) : null}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <button type="button" onClick={addToProject} className="btn-primary">
-              Add to Project
-            </button>
-            {copied ? (
-              <p role="status" className="text-sm font-medium text-green-700">
-                Shopping list copied.
-              </p>
-            ) : null}
-            {copyFailed ? (
-              <p role="status" className="text-sm font-medium text-red-700">
-                Copy did not work in this browser — select the list text manually.
-              </p>
-            ) : null}
-            {saved ? (
-              <p role="status" className="text-sm font-medium text-green-700">
-                Saved to{" "}
-                <a href="/my-project/" className="font-semibold">
-                  My Project
-                </a>
-                .
-              </p>
-            ) : null}
-          </div>
+          </fieldset>
+        ) : null}
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          {mode.fields.map((field) =>
+            field.kind === "select" ? (
+              <div key={field.id}>
+                <label htmlFor={`${config.slug}-${mode.id}-${field.id}`} className="label">
+                  {field.label}
+                </label>
+                <select
+                  id={`${config.slug}-${mode.id}-${field.id}`}
+                  value={values[field.id] ?? ""}
+                  onChange={(event) => handleFieldChange(field, event.target.value)}
+                  aria-invalid={errors[field.id] ? true : undefined}
+                  aria-describedby={
+                    errors[field.id]
+                      ? `${config.slug}-${mode.id}-${field.id}-error`
+                      : field.hint
+                        ? `${config.slug}-${mode.id}-${field.id}-hint`
+                        : undefined
+                  }
+                  className="input-field"
+                >
+                  {(field.options ?? []).map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                {errors[field.id] ? (
+                  <p
+                    id={`${config.slug}-${mode.id}-${field.id}-error`}
+                    role="alert"
+                    className="mt-1 text-sm font-medium text-red-700"
+                  >
+                    {errors[field.id]}
+                  </p>
+                ) : field.hint ? (
+                  <p
+                    id={`${config.slug}-${mode.id}-${field.id}-hint`}
+                    className="mt-1 text-sm text-slate-500"
+                  >
+                    {field.hint}
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <div key={field.id}>
+                <NumberInput
+                  id={`${config.slug}-${mode.id}-${field.id}`}
+                  label={field.label}
+                  value={values[field.id] ?? ""}
+                  onChange={(value) => handleFieldChange(field, value)}
+                  unit={field.unitKind ? fieldUnits[field.id] : undefined}
+                  error={errors[field.id]}
+                  hint={field.hint}
+                  required={!field.optional}
+                />
+                {field.allowUnitSelect && field.unitOptions ? (
+                  <label className="mt-1 block text-sm text-slate-600">
+                    Unit for {field.label.toLowerCase()}:{" "}
+                    <select
+                      aria-label={`${field.label} unit`}
+                      value={fieldUnits[field.id] ?? ""}
+                      onChange={(event) => changeFieldUnit(field, event.target.value)}
+                      className="rounded-md border border-slate-300 px-2 py-1 text-sm"
+                    >
+                      {field.unitOptions.map((unit) => (
+                        <option key={unit} value={unit}>
+                          {unit}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
+              </div>
+            ),
+          )}
         </div>
-      ) : (
-        <p className="mt-6 text-slate-600">
-          Enter your measurements above to see results. Fix any highlighted fields first — a result
-          is only shown when every required input is valid.
-        </p>
-      )}
-    </div>
+
+        {!cplus && result ? <div className="mt-6">{resultBlock}</div> : null}
+        {!result ? (
+          <p className="mt-6 text-slate-600">
+            Enter your measurements above to see results. Fix any highlighted fields first — a
+            result is only shown when every required input is valid.
+          </p>
+        ) : null}
+      </div>
+      {cplus && result ? <div className="mt-4">{resultBlock}</div> : null}
+    </>
   );
 }

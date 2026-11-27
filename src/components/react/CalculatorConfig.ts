@@ -31,13 +31,23 @@ export interface DepthSection {
   id: string;
   heading: string;
   blocks: DepthBlock[];
+  /**
+   * Concise verified summary of the chapter (Direction C+, Stage 1).
+   * Shown with the heading when the chapter is collapsed; the full
+   * blocks stay in the accordion below it. Must condense the chapter's
+   * own text — no new claims, and every number in it must also appear
+   * in the chapter (enforced by src/calculators/ui-stage1.test.ts).
+   * A chapter without a takeaway stays fully expanded.
+   */
+  takeaway?: string;
 }
 
 export type FieldKind =
   "length" | "area" | "volume" | "number" | "count" | "percent" | "price" | "select";
 
 /** Kinds of SVG measurement diagram the shared component can draw. */
-export type DiagramKind = "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board";
+export type DiagramKind =
+  "area" | "volume" | "wall" | "ceiling" | "joint" | "linear" | "board" | "stair";
 
 export type UnitKind = "length" | "area" | "volume" | "coverage";
 
@@ -159,6 +169,14 @@ export interface FaqItem {
   question: string;
   /** Answer text; may carry inline links (LinkedText). */
   answer: string | LinkedText;
+  /**
+   * Open this FAQ by default in the compact (C+) accordion layout
+   * (QA-17B1-UI-01). Safety-critical answers must be default-visible
+   * and must not rely on the user opening an accordion. The first FAQ
+   * is always open by default; this flag opens additional ones.
+   * Only the Stair nosing FAQ sets it (Stage 1).
+   */
+  openByDefault?: boolean;
 }
 
 /**
@@ -213,4 +231,24 @@ export interface CalculatorConfig {
    * calculator stays above the fold; these sections must not push it down.
    */
   depthSections?: DepthSection[];
+  /**
+   * Direction C+ layout (Phase 17B1-UI). When true, the page renders
+   * the compact calculator-first layout: compact TOC row, quick
+   * reference under the results, numbered guide chapters, long-chapter
+   * accordions, FAQ accordions, compact related list, compact mobile
+   * nav. Stage 2 (full rollout) sets it on all 26 calculators; the
+   * flag and the original-layout branch are retained so the rollout
+   * stays reversible, and removing them is a separate owner decision.
+   */
+  designCplus?: boolean;
+  /**
+   * Label of the result row to emphasize (hero-sized) in the C+ layout
+   * (QA-17B1-UI corrective round, Result Hero refinement). The emphasis
+   * is presentation-only and independent of row order — the first row
+   * is not always the most important result. When unset, the first row
+   * is emphasized. Must match a row label the calculator actually
+   * returns (enforced by src/calculators/ui-stage1.test.ts). Stage 2
+   * sets it on all 26 calculators.
+   */
+  heroResultLabel?: string;
 }

@@ -12,6 +12,8 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const brickConfig: CalculatorConfig = {
   slug: "brick-calculator",
+  designCplus: true,
+  heroResultLabel: "Bricks needed",
   lookupTable: {
     note: "Assumes a solid wall with no openings, standard modular brick (7⅝ × 2¼ × 3⅝ in), a ⅜ in mortar joint, 5% brick waste, 15% mortar waste, and 37 bricks per 80 lb mortar bag.",
     headers: [

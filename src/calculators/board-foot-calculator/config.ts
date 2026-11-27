@@ -14,6 +14,8 @@ const fmt = (n: number, d = 2) => formatNumber(n, d);
 
 export const boardFootConfig: CalculatorConfig = {
   slug: "board-foot-calculator",
+  designCplus: true,
+  heroResultLabel: "Total board feet",
   lookupTable: {
     note: "Assumes 10 pieces and a 5% cutting waste allowance.",
     headers: ["Boards", "Board feet per piece", "Total board feet", "Volume"],
