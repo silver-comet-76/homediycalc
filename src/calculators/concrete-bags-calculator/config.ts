@@ -140,8 +140,119 @@ export const concreteBagsConfig: CalculatorConfig = {
     "At $6, $5, and $4 per bag respectively, the 80 lb bags are cheapest at $300.",
   limitations: [
     "Bag yields are for QUIKRETE Concrete Mix No. 1101. Other brands and mixes (fast-setting, high-strength, fiber-reinforced) have different yields — check the bag.",
-    "Bagged concrete is practical up to about 1–2 cubic yards. Above that, ready-mix delivered by truck is usually cheaper and much less work — see the Concrete Calculator.",
+    [
+      {
+        text: "Bagged concrete is practical up to about 1–2 cubic yards. Above that, ready-mix delivered by truck is usually cheaper and much less work — see the ",
+      },
+      { text: "Concrete Calculator", calc: "concrete-calculator" },
+      { text: "." },
+    ],
     "Does not include reinforcement (rebar or wire mesh), formwork, or finishing tools.",
+  ],
+  depthSections: [
+    {
+      id: "how-many-80-lb-bags",
+      heading: "How many 80 lb bags make one cubic yard? 45 — and what that number leaves out",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            { text: "45 bags.", strong: true },
+            {
+              text: " One cubic yard is 27 cubic feet, and one 80 lb bag of QUIKRETE Concrete Mix No. 1101 yields approximately 0.60 cubic feet, so 27 ÷ 0.60 = 45 bags. That is the theoretical count: the number of bags whose combined yield exactly fills one cubic yard, with no waste, no spillage, and no over-excavation. It is the right answer to the question as asked, and it is the wrong number to buy. With the calculator's usual 10% waste allowance, the volume to fill is 27 × 1.10 = 29.7 ft³, and 29.7 ÷ 0.60 = 49.5, rounded up to ",
+            },
+            { text: "50 bags", strong: true },
+            {
+              text: '. Quoting 45 bags as a purchase quantity understates the job by 5 bags. The distinction is the single most common error in bagged-concrete estimating, and it is why this page shows both numbers: the theoretical count tells you the yield; the purchase count tells you what to buy. The yield figure itself comes from the manufacturer\'s data sheet — QUIKRETE Concrete Mix No. 1101, revised October 2022 — and the word on the sheet is "approximately", because the yield of a bag depends on how much water is added and how the mix is placed. Check the bag you buy; if its yield differs, the count changes with it.',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "bags-per-cubic-yard-all-sizes",
+      heading: "Bags per cubic yard, all sizes — theoretical vs to buy",
+      blocks: [
+        {
+          type: "table",
+          headers: [
+            "Bag size",
+            "Yield per bag (QUIKRETE No. 1101)",
+            "Theoretical bags per yd³ (no waste)",
+            "Bags to buy per yd³ (10% waste)",
+          ],
+          rows: [
+            ["40 lb", "approx. 0.30 ft³", "90 (27 ÷ 0.30)", "99 (29.7 ÷ 0.30)"],
+            [
+              "50 lb",
+              "approx. 0.375 ft³",
+              "72 (27 ÷ 0.375)",
+              "80 (29.7 ÷ 0.375 = 79.2, rounded up)",
+            ],
+            ["60 lb", "approx. 0.45 ft³", "60 (27 ÷ 0.45)", "66 (29.7 ÷ 0.45)"],
+            ["80 lb", "approx. 0.60 ft³", "45 (27 ÷ 0.60)", "50 (29.7 ÷ 0.60 = 49.5, rounded up)"],
+            ["90 lb", "approx. 0.675 ft³", "40 (27 ÷ 0.675)", "44 (29.7 ÷ 0.675)"],
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "The calculator itself offers 40, 60, and 80 lb bags, which are the sizes most stores stock; the 50 lb and 90 lb rows are included here because QUIKRETE's data sheet lists them (the 90 lb bag is regional availability) and because a reader whose store stocks them should not have to guess. Do ",
+            },
+            { text: "not", strong: true },
+            {
+              text: " generalize the 45 figure to other products: 45 bags per yard is true of an 80 lb bag that yields 0.60 ft³. A fast-setting mix, a high-strength mix, or a different brand's 80 lb bag can yield something else entirely, and its bags-per-yard figure follows its own yield, not this one. The data sheet's yields are for QUIKRETE Concrete Mix No. 1101 only. Other QUIKRETE products (such as its 5000 mix and its fast-setting mix) have their own data sheets, which were not verified for this page — check the bag.",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            { text: "Pick one size and buy that count.", strong: true },
+            {
+              text: " The three counts the calculator returns are alternatives for the same volume, not a combined shopping list. Which size is actually cheapest depends on the prices at your store, not on the bag size: enter the prices for each size and the calculator highlights the cheapest option from the prices you entered. The cheapest per yard is not the cheapest per bag, and the cheapest option is not the easiest to carry — at 50 bags, the 80 lb option is 4,000 lb of material to move.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "coverage-per-bag-by-thickness",
+      heading: "Coverage per bag, by thickness",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "A bag's yield in cubic feet is hard to picture on a slab; coverage in square feet at your thickness is easier. At 4 in thick (⅓ ft), one 80 lb bag (approximately 0.60 ft³) covers about 1.8 ft²; a 60 lb bag about 1.35 ft²; a 40 lb bag about 0.9 ft². At 2 in thick, the same bags cover about 3.6, 2.7, and 1.8 ft². These are theoretical coverages from the manufacturer's yield, before waste — add the same 10% when you buy. The practical use is a quick check on a small job: a 4 ft × 4 ft pad at 4 in is 16 ft², which at 1.8 ft² per 80 lb bag is 8.9 bags in theory, 9.8 with waste — buy 10 bags. If the calculator gives a very different number for the same pad, one of the two has the wrong thickness in it.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "small-jobs-fence-posts-repairs",
+      heading: "Small jobs: fence posts and repairs",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "Bagged concrete earns its keep on jobs too small for a truck. A fence-post hole 12 in in diameter and 24 in deep is a cylinder: π × (0.5 ft)² × 2 ft = about 1.57 ft³. With 10% waste that is 1.73 ft³, and 1.73 ÷ 0.60 = 2.88 — buy ",
+            },
+            { text: "3 bags of 80 lb mix per hole", strong: true },
+            {
+              text: ". Eight identical holes need 24 bags (8 × 1.57 = 12.57 ft³, with waste 13.82 ft³, 13.82 ÷ 0.60 = 23.04 → 24). The volume-first ",
+            },
+            { text: "Concrete Calculator", calc: "concrete-calculator" },
+            {
+              text: " does the same calculation from dimensions and adds the ready-mix order amount, which is the comparison to make once the job passes about 1 cubic yard: at 45 bags in theory (50 to buy), mixing by hand is a full day's work, and ready-mix delivered by truck is usually cheaper and far faster. Above about 2 cubic yards, do not plan on bags at all. This is a volume calculation only — it says nothing about the post size, the hole depth your frost line or local code requires, or whether the post should sit on gravel or concrete.",
+            },
+          ],
+        },
+      ],
+    },
   ],
   faqs: [
     {

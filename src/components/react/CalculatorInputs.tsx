@@ -1,3 +1,6 @@
+import type { LinkedText as LinkedTextData } from "../../lib/linked-text";
+import { LinkedText } from "./LinkedText";
+
 /**
  * Shared React input components for calculator islands (Phases 2–4).
  * These are the building blocks every calculator page will use: a labeled
@@ -124,8 +127,8 @@ export interface ResultRow {
 export interface ResultPanelProps {
   title: string;
   rows: ResultRow[];
-  /** Note shown under the results, e.g. the rounding rule. */
-  note?: string;
+  /** Note shown under the results, e.g. the rounding rule. May carry inline links (LinkedText). */
+  note?: string | LinkedTextData;
   /** Optional plain-text shopping list and a copy handler. */
   shoppingList?: string;
   onCopyShoppingList?: () => void;
@@ -162,7 +165,11 @@ export function ResultPanel({
           </div>
         ))}
       </dl>
-      {note ? <p className="mt-4 text-sm text-slate-600">{note}</p> : null}
+      {note ? (
+        <p className="mt-4 text-sm text-slate-600">
+          {typeof note === "string" ? note : <LinkedText text={note} />}
+        </p>
+      ) : null}
       {shoppingList && onCopyShoppingList ? (
         <button type="button" onClick={onCopyShoppingList} className="btn-secondary mt-4">
           Copy shopping list

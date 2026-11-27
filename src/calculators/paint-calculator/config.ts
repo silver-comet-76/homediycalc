@@ -47,7 +47,13 @@ function paintOutput(netAreaFt2: number, v: Record<string, number>, present: Set
     ],
     costUsd: r.costUsd,
     workedLine: `${fmt(netAreaFt2)} ft² × ${fmt(req(v, "coats"), 0)} coats ÷ ${fmt(req(v, "coverage"), 0)} ft²/gal = ${fmt(r.rawGallons)} gal; with ${fmt(req(v, "waste"), 0)}% waste = ${fmt(r.adjustedGallons)} gal → buy ${r.gallonsToBuy} gal.`,
-    note: "Primer is not included. New drywall, bare wood, and big color changes need a coat of primer first — see the Primer Calculator.",
+    note: [
+      {
+        text: "Primer is not included. New drywall, bare wood, and big color changes need a coat of primer first — see the ",
+      },
+      { text: "Primer Calculator", calc: "primer-calculator" },
+      { text: "." },
+    ],
   };
 }
 
@@ -84,6 +90,112 @@ export const paintConfig: CalculatorConfig = {
     "Coverage varies by surface, color change, and application method. The 350 ft²/gal default is a reference value from one manufacturer's data sheets, not a guarantee for your paint.",
     "Ceilings, trim, and doors are not included — measure them separately and add their area.",
     "The calculator does not include primer. New drywall, patched walls, and dark-to-light changes need primer first.",
+  ],
+  depthSections: [
+    {
+      id: "three-gallon-numbers",
+      heading: "Raw paint, paint with waste, and gallons to buy — three different numbers",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "The calculator shows three gallon figures, and they answer three different questions. ",
+            },
+            { text: "Paint needed", strong: true },
+            {
+              text: " is the raw requirement: net wall area × coats ÷ coverage — the paint that has to end up on the wall. ",
+            },
+            { text: "Paint with waste", strong: true },
+            {
+              text: " adds the waste allowance (10% by default) for what stays in the roller and tray, spills, and touch-ups. ",
+            },
+            { text: "Gallons to buy", strong: true },
+            {
+              text: ' rounds that figure up to whole gallons. For a 12×12 ft room with 8 ft ceilings, 2 coats, 350 ft²/gal, and 10% waste, the three numbers are 1.90 gal, 2.09 gal, and 3 gal — on a net wall area of 333 ft² (384 ft² gross, minus one 21 ft² door and two 15 ft² windows). The jump from 2.09 to 3 looks like over-buying; it is not — the calculator rounds to whole gallons, and the extra is the paint you will use for touch-ups later. Check the packaging sizes your supplier actually sells: quarts are available for many paints and can cover part of the gap between 2.09 gal and 3 gal. If another calculator or a paint-store chart gives you a single number, check which of the three it is: the "2 gallons for a 12×12 room" answer several paint calculators publish is the raw figure rounded up without waste (1.90 → 2), and it leaves no paint for the roller, the tray, or a single touch-up.',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "wall-area-not-floor-area",
+      heading: "Why two rooms with the same floor area need different amounts of paint",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "Paint is bought by wall area, not floor area, and two rooms with the same floor area can have very different wall areas. A 10×10 ft room and a 5×20 ft room both have 100 ft² of floor, but with 8 ft ceilings the first has 320 ft² of wall (2 × (10 + 10) × 8) and the second has 400 ft² of wall (2 × (5 + 20) × 8). The long thin room needs a quarter more paint for the same floor. Ceiling height moves the answer just as much: raising the walls of a 12×12 ft room from 8 ft to 9 ft — with the same one-door and two-window deductions, two coats, 350 ft²/gal, and 10% waste — takes the gross wall area from 384 ft² to 432 ft² and the adjusted paint from 2.09 gal to 2.39 gal — still 3 gallons to buy, because both figures round up to 3. The gallon count only changes when the adjusted figure crosses a whole-gallon boundary, which is why two rooms that look similar can buy different amounts, and two rooms that look different can buy the same. Do not use floor area as a shortcut for paint; measure the walls.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "coats-and-coverage",
+      heading: "One coat or two? And what coverage per gallon really means",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "Two coats is the standard for walls, and the calculator defaults to 2 for that reason. One coat rarely gives even color or full durability, even with paint labelled self-priming — the second coat is what evens out the color and builds the film thickness the coverage figure assumes. A third coat is sometimes needed over very dark colors, or on new drywall that was not primed. The coverage figure itself — 350 ft² per gallon — is a spread rate at a stated wet film thickness: Sherwin-Williams' SuperPaint Interior Latex product data sheet lists 350–400 sq ft per gallon at 4 mils wet, 1.4 mils dry (SuperPaint PDS, A86 Series, 08/2026). That is the rate on a smooth, sealed surface, applied at the stated thickness. It is not a promise for every wall: a rough or porous surface drinks more paint per square foot, so the same gallon covers less; a dark color over a light wall, or a light color over a dark wall, needs more paint to hide the old color. The calculator defaults to 350, the conservative end of the 350–400 range, for exactly that reason.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "primer-two-figures",
+      heading: "Primer: two figures from the same manufacturer, and why they disagree",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "Primer coverage looks contradictory until you see where each figure comes from, so this page gives you both. Sherwin-Williams' product data sheet for its Multi-Purpose Interior-Exterior Latex Primer-Sealer lists ",
+            },
+            { text: "400 sq ft per gallon at 4 mils wet", strong: true },
+            {
+              text: " (Primer-Sealer PDS, B51-450 Series, 7/2023). Sherwin-Williams' own paint-calculator FAQ page says ",
+            },
+            { text: "a gallon of primer covers about 200–300 square feet", strong: true },
+            {
+              text: ", and that this is enough primer for a 10×10 ft or 12×12 ft room. Both figures are from Sherwin-Williams, and both are correct — they measure different things. The data-sheet figure is a theoretical spread rate on a smooth surface at a stated film thickness. The FAQ figure is a planning figure for the surfaces primer actually goes onto, notably bare drywall, which is porous and absorbs the first coat. On new drywall, plan on the 200–300 sq ft/gal range; on a previously painted wall in good condition, the data-sheet rate is closer to what you will get. The label on the can you buy wins over either figure. Worked through for the 12×12 ft room (333 ft² net): at the FAQ's planning range, one coat of primer on bare drywall needs 333 ÷ 200 to 333 ÷ 300 = 1.11 to 1.67 gal before waste — buy 2 gallons either way. The ",
+            },
+            { text: "Primer Calculator", calc: "primer-calculator" },
+            {
+              text: " does this calculation with a surface-condition adjustment and, for the same 12×12 room on new drywall, gives 1.47 gal with waste — buy 2 gallons. Primer is a separate coat from paint, and one coat is usually enough.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "worked-examples-one-wall-ceiling",
+      heading: "Worked example — one wall, and a ceiling",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            { text: "One wall, 12 ft × 8 ft (accent wall).", strong: true },
+            {
+              text: " Area 96 ft², measured directly — use Area mode, with no door or window deduction. Raw: 96 × 2 ÷ 350 = 0.55 gal. With 10% waste: 0.60 gal. Buy 1 gallon — or 3 quarts (0.60 gal = 2.4 quarts, rounded up to 3). Quarts here are derived arithmetic (gallons × 4), not a calculator output: the calculator reports gallons and liters only.",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            { text: "Ceiling only, 12 × 12 ft.", strong: true },
+            {
+              text: " Area 144 ft², 2 coats, 350 ft²/gal. Raw: 144 × 2 ÷ 350 = 0.82 gal. With waste: 0.91 gal. Buy 1 gallon of ceiling paint (flat finish), not wall paint — it is formulated to hide roller marks overhead. Ceilings, trim, and doors are not in the wall-area number; measure them separately.",
+            },
+          ],
+        },
+      ],
+    },
   ],
   faqs: [
     {

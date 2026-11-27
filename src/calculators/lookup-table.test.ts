@@ -18,6 +18,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { CALCULATOR_CONFIGS } from "./index";
+import { linkedTextToPlain } from "../lib/linked-text";
 import {
   convertArea,
   convertCoverage,
@@ -1668,7 +1669,7 @@ describe("lookup tables", () => {
       const table = config.lookupTable;
       if (table === undefined) continue;
       expect(table.note, `${slug} lookup table is missing its assumptions note`).toBeDefined();
-      expect(table.note?.trim().length).toBeGreaterThan(0);
+      expect(linkedTextToPlain(table.note ?? "").trim().length).toBeGreaterThan(0);
     }
   });
 

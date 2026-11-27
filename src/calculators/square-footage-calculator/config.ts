@@ -57,7 +57,13 @@ export const squareFootageConfig: CalculatorConfig = {
   workedExample:
     "A 12 ft × 15 ft room: 12 × 15 = 180 ft² (16.72 m²). An L-shaped room of 12 × 10 ft plus 6 × 8 ft is 120 + 48 = 168 ft².",
   limitations: [
-    "Measures flat area only. It does not deduct doors, windows, or fixtures — use the Paint Calculator for net paintable area.",
+    [
+      {
+        text: "Measures flat area only. It does not deduct doors, windows, or fixtures — use the ",
+      },
+      { text: "Paint Calculator", calc: "paint-calculator" },
+      { text: " for net paintable area." },
+    ],
     "An L-shape is two rectangles. Rooms with curves, angles, or more than two rectangles need to be split into more pieces and added by hand.",
     "Area is not volume: flooring, paint, and tile use square footage; concrete, gravel, and mulch need a depth too.",
   ],

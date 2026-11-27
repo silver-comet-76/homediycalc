@@ -1,5 +1,6 @@
 ---
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, absoluteUrl } from "../lib/site";
+import { linkedTextToPlain, type LinkedText } from "../lib/linked-text";
 
 export interface Props {
   title: string;
@@ -10,8 +11,8 @@ export interface Props {
   ogType?: "website" | "article";
   /** BreadcrumbList structured data, when the page has breadcrumbs. */
   breadcrumbs?: { name: string; path?: string }[];
-  /** FAQPage structured data, when the page shows an FAQ section. */
-  faqs?: { question: string; answer: string }[];
+  /** FAQPage structured data, when the page shows an FAQ section. Answers may carry inline links; JSON-LD uses the plain text. */
+  faqs?: { question: string; answer: string | LinkedText }[];
 }
 
 const {
@@ -61,7 +62,7 @@ const faqJsonLd =
         mainEntity: faqs.map((faq) => ({
           "@type": "Question",
           name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer },
+          acceptedAnswer: { "@type": "Answer", text: linkedTextToPlain(faq.answer) },
         })),
       }
     : undefined;

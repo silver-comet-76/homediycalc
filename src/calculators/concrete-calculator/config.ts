@@ -75,6 +75,71 @@ export const concreteConfig: CalculatorConfig = {
     "Assumes a level, rectangular pour of uniform depth. It does not account for slope, uneven subgrade, or spillage beyond the waste allowance.",
     "Bag yields are the QUIKRETE figures for its Concrete Mix; other brands print their own yield on the bag — check it and edit the yield if yours differs.",
     "This is a quantity estimate, not a mix design. Strength, slump, and air entrainment are choices for your supplier and your local code.",
+    "This calculator does not do structural design. It works out how much concrete a pour of given dimensions needs; it does not say whether those dimensions are right for the load the slab will carry, what reinforcement it needs, or whether a slab needs footings. Those are engineering and local-code questions, not volume questions.",
+  ],
+  depthSections: [
+    {
+      id: "cubic-yards-vs-cubic-feet",
+      heading: "Cubic yards vs cubic feet — which number do you order by?",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: 'Ready-mix concrete is sold by the cubic yard; bagged concrete is sold by the bag, and each bag\'s yield is printed in cubic feet. That is why this calculator shows both. A cubic yard is 27 cubic feet — a cube 3 ft long, 3 ft wide, and 3 ft deep. If your supplier quotes a price per cubic yard, use the "Ready-mix to order" figure. If you are buying bags, use the bag counts; they come from the same volume, so the two answers always agree. Thickness, not floor area, is what drives the volume: a 10 ft × 10 ft pad at 4 in thick is only 1.23 cubic yards before waste — barely more than a single yard — while the same pad at 6 in thick is 1.85 cubic yards, half as much again.',
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "One more check before you order ready-mix: confirm the smallest load your supplier will deliver and the short-load fee. A 1.5 yd³ order can cost nearly as much in fees as in concrete if the supplier's minimum is higher.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "waste-allowance",
+      heading: "What the waste allowance is actually paying for",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "The waste allowance is not a safety margin for bad arithmetic. It pays for real concrete that leaves the pour without becoming part of the finished slab: spillage, over-excavation, forms that spread slightly under the weight, and the fact that hardened concrete ends up 1–2% smaller in volume than the fresh concrete placed. The National Ready Mixed Concrete Association's Concrete in Practice sheet CIP 31 advises ordering about 4% to 10% more concrete than the volume calculated from the plan dimensions, for exactly those reasons (NRMCA CIP 31). This calculator defaults to 10%, the top of that range. Use 5% for a large, simple slab on ground you have checked level, and 15% for irregular excavation or a subgrade with dips you cannot fully level.",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: 'Note which of the two volume numbers you are looking at: the "Volume" row is the theoretical volume of the hole you measured; the "With waste" row is what you should actually buy. A page that says "1.23 yd³" for a 10×10 slab and a page that says "1.36 yd³" for the same slab are not disagreeing — one is before waste and the other is after it. The same split applies to bags: 45 bags of 80 lb mix is the theoretical count for one cubic yard (27 ÷ 0.60), while 50 bags is what you buy at 10% waste.',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "measuring-non-rectangular-pour",
+      heading: "Measuring a pour that is not a perfect rectangle",
+      blocks: [
+        {
+          type: "paragraph",
+          text: [
+            {
+              text: "The calculator assumes a level, rectangular pour of uniform depth, and that assumption is where most under-orders come from. Measure the depth in several spots and use the average, not the shallowest — a slab that is 4 in at the edges and 5 in in the middle because the subgrade dips is a 4½ in slab on average, and the extra half inch over 100 ft² is another 0.15 yd³. For an L-shaped pad, split it into two rectangles, calculate each separately, and add them. For a round pad, use the area of the circle (π × radius²) times the depth. For fence-post holes, work out one hole as a cylinder and multiply by the number of identical holes — the ",
+            },
+            { text: "Concrete Bags Calculator", calc: "concrete-bags-calculator" },
+            {
+              text: " works that example through in full. If the ground is uneven enough that you cannot trust a single depth measurement, raise the waste allowance to 15% rather than guessing a deeper average.",
+            },
+          ],
+        },
+      ],
+    },
   ],
   faqs: [
     {

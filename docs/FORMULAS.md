@@ -125,7 +125,7 @@ Every default the seven P2 calculators ship with was checked against a named sou
 - **Cost:** `cost = rounded yd³ × price per yd³` (price optional).
 - **Rounding:** yd³ to 2 decimal places for display, rounded up for ordering; tons to 2 decimal places.
 - **Limitations:** Density varies by stone type, size, and moisture; compaction and settling are only approximated by the waste allowance.
-- **Worked example:** 10 ft × 10 ft area, 3 in (0.25 ft) deep: 10 × 10 × 0.25 = 25 ft³ = 0.93 yd³. At 2,800 lb/yd³: the unrounded 0.926 yd³ × 2,800 = 2,593 lb ≈ 1.30 US tons.
+- **Worked example:** 10 ft × 10 ft area, 3 in (0.25 ft) deep: 10 × 10 × 0.25 = 25 ft³ = 0.93 yd³. At 2,800 lb/yd³: the unrounded 0.926 yd³ × 2,800 = 2,593 lb ≈ 1.30 US tons (before the 5% compaction allowance; 2,722 lb / 1.36 US short tons at the default).
 - **Validation status:** validated by Vitest in Phase 2 (2026-11-20) — worked example, boundary cases, and rounding-up behavior all pass; re-validated in Phase 5 (2026-11-20): worked example hand-checked against the program's output, Vitest 201/201 pass; see `docs/QA-REPORT.md`.
 
 ## 5. Mulch Calculator — `/calculators/mulch-calculator/`

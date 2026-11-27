@@ -44,7 +44,9 @@ const crumbs = [{ name: "Home", path: "/" }, { name: "All Calculators" }];
       return (
         <section aria-labelledby={`cat-${category.slug}`} class="mt-10" data-category-section>
           <h2 id={`cat-${category.slug}`} class="text-2xl font-bold text-slate-900">
-            {category.name}
+            <a href={category.url} class="hover:underline">
+              {category.name}
+            </a>
           </h2>
           <p class="mt-1 text-slate-600">{category.description}</p>
           <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

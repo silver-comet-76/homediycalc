@@ -1,0 +1,35 @@
+---
+import { calculatorUrl, type LinkedText } from "../lib/linked-text";
+
+export interface Props {
+  text: LinkedText;
+  /** CSS class applied to rendered links. */
+  linkClass?: string;
+}
+
+const { text, linkClass = "underline" } = Astro.props;
+---
+
+{
+  text.map((seg) => {
+    const url = seg.calc ? calculatorUrl(seg.calc) : undefined;
+    if (url && seg.strong) {
+      return (
+        <a href={url} class={linkClass}>
+          <strong>{seg.text}</strong>
+        </a>
+      );
+    }
+    if (url) {
+      return (
+        <a href={url} class={linkClass}>
+          {seg.text}
+        </a>
+      );
+    }
+    if (seg.strong) {
+      return <strong>{seg.text}</strong>;
+    }
+    return seg.text;
+  })
+}

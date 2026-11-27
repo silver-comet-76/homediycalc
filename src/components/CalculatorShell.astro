@@ -3,12 +3,13 @@ import Layout from "./Layout.astro";
 import Breadcrumbs from "./Breadcrumbs.astro";
 import Faq from "./Faq.astro";
 import { getCategory, getRelatedCalculators, type CalculatorMeta } from "../lib/registry";
+import type { LinkedText } from "../lib/linked-text";
 
 export interface Props {
   calculator: CalculatorMeta;
   /** Formula explanation in plain language, shown under "How this is calculated". */
   formula?: string;
-  faqs?: { question: string; answer: string }[];
+  faqs?: { question: string; answer: string | LinkedText }[];
 }
 
 const { calculator, formula, faqs = [] } = Astro.props;

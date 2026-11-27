@@ -29,6 +29,19 @@ describe("calculateTileAdhesive", () => {
     expect(r.adhesiveLb).toBeCloseTo(261.9, 1);
   });
 
+  it("D-2 regression: 100 ft² with a 1/2 in notch needs 3 bags, not 6", () => {
+    // 100 ft² × 1.10 ÷ 42 ft²/bag = 2.62 -> 3 bags (150 lb bought,
+    // 130.95 lb actually needed). 6 bags is the 200 ft² answer.
+    const r = calculateTileAdhesive({
+      ...BASE,
+      areaFt2: 100,
+      coveragePer50LbBagFt2: 42,
+    });
+    expect(r.bags).toBe(3);
+    expect(r.adhesiveLb).toBeCloseTo(130.95, 2);
+    expect(r.effectiveCoverageFt2PerBag).toBe(42);
+  });
+
   it("needs about 35% more when back-buttering", () => {
     // 200 ft², 1/2 in notch, back-buttered: 220 ÷ (42 ÷ 1.35) = 7.07 -> 8 bags.
     const r = calculateTileAdhesive({

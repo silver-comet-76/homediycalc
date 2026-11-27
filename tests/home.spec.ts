@@ -43,7 +43,11 @@ test("home page loads, nav works, no console errors", async ({ page }) => {
   await page.getByRole("link", { name: "Painting", exact: true }).first().click();
   await expect(page).toHaveURL(/\/categories\/painting\/?$/);
   await expect(page.getByRole("heading", { name: "Painting Calculators" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Paint Calculator" })).toBeVisible();
+  // The category guide (Phase 17B-1 Tranche D, C1a) also links the Paint
+  // Calculator in its first paragraph, so the name matches two links on
+  // this page; .first() is the calculator card, the link this test has
+  // always checked.
+  await expect(page.getByRole("link", { name: "Paint Calculator" }).first()).toBeVisible();
   // Breadcrumb trail is present.
   await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toBeVisible();
 
