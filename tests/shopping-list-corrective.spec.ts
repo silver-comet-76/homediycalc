@@ -77,7 +77,12 @@ test("sand: default bulk — both rows visible, only the bulk line is saved, CSV
   await openCalculator(page, "sand-calculator");
   // Both forms stay visible as results, the other labelled alternative.
   await expect(results(page).getByText("2 yd³").first()).toBeVisible();
-  await expect(results(page).getByText("74 bags")).toBeVisible();
+  // Scope to the Bags row: the bulk-order weight detail now also
+  // mentions "74 bags" (R02 bagged-order alternative), so a bare
+  // getByText("74 bags") is ambiguous.
+  await expect(results(page).locator('dl > div:has(> dt:text-is("Bags")) > dd')).toContainText(
+    "74 bags",
+  );
   await expect(
     results(page).getByText(
       "Buy bulk or bags, not both — the shopping list contains only the bulk order.",

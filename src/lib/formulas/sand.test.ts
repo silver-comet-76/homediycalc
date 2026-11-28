@@ -152,6 +152,72 @@ describe("calculateSand", () => {
     expect(r.orderWeightTons).toBeGreaterThan(r.weightTons);
   });
 
+  it("bagged order weight is the QA example's third weight (R02: 74 bags ≈ 3,700 lb, less than the 5,400 lb bulk order)", () => {
+    // 10 × 10 ft at 4 in: 100 × 4/12 = 33.333 ft³; × 1.10 = 36.667 ft³
+    // = 1.358 yd³. Bags: ceil(36.667 / 0.5) = 74. Bagged weight:
+    // 74 × 0.5 ft³ = 37 ft³ = 1.37037 yd³ × 2,700 = 3,700 lb
+    // = 1.85 tons = 3,700 × 0.45359237 = 1,678.29 kg. The bulk order
+    // (2 yd³) weighs 5,400 lb, so the bagged order weighs less — the
+    // bags cover the requirement, the bulk order rounds up to whole yards.
+    const r = calculateSand({ ...BASE, volumeFt3: (10 * 10 * 4) / 12 });
+    expect(r.bags).toBe(74);
+    expect(r.baggedWeightLb).toBeCloseTo(3700, 0);
+    expect(r.baggedWeightTons).toBeCloseTo(1.85, 2);
+    expect(r.baggedWeightKg).toBeCloseTo(1678.29, 1); // 3,700 × 0.45359237
+    expect(r.baggedWeightLb).toBeLessThan(r.orderWeightLb);
+    expect(r.orderWeightLb).toBe(5400);
+    // And it is more than the requirement weight: the bags round up.
+    expect(r.baggedWeightLb).toBeGreaterThan(r.weightLb);
+  });
+
+  it("worked example bagged weight: 110 bags weigh 5,500 lb (2.75 tons), less than the 8,100 lb bulk order", () => {
+    // 10 × 10 ft, 6 in: 50 ft³; × 1.10 = 55 ft³. Bags: 55 / 0.5 = 110.
+    // Bagged weight: 110 × 0.5 = 55 ft³ = 2.037 yd³ × 2,700 = 5,500 lb
+    // = 2.75 tons — exactly the requirement weight here, because the
+    // bag count divides the adjusted volume exactly. Bulk order weight:
+    // 3 yd³ × 2,700 = 8,100 lb.
+    const r = calculateSand({ ...BASE, volumeFt3: 50 });
+    expect(r.bags).toBe(110);
+    expect(r.baggedWeightLb).toBeCloseTo(5500, 0);
+    expect(r.baggedWeightTons).toBeCloseTo(2.75, 2);
+    expect(r.baggedWeightKg).toBeCloseTo(2494.76, 1); // 5,500 × 0.45359237
+    expect(r.baggedWeightLb).toBeCloseTo(r.weightLb, 0);
+    expect(r.baggedWeightLb).toBeLessThan(r.orderWeightLb);
+  });
+
+  it("bagged weight equals bulk order weight at exact whole-yard boundaries", () => {
+    // 27 ft³, waste 0: 1 yd³ exactly. Bags: 27 / 0.5 = 54.
+    // Bagged: 54 × 0.5 = 27 ft³ = 1 yd³ × 2,700 = 2,700 lb.
+    const one = calculateSand({ ...BASE, volumeFt3: 27, wastePct: 0 });
+    expect(one.bags).toBe(54);
+    expect(one.baggedWeightLb).toBe(2700);
+    expect(one.baggedWeightTons).toBe(1.35);
+    expect(one.baggedWeightKg).toBeCloseTo(1224.7, 1); // 2,700 × 0.45359237
+    expect(one.baggedWeightLb).toBe(one.orderWeightLb);
+    expect(one.baggedWeightLb).toBe(one.weightLb);
+    // 54 ft³, waste 0: 2 yd³ exactly, 108 bags, 5,400 lb all three ways.
+    const two = calculateSand({ ...BASE, volumeFt3: 54, wastePct: 0 });
+    expect(two.bags).toBe(108);
+    expect(two.baggedWeightLb).toBe(5400);
+    expect(two.baggedWeightLb).toBe(two.orderWeightLb);
+    expect(two.baggedWeightLb).toBe(two.weightLb);
+  });
+
+  it("bagged weight is zero for zero or negative volume", () => {
+    const none = calculateSand({ ...BASE, volumeFt3: 0 });
+    expect(none.bags).toBe(0);
+    expect(none.baggedWeightLb).toBe(0);
+    expect(none.baggedWeightTons).toBe(0);
+    expect(none.baggedWeightKg).toBe(0);
+    // Negative volume: no bags are bought, so the bagged weight is 0,
+    // like the bag count and the bulk order weight.
+    const negative = calculateSand({ ...BASE, volumeFt3: -10 });
+    expect(negative.bags).toBe(0);
+    expect(negative.baggedWeightLb).toBe(0);
+    expect(negative.baggedWeightTons).toBe(0);
+    expect(negative.baggedWeightKg).toBe(0);
+  });
+
   it("order weight equals requirement weight at exact whole-yard boundaries", () => {
     const one = calculateSand({ ...BASE, volumeFt3: 27, wastePct: 0 });
     expect(one.adjustedYd3).toBe(1);

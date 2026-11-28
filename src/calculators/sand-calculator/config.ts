@@ -52,6 +52,24 @@ function sandOutput(volumeFt3: number, v: Record<string, number>, present: Set<s
     : bagCost !== undefined
       ? `${fmt(req(v, "bagSize"), 2)} ft³ per bag — rounded up. Alternative: ${r.bags} ${r.bags === 1 ? "bag" : "bags"} would cost $${bagCost.toFixed(2)} at the bag price you entered — buy bulk or bags, not both.`
       : `${fmt(req(v, "bagSize"), 2)} ft³ per bag — rounded up. Alternative — buy bulk or bags, not both.`;
+  // The order weight follows the purchase method, so the selected form
+  // is never shown carrying the other form's weight: bulk shows the
+  // weight of the whole yards ordered, bags shows the estimated weight
+  // of the bags ordered, and each names the other as the alternative.
+  const orderWeightRow = isBags
+    ? {
+        label: "Weight of bagged order",
+        value: `${fmt(r.baggedWeightTons)} tons (US short tons)`,
+        detail: `${r.bags} ${r.bags === 1 ? "bag" : "bags"} × ${fmt(req(v, "bagSize"), 2)} ft³ = ${fmt(r.bags * req(v, "bagSize"))} ft³ ≈ ${fmt(r.baggedWeightLb, 0)} lb (${fmt(r.baggedWeightKg, 0)} kg, ${fmt(kilogramsToTonnes(r.baggedWeightKg))} tonnes) at ${fmt(req(v, "density"), 0)} lb/yd³ — a density-based estimate; check the bag's stated weight (a 50 lb bag is about 0.5 ft³). Bulk alternative: the ${r.orderYd3} yd³ bulk order would weigh ${fmt(r.orderWeightLb, 0)} lb (${fmt(r.orderWeightTons)} tons (US short tons)).`,
+      }
+    : {
+        label: "Weight of bulk order",
+        value: `${fmt(r.orderWeightTons)} tons (US short tons)`,
+        detail: `${fmt(r.orderWeightLb, 0)} lb (${fmt(r.orderWeightKg, 0)} kg, ${fmt(kilogramsToTonnes(r.orderWeightKg))} tonnes) for the ${r.orderYd3} yd³ you order. Bagged alternative: ${r.bags} ${r.bags === 1 ? "bag" : "bags"} would weigh about ${fmt(r.baggedWeightLb, 0)} lb (${fmt(r.baggedWeightTons)} tons (US short tons)) at this density.`,
+      };
+  const workedLine = isBags
+    ? `${fmt(volumeFt3)} ft³ × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.adjustedFt3)} ft³ = ${fmt(r.adjustedYd3)} yd³; weight needed ${fmt(r.adjustedYd3)} × ${fmt(req(v, "density"), 0)} lb/yd³ = ${fmt(r.weightLb, 0)} lb (${fmt(r.weightTons)} tons (US short tons)); the ${r.bags} ${r.bags === 1 ? "bag" : "bags"} weigh about ${fmt(r.baggedWeightLb, 0)} lb (${fmt(r.baggedWeightTons)} tons (US short tons)) at ${fmt(req(v, "density"), 0)} lb/yd³ (density estimate); the ${r.orderYd3} yd³ bulk order would weigh ${fmt(r.orderWeightLb, 0)} lb.`
+    : `${fmt(volumeFt3)} ft³ × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.adjustedFt3)} ft³ = ${fmt(r.adjustedYd3)} yd³; weight needed ${fmt(r.adjustedYd3)} × ${fmt(req(v, "density"), 0)} lb/yd³ = ${fmt(r.weightLb, 0)} lb (${fmt(r.weightTons)} tons (US short tons)); the ${r.orderYd3} yd³ order weighs ${fmt(r.orderWeightLb, 0)} lb (${fmt(r.orderWeightTons)} tons (US short tons)).`;
   return {
     rows: [
       {
@@ -69,11 +87,7 @@ function sandOutput(volumeFt3: number, v: Record<string, number>, present: Set<s
         value: `${fmt(r.weightTons)} tons (US short tons)`,
         detail: `${fmt(r.weightLb, 0)} lb (${fmt(r.weightKg, 0)} kg, ${fmt(kilogramsToTonnes(r.weightKg))} tonnes) for the ${fmt(r.adjustedYd3)} yd³ required`,
       },
-      {
-        label: "Weight of order",
-        value: `${fmt(r.orderWeightTons)} tons (US short tons)`,
-        detail: `${fmt(r.orderWeightLb, 0)} lb (${fmt(r.orderWeightKg, 0)} kg, ${fmt(kilogramsToTonnes(r.orderWeightKg))} tonnes) for the ${r.orderYd3} yd³ you order`,
-      },
+      orderWeightRow,
       {
         label: "Bags",
         value: `${r.bags} ${r.bags === 1 ? "bag" : "bags"}`,
@@ -84,13 +98,15 @@ function sandOutput(volumeFt3: number, v: Record<string, number>, present: Set<s
     // never both. The weight rows stay on the page as reference; they
     // are not purchase lines.
     lines: isBags
-      ? [`Sand bags (${fmt(req(v, "bagSize"), 2)} ft³ each): ${r.bags}`]
+      ? [
+          `Sand bags (${fmt(req(v, "bagSize"), 2)} ft³ each): ${r.bags} (about ${fmt(r.baggedWeightTons)} tons (US short tons) — density estimate)`,
+        ]
       : [`Sand (bulk): ${r.orderYd3} yd³ (about ${fmt(r.orderWeightTons)} tons (US short tons))`],
     costUsd: r.costUsd,
     note: isBags
       ? `Buy bulk or bags, not both — the shopping list contains only the bags. ${PURCHASE_NOTE}`
       : `Buy bulk or bags, not both — the shopping list contains only the bulk order. ${PURCHASE_NOTE}`,
-    workedLine: `${fmt(volumeFt3)} ft³ × ${fmt(100 + req(v, "waste"), 0)}% = ${fmt(r.adjustedFt3)} ft³ = ${fmt(r.adjustedYd3)} yd³; weight needed ${fmt(r.adjustedYd3)} × ${fmt(req(v, "density"), 0)} lb/yd³ = ${fmt(r.weightLb, 0)} lb (${fmt(r.weightTons)} tons (US short tons)); the ${r.orderYd3} yd³ order weighs ${fmt(r.orderWeightLb, 0)} lb (${fmt(r.orderWeightTons)} tons (US short tons)).`,
+    workedLine,
   };
 }
 
@@ -201,7 +217,7 @@ export const sandConfig: CalculatorConfig = {
   designCplus: true,
   heroResultLabel: "Bulk to order",
   lookupTable: {
-    note: "Assumes 10% waste, dry sand at 2,700 lb per cubic yard, and 0.5 ft³ bags. Tons are US short tons. “Weight needed” is the weight of the sand volume required; “Weight of order” is the weight of the whole yards you order.",
+    note: "Assumes 10% waste, dry sand at 2,700 lb per cubic yard, and 0.5 ft³ bags. Tons are US short tons. “Weight needed” is the weight of the sand volume required; “Weight of order” is the bulk order weight — the weight of the whole yards you order. When “Buy as” is Bags, the page instead shows the estimated bagged-order weight (bags × bag size ÷ 27 × density) — a density-based estimate; check the bag's stated weight.",
     headers: [
       "Area (L × W × depth)",
       "Sand volume",
@@ -259,7 +275,17 @@ export const sandConfig: CalculatorConfig = {
     "Volume = length × width × depth; cubic yards = cubic feet ÷ 27. " +
     "Weight needed = required volume × bulk density; weight of order = " +
     "rounded order volume × bulk density — the two differ whenever the " +
-    "order rounds up. Dry sand weighs about 2,700 lb/yd³ (1.35 tons " +
+    "order rounds up. The page shows three weights: “Weight needed” is " +
+    "the weight of the sand required; “Weight of bulk order” is the " +
+    "weight of the whole yards ordered (bulk); “Weight of bagged order” " +
+    "is the estimated weight of the bags ordered — bags × bag size ÷ 27 " +
+    "× density — shown when “Buy as” is Bags. For example, a 10 × 10 ft " +
+    "sandbox 4 in deep with 10% waste needs 1.36 yd³ (3,667 lb) and " +
+    "orders 2 yd³ in bulk (5,400 lb), but the 74 bags of 0.5 ft³ weigh " +
+    "about 3,700 lb (1.85 tons (US short tons)) at 2,700 lb/yd³ — a " +
+    "density-based estimate; the bag's stated weight governs (a 50 lb " +
+    "bag is about 0.5 ft³, so 74 × 50 lb = 3,700 lb). Dry sand weighs " +
+    "about 2,700 lb/yd³ (1.35 tons " +
     "(US short tons) per yd³, about 1.60 tonnes/m³) — the figure implied " +
     "by QUIKRETE's 50 lb bag yielding about 0.5 ft³ — and loose sand " +
     "generally runs 2,630–2,960 lb/yd³ (Missouri DOT). Damp sand runs " +
@@ -309,6 +335,11 @@ export const sandConfig: CalculatorConfig = {
       question: "How many 50 lb bags of sand are in a cubic yard?",
       answer:
         "54 bags. A 50 lb bag is about 0.5 ft³, and a cubic yard is 27 ft³, so 27 ÷ 0.5 = 54 bags — before any waste allowance. With the default 10% allowance, a cubic yard of sand on the ground takes about 60 bags.",
+    },
+    {
+      question: "How much do the bags weigh?",
+      answer:
+        "Less than the rounded bulk order whenever the bulk order rounds up. For example, a 10 × 10 ft sandbox 4 in deep with 10% waste needs 1.36 yd³ (3,667 lb) and orders 2 yd³ in bulk, which weighs 5,400 lb — but the 74 bags of 0.5 ft³ weigh only about 3,700 lb (1.85 tons (US short tons)) at 2,700 lb/yd³, because the bags cover the 1.36 yd³ required (rounded up to whole bags) while the bulk order rounds up to whole yards. The bagged weight is a density-based estimate (bags × bag size ÷ 27 × density); the bag's stated weight governs — a 50 lb bag is about 0.5 ft³, so 74 × 50 lb = 3,700 lb, consistent with the estimate. At an exact whole-yard requirement the two weights are equal.",
     },
     {
       question: "How deep should play sand be in a sandbox?",

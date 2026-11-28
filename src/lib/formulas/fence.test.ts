@@ -108,10 +108,81 @@ describe("calculateFencePicket", () => {
     expect(continuous.posts).toBe(3);
   });
 
-  it("end gate needs no extra posts: same 20 ft run, 4 ft gate at the end", () => {
-    // Net 16 ft, one run: sections 16 / 8 = 2, posts 3, no gate posts.
-    const r = calculateFencePicket({ ...PICKET_BASE, netRunFt: 16, segments: 1 });
+  it("end gate with existing support needs no extra posts: same 20 ft run, 4 ft gate at the end", () => {
+    // CHANGED (QA-17B2-R01): the old test asserted that an end gate
+    // needs no extra posts at all. That is only true when the gate
+    // hangs from an existing support. Net 16 ft, one run: sections
+    // 16 / 8 = 2, posts 3, no gate posts, concrete 3 x 2 = 6.
+    const r = calculateFencePicket({
+      ...PICKET_BASE,
+      netRunFt: 16,
+      segments: 1,
+      endGate: true,
+      endGateExistingSupport: true,
+    });
     expect([r.sections, r.posts, r.gatePosts, r.linePosts]).toEqual([2, 3, 0, 3]);
+    expect(r.endGateSupportPosts).toBe(0);
+    expect(r.concreteBags).toBe(6);
+  });
+
+  it("QA-17B2-R01 — freestanding end gate: 20 ft run, 4 ft gate at the end, 8 ft spacing", () => {
+    // Net 16 ft, one run: sections 16 / 8 = 2, fence posts 3. A
+    // freestanding end gate needs one extra opposing support post,
+    // so posts 4, gate posts 1, line posts 3. Rails 2 x 3 = 6, +10%
+    // -> 6.6 -> 7; pickets 16 / 0.5 = 32, +10% -> 35.2 -> 36;
+    // concrete 4 x 2 = 8.
+    const r = calculateFencePicket({
+      ...PICKET_BASE,
+      netRunFt: 16,
+      segments: 1,
+      endGate: true,
+    });
+    expect([r.sections, r.posts, r.gatePosts, r.linePosts]).toEqual([2, 4, 1, 3]);
+    expect(r.endGateSupportPosts).toBe(1);
+    expect([r.rails, r.pickets, r.concreteBags]).toEqual([7, 36, 8]);
+    // The support post is priced like any other post: $10 per post
+    // gives 4 x 10 = $40, a priced-materials subtotal (pickets and
+    // rails unpriced).
+    const priced = calculateFencePicket({
+      ...PICKET_BASE,
+      netRunFt: 16,
+      segments: 1,
+      endGate: true,
+      pricePerPost: 10,
+    });
+    expect(priced.costUsd).toBe(40);
+    expect(priced.costPartial).toBe(true);
+  });
+
+  it("middle gate ignores the end-gate option: segments 2 with endGate true is the centered-gate result", () => {
+    // Net 16 ft in two 8 ft runs: 2 sections, 4 posts (2 gate, 2
+    // line) — the same as the centered-gate case above. The end-gate
+    // support post is not added on top: middle gates already count
+    // two flanking posts per gate opening.
+    const r = calculateFencePicket({
+      ...PICKET_BASE,
+      netRunFt: 16,
+      segments: 2,
+      endGate: true,
+    });
+    expect([r.sections, r.posts, r.gatePosts, r.linePosts]).toEqual([2, 4, 2, 2]);
+    expect(r.endGateSupportPosts).toBe(0);
+  });
+
+  it("off-center gate: calculate each actual segment separately instead of relying on the equal-length estimate", () => {
+    // A 16 ft net run split 5 ft + 11 ft by an off-center gate, at
+    // 8 ft spacing. Run 1 (5 ft): ceil(5 / 8) = 1 section, 2 posts.
+    // Run 2 (11 ft): ceil(11 / 8) = 2 sections, 3 posts. Total
+    // 5 posts — one more than the equal-length estimate (two 8 ft
+    // runs, 4 posts), which undercounts here. This two-call pattern
+    // is how users should calculate unequal segments.
+    const run1 = calculateFencePicket({ ...PICKET_BASE, netRunFt: 5, segments: 1 });
+    const run2 = calculateFencePicket({ ...PICKET_BASE, netRunFt: 11, segments: 1 });
+    expect([run1.sectionsPerRun, run1.posts]).toEqual([1, 2]);
+    expect([run2.sectionsPerRun, run2.posts]).toEqual([2, 3]);
+    expect(run1.posts + run2.posts).toBe(5);
+    const equalLength = calculateFencePicket({ ...PICKET_BASE, netRunFt: 16, segments: 2 });
+    expect(equalLength.posts).toBe(4);
   });
 
   it("multiple gates: 30 ft run, two 3 ft gates, three runs", () => {
@@ -191,6 +262,14 @@ describe("calculateFencePicket", () => {
     const gatedZero = calculateFencePicket({ ...PICKET_BASE, netRunFt: 0, segments: 2 });
     expect([gatedZero.posts, gatedZero.gatePosts]).toEqual([0, 0]);
     expect(gatedZero.segments).toBe(2);
+    // A freestanding end gate on a zero run still counts no support post.
+    const endGateZero = calculateFencePicket({
+      ...PICKET_BASE,
+      netRunFt: 0,
+      segments: 1,
+      endGate: true,
+    });
+    expect(endGateZero.endGateSupportPosts).toBe(0);
     const negative = calculateFencePicket({ ...PICKET_BASE, netRunFt: -5, segments: 2 });
     expect([negative.sections, negative.posts, negative.rails, negative.pickets]).toEqual([
       0, 0, 0, 0,
@@ -275,13 +354,69 @@ describe("calculateFencePanel", () => {
     expect([continuous.panels, continuous.posts]).toEqual([3, 4]);
   });
 
-  it("end gate needs no extra posts, panel mode: same 20 ft run, 4 ft gate at the end", () => {
-    // Net 16 ft, one run: panels 16 / 6 = 2.67 -> 3, posts 4, last
-    // panel 16 - 12 = 4 ft, 1 partial panel.
-    const r = calculateFencePanel({ ...PANEL_BASE, netRunFt: 16, segments: 1 });
+  it("end gate with existing support needs no extra posts, panel mode: same 20 ft run, 4 ft gate at the end", () => {
+    // CHANGED (QA-17B2-R01): the old test asserted that an end gate
+    // needs no extra posts at all. That is only true when the gate
+    // hangs from an existing support. Net 16 ft, one run: panels
+    // 16 / 6 = 2.67 -> 3, posts 4, last panel 16 - 12 = 4 ft,
+    // 1 partial panel, Postcrete 4 x 2 = 8.
+    const r = calculateFencePanel({
+      ...PANEL_BASE,
+      netRunFt: 16,
+      segments: 1,
+      endGate: true,
+      endGateExistingSupport: true,
+    });
     expect([r.panels, r.posts, r.gatePosts]).toEqual([3, 4, 0]);
+    expect(r.endGateSupportPosts).toBe(0);
+    expect(r.postcreteBags).toBe(8);
     expect(r.cutLengthFt).toBeCloseTo(4, 2);
     expect(r.partialPanels).toBe(1);
+  });
+
+  it("QA-17B2-R01 — freestanding end gate, panel mode: 20 ft run, 4 ft gate at the end, 6 ft panels", () => {
+    // Net 16 ft, one run: panels 16 / 6 = 2.67 -> 3, fence posts 4.
+    // A freestanding end gate needs one extra opposing support post,
+    // so posts 5, gate posts 1, line posts 4. Gravel boards 3,
+    // Postcrete 5 x 2 = 10, last panel 16 - 12 = 4 ft, 1 partial panel.
+    const r = calculateFencePanel({
+      ...PANEL_BASE,
+      netRunFt: 16,
+      segments: 1,
+      endGate: true,
+    });
+    expect([r.panels, r.posts, r.gatePosts, r.linePosts]).toEqual([3, 5, 1, 4]);
+    expect(r.endGateSupportPosts).toBe(1);
+    expect([r.gravelBoardsCount, r.postcreteBags]).toEqual([3, 10]);
+    expect(r.cutLengthFt).toBeCloseTo(4, 2);
+    expect(r.partialPanels).toBe(1);
+    // The support post is priced like any other post: $20 per post
+    // gives 5 x 20 = $100, a priced-materials subtotal (panels and
+    // Postcrete unpriced).
+    const priced = calculateFencePanel({
+      ...PANEL_BASE,
+      netRunFt: 16,
+      segments: 1,
+      endGate: true,
+      pricePerPost: 20,
+    });
+    expect(priced.costUsd).toBe(100);
+    expect(priced.costPartial).toBe(true);
+  });
+
+  it("middle gate ignores the end-gate option, panel mode: segments 2 with endGate true is the centered-gate result", () => {
+    // Net 16 ft in two 8 ft runs: 4 panels, 6 posts (2 gate, 4 line)
+    // — the same as the centered-gate case above. The end-gate
+    // support post is not added on top: middle gates already count
+    // two flanking posts per gate opening.
+    const r = calculateFencePanel({
+      ...PANEL_BASE,
+      netRunFt: 16,
+      segments: 2,
+      endGate: true,
+    });
+    expect([r.panels, r.posts, r.gatePosts, r.linePosts]).toEqual([4, 6, 2, 4]);
+    expect(r.endGateSupportPosts).toBe(0);
   });
 
   it("multiple gates, panel mode: 30 ft run, two 3 ft gates, three runs", () => {
@@ -355,6 +490,14 @@ describe("calculateFencePanel", () => {
     expect(r.costPartial).toBe(false);
     const gatedZero = calculateFencePanel({ ...PANEL_BASE, netRunFt: 0, segments: 2 });
     expect([gatedZero.posts, gatedZero.gatePosts]).toEqual([0, 0]);
+    // A freestanding end gate on a zero run still counts no support post.
+    const endGateZero = calculateFencePanel({
+      ...PANEL_BASE,
+      netRunFt: 0,
+      segments: 1,
+      endGate: true,
+    });
+    expect(endGateZero.endGateSupportPosts).toBe(0);
     const negative = calculateFencePanel({ ...PANEL_BASE, netRunFt: -5, segments: 2 });
     expect([negative.panels, negative.posts]).toEqual([0, 0]);
     // segments 0 clamps to 1: 16 ft in one run is 3 panels, 4 posts.

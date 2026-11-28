@@ -384,7 +384,7 @@ const DEFAULT_RESULTS: Record<string, string[]> = {
     "2 yd³",
     "Weight needed",
     "1.83 tons (US short tons)",
-    "Weight of order",
+    "Weight of bulk order",
     "2.7 tons (US short tons)",
     "Bags",
     "74 bags",

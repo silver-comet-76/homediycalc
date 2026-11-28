@@ -86,9 +86,10 @@ test("fence: Gate layout select is reachable by Tab and changes by arrow key", a
   await expect(results(page).getByText("14 posts")).toBeVisible();
 
   // Enter a 4 ft gate: still one continuous run, so the net 96 ft
-  // gives 12 sections and 13 posts.
+  // gives 12 sections and 13 fence posts — plus 1 support post,
+  // because the end gate is freestanding by default (R01): 14 posts.
   await page.getByLabel("Gates and openings (optional)").fill("4");
-  await expect(results(page).getByText("13 posts")).toBeVisible();
+  await expect(results(page).getByText("14 posts")).toBeVisible();
 
   // "Gate layout" is the field immediately after the gate-width
   // field, so Tab from the gate-width input must land on the select.

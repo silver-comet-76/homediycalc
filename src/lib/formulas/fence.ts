@@ -17,7 +17,14 @@ import { ceilUp } from "../units";
  * boundary between two runs is a gate opening flanked by two posts
  * (one at the end of each run). No post is shared across a gate
  * opening. A gate at the end of the run does not split it
- * (`segments = 1`). Gate hardware (hinges, latch) is not counted
+ * (`segments = 1`). An end gate (QA-17B2-R01): a freestanding gate at
+ * the end of the run needs an additional opposing support post — the
+ * fence-end post alone cannot hold a gate — so one extra post is
+ * counted unless the gate hangs from an existing support (house,
+ * wall, or existing post). The extra post is counted as a gate post.
+ * A gate in the middle of the run (`segments > 1`) already counts
+ * two flanking posts per gate opening, so the end-gate option does
+ * not apply there. Gate hardware (hinges, latch) is not counted
  * anywhere here. A gate post is counted as an ordinary fence post;
  * this calculator does not say whether that post suits the gate.
  *
@@ -67,6 +74,18 @@ export interface FencePicketInput {
    * continuous run (no gate, or a gate at the end). Defaults to 1.
    */
   segments?: number;
+  /**
+   * True when a gate sits at the end of the run (gate width > 0 and
+   * segments === 1). A freestanding end gate needs an additional
+   * opposing support post; ignored when segments > 1.
+   */
+  endGate?: boolean;
+  /**
+   * True when the end gate hangs from an existing support (house,
+   * wall, or existing post) — no extra support post is counted.
+   * Only applies when `endGate` is true.
+   */
+  endGateExistingSupport?: boolean;
   /** Post spacing in feet (6–8 ft is typical for wood picket fences). */
   postSpacingFt: number;
   /** Fence height in feet (sets the rails per section). */
@@ -99,12 +118,21 @@ export interface FencePicketResult {
   sectionsPerRun: number;
   /** Fence sections in total (sections per run × segments). */
   sections: number;
-  /** Posts in total: sum over runs of (sections per run + 1). */
+  /** Posts in total: sum over runs of (sections per run + 1), plus any end-gate support post. */
   posts: number;
-  /** Posts flanking gate openings: 2 per boundary between runs. */
+  /**
+   * Posts flanking gate openings: 2 per boundary between runs, plus
+   * 1 for a freestanding end gate.
+   */
   gatePosts: number;
   /** Posts that are not gate posts. */
   linePosts: number;
+  /**
+   * Extra support posts for a freestanding end gate: 1 when the end
+   * gate is freestanding, 0 otherwise. Counted in `posts` and in
+   * `gatePosts`; never in `linePosts`.
+   */
+  endGateSupportPosts: number;
   /** Rails per section (2 up to 4 ft, 3 up to 6 ft, 4 above 6 ft). */
   railsPerSection: number;
   /** Rails to buy (rounded up, waste included). */
@@ -136,6 +164,7 @@ export function calculateFencePicket(input: FencePicketInput): FencePicketResult
       posts: 0,
       gatePosts: 0,
       linePosts: 0,
+      endGateSupportPosts: 0,
       railsPerSection,
       rails: 0,
       pickets: 0,
@@ -147,10 +176,18 @@ export function calculateFencePicket(input: FencePicketInput): FencePicketResult
   const segmentLengthFt = input.netRunFt / segments;
   const sectionsPerRun = ceilUp(segmentLengthFt / input.postSpacingFt);
   const sections = sectionsPerRun * segments;
-  const posts = (sectionsPerRun + 1) * segments;
+  // A freestanding end gate needs an additional opposing support post:
+  // the fence-end post alone cannot hold a gate. The conservative
+  // default counts it unless the gate hangs from an existing support.
+  // Middle gates (segments > 1) already count two flanking posts per
+  // boundary, so the end-gate option is ignored there.
+  const endGateSupportPosts =
+    segments === 1 && input.endGate && !input.endGateExistingSupport ? 1 : 0;
+  const posts = (sectionsPerRun + 1) * segments + endGateSupportPosts;
   // Each boundary between two runs is a gate opening flanked by one
   // post at the end of each run. No post is shared across a gate.
-  const gatePosts = 2 * (segments - 1);
+  // The end-gate support post, when counted, is a gate post too.
+  const gatePosts = 2 * (segments - 1) + endGateSupportPosts;
   const linePosts = posts - gatePosts;
   // A 0.02 ft (about 1/4 in) tolerance at the band boundaries: the
   // metric default of 1.83 m converts to 6.0039 ft, and a 6 ft fence
@@ -183,6 +220,7 @@ export function calculateFencePicket(input: FencePicketInput): FencePicketResult
     posts,
     gatePosts,
     linePosts,
+    endGateSupportPosts,
     railsPerSection,
     rails,
     pickets,
@@ -201,6 +239,18 @@ export interface FencePanelInput {
    * continuous run (no gate, or a gate at the end). Defaults to 1.
    */
   segments?: number;
+  /**
+   * True when a gate sits at the end of the run (gate width > 0 and
+   * segments === 1). A freestanding end gate needs an additional
+   * opposing support post; ignored when segments > 1.
+   */
+  endGate?: boolean;
+  /**
+   * True when the end gate hangs from an existing support (house,
+   * wall, or existing post) — no extra support post is counted.
+   * Only applies when `endGate` is true.
+   */
+  endGateExistingSupport?: boolean;
   /** Panel length in feet (1.83 m / 6 ft is the UK standard). */
   panelLengthFt: number;
   /** 1 with gravel boards (1 per panel), 0 without. */
@@ -227,12 +277,21 @@ export interface FencePanelResult {
   panelsPerRun: number;
   /** Panels to buy (rounded up). */
   panels: number;
-  /** Posts in total: sum over runs of (panels per run + 1). */
+  /** Posts in total: sum over runs of (panels per run + 1), plus any end-gate support post. */
   posts: number;
-  /** Posts flanking gate openings: 2 per boundary between runs. */
+  /**
+   * Posts flanking gate openings: 2 per boundary between runs, plus
+   * 1 for a freestanding end gate.
+   */
   gatePosts: number;
   /** Posts that are not gate posts. */
   linePosts: number;
+  /**
+   * Extra support posts for a freestanding end gate: 1 when the end
+   * gate is freestanding, 0 otherwise. Counted in `posts` and in
+   * `gatePosts`; never in `linePosts`.
+   */
+  endGateSupportPosts: number;
   /** Gravel boards to buy (1 per panel, when selected). */
   gravelBoardsCount: number;
   /** 20 kg Postcrete bags to buy. */
@@ -273,6 +332,7 @@ export function calculateFencePanel(input: FencePanelInput): FencePanelResult {
       posts: 0,
       gatePosts: 0,
       linePosts: 0,
+      endGateSupportPosts: 0,
       gravelBoardsCount: 0,
       postcreteBags: 0,
       cutLengthFt: 0,
@@ -285,10 +345,18 @@ export function calculateFencePanel(input: FencePanelInput): FencePanelResult {
   const segmentLengthFt = input.netRunFt / segments;
   const panelsPerRun = ceilUp(segmentLengthFt / input.panelLengthFt);
   const panels = panelsPerRun * segments;
-  const posts = (panelsPerRun + 1) * segments;
+  // A freestanding end gate needs an additional opposing support post:
+  // the fence-end post alone cannot hold a gate. The conservative
+  // default counts it unless the gate hangs from an existing support.
+  // Middle gates (segments > 1) already count two flanking posts per
+  // boundary, so the end-gate option is ignored there.
+  const endGateSupportPosts =
+    segments === 1 && input.endGate && !input.endGateExistingSupport ? 1 : 0;
+  const posts = (panelsPerRun + 1) * segments + endGateSupportPosts;
   // Each boundary between two runs is a gate opening flanked by one
   // post at the end of each run. No post is shared across a gate.
-  const gatePosts = 2 * (segments - 1);
+  // The end-gate support post, when counted, is a gate post too.
+  const gatePosts = 2 * (segments - 1) + endGateSupportPosts;
   const linePosts = posts - gatePosts;
   const gravelBoardsCount = panels * input.gravelBoards;
   const postcreteBags = posts * input.postcreteBagsPerPost;
@@ -318,6 +386,7 @@ export function calculateFencePanel(input: FencePanelInput): FencePanelResult {
     posts,
     gatePosts,
     linePosts,
+    endGateSupportPosts,
     gravelBoardsCount,
     postcreteBags,
     cutLengthFt,

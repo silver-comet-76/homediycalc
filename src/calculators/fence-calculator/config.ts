@@ -39,14 +39,14 @@ export const fenceConfig: CalculatorConfig = {
   diagram: "fence",
   defaultMode: "picket",
   formula:
-    "Posts: the net run is the run length minus gates and openings. A gate in the middle of the run splits the fence into separate runs — each run is counted on its own, with a post at both ends — so posts = sum over runs of (sections per run + 1), where sections per run = run length ÷ post spacing, rounded up. The runs are assumed equal in length; a gate at the end of the run does not split it. The two posts flanking a gate are counted as gate posts, one at the end of each run — no post is shared across a gate opening — and gate hinges and a latch are not counted. " +
+    "Posts: the net run is the run length minus gates and openings. A gate in the middle of the run splits the fence into separate runs — each run is counted on its own, with a post at both ends — so posts = sum over runs of (sections per run + 1), where sections per run = run length ÷ post spacing, rounded up. The runs are assumed equal in length; if the gate is not centered, calculate each actual segment separately instead of relying on an equal-length estimate. A gate at the end of the run does not split it, but a freestanding end gate needs one extra support post — the fence-end post alone cannot hold a gate — unless the gate hangs from an existing support (house, wall, or existing post); the extra post counts as a gate post. The two posts flanking a gate are counted as gate posts, one at the end of each run — no post is shared across a gate opening — and gate hinges and a latch are not counted. " +
     "Rails: rails per section — 2 up to 4 ft high, 3 up to 6 ft, 4 above 6 ft, common practice for wood picket fences — times the total sections, plus waste. Pickets: net run length ÷ (picket width + gap), plus waste; waste is 10% by default and applies to pickets and rails only, never to posts. " +
     "Concrete: posts × bags per post. The 2 × 80 lb bags per post figure is a starting figure only, suited to a 4×4 post in a 10 in hole about 24 in deep — the real count depends on hole width and depth, post size, and the yield printed on the bag (Quikrete, Sakrete). Panel mode: panels per run = run length ÷ panel length, rounded up; posts = sum over runs of (panels per run + 1); gravel boards = 1 per panel when selected; Postcrete = posts × bags per post (2 × 20 kg per post is a starting figure only, suited to a 100 × 100 mm post in a 300 × 600 mm hole — Blue Circle Postcrete data sheet). A run that is not an exact multiple of the panel length leaves a partial panel: do not assume the panel can be cut — check the panel maker's instructions first. Cost is the sum of the priced parts only, and it is labelled a priced-materials subtotal whenever any priced part has no price entered; gate hardware, fasteners, labor, and delivery are never included.",
   howTo: [
     "Measure the total run in feet along the fence line, including the width of any gates and openings — enter the gate widths separately below, not by shortening the run.",
     "Pick the mode: Picket (US) for individual pickets on rails, or Panel (UK) for standard 1.83 m panels with gravel boards.",
     "Enter the post spacing (6–8 ft is typical) and the fence height — the height sets the rails per section.",
-    "If a gate sits in the middle of the run, set Gate layout to match: a middle gate splits the fence into two runs, and each run needs a post at both ends. A gate at the end of the run does not split it.",
+    "If a gate sits in the middle of the run, set Gate layout to match: a middle gate splits the fence into two runs, and each run needs a post at both ends. A gate at the end of the run does not split it, but a freestanding end gate needs one extra support post — set Gate support to match.",
     [
       {
         text: "Enter a price per post, picket, or rail if you have one, and the calculator totals the cost of the priced materials. For the concrete, the ",
@@ -62,11 +62,14 @@ export const fenceConfig: CalculatorConfig = {
     "14 posts × 2 bags = 28 × 80 lb concrete bags. " +
     "With a 4 ft gate in the middle of a 20 ft run instead: 16 ft of fence in two 8 ft runs, " +
     "8 ft spacing gives 1 section per run and 4 posts — 2 line posts and 2 gate posts — " +
-    "where one continuous 16 ft run would count only 3 posts.",
+    "where one continuous 16 ft run would count only 3 posts. " +
+    "With a 4 ft gate at the end of a 20 ft run instead: 16 ft of fence, 2 sections and " +
+    "3 fence posts at 8 ft spacing, plus 1 support post if the gate is freestanding — " +
+    "4 posts in total — or 3 posts if it hangs from an existing support.",
   limitations: [
     "This calculator counts materials only. It does not check structural adequacy, wind load, or foundation design; it does not tell you how deep to set posts, what footing a post needs, or whether a fence complies with local rules; and it does not settle boundary placement — confirm the line and any permit with your local authority, and call 811 (US) before you dig.",
     "Post depth is deliberately not an output: the “one-third of the height” rule of thumb does not hold for all soils and wind loads, and a wrong depth is a structural failure, not a rounding error. A fence contractor or structural engineer sets the depth.",
-    "Gates split the fence into separate runs, and the runs are assumed equal in length — the calculator cannot know the real segment lengths from the total gate width alone. Measure each run separately if the gate is not centered, and add the runs up. Each run has its own end posts; no post is shared across a gate opening. Gate posts are counted as ordinary fence posts, so a heavy gate may need a larger post or a deeper footing — check the gate maker's instructions. Gate hinges and a latch are not counted anywhere on this page.",
+    "Gates split the fence into separate runs, and the runs are assumed equal in length — the calculator cannot know the real segment lengths from the total gate width alone. If the gate is not centered, calculate each actual segment separately instead of relying on an equal-length estimate, and add the runs up. Each run has its own end posts; no post is shared across a gate opening. A freestanding gate at the end of the run needs one extra support post — the fence-end post alone cannot hold a gate — unless the gate hangs from an existing support (house, wall, or existing post); the extra post counts as a gate post. Gate posts are counted as ordinary fence posts, so a heavy gate may need a larger post or a deeper footing — check the gate maker's instructions. Gate hinges and a latch are not counted anywhere on this page.",
     "Concrete and Postcrete figures are starting figures, not sufficient quantities: the count depends on hole width and depth, post size, soil, wind exposure, frost depth, local requirements, and the yield printed on the bag. Quikrete's setting-posts guide sizes the hole about 3 times the post width and 1/3 to 1/2 of the above-ground post length deep, plus 6 in of gravel, and Sakrete's data sheet tables more bags for deeper holes. Follow the post and product maker's instructions for the holes you actually dig.",
     "The rails-per-section rule (2 up to 4 ft, 3 up to 6 ft, 4 above 6 ft) is common practice for wood picket fences, not a manufacturer rule. Taller fences, heavier pickets, and exposed sites may need more rails — check the rail maker's instructions.",
     [
@@ -90,7 +93,7 @@ export const fenceConfig: CalculatorConfig = {
     {
       question: "How many posts do I need if there is a gate in the middle?",
       answer:
-        "More than a continuous run of the same net length. A 20 ft run with a 4 ft gate in the middle is 16 ft of fence in two 8 ft runs, and at 8 ft spacing each run needs 1 section and 2 posts — 4 posts in total, 2 of them gate posts flanking the gate. The same 16 ft as one continuous run would count only 3 posts. Set Gate layout to match where the gate sits: a gate at the end of the run does not split it, so it needs no extra posts.",
+        "More than a continuous run of the same net length. A 20 ft run with a 4 ft gate in the middle is 16 ft of fence in two 8 ft runs, and at 8 ft spacing each run needs 1 section and 2 posts — 4 posts in total, 2 of them gate posts flanking the gate. The same 16 ft as one continuous run would count only 3 posts. Set Gate layout to match where the gate sits. A gate at the end of the run does not split it, but a freestanding end gate still needs one extra support post: a 20 ft run with a 4 ft gate at the end is 16 ft of fence, which at 8 ft spacing needs 3 fence posts, plus 1 support post if the gate is freestanding — 4 posts in total — or 3 posts if the gate hangs from an existing support such as a house or wall.",
     },
     {
       question: "How many pickets do I need for a 100 ft fence?",
@@ -210,7 +213,19 @@ export const fenceConfig: CalculatorConfig = {
             { value: "3", label: "Two gates, spread out — three separate runs" },
             { value: "4", label: "Three gates, spread out — four separate runs" },
           ],
-          hint: "A gate in the middle splits the fence into separate runs, and each run needs a post at both ends. The runs are assumed equal in length. For more than three gates, split the job into separate runs and add the results.",
+          hint: "A gate in the middle splits the fence into separate runs, and each run needs a post at both ends. The runs are assumed equal in length. For more than three gates, split the job into separate runs and add the results. A gate at the end does not split the run, but a freestanding end gate needs one extra support post — set Gate support below.",
+        },
+        {
+          id: "gateSupport",
+          label: "Gate support",
+          kind: "select",
+          defaultImp: "0",
+          defaultMet: "0",
+          options: [
+            { value: "0", label: "End gate is freestanding — add 1 support post" },
+            { value: "1", label: "End gate hangs from an existing support — no extra post" },
+          ],
+          hint: "Applies only when a gate sits at the end of the run. A freestanding end gate needs its own opposing support post — the fence-end post alone cannot hold a gate. Choose 'existing support' only when the gate hangs from a house, wall, or existing post.",
         },
         {
           id: "waste",
@@ -262,9 +277,18 @@ export const fenceConfig: CalculatorConfig = {
         // With no gate width entered, the layout cannot split anything.
         const layoutSegments = Math.max(1, Math.floor(opt(v, "gateLayout") || 1));
         const segments = gateWidthFt > 0 ? layoutSegments : 1;
+        // An end gate is a gate at the end of the run (gate width
+        // entered, one continuous run). A freestanding end gate needs
+        // an extra support post; one hanging from an existing support
+        // does not. Absent (e.g. a lookup-table recompute) means
+        // freestanding — the conservative default.
+        const endGate = gateWidthFt > 0 && segments === 1;
+        const existingSupport = opt(v, "gateSupport") === 1;
         const r = calculateFencePicket({
           netRunFt,
           segments,
+          endGate,
+          endGateExistingSupport: existingSupport,
           postSpacingFt: req(v, "postSpacing"),
           fenceHeightFt: req(v, "fenceHeight"),
           picketWidthIn: req(v, "picketWidth"),
@@ -280,7 +304,17 @@ export const fenceConfig: CalculatorConfig = {
         if (netRunFt <= 0) warnings.push(NO_MATERIALS_WARNING);
         return {
           ...(warnings.length > 0 ? { warnings } : {}),
-          ...(gateWidthFt > 0 ? { note: GATE_HARDWARE_NOTE } : {}),
+          ...(gateWidthFt > 0
+            ? {
+                note:
+                  GATE_HARDWARE_NOTE +
+                  (endGate
+                    ? existingSupport
+                      ? " The end gate hangs from an existing support — no extra post counted."
+                      : " The end gate is freestanding: 1 extra support post is counted (the fence-end post alone cannot hold a gate). A heavy gate may need a larger post or a deeper footing — check the gate maker's instructions."
+                    : ""),
+              }
+            : {}),
           rows: [
             {
               label: "Posts",
@@ -288,7 +322,10 @@ export const fenceConfig: CalculatorConfig = {
               detail:
                 r.segments > 1
                   ? `${r.sections} ${r.sections === 1 ? "section" : "sections"} across ${r.segments} runs of ${fmt(r.segmentLengthFt, 1)} ft — includes ${r.gatePosts} gate ${r.gatePosts === 1 ? "post" : "posts"}`
-                  : `${r.sections} ${r.sections === 1 ? "section" : "sections"} at ${fmt(req(v, "postSpacing"), 0)} ft spacing`,
+                  : `${r.sections} ${r.sections === 1 ? "section" : "sections"} at ${fmt(req(v, "postSpacing"), 0)} ft spacing` +
+                    (r.endGateSupportPosts > 0
+                      ? " — includes 1 end-gate support post (freestanding gate)"
+                      : ""),
             },
             {
               label: "Rails",
@@ -307,7 +344,7 @@ export const fenceConfig: CalculatorConfig = {
             },
           ],
           lines: [
-            `Fence posts: ${r.posts}${r.gatePosts > 0 ? ` (including ${r.gatePosts} gate posts)` : ""}`,
+            `Fence posts: ${r.posts}${r.gatePosts > 0 ? ` (including ${r.gatePosts} gate ${r.gatePosts === 1 ? "post" : "posts"})` : ""}`,
             `Fence rails: ${r.rails}`,
             `Fence pickets: ${r.pickets}`,
             `Concrete bags (80 lb): ${r.concreteBags}`,
@@ -401,7 +438,19 @@ export const fenceConfig: CalculatorConfig = {
             { value: "3", label: "Two gates, spread out — three separate runs" },
             { value: "4", label: "Three gates, spread out — four separate runs" },
           ],
-          hint: "A gate in the middle splits the fence into separate runs, and each run needs a post at both ends. The runs are assumed equal in length. For more than three gates, split the job into separate runs and add the results.",
+          hint: "A gate in the middle splits the fence into separate runs, and each run needs a post at both ends. The runs are assumed equal in length. For more than three gates, split the job into separate runs and add the results. A gate at the end does not split the run, but a freestanding end gate needs one extra support post — set Gate support below.",
+        },
+        {
+          id: "gateSupport",
+          label: "Gate support",
+          kind: "select",
+          defaultImp: "0",
+          defaultMet: "0",
+          options: [
+            { value: "0", label: "End gate is freestanding — add 1 support post" },
+            { value: "1", label: "End gate hangs from an existing support — no extra post" },
+          ],
+          hint: "Applies only when a gate sits at the end of the run. A freestanding end gate needs its own opposing support post — the fence-end post alone cannot hold a gate. Choose 'existing support' only when the gate hangs from a house, wall, or existing post.",
         },
         {
           id: "pricePerPanel",
@@ -433,9 +482,18 @@ export const fenceConfig: CalculatorConfig = {
         const netRunFt = Math.max(req(v, "runLength") - gateWidthFt, 0);
         const layoutSegments = Math.max(1, Math.floor(opt(v, "gateLayout") || 1));
         const segments = gateWidthFt > 0 ? layoutSegments : 1;
+        // An end gate is a gate at the end of the run (gate width
+        // entered, one continuous run). A freestanding end gate needs
+        // an extra support post; one hanging from an existing support
+        // does not. Absent (e.g. a lookup-table recompute) means
+        // freestanding — the conservative default.
+        const endGate = gateWidthFt > 0 && segments === 1;
+        const existingSupport = opt(v, "gateSupport") === 1;
         const r = calculateFencePanel({
           netRunFt,
           segments,
+          endGate,
+          endGateExistingSupport: existingSupport,
           panelLengthFt: req(v, "panelLength"),
           gravelBoards: req(v, "gravelBoards"),
           postcreteBagsPerPost: req(v, "postcreteBagsPerPost"),
@@ -454,7 +512,17 @@ export const fenceConfig: CalculatorConfig = {
         }
         return {
           ...(warnings.length > 0 ? { warnings } : {}),
-          ...(gateWidthFt > 0 ? { note: GATE_HARDWARE_NOTE } : {}),
+          ...(gateWidthFt > 0
+            ? {
+                note:
+                  GATE_HARDWARE_NOTE +
+                  (endGate
+                    ? existingSupport
+                      ? " The end gate hangs from an existing support — no extra post counted."
+                      : " The end gate is freestanding: 1 extra support post is counted (the fence-end post alone cannot hold a gate). A heavy gate may need a larger post or a deeper footing — check the gate maker's instructions."
+                    : ""),
+              }
+            : {}),
           rows: [
             {
               label: "Panels",
@@ -469,7 +537,10 @@ export const fenceConfig: CalculatorConfig = {
               detail:
                 r.segments > 1
                   ? `${r.panels} panels across ${r.segments} runs of ${fmt(r.segmentLengthFt, 1)} ft — includes ${r.gatePosts} gate ${r.gatePosts === 1 ? "post" : "posts"}`
-                  : "Panels + 1",
+                  : "Panels + 1" +
+                    (r.endGateSupportPosts > 0
+                      ? ", plus 1 end-gate support post (freestanding gate)"
+                      : ""),
             },
             {
               label: "Gravel boards",
@@ -485,7 +556,7 @@ export const fenceConfig: CalculatorConfig = {
           ],
           lines: [
             `Fence panels: ${r.panels}`,
-            `Fence posts: ${r.posts}${r.gatePosts > 0 ? ` (including ${r.gatePosts} gate posts)` : ""}`,
+            `Fence posts: ${r.posts}${r.gatePosts > 0 ? ` (including ${r.gatePosts} gate ${r.gatePosts === 1 ? "post" : "posts"})` : ""}`,
             `Gravel boards: ${r.gravelBoardsCount}`,
             `Postcrete bags (20 kg): ${r.postcreteBags}`,
           ],

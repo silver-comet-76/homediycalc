@@ -29,10 +29,19 @@ import {
  * states the range. Sand types differ mainly in grain size and use,
  * not in a fixed weight — no per-type density is assumed.
  *
- * Two weights are returned and must never be confused: the weight of
- * the material required (unrounded volume after waste) and the weight
- * of the rounded purchase quantity (whole yards ordered). The second
- * is always >= the first.
+ * Three weights are returned and must never be confused: the weight of
+ * the material required (unrounded volume after waste), the weight of
+ * the rounded bulk purchase quantity (whole yards ordered), and the
+ * estimated weight of the bagged purchase quantity (bags ordered). The
+ * bulk order weight is always >= the requirement weight; the bagged
+ * weight equals the bulk order weight only when the requirement is
+ * already a whole number of yards, and is otherwise less, because the
+ * bags cover the requirement (rounded up to whole bags) while the bulk
+ * order rounds up to whole yards. The bagged weight is a density-based
+ * estimate: bags × bag size ÷ 27 × density. The actual bagged weight
+ * depends on the bag's stated weight — a 50 lb bag is about 0.5 ft³,
+ * so 74 × 50 lb = 3,700 lb, consistent with the estimate for the QA
+ * example below.
  */
 
 /** How the buyer buys the sand: whole cubic yards in bulk, or bags. */
@@ -83,6 +92,18 @@ export interface SandResult {
   orderWeightKg: number;
   /** Bags to buy (rounded up). */
   bags: number;
+  /**
+   * Estimated weight of the bagged order, in pounds
+   * (bags × bag size ÷ 27 × density). A density-based estimate: the
+   * actual weight depends on the bag's stated weight (a 50 lb bag is
+   * about 0.5 ft³). Equals the bulk order weight only at exact
+   * whole-yard boundaries.
+   */
+  baggedWeightLb: number;
+  /** Estimated weight of the bagged order, in US short tons. */
+  baggedWeightTons: number;
+  /** Estimated weight of the bagged order, in kilograms. */
+  baggedWeightKg: number;
   /** Cost in USD, only when a price was entered. */
   costUsd?: number;
 }
@@ -103,6 +124,16 @@ export function calculateSand(input: SandInput): SandResult {
   const orderWeightTons = poundsToShortTons(orderWeightLb);
   const orderWeightKg = poundsToKilograms(orderWeightLb);
   const bags = ceilUp(adjustedFt3 / input.bagSizeFt3);
+  // Estimated weight of the bagged order: the bags cover the
+  // requirement (rounded up to whole bags), so this is the volume the
+  // bags actually hold — bags × bag size, converted to cubic yards —
+  // times the density. It is a density-based estimate, not the weight
+  // printed on the bags; the bag's stated weight governs. Because it
+  // is derived from the bag count, it is 0 when no bags are bought
+  // (zero or negative volume), just like the bag count itself.
+  const baggedWeightLb = cubicFeetToCubicYards(bags * input.bagSizeFt3) * input.densityLbYd3;
+  const baggedWeightTons = poundsToShortTons(baggedWeightLb);
+  const baggedWeightKg = poundsToKilograms(baggedWeightLb);
   // A buyer buys bulk OR bags, never both. When the purchase method
   // is chosen, only that form's price applies: the bulk cost uses the
   // rounded order quantity, the bag cost uses the bag count, and no
@@ -131,6 +162,9 @@ export function calculateSand(input: SandInput): SandResult {
     orderWeightTons,
     orderWeightKg,
     bags,
+    baggedWeightLb,
+    baggedWeightTons,
+    baggedWeightKg,
     costUsd,
   };
 }

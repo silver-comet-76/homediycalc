@@ -17,8 +17,9 @@
  *
  * Every expected value below is hand-derived in the test comments,
  * not copied from the program's output. Row labels, row order, and
- * row values are deliberately unchanged from the previous round, so
- * the lookup-table test and the preservation spec keep passing.
+ * row values are deliberately unchanged from the previous round,
+ * except the sand order-weight row label, which R02 made method-aware
+ * ("Weight of bulk order" / "Weight of bagged order").
  */
 import { describe, expect, it } from "vitest";
 import { CALCULATOR_CONFIGS } from "../calculators/index";
@@ -84,12 +85,14 @@ describe("Sand — bulk vs bags", () => {
     const out = compute("sand-calculator", "area", { ...SAND_DEFAULT });
     expect(out.lines).toEqual(["Sand (bulk): 2 yd³ (about 2.7 tons (US short tons))"]);
     expect(out.costUsd).toBeUndefined();
-    // Row labels, order, and values are unchanged from the previous round.
+    // Row labels, order, and values: the order-weight row is now
+    // method-aware, so in bulk mode it reads "Weight of bulk order"
+    // (R02) — the value is unchanged from the previous round.
     expect(out.rows.map((r) => r.label)).toEqual([
       "Sand volume",
       "Bulk to order",
       "Weight needed",
-      "Weight of order",
+      "Weight of bulk order",
       "Bags",
     ]);
     expect(out.rows.map((r) => r.value)).toEqual([
@@ -122,12 +125,56 @@ describe("Sand — bulk vs bags", () => {
       pricePerYd3: 40,
       pricePerBag: 5,
     });
-    expect(out.lines).toEqual(["Sand bags (0.5 ft³ each): 74"]);
+    // Bagged weight: 74 × 0.5 = 37 ft³ = 1.37037 yd³ × 2,700 = 3,700 lb
+    // = 1.85 tons — the shopping-list line now carries that estimate,
+    // and the order-weight row shows the bagged weight, not the bulk
+    // weight (R02: the 2 yd³ bulk order weighs 5,400 lb = 2.7 tons).
+    expect(out.lines).toEqual([
+      "Sand bags (0.5 ft³ each): 74 (about 1.85 tons (US short tons) — density estimate)",
+    ]);
     expect(out.costUsd).toBe(370);
     expect(out.rows[1]?.detail).toContain("Alternative");
     expect(out.rows[1]?.detail).toContain("$80.00");
     expect(out.rows[4]?.detail).toContain("your purchase method");
+    expect(out.rows[3]?.label).toBe("Weight of bagged order");
+    expect(out.rows[3]?.value).toBe("1.85 tons (US short tons)");
+    expect(out.rows[3]?.detail).toContain("3,700 lb");
+    expect(out.rows[3]?.detail).toContain("Bulk alternative");
+    expect(out.rows[3]?.detail).toContain("5,400 lb");
     expect(out.note).toContain("only the bags");
+  });
+
+  it("bags selected: the bulk weight never appears as the order weight", () => {
+    // Same job, bags chosen, no prices: the order-weight row must show
+    // the bagged weight (1.85 tons), and no row may present the bulk
+    // order weight (2.7 tons) as the weight of the order.
+    const out = compute("sand-calculator", "area", { ...SAND_DEFAULT, purchaseMethod: 1 });
+    const orderRow = out.rows.find((r) => r.label.includes("Weight of"));
+    expect(orderRow?.label).toBe("Weight of bagged order");
+    expect(orderRow?.value).toBe("1.85 tons (US short tons)");
+    expect(out.rows.map((r) => r.label)).not.toContain("Weight of bulk order");
+    expect(out.rows.map((r) => r.label)).not.toContain("Weight of order");
+    expect(out.lines).toEqual([
+      "Sand bags (0.5 ft³ each): 74 (about 1.85 tons (US short tons) — density estimate)",
+    ]);
+    // The bulk weight is still named, but only as the labelled
+    // alternative inside the bagged row's detail — never as a row value.
+    expect(out.rows.map((r) => r.value)).not.toContain("2.7 tons (US short tons)");
+    expect(out.workedLine).toContain("the 74 bags weigh about 3,700 lb");
+    expect(out.workedLine).toContain("the 2 yd³ bulk order would weigh 5,400 lb");
+  });
+
+  it("bulk selected: the order-weight row shows the bulk weight and names the bagged alternative", () => {
+    // Same job, bulk chosen: the row reads "Weight of bulk order" at
+    // 2.7 tons, and its detail names the bagged alternative (3,700 lb).
+    const out = compute("sand-calculator", "area", { ...SAND_DEFAULT, purchaseMethod: 0 });
+    expect(out.rows[3]?.label).toBe("Weight of bulk order");
+    expect(out.rows[3]?.value).toBe("2.7 tons (US short tons)");
+    expect(out.rows[3]?.detail).toContain("Bagged alternative");
+    expect(out.rows[3]?.detail).toContain("74 bags would weigh about 3,700 lb");
+    expect(out.rows[3]?.detail).toContain("1.85 tons (US short tons)");
+    expect(out.workedLine).toContain("the 2 yd³ order weighs 5,400 lb");
+    expect(out.workedLine).not.toContain("bags weigh");
   });
 
   it("bulk selected: only the bulk line, priced on the bulk price", () => {
@@ -205,6 +252,8 @@ describe("Sand — bulk vs bags", () => {
   it("the volume mode has the same select (known volume, 2 yd³)", () => {
     // 2 yd³ = 54 ft³; × 1.10 = 59.4 ft³ = 2.2 yd³; order 3 yd³;
     // bags ceil(59.4 / 0.5) = 119; order weight 3 × 2,700 = 8,100 lb = 4.05 tons.
+    // Bagged weight: 119 × 0.5 = 59.5 ft³ = 2.2037 yd³ × 2,700 = 5,950 lb
+    // = 2.975 tons → 2.98 tons displayed.
     const out = compute("sand-calculator", "volume", {
       volume: 54,
       waste: 10,
@@ -219,7 +268,11 @@ describe("Sand — bulk vs bags", () => {
       bagSize: 0.5,
       purchaseMethod: 1,
     });
-    expect(bags.lines).toEqual(["Sand bags (0.5 ft³ each): 119"]);
+    expect(bags.lines).toEqual([
+      "Sand bags (0.5 ft³ each): 119 (about 2.98 tons (US short tons) — density estimate)",
+    ]);
+    expect(bags.rows[3]?.label).toBe("Weight of bagged order");
+    expect(bags.rows[3]?.value).toBe("2.98 tons (US short tons)");
   });
 });
 
@@ -667,6 +720,96 @@ describe("Fence — no purchase alternatives", () => {
       "Fence rails: 7",
       "Fence pickets: 36",
       "Concrete bags (80 lb): 8",
+    ]);
+  });
+
+  it("QA-17B2-R01 — a freestanding end gate adds one support post by default (picket mode)", () => {
+    // 20 ft run, 4 ft gate at the end (layout 1, no gateSupport
+    // entered — the freestanding default): 16 ft of fence, 2 sections,
+    // 3 fence posts + 1 support post = 4 posts, 1 of them a gate post;
+    // 2 sections x 3 rails x 1.10 = 7 rails (6.6 -> 7); 16 ft / 0.5 ft
+    // = 32 pickets x 1.10 = 36 (35.2 -> 36); 4 x 2 = 8 concrete bags.
+    // The line also proves the singular "1 gate post".
+    const out = compute("fence-calculator", "picket", {
+      runLength: 20,
+      postSpacing: 8,
+      fenceHeight: 6,
+      picketWidth: 6,
+      picketGap: 0,
+      gateWidth: 4,
+      gateLayout: 1,
+      waste: 10,
+      concreteBagsPerPost: 2,
+    });
+    expect(out.lines).toEqual([
+      "Fence posts: 4 (including 1 gate post)",
+      "Fence rails: 7",
+      "Fence pickets: 36",
+      "Concrete bags (80 lb): 8",
+    ]);
+  });
+
+  it("QA-17B2-R01 — an end gate hanging from an existing support adds no post (picket mode)", () => {
+    // Same 20 ft run with a 4 ft end gate, but gateSupport 1
+    // (existing support): 3 fence posts, no gate posts, 6 concrete bags.
+    const out = compute("fence-calculator", "picket", {
+      runLength: 20,
+      postSpacing: 8,
+      fenceHeight: 6,
+      picketWidth: 6,
+      picketGap: 0,
+      gateWidth: 4,
+      gateLayout: 1,
+      gateSupport: 1,
+      waste: 10,
+      concreteBagsPerPost: 2,
+    });
+    expect(out.lines).toEqual([
+      "Fence posts: 3",
+      "Fence rails: 7",
+      "Fence pickets: 36",
+      "Concrete bags (80 lb): 6",
+    ]);
+  });
+
+  it("QA-17B2-R01 — a freestanding end gate adds one support post by default (panel mode)", () => {
+    // 20 ft run, 4 ft gate at the end (layout 1, no gateSupport
+    // entered): 16 ft of fence, 3 panels (16 / 6 = 2.67 -> 3), 4 fence
+    // posts + 1 support post = 5 posts, 1 of them a gate post;
+    // 3 gravel boards; 5 x 2 = 10 Postcrete bags.
+    const out = compute("fence-calculator", "panel", {
+      runLength: 20,
+      panelLength: 6,
+      gravelBoards: 1,
+      postcreteBagsPerPost: 2,
+      gateWidth: 4,
+      gateLayout: 1,
+    });
+    expect(out.lines).toEqual([
+      "Fence panels: 3",
+      "Fence posts: 5 (including 1 gate post)",
+      "Gravel boards: 3",
+      "Postcrete bags (20 kg): 10",
+    ]);
+  });
+
+  it("QA-17B2-R01 — an end gate hanging from an existing support adds no post (panel mode)", () => {
+    // Same 20 ft run with a 4 ft end gate, but gateSupport 1
+    // (existing support): 4 fence posts, no gate posts, 8 Postcrete bags.
+    const out = compute("fence-calculator", "panel", {
+      runLength: 20,
+      panelLength: 6,
+      gravelBoards: 1,
+      postcreteBagsPerPost: 2,
+      gateWidth: 4,
+      gateLayout: 1,
+      gateSupport: 1,
+    });
+    expect(out.lines).toEqual([
+      "Fence panels: 3",
+      "Fence posts: 4",
+      "Gravel boards: 3",
+      "Postcrete bags (20 kg): 8",
     ]);
   });
 
